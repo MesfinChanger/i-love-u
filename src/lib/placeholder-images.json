@@ -1,3 +1,46 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "hero-bg",
+      "description": "Abstract Flutter development background",
+      "imageUrl": "https://picsum.photos/seed/flutter1/1200/600",
+      "imageHint": "flutter code"
+    },
+    {
+      "id": "ecommerce-template",
+      "description": "E-commerce app template preview",
+      "imageUrl": "https://picsum.photos/seed/shop1/400/600",
+      "imageHint": "shopping app"
+    },
+    {
+      "id": "social-template",
+      "description": "Social media app template preview",
+      "imageUrl": "https://picsum.photos/seed/social1/400/600",
+      "imageHint": "social network"
+    },
+    {
+      "id": "portfolio-template",
+      "description": "Portfolio app template preview",
+      "imageUrl": "https://picsum.photos/seed/port1/400/600",
+      "imageHint": "portfolio design"
+    },
+    {
+      "id": "news-template",
+      "description": "News reader app template preview",
+      "imageUrl": "https://picsum.photos/seed/news1/400/600",
+      "imageHint": "news app"
+    },
+    {
+      "id": "chat-template",
+      "description": "Chat app template preview",
+      "imageUrl": "https://picsum.photos/seed/chat1/400/600",
+      "imageHint": "messaging app"
+    },
+    {
+      "id": "fitness-template",
+      "description": "Fitness tracker app template preview",
+      "imageUrl": "https://picsum.photos/seed/fit1/400/600",
+      "imageHint": "fitness tracker"
+    }
+  ]
 }
