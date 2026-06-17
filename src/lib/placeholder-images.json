@@ -1,46 +1,34 @@
 {
   "placeholderImages": [
     {
-      "id": "hero-bg",
-      "description": "Abstract Flutter development background",
-      "imageUrl": "https://picsum.photos/seed/flutter1/1200/600",
-      "imageHint": "flutter code"
+      "id": "app-logo",
+      "description": "Spark dating app logo",
+      "imageUrl": "https://picsum.photos/seed/spark-logo/200/200",
+      "imageHint": "heart flame"
     },
     {
-      "id": "ecommerce-template",
-      "description": "E-commerce app template preview",
-      "imageUrl": "https://picsum.photos/seed/shop1/400/600",
-      "imageHint": "shopping app"
+      "id": "user-1",
+      "description": "Dating profile user 1",
+      "imageUrl": "https://picsum.photos/seed/user1/400/600",
+      "imageHint": "portrait woman"
     },
     {
-      "id": "social-template",
-      "description": "Social media app template preview",
-      "imageUrl": "https://picsum.photos/seed/social1/400/600",
-      "imageHint": "social network"
+      "id": "user-2",
+      "description": "Dating profile user 2",
+      "imageUrl": "https://picsum.photos/seed/user2/400/600",
+      "imageHint": "portrait man"
     },
     {
-      "id": "portfolio-template",
-      "description": "Portfolio app template preview",
-      "imageUrl": "https://picsum.photos/seed/port1/400/600",
-      "imageHint": "portfolio design"
+      "id": "user-3",
+      "description": "Dating profile user 3",
+      "imageUrl": "https://picsum.photos/seed/user3/400/600",
+      "imageHint": "fashion person"
     },
     {
-      "id": "news-template",
-      "description": "News reader app template preview",
-      "imageUrl": "https://picsum.photos/seed/news1/400/600",
-      "imageHint": "news app"
-    },
-    {
-      "id": "chat-template",
-      "description": "Chat app template preview",
-      "imageUrl": "https://picsum.photos/seed/chat1/400/600",
-      "imageHint": "messaging app"
-    },
-    {
-      "id": "fitness-template",
-      "description": "Fitness tracker app template preview",
-      "imageUrl": "https://picsum.photos/seed/fit1/400/600",
-      "imageHint": "fitness tracker"
+      "id": "landing-hero",
+      "description": "Happy couple together",
+      "imageUrl": "https://picsum.photos/seed/couple1/1200/800",
+      "imageHint": "happy couple"
     }
   ]
 }

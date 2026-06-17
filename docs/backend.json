@@ -1,0 +1,67 @@
+
+{
+  "entities": {
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Detailed profile information for a dating app user.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "displayName": { "type": "string" },
+        "age": { "type": "number" },
+        "gender": { "type": "string", "enum": ["male", "female", "non-binary", "other"] },
+        "bio": { "type": "string" },
+        "interests": { "type": "array", "items": { "type": "string" } },
+        "photoUrl": { "type": "string" },
+        "location": { "type": "string" },
+        "preferences": {
+          "type": "object",
+          "properties": {
+            "lookingFor": { "type": "string" },
+            "minAge": { "type": "number" },
+            "maxAge": { "type": "number" }
+          }
+        }
+      },
+      "required": ["uid", "displayName", "age", "photoUrl"]
+    },
+    "Match": {
+      "title": "Match",
+      "description": "Represents a successful connection between two users.",
+      "type": "object",
+      "properties": {
+        "userIds": { "type": "array", "items": { "type": "string" } },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "lastMessage": { "type": "string" },
+        "status": { "type": "string", "enum": ["active", "unmatched"] }
+      }
+    },
+    "Message": {
+      "title": "Message",
+      "description": "A single chat message between users.",
+      "type": "object",
+      "properties": {
+        "senderId": { "type": "string" },
+        "text": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      }
+    }
+  },
+  "auth": {
+    "providers": ["google.com", "password"]
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "Public and private user profile data."
+    },
+    "/matches/{matchId}": {
+      "schema": "Match",
+      "description": "Connections between users."
+    },
+    "/matches/{matchId}/messages/{messageId}": {
+      "schema": "Message",
+      "description": "Chat history for a specific match."
+    }
+  }
+}

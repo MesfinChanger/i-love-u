@@ -2,170 +2,136 @@
 "use client";
 
 import Link from 'next/link';
-import { Header } from '@/components/Header';
-import { FLUTTER_TEMPLATES } from '@/lib/templates';
-import { TemplateCard } from '@/components/TemplateCard';
 import { Button } from '@/components/ui/button';
-import { ChevronRight, Zap, Smartphone, Layout, Sparkles, Download } from 'lucide-react';
+import { Heart, Sparkles, MessageCircle, ShieldCheck, Zap } from 'lucide-react';
+import Image from 'next/image';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 export default function Home() {
-  const featuredTemplates = FLUTTER_TEMPLATES.slice(0, 3);
+  const heroImage = PlaceHolderImages.find(img => img.id === 'landing-hero');
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Header />
-      
-      <main className="flex-grow">
+      <header className="fixed top-0 z-50 w-full border-b bg-background/80 backdrop-blur-md">
+        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-2 font-black text-2xl tracking-tighter text-primary">
+            <Heart className="w-8 h-8 fill-primary" />
+            <span>SPARK</span>
+          </div>
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" asChild>
+              <Link href="/login">Login</Link>
+            </Button>
+            <Button className="rounded-full px-6 gradient-bg hover:opacity-90 transition-opacity">
+              Join Now
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      <main className="flex-grow pt-16">
         {/* Hero Section */}
-        <section className="relative overflow-hidden pt-20 pb-28">
-          <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none" />
-          <div className="container mx-auto px-4 relative">
-            <div className="max-w-3xl mx-auto text-center">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold mb-6 animate-bounce">
-                <Sparkles className="w-3.5 h-3.5" />
-                NOW WITH AI-POWERED CUSTOMIZATION
+        <section className="relative py-20 lg:py-32 overflow-hidden">
+          <div className="container mx-auto px-4 grid lg:grid-cols-2 gap-12 items-center">
+            <div className="space-y-8 text-center lg:text-left z-10">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent text-primary text-sm font-bold animate-pulse">
+                <Sparkles className="w-4 h-4" />
+                #1 RATED DATING APP
               </div>
-              <h1 className="text-5xl md:text-6xl font-black mb-6 leading-tight tracking-tight font-headline">
-                Build Beautiful <span className="text-primary">Flutter Apps</span> Faster
+              <h1 className="text-6xl lg:text-8xl font-black leading-tight tracking-tighter">
+                Find Your <br />
+                <span className="gradient-text">Perfect Match</span>
               </h1>
-              <p className="text-xl text-muted-foreground mb-10 leading-relaxed max-w-2xl mx-auto">
-                Launch your next project with our curated collection of professional Flutter templates. Fully customizable, performance-optimized, and ready to scale.
+              <p className="text-xl text-muted-foreground max-w-lg mx-auto lg:mx-0 leading-relaxed">
+                Connect with people who share your sparks. Real connections, AI-powered matching, and safe messaging.
               </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Button asChild size="lg" className="h-12 px-8 text-base rounded-full shadow-lg shadow-primary/20">
-                  <Link href="/templates">
-                    Browse Templates
-                    <ChevronRight className="w-4 h-4 ml-2" />
-                  </Link>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                <Button size="lg" className="h-14 px-10 rounded-full text-lg font-bold gradient-bg shadow-xl shadow-primary/20">
+                  <Link href="/discover">Start Matching</Link>
                 </Button>
-                <Button asChild variant="outline" size="lg" className="h-12 px-8 text-base rounded-full bg-white/50 backdrop-blur-sm">
-                  <Link href="/#features">View Features</Link>
+                <Button variant="outline" size="lg" className="h-14 px-10 rounded-full text-lg font-bold border-2">
+                  Learn More
                 </Button>
               </div>
             </div>
-          </div>
 
-          {/* Abstract blobs */}
-          <div className="absolute -top-24 -left-24 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
-          <div className="absolute top-1/2 -right-24 w-64 h-64 bg-accent/10 rounded-full blur-3xl" />
-        </section>
-
-        {/* Templates Preview Grid */}
-        <section className="py-20 bg-white/40">
-          <div className="container mx-auto px-4">
-            <div className="flex flex-col md:flex-row items-end justify-between mb-12 gap-6">
-              <div className="max-w-xl">
-                <h2 className="text-3xl font-bold mb-4 font-headline">Popular Starters</h2>
-                <p className="text-muted-foreground">
-                  Our most downloaded templates across various categories. Each template comes with clean architecture and responsive UI.
-                </p>
+            <div className="relative">
+              <div className="absolute -inset-10 bg-primary/20 rounded-full blur-[120px] -z-10 animate-pulse" />
+              <div className="relative aspect-square rounded-[3rem] overflow-hidden shadow-2xl rotate-3 hover:rotate-0 transition-transform duration-500 border-[12px] border-white">
+                {heroImage && (
+                  <Image 
+                    src={heroImage.imageUrl} 
+                    alt="Couple" 
+                    fill 
+                    className="object-cover"
+                    priority
+                  />
+                )}
               </div>
-              <Button asChild variant="link" className="text-primary font-bold">
-                <Link href="/templates" className="flex items-center">
-                  See all templates
-                  <ChevronRight className="w-4 h-4 ml-1" />
-                </Link>
-              </Button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {featuredTemplates.map(template => (
-                <TemplateCard key={template.id} template={template} />
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Features Section */}
-        <section id="features" className="py-24">
-          <div className="container mx-auto px-4">
-            <div className="text-center max-w-2xl mx-auto mb-16">
-              <h2 className="text-3xl font-bold mb-4 font-headline">Why Choose FlutterFlow Kit?</h2>
-              <p className="text-muted-foreground">Everything you need to jumpstart your mobile development workflow.</p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-              <div className="p-8 rounded-2xl bg-white border border-transparent hover:border-primary/20 transition-all group">
-                <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform">
-                  <Layout className="w-6 h-6" />
+              {/* Floating Match Card Mock */}
+              <div className="absolute -bottom-6 -left-6 bg-white p-4 rounded-2xl shadow-2xl border flex items-center gap-3 animate-bounce">
+                <div className="w-12 h-12 rounded-full gradient-bg flex items-center justify-center text-white">
+                  <Heart className="w-6 h-6 fill-white" />
                 </div>
-                <h3 className="text-xl font-bold mb-3">Live Preview</h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  See exactly how your app will look and feel on a real device before you even download the code.
-                </p>
-              </div>
-              <div className="p-8 rounded-2xl bg-white border border-transparent hover:border-primary/20 transition-all group">
-                <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform">
-                  <Zap className="w-6 h-6" />
+                <div>
+                  <p className="font-bold text-sm">It's a Spark!</p>
+                  <p className="text-xs text-muted-foreground">You and Alex liked each other</p>
                 </div>
-                <h3 className="text-xl font-bold mb-3">Visual Customizer</h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  Configure brand colors, package names, and initial navigation through our intuitive dashboard.
-                </p>
-              </div>
-              <div className="p-8 rounded-2xl bg-white border border-transparent hover:border-primary/20 transition-all group">
-                <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform">
-                  <Download className="w-6 h-6" />
-                </div>
-                <h3 className="text-xl font-bold mb-3">Ready-to-Run Code</h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  Download a production-ready ZIP file containing the full source code and documentation.
-                </p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* AI CTA Section */}
-        <section id="ai" className="py-20">
+        {/* Features Grid */}
+        <section className="py-24 bg-accent/30">
           <div className="container mx-auto px-4">
-            <div className="bg-neutral-900 rounded-[2.5rem] p-8 md:p-16 text-white relative overflow-hidden">
-              <div className="max-w-2xl relative z-10">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-accent text-xs font-bold mb-6">
-                  <Sparkles className="w-3.5 h-3.5" />
-                  GEN-AI CAPABILITIES
-                </div>
-                <h2 className="text-4xl md:text-5xl font-black mb-6 leading-tight font-headline">
-                  Customize with the power of <span className="text-accent">AI</span>
-                </h2>
-                <p className="text-lg text-neutral-400 mb-10 leading-relaxed">
-                  Not finding the exact feature you need? Our AI enhancement tool suggests relevant code snippets and architectural patterns based on your unique project requirements.
-                </p>
-                <Button size="lg" className="bg-accent hover:bg-accent/90 text-white h-12 px-8 rounded-full">
-                  Explore Templates
-                </Button>
-              </div>
-              
-              {/* Abstract decorative elements */}
-              <div className="absolute top-1/2 -right-20 -translate-y-1/2 w-[500px] h-[500px] bg-accent/20 rounded-full blur-[100px] pointer-events-none" />
-              <div className="absolute bottom-0 right-0 p-12 hidden lg:block">
-                <Smartphone className="w-64 h-64 text-white/5 opacity-20" />
-              </div>
+            <div className="text-center max-w-2xl mx-auto mb-20">
+              <h2 className="text-4xl font-black mb-4">Why Spark is Different</h2>
+              <p className="text-muted-foreground text-lg">We use advanced technology to ensure you find meaningful connections, not just swipes.</p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-8">
+              <FeatureCard 
+                icon={<Zap className="w-8 h-8" />}
+                title="AI Matching"
+                description="Our neural networks analyze interests and personality traits to suggest highly compatible matches."
+              />
+              <FeatureCard 
+                icon={<MessageCircle className="w-8 h-8" />}
+                title="Smart Chat"
+                description="Get AI-generated icebreakers based on your match's profile to never run out of things to say."
+              />
+              <FeatureCard 
+                icon={<ShieldCheck className="w-8 h-8" />}
+                title="Verified Only"
+                description="Strict photo verification process ensures every profile you see is the real deal."
+              />
             </div>
           </div>
         </section>
       </main>
 
-      <footer className="bg-white border-t py-12">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-            <div className="flex items-center gap-2 font-bold text-xl tracking-tight text-primary">
-              <div className="bg-primary text-primary-foreground p-1.5 rounded-lg">
-                <Layout className="w-5 h-5" />
-              </div>
-              <span className="font-headline">FlutterFlow Kit</span>
-            </div>
-            <p className="text-muted-foreground text-sm">
-              © {new Date().getFullYear()} FlutterFlow Kit. All rights reserved.
-            </p>
-            <div className="flex gap-6 text-sm font-medium text-muted-foreground">
-              <Link href="#" className="hover:text-primary transition-colors">Privacy Policy</Link>
-              <Link href="#" className="hover:text-primary transition-colors">Terms of Service</Link>
-              <Link href="#" className="hover:text-primary transition-colors">Documentation</Link>
-            </div>
+      <footer className="py-12 border-t">
+        <div className="container mx-auto px-4 text-center text-muted-foreground">
+          <div className="flex items-center justify-center gap-2 font-black text-2xl text-primary mb-6">
+            <Heart className="w-6 h-6 fill-primary" />
+            <span>SPARK</span>
           </div>
+          <p>© {new Date().getFullYear()} Spark Dating. Made with love for real people.</p>
         </div>
       </footer>
+    </div>
+  );
+}
+
+function FeatureCard({ icon, title, description }: { icon: React.ReactNode, title: string, description: string }) {
+  return (
+    <div className="bg-white p-8 rounded-[2rem] shadow-sm hover:shadow-xl transition-shadow border border-transparent hover:border-primary/10 group">
+      <div className="w-16 h-16 rounded-2xl bg-accent flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform">
+        {icon}
+      </div>
+      <h3 className="text-2xl font-bold mb-3">{title}</h3>
+      <p className="text-muted-foreground leading-relaxed">{description}</p>
     </div>
   );
 }
