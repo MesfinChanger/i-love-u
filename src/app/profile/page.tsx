@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -31,9 +32,7 @@ const LANGUAGES = [
 
 const GENDERS = [
   { value: 'male', label: 'Male' },
-  { value: 'female', label: 'Female' },
-  { value: 'non-binary', label: 'Non-Binary' },
-  { value: 'other', label: 'Other' }
+  { value: 'female', label: 'Female' }
 ];
 
 export default function ProfilePage() {
