@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { 
   Select, 
   SelectContent, 
@@ -15,7 +16,7 @@ import {
   SelectTrigger, 
   SelectValue 
 } from '@/components/ui/select';
-import { Sparkles, Camera, Loader2, Save, LogOut, Globe, Heart, Zap, ShieldAlert } from 'lucide-react';
+import { Sparkles, Camera, Loader2, Save, LogOut, Globe, Heart, Zap, ShieldAlert, Lock } from 'lucide-react';
 import { generateBio } from '@/ai/flows/generate-bio-flow';
 import { useToast } from '@/hooks/use-toast';
 import { useUser, useFirestore, useAuth, useDoc } from '@/firebase';
@@ -47,6 +48,7 @@ export default function ProfilePage() {
   const [bio, setBio] = useState('');
   const [interests, setInterests] = useState('');
   const [preferredLanguage, setPreferredLanguage] = useState('English');
+  const [allowSensitiveContent, setAllowSensitiveContent] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
 
   useEffect(() => {
@@ -56,6 +58,7 @@ export default function ProfilePage() {
       setBio(profileData.bio || '');
       setInterests(profileData.interests?.join(', ') || '');
       setPreferredLanguage(profileData.preferredLanguage || 'English');
+      setAllowSensitiveContent(profileData.settings?.allowSensitiveContent || false);
     }
   }, [profileData]);
 
@@ -107,6 +110,9 @@ export default function ProfilePage() {
       bio,
       interests: interests.split(',').map(s => s.trim()).filter(i => i),
       preferredLanguage,
+      settings: {
+        allowSensitiveContent
+      },
       updatedAt: new Date().toISOString()
     }, { merge: true });
 
@@ -221,7 +227,25 @@ export default function ProfilePage() {
                 ))}
               </SelectContent>
             </Select>
-            <p className="text-[10px] text-muted-foreground ml-1">AI features will use this language.</p>
+          </div>
+
+          {/* Safety Settings */}
+          <div className="pt-4 space-y-4">
+            <div className="flex items-center justify-between p-4 bg-muted/50 rounded-2xl border border-border/50">
+              <div className="space-y-0.5">
+                <Label className="text-base flex items-center gap-2">
+                  <Lock className="w-4 h-4 text-primary" />
+                  Allow Sensitive Content
+                </Label>
+                <p className="text-xs text-muted-foreground max-w-[250px]">
+                  If enabled, you may receive explicit images in chat. We moderate all content by default.
+                </p>
+              </div>
+              <Switch 
+                checked={allowSensitiveContent} 
+                onCheckedChange={setAllowSensitiveContent} 
+              />
+            </div>
           </div>
 
           <div className="space-y-2">
@@ -243,7 +267,6 @@ export default function ProfilePage() {
                 AI Generate
               </Button>
             </div>
-            <p className="text-[10px] text-muted-foreground">Generating bio in: <strong>{preferredLanguage}</strong></p>
             <Textarea 
               id="bio" 
               value={bio} 

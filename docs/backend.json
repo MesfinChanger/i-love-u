@@ -18,6 +18,12 @@
         "preferredLanguage": { "type": "string", "description": "The user's preferred language (e.g., 'English', 'Spanish', 'French')." },
         "relationshipStatus": { "type": "string", "enum": ["single", "dating"], "default": "single" },
         "partnerId": { "type": "string", "description": "UID of the current dating partner." },
+        "settings": {
+          "type": "object",
+          "properties": {
+            "allowSensitiveContent": { "type": "boolean", "default": false, "description": "Whether the user allows receiving explicit or sensitive images." }
+          }
+        },
         "preferences": {
           "type": "object",
           "properties": {
@@ -48,6 +54,8 @@
       "properties": {
         "senderId": { "type": "string" },
         "text": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "isSensitive": { "type": "boolean", "default": false },
         "timestamp": { "type": "string", "format": "date-time" }
       }
     }
