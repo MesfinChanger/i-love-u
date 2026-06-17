@@ -1,10 +1,9 @@
-
 'use client';
 
 import { useState, useMemo } from 'react';
 import { Header } from '@/components/Header';
 import { Button } from '@/components/ui/button';
-import { Heart, X, Info, Sparkles, MapPin, Zap, UserPlus } from 'lucide-react';
+import { Heart, X, Info, Sparkles, MapPin, Zap, UserPlus, ShieldAlert } from 'lucide-react';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Card } from '@/components/ui/card';
@@ -31,6 +30,7 @@ export default function DiscoverPage() {
       id: img.id,
       name: ['Alex', 'Jordan', 'Taylor', 'Casey'][i % 4],
       age: 24 + i,
+      gender: i % 2 === 0 ? 'female' : 'male', // Added gender to mock data
       location: 'New York, NY',
       bio: 'Lover of coffee, hiking, and late night jazz. Looking for someone to explore the city with.',
       image: img.imageUrl,
@@ -44,17 +44,39 @@ export default function DiscoverPage() {
   const handleAction = async (type: 'friend' | 'date') => {
     if (!user || !db) return;
 
-    if (type === 'date' && myProfile?.relationshipStatus === 'dating') {
-      toast({
-        variant: "destructive",
-        title: "Exclusive Dating",
-        description: "You are already dating someone. To date others, you must first unmatch your current partner."
-      });
-      return;
+    if (type === 'date') {
+      // 1. Relationship Constraint
+      if (myProfile?.relationshipStatus === 'dating') {
+        toast({
+          variant: "destructive",
+          title: "Exclusive Dating",
+          description: "You are already dating someone. To date others, you must first unmatch your current partner."
+        });
+        return;
+      }
+
+      // 2. Opposite Sex Constraint
+      if (myProfile?.gender && currentProfile.gender && myProfile.gender === currentProfile.gender) {
+        toast({
+          variant: "destructive",
+          title: "Preference Restriction",
+          description: "Same-sex sparking is currently not allowed. You can still add them as a friend!"
+        });
+        return;
+      }
+      
+      // 3. Gender missing check
+      if (!myProfile?.gender) {
+        toast({
+          variant: "destructive",
+          title: "Profile Incomplete",
+          description: "Please set your gender in your profile before sparking."
+        });
+        return;
+      }
     }
 
-    // In a real app, this would be a complex match-request system. 
-    // Here we'll simulate a match creation.
+    // Simulate match creation
     const matchData = {
       userIds: [user.uid, currentProfile.id],
       timestamp: serverTimestamp(),
@@ -116,9 +138,15 @@ export default function DiscoverPage() {
                   </Badge>
                 </div>
                 
-                <div className="flex items-center gap-2 text-sm text-white/80 mb-4">
-                  <MapPin className="w-4 h-4" />
-                  {currentProfile.location}
+                <div className="flex flex-wrap items-center gap-4 text-xs text-white/80 mb-4">
+                  <div className="flex items-center gap-1">
+                    <MapPin className="w-3 h-3" />
+                    {currentProfile.location}
+                  </div>
+                  <div className="flex items-center gap-1 uppercase font-bold tracking-tighter">
+                    <ShieldAlert className="w-3 h-3" />
+                    {currentProfile.gender}
+                  </div>
                 </div>
 
                 <p className="text-white/90 line-clamp-2 mb-6 text-lg leading-relaxed">
@@ -148,7 +176,7 @@ export default function DiscoverPage() {
               <Button 
                 variant="outline" 
                 size="icon" 
-                className="w-14 h-14 rounded-full border-2 border-primary/20 bg-white text-primary hover:bg-primary/5 shadow-lg flex flex-col gap-1 h-14 w-24 rounded-full"
+                className="rounded-full border-2 border-primary/20 bg-white text-primary hover:bg-primary/5 shadow-lg flex flex-col gap-1 h-14 w-24"
                 onClick={() => handleAction('friend')}
               >
                 <UserPlus className="w-5 h-5" />
@@ -157,7 +185,7 @@ export default function DiscoverPage() {
 
               <Button 
                 size="icon" 
-                className="w-14 h-14 rounded-full gradient-bg hover:opacity-90 text-white shadow-xl shadow-primary/30 flex flex-col gap-1 h-14 w-24 rounded-full"
+                className="rounded-full gradient-bg hover:opacity-90 text-white shadow-xl shadow-primary/30 flex flex-col gap-1 h-14 w-24"
                 onClick={() => handleAction('date')}
               >
                 <Zap className="w-5 h-5 fill-white" />

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -16,7 +15,7 @@ import {
   SelectTrigger, 
   SelectValue 
 } from '@/components/ui/select';
-import { Sparkles, Camera, Loader2, Save, LogOut, Globe, Heart, Zap, ShieldAlert, Lock } from 'lucide-react';
+import { Sparkles, Camera, Loader2, Save, LogOut, Globe, Heart, Zap, ShieldAlert, Lock, User } from 'lucide-react';
 import { generateBio } from '@/ai/flows/generate-bio-flow';
 import { useToast } from '@/hooks/use-toast';
 import { useUser, useFirestore, useAuth, useDoc } from '@/firebase';
@@ -28,6 +27,13 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const LANGUAGES = [
   'English', 'Spanish', 'French', 'German', 'Chinese', 'Japanese', 'Korean', 'Italian', 'Portuguese', 'Russian'
+];
+
+const GENDERS = [
+  { value: 'male', label: 'Male' },
+  { value: 'female', label: 'Female' },
+  { value: 'non-binary', label: 'Non-Binary' },
+  { value: 'other', label: 'Other' }
 ];
 
 export default function ProfilePage() {
@@ -45,6 +51,7 @@ export default function ProfilePage() {
 
   const [displayName, setDisplayName] = useState('');
   const [age, setAge] = useState('');
+  const [gender, setGender] = useState('');
   const [bio, setBio] = useState('');
   const [interests, setInterests] = useState('');
   const [preferredLanguage, setPreferredLanguage] = useState('English');
@@ -55,6 +62,7 @@ export default function ProfilePage() {
     if (profileData) {
       setDisplayName(profileData.displayName || '');
       setAge(profileData.age?.toString() || '');
+      setGender(profileData.gender || '');
       setBio(profileData.bio || '');
       setInterests(profileData.interests?.join(', ') || '');
       setPreferredLanguage(profileData.preferredLanguage || 'English');
@@ -102,11 +110,21 @@ export default function ProfilePage() {
       });
       return;
     }
+
+    if (!gender) {
+      toast({
+        variant: "destructive",
+        title: "Gender Required",
+        description: "Please specify your gender to find compatible matches."
+      });
+      return;
+    }
     
     const profileRef = doc(db, 'users', user.uid);
     setDoc(profileRef, {
       displayName,
       age: userAge,
+      gender,
       bio,
       interests: interests.split(',').map(s => s.trim()).filter(i => i),
       preferredLanguage,
@@ -212,21 +230,39 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label className="flex items-center gap-2">
-              <Globe className="w-4 h-4" />
-              Preferred Language
-            </Label>
-            <Select value={preferredLanguage} onValueChange={setPreferredLanguage}>
-              <SelectTrigger className="rounded-xl">
-                <SelectValue placeholder="Select a language" />
-              </SelectTrigger>
-              <SelectContent>
-                {LANGUAGES.map(lang => (
-                  <SelectItem key={lang} value={lang}>{lang}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="grid sm:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <User className="w-4 h-4" />
+                Gender
+              </Label>
+              <Select value={gender} onValueChange={setGender}>
+                <SelectTrigger className="rounded-xl">
+                  <SelectValue placeholder="Select gender" />
+                </SelectTrigger>
+                <SelectContent>
+                  {GENDERS.map(g => (
+                    <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <Globe className="w-4 h-4" />
+                Preferred Language
+              </Label>
+              <Select value={preferredLanguage} onValueChange={setPreferredLanguage}>
+                <SelectTrigger className="rounded-xl">
+                  <SelectValue placeholder="Select a language" />
+                </SelectTrigger>
+                <SelectContent>
+                  {LANGUAGES.map(lang => (
+                    <SelectItem key={lang} value={lang}>{lang}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           {/* Safety Settings */}
