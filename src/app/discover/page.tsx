@@ -4,7 +4,7 @@
 import { useState, useMemo } from 'react';
 import { Header } from '@/components/Header';
 import { Button } from '@/components/ui/button';
-import { Heart, X, Info, Sparkles, MapPin, Zap, UserPlus, ShieldAlert, Church } from 'lucide-react';
+import { Heart, X, Sparkles, MapPin, Zap, UserPlus, ShieldAlert, Church } from 'lucide-react';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Card } from '@/components/ui/card';
@@ -29,14 +29,14 @@ export default function DiscoverPage() {
   const profiles = useMemo(() => {
     return PlaceHolderImages.filter(img => img.id.startsWith('user-')).map((img, i) => ({
       id: img.id,
-      name: ['Alex', 'Jordan', 'Taylor', 'Casey'][i % 4],
-      age: 24 + i,
+      name: ['Alex', 'Jordan', 'Taylor', 'Casey', 'Sasha', 'Riley'][i % 6],
+      age: 22 + i,
       gender: i % 2 === 0 ? 'female' : 'male',
-      religion: ['Christianity', 'Islam', 'None', 'Buddhism'][i % 4],
+      religion: ['Christianity', 'Islam', 'None', 'Buddhism', 'Atheist'][i % 5],
       location: 'New York, NY',
-      bio: 'Lover of coffee, hiking, and late night jazz. Looking for someone to explore the city with.',
+      bio: 'Exploring the beauty of life, one coffee shop at a time. Looking for a genuine spark.',
       image: img.imageUrl,
-      interests: ['Hiking', 'Coffee', 'Music', 'Travel']
+      interests: ['Art', 'Cooking', 'Music', 'Fitness']
     }));
   }, []);
 
@@ -44,32 +44,23 @@ export default function DiscoverPage() {
   const currentProfile = profiles[currentIndex];
 
   const handleAction = async (type: 'friend' | 'date') => {
-    if (!user || !db) return;
+    if (!user || !db || !currentProfile) return;
 
     if (type === 'date') {
       if (myProfile?.relationshipStatus === 'dating') {
         toast({
           variant: "destructive",
-          title: "Exclusive Dating",
-          description: "You are already sparking with someone. To date others, you must first unmatch your current partner."
+          title: "Relationship Exclusive",
+          description: "You are currently sparking with someone. Unmatch to date others."
         });
         return;
       }
 
-      if (myProfile?.gender && currentProfile.gender && myProfile.gender === currentProfile.gender) {
+      if (myProfile?.gender === currentProfile.gender) {
         toast({
           variant: "destructive",
-          title: "Preference Restriction",
-          description: "Spark matches are currently limited to opposite-sex connections. You can still add them as a friend!"
-        });
-        return;
-      }
-      
-      if (!myProfile?.gender) {
-        toast({
-          variant: "destructive",
-          title: "Profile Incomplete",
-          description: "Please set your gender in your profile before sparking."
+          title: "Restriction",
+          description: "Spark dating is currently limited to opposite-sex connections. Add as a friend instead!"
         });
         return;
       }
@@ -78,7 +69,7 @@ export default function DiscoverPage() {
     const matchData = {
       userIds: [user.uid, currentProfile.id],
       timestamp: serverTimestamp(),
-      lastMessage: type === 'date' ? "We sparked!" : "Let's be friends!",
+      lastMessage: type === 'date' ? "We sparked! ✨" : "Added as friend 🤝",
       status: "active",
       type: type
     };
@@ -93,19 +84,15 @@ export default function DiscoverPage() {
     }
 
     toast({
-      title: type === 'date' ? "Sparked!" : "Friend Request Sent",
-      description: `You and ${currentProfile.name} have connected as ${type}s.`
+      title: type === 'date' ? "It's a Spark!" : "Friend Request Sent",
+      description: `Connection made with ${currentProfile.name}.`
     });
 
     handleNext();
   };
 
   const handleNext = () => {
-    if (currentIndex < profiles.length - 1) {
-      setCurrentIndex(prev => prev + 1);
-    } else {
-      setCurrentIndex(0);
-    }
+    setCurrentIndex(prev => (prev + 1) % profiles.length);
   };
 
   if (!currentProfile) return null;
@@ -116,86 +103,71 @@ export default function DiscoverPage() {
       
       <main className="flex-grow flex items-center justify-center p-4">
         <div className="w-full max-w-md relative aspect-[3/4]">
-          <div className="absolute inset-0 flex flex-col">
-            <Card className="flex-grow overflow-hidden border-none shadow-2xl relative rounded-[2.5rem]">
-              <Image 
-                src={currentProfile.image} 
-                alt={currentProfile.name} 
-                fill 
-                className="object-cover"
-                priority
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-              
-              <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
-                <div className="flex items-center gap-2 mb-2">
-                  <h2 className="text-3xl font-black">{currentProfile.name}, {currentProfile.age}</h2>
-                  <Badge variant="secondary" className="bg-primary/20 text-white border-primary/30 backdrop-blur-md">
-                    <Sparkles className="w-3 h-3 mr-1 fill-white" />
-                    AI Match
-                  </Badge>
-                </div>
-                
-                <div className="flex flex-wrap items-center gap-4 text-xs text-white/80 mb-4">
-                  <div className="flex items-center gap-1">
-                    <MapPin className="w-3 h-3" />
-                    {currentProfile.location}
-                  </div>
-                  <div className="flex items-center gap-1 uppercase font-bold tracking-tighter">
-                    <ShieldAlert className="w-3 h-3" />
-                    {currentProfile.gender}
-                  </div>
-                  {currentProfile.religion && (
-                    <div className="flex items-center gap-1">
-                      <Church className="w-3 h-3" />
-                      {currentProfile.religion}
-                    </div>
-                  )}
-                </div>
-
-                <p className="text-white/90 line-clamp-2 mb-6 text-lg leading-relaxed">
-                  {currentProfile.bio}
-                </p>
-
-                <div className="flex flex-wrap gap-2">
-                  {currentProfile.interests.map(interest => (
-                    <Badge key={interest} variant="outline" className="bg-white/10 border-white/20 text-white">
-                      {interest}
-                    </Badge>
-                  ))}
-                </div>
+          <Card className="absolute inset-0 overflow-hidden border-none shadow-2xl rounded-[2.5rem]">
+            <Image 
+              src={currentProfile.image} 
+              alt={currentProfile.name} 
+              fill 
+              className="object-cover"
+              priority
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+            
+            <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
+              <div className="flex items-center gap-2 mb-2">
+                <h2 className="text-3xl font-black">{currentProfile.name}, {currentProfile.age}</h2>
+                <Badge variant="secondary" className="bg-primary/20 text-white border-primary/30 backdrop-blur-md">
+                  <Sparkles className="w-3 h-3 mr-1 fill-white" />
+                  AI Match
+                </Badge>
               </div>
-            </Card>
-
-            <div className="flex justify-center items-center gap-4 mt-8">
-              <Button 
-                variant="outline" 
-                size="icon" 
-                className="w-14 h-14 rounded-full border-2 border-muted-foreground/20 bg-white hover:bg-red-50 hover:border-red-200 text-red-500 shadow-lg"
-                onClick={handleNext}
-              >
-                <X className="w-6 h-6" />
-              </Button>
               
-              <Button 
-                variant="outline" 
-                size="icon" 
-                className="rounded-full border-2 border-primary/20 bg-white text-primary hover:bg-primary/5 shadow-lg flex flex-col gap-1 h-14 w-24"
-                onClick={() => handleAction('friend')}
-              >
-                <UserPlus className="w-5 h-5" />
-                <span className="text-[10px] font-bold uppercase tracking-tighter text-muted-foreground">Friend</span>
-              </Button>
+              <div className="flex flex-wrap items-center gap-4 text-xs text-white/80 mb-4">
+                <div className="flex items-center gap-1"><MapPin className="w-3 h-3" />{currentProfile.location}</div>
+                <div className="flex items-center gap-1 uppercase font-bold tracking-tighter"><ShieldAlert className="w-3 h-3" />{currentProfile.gender}</div>
+                <div className="flex items-center gap-1"><Church className="w-3 h-3" />{currentProfile.religion}</div>
+              </div>
 
-              <Button 
-                size="icon" 
-                className="rounded-full gradient-bg hover:opacity-90 text-white shadow-xl shadow-primary/30 flex flex-col gap-1 h-14 w-24"
-                onClick={() => handleAction('date')}
-              >
-                <Zap className="w-5 h-5 fill-white" />
-                <span className="text-[10px] font-bold uppercase tracking-tighter">Spark</span>
-              </Button>
+              <p className="text-white/90 line-clamp-2 mb-6 text-lg">{currentProfile.bio}</p>
+
+              <div className="flex flex-wrap gap-2">
+                {currentProfile.interests.map(interest => (
+                  <Badge key={interest} variant="outline" className="bg-white/10 border-white/20 text-white">
+                    {interest}
+                  </Badge>
+                ))}
+              </div>
             </div>
+          </Card>
+
+          <div className="absolute -bottom-20 left-0 right-0 flex justify-center items-center gap-4">
+            <Button 
+              variant="outline" 
+              size="icon" 
+              className="w-14 h-14 rounded-full border-2 bg-white text-red-500 shadow-lg hover:bg-red-50"
+              onClick={handleNext}
+            >
+              <X className="w-6 h-6" />
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              size="icon" 
+              className="rounded-full border-2 bg-white text-primary shadow-lg flex flex-col gap-1 h-14 w-24"
+              onClick={() => handleAction('friend')}
+            >
+              <UserPlus className="w-5 h-5" />
+              <span className="text-[10px] font-bold uppercase tracking-tighter text-muted-foreground">Friend</span>
+            </Button>
+
+            <Button 
+              size="icon" 
+              className="rounded-full gradient-bg text-white shadow-xl flex flex-col gap-1 h-14 w-24"
+              onClick={() => handleAction('date')}
+            >
+              <Zap className="w-5 h-5 fill-white" />
+              <span className="text-[10px] font-bold uppercase tracking-tighter">Spark</span>
+            </Button>
           </div>
         </div>
       </main>

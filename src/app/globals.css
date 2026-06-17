@@ -11,9 +11,9 @@
     --card-foreground: 330 20% 10%;
     --popover: 0 0% 100%;
     --popover-foreground: 330 20% 10%;
-    --primary: 330 80% 60%; /* Vibrant Pink/Rose */
+    --primary: 330 80% 60%; 
     --primary-foreground: 0 0% 100%;
-    --secondary: 270 70% 60%; /* Soft Violet */
+    --secondary: 270 70% 60%; 
     --secondary-foreground: 0 0% 100%;
     --muted: 330 10% 96%;
     --muted-foreground: 330 10% 45%;
@@ -24,38 +24,13 @@
     --border: 330 20% 90%;
     --input: 330 20% 90%;
     --ring: 330 80% 60%;
-    --radius: 1rem;
-  }
-  .dark {
-    --background: 330 20% 5%;
-    --foreground: 330 10% 95%;
-    --card: 330 20% 8%;
-    --card-foreground: 330 10% 95%;
-    --popover: 330 20% 8%;
-    --popover-foreground: 330 10% 95%;
-    --primary: 330 80% 65%;
-    --primary-foreground: 330 20% 5%;
-    --secondary: 270 70% 65%;
-    --secondary-foreground: 330 20% 5%;
-    --muted: 330 20% 15%;
-    --muted-foreground: 330 10% 65%;
-    --accent: 330 80% 15%;
-    --accent-foreground: 330 80% 85%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 330 10% 98%;
-    --border: 330 20% 20%;
-    --input: 330 20% 20%;
-    --ring: 330 80% 65%;
+    --radius: 1.5rem;
   }
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
+  * { @apply border-border; }
+  body { @apply bg-background text-foreground font-body antialiased; }
 }
 
 .gradient-text {
@@ -63,5 +38,14 @@
 }
 
 .gradient-bg {
-  @apply bg-gradient-to-r from-primary to-secondary;
+  @apply bg-gradient-to-r from-primary to-secondary text-white;
+}
+
+.animate-spin-slow {
+  animation: spin 8s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }

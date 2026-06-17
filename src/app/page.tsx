@@ -16,7 +16,9 @@ const LOVE_TRANSLATIONS = [
   { lang: "German", text: "Funke der Liebe", icon: "🔥" },
   { lang: "Italian", text: "Scintilla d'Amore", icon: "🌹" },
   { lang: "Portuguese", text: "Faísca de Amor", icon: "💘" },
-  { lang: "Korean", text: "사랑의 불꽃", icon: "💎" }
+  { lang: "Korean", text: "사랑의 불꽃", icon: "💎" },
+  { lang: "Arabic", text: "شرارة الحب", icon: "🌙" },
+  { lang: "Hindi", text: "प्यार की चिंगारी", icon: "🪔" }
 ];
 
 export default function Home() {
@@ -50,13 +52,12 @@ export default function Home() {
       </header>
 
       <main className="flex-grow pt-16">
-        {/* Hero Section */}
         <section className="relative py-20 lg:py-32 overflow-hidden">
           <div className="container mx-auto px-4 grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8 text-center lg:text-left z-10">
               <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-bold border border-primary/20">
                 <Globe className="w-4 h-4 animate-spin-slow" />
-                <span className="transition-all duration-500 ease-in-out">
+                <span className="transition-all duration-500 ease-in-out min-w-[150px]">
                   {LOVE_TRANSLATIONS[langIndex].text} {LOVE_TRANSLATIONS[langIndex].icon}
                 </span>
               </div>
@@ -90,43 +91,37 @@ export default function Home() {
                   />
                 )}
               </div>
-              {/* Floating Match Card Mock */}
               <div className="absolute -bottom-6 -left-6 bg-white p-4 rounded-2xl shadow-2xl border flex items-center gap-3 animate-bounce">
                 <div className="w-12 h-12 rounded-full gradient-bg flex items-center justify-center text-white">
                   <Heart className="w-6 h-6 fill-white" />
                 </div>
                 <div>
                   <p className="font-bold text-sm">It's a Spark!</p>
-                  <p className="text-xs text-muted-foreground">You and Alex liked each other</p>
+                  <p className="text-xs text-muted-foreground">You and Alex matched</p>
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Features Grid */}
         <section className="py-24 bg-accent/30">
-          <div className="container mx-auto px-4">
-            <div className="text-center max-w-2xl mx-auto mb-20">
-              <h2 className="text-4xl font-black mb-4">Why Spark is Different</h2>
-              <p className="text-muted-foreground text-lg">We use advanced technology to ensure you find meaningful connections, not just swipes.</p>
-            </div>
-
+          <div className="container mx-auto px-4 text-center">
+            <h2 className="text-4xl font-black mb-12">Designed for Real People</h2>
             <div className="grid md:grid-cols-3 gap-8">
               <FeatureCard 
                 icon={<Zap className="w-8 h-8" />}
                 title="AI Matching"
-                description="Our neural networks analyze interests and personality traits to suggest highly compatible matches."
+                description="Our neural networks analyze interests to suggest highly compatible partners."
               />
               <FeatureCard 
                 icon={<MessageCircle className="w-8 h-8" />}
                 title="Smart Chat"
-                description="Get AI-generated icebreakers based on your match's profile to never run out of things to say."
+                description="Personalized icebreakers to help you start conversations with confidence."
               />
               <FeatureCard 
                 icon={<ShieldCheck className="w-8 h-8" />}
-                title="Verified Only"
-                description="Strict photo verification process ensures every profile you see is the real deal."
+                title="18+ Verified"
+                description="A strictly adult-only space with AI-moderated content for your safety."
               />
             </div>
           </div>
@@ -139,7 +134,7 @@ export default function Home() {
             <Heart className="w-6 h-6 fill-primary" />
             <span>SPARK</span>
           </div>
-          <p>© {new Date().getFullYear()} Spark Dating. Made with love for real people.</p>
+          <p>© {new Date().getFullYear()} Spark Dating. Made with ❤️ for everyone.</p>
         </div>
       </footer>
     </div>
@@ -148,7 +143,7 @@ export default function Home() {
 
 function FeatureCard({ icon, title, description }: { icon: React.ReactNode, title: string, description: string }) {
   return (
-    <div className="bg-white p-8 rounded-[2rem] shadow-sm hover:shadow-xl transition-shadow border border-transparent hover:border-primary/10 group">
+    <div className="bg-white p-8 rounded-[2rem] shadow-sm hover:shadow-xl transition-all border border-transparent hover:border-primary/10 group">
       <div className="w-16 h-16 rounded-2xl bg-accent flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform">
         {icon}
       </div>

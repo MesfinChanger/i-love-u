@@ -3,7 +3,7 @@
   "entities": {
     "UserProfile": {
       "title": "User Profile",
-      "description": "Detailed profile information for a dating app user. Restricted to ages 18 and over.",
+      "description": "Dating app profile restricted to 18+. Includes relationship constraints and preferences.",
       "type": "object",
       "properties": {
         "uid": { "type": "string" },
@@ -15,10 +15,9 @@
         "interests": { "type": "array", "items": { "type": "string" } },
         "photoUrl": { "type": "string" },
         "location": { "type": "string" },
-        "phone": { "type": "string" },
-        "preferredLanguage": { "type": "string", "description": "The user's preferred language (e.g., 'English', 'Spanish')." },
+        "preferredLanguage": { "type": "string", "default": "English" },
         "relationshipStatus": { "type": "string", "enum": ["single", "dating"], "default": "single" },
-        "partnerId": { "type": "string", "description": "UID of the current dating partner." },
+        "partnerId": { "type": "string", "description": "UID of current dating partner." },
         "settings": {
           "type": "object",
           "properties": {
@@ -30,19 +29,16 @@
           "properties": {
             "preferredAgeRanges": { 
               "type": "array", 
-              "items": { 
-                "type": "string", 
-                "enum": ["18-33", "34-49", "50-65", "66+"] 
-              } 
+              "items": { "type": "string", "enum": ["18-33", "34-49", "50-65", "66+"] }
             }
           }
         }
       },
-      "required": ["uid", "displayName", "age", "photoUrl"]
+      "required": ["uid", "displayName", "age", "gender"]
     },
     "Match": {
       "title": "Match",
-      "description": "Represents a successful connection between two users.",
+      "description": "Connection between users.",
       "type": "object",
       "properties": {
         "userIds": { "type": "array", "items": { "type": "string" } },
@@ -54,7 +50,7 @@
     },
     "Message": {
       "title": "Message",
-      "description": "A single chat message between users.",
+      "description": "Chat message with AI moderation fields.",
       "type": "object",
       "properties": {
         "senderId": { "type": "string" },
@@ -71,15 +67,15 @@
   "firestore": {
     "/users/{userId}": {
       "schema": "UserProfile",
-      "description": "Public and private user profile data."
+      "description": "User profiles with strict 18+ enforcement."
     },
     "/matches/{matchId}": {
       "schema": "Match",
-      "description": "Connections between users."
+      "description": "Active connections."
     },
     "/matches/{matchId}/messages/{messageId}": {
       "schema": "Message",
-      "description": "Chat history for a specific match."
+      "description": "Moderated chat history."
     }
   }
 }
