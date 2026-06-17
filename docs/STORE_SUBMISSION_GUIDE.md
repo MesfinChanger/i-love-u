@@ -1,12 +1,23 @@
+
 # Spark Store Submission Guide (Android & iOS)
 
 To publish Spark to the Google Play Store and Apple App Store, follow these professional steps.
 
 ## 1. Hosting Setup (CRITICAL)
 Spark uses Server Actions (Genkit) and requires a live backend.
-1. **Enable App Hosting API**: Go to the [Google Cloud Console API Library](https://console.cloud.google.com/apis/library/firebaseapphosting.googleapis.com) and click **Enable**.
-2. **Deploy to Firebase**: Run `firebase deploy` or connect your GitHub repo to the Firebase App Hosting tab.
-3. Once deployed, get your live URL (e.g., `https://spark-dating.web.app`).
+
+### Option A: Firebase App Hosting (Recommended)
+1. **Enable API**: Go to the [Google Cloud Console API Library](https://console.cloud.google.com/apis/library/firebaseapphosting.googleapis.com) and click **Enable**.
+2. **If you can't enable the API**: Ensure your Google account has "Owner" permissions and that a Billing Account is linked (even for the free tier).
+
+### Option B: Local CLI Deployment (Workaround)
+If the web console fails, use the Firebase CLI on your computer:
+1. Install CLI: `npm install -g firebase-tools`
+2. Login: `firebase login`
+3. Initialize: `firebase init hosting` (Choose "Next.js" when prompted)
+4. Deploy: `firebase deploy`
+
+Once deployed, get your live URL (e.g., `https://spark-dating.web.app`).
 
 ## 2. Capacitor Setup
 Run these commands in your project root on your local computer:
@@ -25,8 +36,8 @@ npx cap add ios
 
 ## 3. Configuration
 Update `capacitor.config.ts`:
-- Change `server.url` to your live Firebase App Hosting URL.
-- This allows your mobile app to talk to the AI backend.
+- Change `server.url` to your live Firebase URL.
+- This allows your mobile app to communicate with the AI backend.
 
 ## 4. Submitting to Stores
 
@@ -42,4 +53,5 @@ Update `capacitor.config.ts`:
 
 ## 5. Privacy & Safety (Required for Approval)
 - **Account Deletion**: Both stores require a way for users to delete their data. This is implemented in the Profile page.
-- **AI Moderation**: Both stores require moderation for User Generated Content. Spark uses AI to moderate every chat message (see `src/app/matches/[matchId]/page.tsx`).
+- **AI Moderation**: Both stores require moderation for User Generated Content. Spark uses AI to moderate every chat message and profile bio for insults and spam.
+- **Human Verification**: Spark includes a bot-check on login to ensure only real humans join.
