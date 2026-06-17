@@ -2,7 +2,7 @@
 {
   "name": "Spark Dating",
   "short_name": "Spark",
-  "description": "Find your perfect match with AI-powered safety and global connections.",
+  "description": "AI-powered dating for real connections.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
@@ -17,7 +17,8 @@
     {
       "src": "https://picsum.photos/seed/spark-logo/512/512",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }

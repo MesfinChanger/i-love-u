@@ -1,3 +1,4 @@
+
 # Spark Store Submission Guide (Android & iOS)
 
 To publish Spark to the Google Play Store and Apple App Store, follow these professional steps to wrap your Next.js application into a native mobile container.
