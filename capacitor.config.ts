@@ -1,4 +1,3 @@
-
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
@@ -6,8 +5,10 @@ const config: CapacitorConfig = {
   appName: 'Spark',
   webDir: 'out',
   server: {
-    androidScheme: 'https',
-    allowNavigation: ['spark-dating.firebaseapp.com']
+    // Replace this with your actual hosted URL once deployed to Firebase App Hosting
+    url: 'https://spark-dating.web.app',
+    allowNavigation: ['spark-dating.firebaseapp.com'],
+    cleartext: true
   }
 };
 

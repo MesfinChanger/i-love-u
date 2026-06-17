@@ -399,6 +399,7 @@ export default function ProfilePage() {
                   <AlertDialogDescription>
                     This action cannot be undone. This will permanently delete your account
                     and remove all your profile data, matches, and messages from our servers.
+                    This is required for compliance with App Store and Play Store policies.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
