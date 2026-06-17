@@ -5,13 +5,14 @@ import { Header } from '@/components/Header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Send, ChevronLeft, Sparkles, Loader2 } from 'lucide-react';
-import { useUser, useFirestore, useCollection } from '@/firebase';
+import { useUser, useFirestore, useCollection, useDoc } from '@/firebase';
 import { collection, addDoc, query, orderBy, serverTimestamp, doc } from 'firebase/firestore';
 import { useParams, useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { generateIcebreaker } from '@/ai/flows/generate-icebreaker-flow';
 import { useToast } from '@/hooks/use-toast';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 
 export default function ChatPage() {
   const { matchId } = useParams();
@@ -23,6 +24,13 @@ export default function ChatPage() {
 
   const [newMessage, setNewMessage] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+
+  // Get current user profile for language preference
+  const userRef = useMemoFirebase(() => {
+    if (!db || !user) return null;
+    return doc(db, 'users', user.uid);
+  }, [db, user]);
+  const { data: profile } = useDoc(userRef);
 
   // Mock match details
   const matchInfo = useMemo(() => {
@@ -36,7 +44,7 @@ export default function ChatPage() {
   }, [matchId]);
 
   // Real-time messages from Firestore
-  const messagesQuery = useMemo(() => {
+  const messagesQuery = useMemoFirebase(() => {
     if (!db || !matchId) return null;
     return query(
       collection(db, 'matches', String(matchId), 'messages'),
@@ -65,11 +73,12 @@ export default function ChatPage() {
       const result = await generateIcebreaker({
         recipientName: matchInfo.name,
         recipientInterests: matchInfo.interests,
+        language: profile?.preferredLanguage || 'English'
       });
       setNewMessage(result.icebreaker);
       toast({
         title: "Icebreaker generated!",
-        description: "Review and send when you're ready."
+        description: `Message generated in ${profile?.preferredLanguage || 'English'}.`
       });
     } catch (error) {
       console.error(error);

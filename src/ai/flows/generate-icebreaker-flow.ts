@@ -1,6 +1,6 @@
 'use server';
 /**
- * @fileOverview A Genkit flow to generate creative icebreaker messages based on a match's interests.
+ * @fileOverview A Genkit flow to generate creative icebreaker messages in various languages.
  */
 
 import {ai} from '@/ai/genkit';
@@ -10,6 +10,7 @@ const GenerateIcebreakerInputSchema = z.object({
   recipientName: z.string().describe('The name of the person we are messaging.'),
   recipientInterests: z.array(z.string()).describe('List of interests from the match\'s profile.'),
   myInterests: z.array(z.string()).optional().describe('My own interests to find common ground.'),
+  language: z.string().optional().default('English').describe('The language in which to generate the icebreaker.'),
 });
 export type GenerateIcebreakerInput = z.infer<typeof GenerateIcebreakerInputSchema>;
 
@@ -27,7 +28,9 @@ const prompt = ai.definePrompt({
   input: {schema: GenerateIcebreakerInputSchema},
   output: {schema: GenerateIcebreakerOutputSchema},
   prompt: `You are a charming and socially intelligent wingman. 
-Help the user start a conversation with {{{recipientName}}} on a dating app.
+Help the user start a conversation in the language: {{{language}}}.
+
+Recipient Name: {{{recipientName}}}
 
 Match's Interests:
 {{#each recipientInterests}} - {{{this}}} {{/each}}
@@ -37,7 +40,7 @@ My Interests (for finding common ground):
 {{#each myInterests}} - {{{this}}} {{/each}}
 {{/if}}
 
-Generate a short, friendly, and personalized opening message (icebreaker). 
+Generate a short, friendly, and personalized opening message (icebreaker) in {{{language}}}. 
 It should be a question or a playful observation related to their interests. 
 Keep it under 30 words. Do not be overly formal.`,
 });

@@ -1,4 +1,3 @@
-
 {
   "entities": {
     "UserProfile": {
@@ -15,6 +14,7 @@
         "photoUrl": { "type": "string" },
         "location": { "type": "string" },
         "phone": { "type": "string" },
+        "preferredLanguage": { "type": "string", "description": "The user's preferred language (e.g., 'English', 'Spanish', 'French')." },
         "preferences": {
           "type": "object",
           "properties": {

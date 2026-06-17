@@ -1,18 +1,30 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Header } from '@/components/Header';
 import { BottomNav } from '@/components/BottomNav';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Sparkles, Camera, Loader2, Save, LogOut } from 'lucide-react';
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from '@/components/ui/select';
+import { Sparkles, Camera, Loader2, Save, LogOut, Globe } from 'lucide-react';
 import { generateBio } from '@/ai/flows/generate-bio-flow';
 import { useToast } from '@/hooks/use-toast';
-import { useUser, useFirestore, useAuth } from '@/firebase';
+import { useUser, useFirestore, useAuth, useDoc } from '@/firebase';
 import { doc, setDoc } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
+import { useMemoFirebase } from '@/firebase/use-memo-firebase';
+
+const LANGUAGES = [
+  'English', 'Spanish', 'French', 'German', 'Chinese', 'Japanese', 'Korean', 'Italian', 'Portuguese', 'Russian'
+];
 
 export default function ProfilePage() {
   const { user } = useUser();
@@ -20,11 +32,29 @@ export default function ProfilePage() {
   const auth = useAuth();
   const { toast } = useToast();
 
+  const userRef = useMemoFirebase(() => {
+    if (!db || !user) return null;
+    return doc(db, 'users', user.uid);
+  }, [db, user]);
+
+  const { data: profileData, loading: profileLoading } = useDoc(userRef);
+
   const [displayName, setDisplayName] = useState('');
   const [age, setAge] = useState('');
   const [bio, setBio] = useState('');
   const [interests, setInterests] = useState('');
+  const [preferredLanguage, setPreferredLanguage] = useState('English');
   const [isGenerating, setIsGenerating] = useState(false);
+
+  useEffect(() => {
+    if (profileData) {
+      setDisplayName(profileData.displayName || '');
+      setAge(profileData.age?.toString() || '');
+      setBio(profileData.bio || '');
+      setInterests(profileData.interests?.join(', ') || '');
+      setPreferredLanguage(profileData.preferredLanguage || 'English');
+    }
+  }, [profileData]);
 
   const handleGenerateBio = async () => {
     if (!interests) {
@@ -38,11 +68,14 @@ export default function ProfilePage() {
 
     setIsGenerating(true);
     try {
-      const result = await generateBio({ interests: interests.split(',').map(s => s.trim()) });
+      const result = await generateBio({ 
+        interests: interests.split(',').map(s => s.trim()),
+        language: preferredLanguage 
+      });
       setBio(result.bio);
       toast({
         title: "Bio generated!",
-        description: "Your AI-powered bio is ready."
+        description: `Your bio has been generated in ${preferredLanguage}.`
       });
     } catch (error) {
       console.error(error);
@@ -52,14 +85,15 @@ export default function ProfilePage() {
   };
 
   const handleSave = async () => {
-    if (!user) return;
+    if (!user || !db) return;
     
     const profileRef = doc(db, 'users', user.uid);
     setDoc(profileRef, {
       displayName,
-      age: parseInt(age),
+      age: parseInt(age) || 0,
       bio,
-      interests: interests.split(',').map(s => s.trim()),
+      interests: interests.split(',').map(s => s.trim()).filter(i => i),
+      preferredLanguage,
       updatedAt: new Date().toISOString()
     }, { merge: true });
 
@@ -72,6 +106,14 @@ export default function ProfilePage() {
   const handleLogout = () => {
     signOut(auth);
   };
+
+  if (profileLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="w-10 h-10 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
@@ -116,6 +158,24 @@ export default function ProfilePage() {
           </div>
 
           <div className="space-y-2">
+            <Label className="flex items-center gap-2">
+              <Globe className="w-4 h-4" />
+              Preferred Language
+            </Label>
+            <Select value={preferredLanguage} onValueChange={setPreferredLanguage}>
+              <SelectTrigger className="rounded-xl">
+                <SelectValue placeholder="Select a language" />
+              </SelectTrigger>
+              <SelectContent>
+                {LANGUAGES.map(lang => (
+                  <SelectItem key={lang} value={lang}>{lang}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-[10px] text-muted-foreground ml-1">AI features will use this language.</p>
+          </div>
+
+          <div className="space-y-2">
             <Label htmlFor="interests">Interests (comma separated)</Label>
             <Input id="interests" value={interests} onChange={e => setInterests(e.target.value)} placeholder="Coffee, Hiking, Coding, Travel" className="rounded-xl" />
           </div>
@@ -134,6 +194,7 @@ export default function ProfilePage() {
                 AI Generate
               </Button>
             </div>
+            <p className="text-[10px] text-muted-foreground">Generating bio in: <strong>{preferredLanguage}</strong></p>
             <Textarea 
               id="bio" 
               value={bio} 
