@@ -22,8 +22,8 @@ export default function Home() {
             <Button variant="ghost" asChild>
               <Link href="/login">Login</Link>
             </Button>
-            <Button className="rounded-full px-6 gradient-bg hover:opacity-90 transition-opacity">
-              Join Now
+            <Button className="rounded-full px-6 gradient-bg hover:opacity-90 transition-opacity" asChild>
+              <Link href="/login">Join Now</Link>
             </Button>
           </div>
         </div>
@@ -46,11 +46,11 @@ export default function Home() {
                 Connect with people who share your sparks. Real connections, AI-powered matching, and safe messaging.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                <Button size="lg" className="h-14 px-10 rounded-full text-lg font-bold gradient-bg shadow-xl shadow-primary/20">
-                  <Link href="/discover">Start Matching</Link>
+                <Button size="lg" className="h-14 px-10 rounded-full text-lg font-bold gradient-bg shadow-xl shadow-primary/20" asChild>
+                  <Link href="/login">Start Matching</Link>
                 </Button>
-                <Button variant="outline" size="lg" className="h-14 px-10 rounded-full text-lg font-bold border-2">
-                  Learn More
+                <Button variant="outline" size="lg" className="h-14 px-10 rounded-full text-lg font-bold border-2" asChild>
+                  <Link href="/login">Learn More</Link>
                 </Button>
               </div>
             </div>

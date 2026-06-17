@@ -14,6 +14,7 @@
         "interests": { "type": "array", "items": { "type": "string" } },
         "photoUrl": { "type": "string" },
         "location": { "type": "string" },
+        "phone": { "type": "string" },
         "preferences": {
           "type": "object",
           "properties": {
@@ -48,7 +49,7 @@
     }
   },
   "auth": {
-    "providers": ["google.com", "password"]
+    "providers": ["google.com", "password", "phone"]
   },
   "firestore": {
     "/users/{userId}": {
