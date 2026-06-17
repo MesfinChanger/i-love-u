@@ -3,12 +3,12 @@
 import { useState, useMemo } from 'react';
 import { Header } from '@/components/Header';
 import { Button } from '@/components/ui/button';
-import { Heart, X, Info, Sparkles, MapPin, User } from 'lucide-react';
+import { Heart, X, Info, Sparkles, MapPin } from 'lucide-react';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import Link from 'next/link';
+import { BottomNav } from '@/components/BottomNav';
 
 export default function DiscoverPage() {
   const profiles = useMemo(() => {
@@ -30,7 +30,6 @@ export default function DiscoverPage() {
     if (currentIndex < profiles.length - 1) {
       setCurrentIndex(prev => prev + 1);
     } else {
-      // Reached the end for this demo
       setCurrentIndex(0);
     }
   };
@@ -38,7 +37,7 @@ export default function DiscoverPage() {
   if (!currentProfile) return null;
 
   return (
-    <div className="flex flex-col min-h-screen bg-muted/30">
+    <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
       <Header />
       
       <main className="flex-grow flex items-center justify-center p-4">
@@ -110,17 +109,7 @@ export default function DiscoverPage() {
         </div>
       </main>
 
-      <nav className="fixed bottom-0 w-full bg-white/80 backdrop-blur-xl border-t py-4 px-8 flex justify-between items-center z-50">
-        <Button variant="ghost" size="icon" asChild className="text-primary">
-          <Link href="/discover"><Sparkles className="w-7 h-7" /></Link>
-        </Button>
-        <Button variant="ghost" size="icon" asChild className="text-muted-foreground">
-          <Link href="/matches"><Heart className="w-7 h-7" /></Link>
-        </Button>
-        <Button variant="ghost" size="icon" asChild className="text-muted-foreground">
-          <Link href="/profile"><User className="w-7 h-7" /></Link>
-        </Button>
-      </nav>
+      <BottomNav />
     </div>
   );
 }
