@@ -1,10 +1,12 @@
 
 import type {Metadata} from 'next';
 import './globals.css';
+import { FirebaseClientProvider } from '@/firebase';
+import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
-  title: 'FlutterFlow Kit - Curated Flutter Templates',
-  description: 'Browse, preview, customize, and generate Flutter projects with ease.',
+  title: 'Spark - Find Your Perfect Match',
+  description: 'AI-powered dating for real connections.',
 };
 
 export default function RootLayout({
@@ -17,9 +19,14 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
       </head>
-      <body className="font-body antialiased min-h-screen flex flex-col">{children}</body>
+      <body className="font-body antialiased min-h-screen flex flex-col bg-background text-foreground">
+        <FirebaseClientProvider>
+          {children}
+          <Toaster />
+        </FirebaseClientProvider>
+      </body>
     </html>
   );
 }
