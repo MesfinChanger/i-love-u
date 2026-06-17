@@ -18,6 +18,7 @@
         "preferredLanguage": { "type": "string", "default": "English" },
         "relationshipStatus": { "type": "string", "enum": ["single", "dating"], "default": "single" },
         "partnerId": { "type": "string", "description": "UID of current dating partner." },
+        "isSupporter": { "type": "boolean", "default": false, "description": "Whether the user has donated to support the app." },
         "settings": {
           "type": "object",
           "properties": {

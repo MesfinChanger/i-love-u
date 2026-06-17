@@ -28,7 +28,31 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Sparkles, Camera, Loader2, Save, LogOut, Globe, Heart, Zap, ShieldAlert, Lock, User, Church, Filter, Trash2 } from 'lucide-react';
+import { 
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter
+} from "@/components/ui/dialog";
+import { 
+  Sparkles, 
+  Camera, 
+  Loader2, 
+  Save, 
+  LogOut, 
+  Heart, 
+  Zap, 
+  ShieldAlert, 
+  Lock, 
+  Filter, 
+  Trash2,
+  Gift,
+  Star,
+  CheckCircle
+} from 'lucide-react';
 import { generateBio } from '@/ai/flows/generate-bio-flow';
 import { useToast } from '@/hooks/use-toast';
 import { useUser, useFirestore, useAuth, useDoc } from '@/firebase';
@@ -39,7 +63,6 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useRouter } from 'next/navigation';
 
-const LANGUAGES = ['English', 'Spanish', 'French', 'German', 'Chinese', 'Japanese', 'Korean', 'Italian', 'Portuguese', 'Arabic'];
 const GENDERS = [{ value: 'male', label: 'Male' }, { value: 'female', label: 'Female' }];
 const RELIGIONS = ['Christianity', 'Islam', 'Hinduism', 'Buddhism', 'Judaism', 'Sikhism', 'Atheist', 'Agnostic', 'None'];
 const AGE_RANGES = [
@@ -47,6 +70,12 @@ const AGE_RANGES = [
   { id: '34-49', label: '34 - 49' },
   { id: '50-65', label: '50 - 65' },
   { id: '66+', label: '66+' }
+];
+
+const DONATION_TIERS = [
+  { id: 'tier-1', name: 'Coffee Support', price: '$5', icon: '☕' },
+  { id: 'tier-2', name: 'Big Spark', price: '$15', icon: '🔥' },
+  { id: 'tier-3', name: 'Community Hero', price: '$50', icon: '👑' }
 ];
 
 export default function ProfilePage() {
@@ -74,6 +103,7 @@ export default function ProfilePage() {
   const [preferredAgeRanges, setPreferredAgeRanges] = useState<string[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isDonating, setIsDonating] = useState(false);
 
   useEffect(() => {
     if (profileData) {
@@ -109,6 +139,23 @@ export default function ProfilePage() {
     toast({ title: "Saved!", description: "Profile updated successfully." });
   };
 
+  const handleDonate = async (tierName: string) => {
+    if (!user || !db) return;
+    setIsDonating(true);
+    // Simulate payment processing
+    setTimeout(async () => {
+      await setDoc(doc(db, 'users', user.uid), {
+        isSupporter: true,
+      }, { merge: true });
+      
+      toast({ 
+        title: "Thank You!", 
+        description: `Your ${tierName} donation keeps Spark free for everyone.` 
+      });
+      setIsDonating(false);
+    }, 1500);
+  };
+
   const handleGenerateBio = async () => {
     if (!interests) return toast({ title: "Interests required", variant: "destructive" });
     setIsGenerating(true);
@@ -127,9 +174,7 @@ export default function ProfilePage() {
     if (!user || !db) return;
     setIsDeleting(true);
     try {
-      // 1. Delete Firestore Data
       await deleteDoc(doc(db, 'users', user.uid));
-      // 2. Delete Auth Account
       await deleteUser(user);
       toast({ title: "Account Deleted", description: "Your data has been removed from Spark." });
       router.push('/');
@@ -157,6 +202,60 @@ export default function ProfilePage() {
           </div>
         </div>
 
+        {/* Donation Banner */}
+        <div className="mb-6 overflow-hidden rounded-[2rem] bg-gradient-to-r from-primary/20 to-secondary/20 border border-primary/10 p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shadow-sm">
+              <Gift className="w-6 h-6 text-primary" />
+            </div>
+            <div>
+              <h3 className="font-bold text-lg">Support the Community</h3>
+              <p className="text-xs text-muted-foreground italic">Keep Spark free and AI-powered for everyone.</p>
+            </div>
+          </div>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button className="rounded-full px-6 gradient-bg shadow-lg shadow-primary/20">Donate</Button>
+            </DialogTrigger>
+            <DialogContent className="rounded-[2.5rem] sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle className="text-2xl font-black tracking-tight flex items-center gap-2">
+                  <Heart className="w-6 h-6 fill-primary text-primary" />
+                  Support Spark
+                </DialogTitle>
+                <DialogDescription className="text-base">
+                  Choose a donation tier to help us cover server costs and AI development. Supporters get a special badge on their profile!
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                {DONATION_TIERS.map((tier) => (
+                  <Button 
+                    key={tier.id} 
+                    variant="outline" 
+                    className="h-20 rounded-2xl flex justify-between px-6 hover:bg-primary/5 hover:border-primary transition-all group"
+                    onClick={() => handleDonate(tier.name)}
+                    disabled={isDonating}
+                  >
+                    <div className="flex items-center gap-4">
+                      <span className="text-3xl group-hover:scale-110 transition-transform">{tier.icon}</span>
+                      <div className="text-left">
+                        <p className="font-bold text-lg leading-none mb-1">{tier.name}</p>
+                        <p className="text-xs text-muted-foreground">One-time donation</p>
+                      </div>
+                    </div>
+                    <span className="text-xl font-black text-primary">{tier.price}</span>
+                  </Button>
+                ))}
+              </div>
+              <DialogFooter className="text-center sm:justify-center">
+                <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">
+                  100% of proceeds go to app maintenance
+                </p>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
+
         <Alert variant="destructive" className="mb-6 rounded-2xl bg-red-50 border-red-200">
           <ShieldAlert className="h-4 w-4" />
           <AlertTitle className="font-bold">18+ Only Environment</AlertTitle>
@@ -168,9 +267,16 @@ export default function ProfilePage() {
             <div className="w-40 h-40 rounded-full bg-accent flex items-center justify-center border-4 border-white shadow-xl overflow-hidden relative">
               <Camera className="w-10 h-10 text-primary opacity-30" />
             </div>
-            {profileData?.relationshipStatus === 'dating' && (
-              <Badge className="bg-primary text-white gap-1 animate-pulse"><Zap className="w-3 h-3 fill-white" />Currently Sparking</Badge>
-            )}
+            <div className="flex flex-wrap justify-center gap-2">
+              {profileData?.isSupporter && (
+                <Badge className="bg-yellow-500 text-white gap-1 py-1 px-3 rounded-full">
+                  <Star className="w-3 h-3 fill-white" /> Supporter
+                </Badge>
+              )}
+              {profileData?.relationshipStatus === 'dating' && (
+                <Badge className="bg-primary text-white gap-1 animate-pulse"><Zap className="w-3 h-3 fill-white" />Currently Sparking</Badge>
+              )}
+            </div>
           </div>
 
           <div className="grid sm:grid-cols-2 gap-6">
