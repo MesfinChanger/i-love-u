@@ -1,21 +1,15 @@
 # Spark Store Submission Guide (Android & iOS)
 
-To publish Spark to the Google Play Store and Apple App Store, follow these professional steps to wrap your Next.js application into a native mobile container.
+To publish Spark to the Google Play Store and Apple App Store, follow these professional steps.
 
-## 1. Prerequisites
-You must download the source code and run these steps on a local machine with:
-- **Node.js** (v18+)
-- **Android Studio** (for Android/Google Play)
-- **Xcode** (for iOS/Apple App Store - requires a Mac)
-
-## 2. Hosting Setup (CRITICAL)
+## 1. Hosting Setup (CRITICAL)
 Spark uses Server Actions (Genkit) and requires a live backend.
-1. Deploy your app to **Firebase App Hosting**.
-2. Once deployed, get your live URL (e.g., `https://spark-dating.web.app`).
-3. Update `capacitor.config.ts` with this URL in the `server.url` field.
+1. **Enable App Hosting API**: Go to the [Google Cloud Console API Library](https://console.cloud.google.com/apis/library/firebaseapphosting.googleapis.com) and click **Enable**.
+2. **Deploy to Firebase**: Run `firebase deploy` or connect your GitHub repo to the Firebase App Hosting tab.
+3. Once deployed, get your live URL (e.g., `https://spark-dating.web.app`).
 
-## 3. Capacitor Setup
-Capacitor turns your website into a mobile app. Run these commands in your project root:
+## 2. Capacitor Setup
+Run these commands in your project root on your local computer:
 
 ```bash
 # Install dependencies
@@ -29,28 +23,23 @@ npx cap add android
 npx cap add ios
 ```
 
-## 4. Building the Mobile Apps
-```bash
-# Sync the code to the mobile platforms
-npx cap sync
-```
+## 3. Configuration
+Update `capacitor.config.ts`:
+- Change `server.url` to your live Firebase App Hosting URL.
+- This allows your mobile app to talk to the AI backend.
 
-## 5. Submitting to Stores
+## 4. Submitting to Stores
 
 ### Google Play Store (Android)
 1. Run `npx cap open android`.
-2. In **Android Studio**, go to `Build > Generate Signed Bundle / APK`.
-3. Follow the wizard to create an `.aab` file.
-4. Upload to the [Google Play Console](https://play.google.com/console/).
+2. In Android Studio, generate a Signed Bundle (.aab).
+3. Upload to the Google Play Console.
 
 ### Apple App Store (iOS)
 1. Run `npx cap open ios`.
-2. In **Xcode**, select your target and go to the **Signing & Capabilities** tab.
-3. Select your Apple Developer Team.
-4. Go to `Product > Archive`.
-5. Click `Distribute App` and follow the steps for [App Store Connect](https://appstoreconnect.apple.com/).
+2. In Xcode, ensure you have a "Delete Account" button in settings (Spark already includes this in `src/app/profile/page.tsx`).
+3. Archive and Distribute the app via App Store Connect.
 
-## 6. Critical Requirements for Approval
-- **Account Deletion**: Both stores require a button in the profile to "Delete Account". **This is already implemented in Spark.**
-- **EULA**: You must provide a "Terms of Use" that explicitly prohibits harassment.
-- **Reporting**: Spark already has AI moderation, but ensure you have a "Report User" button in chats for manual reporting if needed.
+## 5. Privacy & Safety (Required for Approval)
+- **Account Deletion**: Both stores require a way for users to delete their data. This is implemented in the Profile page.
+- **AI Moderation**: Both stores require moderation for User Generated Content. Spark uses AI to moderate every chat message (see `src/app/matches/[matchId]/page.tsx`).

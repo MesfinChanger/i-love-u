@@ -2,14 +2,20 @@
 # https://firebase.google.com/docs/app-hosting/configure
 
 runConfig:
-  # Increase this value if you'd like to automatically spin up
-  # more instances in response to increased traffic.
-  maxInstances: 1
-  # The amount of memory to allocate to each instance.
+  maxInstances: 2
   memoryMiB: 512
+  cpu: 1
 
 scripts:
-  # Use the default Next.js build command
+  # Explicitly using the next build command for better reliability
   build: npm run build
-  # Use the default Next.js start command
   run: npm run start
+
+# Ensure the environment variables are accessible during runtime
+env:
+  - variable: NEXT_PUBLIC_FIREBASE_API_KEY
+    value: "" # Will be populated via Firebase Console Secrets/Env
+  - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+    value: "spark-dating.firebaseapp.com"
+  - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    value: "spark-dating"

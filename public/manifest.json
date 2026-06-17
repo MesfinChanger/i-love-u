@@ -1,7 +1,11 @@
 {
-  "short_name": "Spark",
   "name": "Spark Dating",
-  "description": "AI-powered dating for real connections.",
+  "short_name": "Spark",
+  "description": "Find your perfect match with AI-powered sparks.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#FF3366",
   "icons": [
     {
       "src": "https://picsum.photos/seed/spark-logo/192/192",
@@ -12,13 +16,7 @@
     {
       "src": "https://picsum.photos/seed/spark-logo/512/512",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     }
-  ],
-  "start_url": "/",
-  "display": "standalone",
-  "orientation": "portrait",
-  "theme_color": "#FF3366",
-  "background_color": "#ffffff"
+  ]
 }
