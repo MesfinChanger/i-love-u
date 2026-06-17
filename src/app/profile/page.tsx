@@ -51,7 +51,9 @@ import {
   Gift,
   Star,
   CheckCircle,
-  AlertTriangle
+  AlertTriangle,
+  FileText,
+  Shield
 } from 'lucide-react';
 import { generateBio } from '@/ai/flows/generate-bio-flow';
 import { moderateText } from '@/ai/flows/moderate-text-flow';
@@ -63,6 +65,7 @@ import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 const GENDERS = [{ value: 'male', label: 'Male' }, { value: 'female', label: 'Female' }];
 const RELIGIONS = ['Christianity', 'Islam', 'Hinduism', 'Buddhism', 'Judaism', 'Sikhism', 'Atheist', 'Agnostic', 'None'];
@@ -132,7 +135,6 @@ export default function ProfilePage() {
 
     setIsSaving(true);
     try {
-      // Anti-Spam / Content Moderation Check
       const [nameModeration, bioModeration] = await Promise.all([
         moderateText({ text: displayName }),
         moderateText({ text: bio })
@@ -168,7 +170,6 @@ export default function ProfilePage() {
   const handleDonate = async (tierName: string) => {
     if (!user || !db) return;
     setIsDonating(true);
-    // Simulate payment processing
     setTimeout(async () => {
       await setDoc(doc(db, 'users', user.uid), {
         isSupporter: true,
@@ -231,7 +232,6 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* Donation Banner */}
         <div className="mb-6 overflow-hidden rounded-[2rem] bg-gradient-to-r from-primary/20 to-secondary/20 border border-primary/10 p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shadow-sm">
@@ -283,20 +283,6 @@ export default function ProfilePage() {
               </DialogFooter>
             </DialogContent>
           </Dialog>
-        </div>
-
-        <div className="space-y-4 mb-6">
-          <Alert variant="destructive" className="rounded-2xl bg-red-50 border-red-200">
-            <ShieldAlert className="h-4 w-4" />
-            <AlertTitle className="font-bold">18+ Only Environment</AlertTitle>
-            <AlertDescription className="text-xs">Spark strictly prohibits minors. Ensure your age is accurate.</AlertDescription>
-          </Alert>
-
-          <Alert className="rounded-2xl bg-blue-50 border-blue-200 text-blue-800">
-            <AlertTriangle className="h-4 w-4 text-blue-600" />
-            <AlertTitle className="font-bold">AI Moderation Enabled</AlertTitle>
-            <AlertDescription className="text-xs">Profiles are screened for spam and disrespectful content to keep our community safe.</AlertDescription>
-          </Alert>
         </div>
 
         <div className="bg-white p-8 rounded-[2rem] shadow-sm space-y-8 border">
@@ -383,40 +369,59 @@ export default function ProfilePage() {
             <Textarea value={bio} onChange={e => setBio(e.target.value)} className="min-h-[120px] rounded-2xl" />
           </div>
 
-          <div className="pt-8 border-t">
-            <h3 className="text-red-500 font-bold mb-4 flex items-center gap-2 uppercase tracking-tighter text-xs">
-              <Trash2 className="w-4 h-4" /> Danger Zone
-            </h3>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="destructive" className="w-full rounded-xl gap-2 h-12">
-                  Delete Account & Data
+          <div className="pt-8 border-t space-y-8">
+            <div className="space-y-4">
+              <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
+                <Shield className="w-4 h-4" /> Legal & Safety
+              </h3>
+              <div className="grid gap-2">
+                <Button variant="outline" className="w-full rounded-xl justify-between h-12" asChild>
+                  <Link href="/privacy">
+                    <span className="flex items-center gap-2"><Lock className="w-4 h-4" /> Privacy Policy</span>
+                    <FileText className="w-4 h-4 text-muted-foreground" />
+                  </Link>
                 </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent className="rounded-[2rem]">
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete your account
-                    and remove all your profile data, matches, and messages from our servers.
-                    This is required for compliance with App Store and Play Store policies.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel className="rounded-xl">Cancel</AlertDialogCancel>
-                  <AlertDialogAction 
-                    onClick={handleDeleteAccount}
-                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-xl"
-                    disabled={isDeleting}
-                  >
-                    {isDeleting ? "Deleting..." : "Permanently Delete Account"}
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-            <p className="text-[10px] text-muted-foreground text-center mt-4">
-              Spark follows strict privacy guidelines for data deletion.
-            </p>
+                <Button variant="outline" className="w-full rounded-xl justify-between h-12" asChild>
+                  <Link href="/terms">
+                    <span className="flex items-center gap-2"><FileText className="w-4 h-4" /> Terms of Service</span>
+                    <FileText className="w-4 h-4 text-muted-foreground" />
+                  </Link>
+                </Button>
+              </div>
+            </div>
+
+            <div className="space-y-4 pt-4">
+              <h3 className="text-red-500 font-bold flex items-center gap-2 uppercase tracking-tighter text-xs">
+                <Trash2 className="w-4 h-4" /> Danger Zone
+              </h3>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive" className="w-full rounded-xl gap-2 h-12">
+                    Delete Account & Data
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="rounded-[2rem]">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This will permanently delete your account
+                      and remove all your profile data, matches, and messages from our servers.
+                      This is required for compliance with App Store and Play Store policies.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel className="rounded-xl">Cancel</AlertDialogCancel>
+                    <AlertDialogAction 
+                      onClick={handleDeleteAccount}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-xl"
+                      disabled={isDeleting}
+                    >
+                      {isDeleting ? "Deleting..." : "Permanently Delete Account"}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
           </div>
         </div>
       </main>

@@ -68,7 +68,6 @@ export default function LoginPage() {
   const handleBotCheck = (checked: boolean) => {
     if (checked) {
       setIsBotChecking(true);
-      // Simulate a quick bot analysis
       setTimeout(() => {
         setIsHuman(true);
         setIsBotChecking(false);
@@ -376,10 +375,15 @@ export default function LoginPage() {
               </TabsContent>
             </CardContent>
           </Tabs>
-          <CardFooter className="bg-muted/30 p-6 flex flex-col gap-2">
+          <CardFooter className="bg-muted/30 p-6 flex flex-col items-center gap-4">
              <Link href="/discover" onClick={(e) => { if(!isAdult || !isHuman) { e.preventDefault(); validateAccess(); } }} className="text-sm text-primary font-bold hover:underline">
                Browse as Guest (Verified Human only)
              </Link>
+             <div className="flex gap-4 text-[10px] text-muted-foreground font-bold uppercase tracking-widest">
+               <Link href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link>
+               <span>•</span>
+               <Link href="/terms" className="hover:text-primary transition-colors">Terms of Service</Link>
+             </div>
           </CardFooter>
         </Card>
       </div>
