@@ -5,3 +5,11 @@ runConfig:
   # Increase this value if you'd like to automatically spin up
   # more instances in response to increased traffic.
   maxInstances: 1
+  # The amount of memory to allocate to each instance.
+  memoryMiB: 512
+
+scripts:
+  # Use the default Next.js build command
+  build: npm run build
+  # Use the default Next.js start command
+  run: npm run start
