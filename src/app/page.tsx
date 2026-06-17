@@ -1,14 +1,34 @@
 
 "use client";
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Heart, Sparkles, MessageCircle, ShieldCheck, Zap } from 'lucide-react';
+import { Heart, Sparkles, MessageCircle, ShieldCheck, Zap, Globe } from 'lucide-react';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
+const LOVE_TRANSLATIONS = [
+  { lang: "English", text: "Spark Love", icon: "❤️" },
+  { lang: "Spanish", text: "Chispa de Amor", icon: "💖" },
+  { lang: "French", text: "Étincelle d'Amour", icon: "✨" },
+  { lang: "Japanese", text: "愛の火花", icon: "🌸" },
+  { lang: "German", text: "Funke der Liebe", icon: "🔥" },
+  { lang: "Italian", text: "Scintilla d'Amore", icon: "🌹" },
+  { lang: "Portuguese", text: "Faísca de Amor", icon: "💘" },
+  { lang: "Korean", text: "사랑의 불꽃", icon: "💎" }
+];
+
 export default function Home() {
   const heroImage = PlaceHolderImages.find(img => img.id === 'landing-hero');
+  const [langIndex, setLangIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setLangIndex((prev) => (prev + 1) % LOVE_TRANSLATIONS.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -34,16 +54,18 @@ export default function Home() {
         <section className="relative py-20 lg:py-32 overflow-hidden">
           <div className="container mx-auto px-4 grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8 text-center lg:text-left z-10">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent text-primary text-sm font-bold animate-pulse">
-                <Sparkles className="w-4 h-4" />
-                #1 RATED DATING APP
+              <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-bold border border-primary/20">
+                <Globe className="w-4 h-4 animate-spin-slow" />
+                <span className="transition-all duration-500 ease-in-out">
+                  {LOVE_TRANSLATIONS[langIndex].text} {LOVE_TRANSLATIONS[langIndex].icon}
+                </span>
               </div>
               <h1 className="text-6xl lg:text-8xl font-black leading-tight tracking-tighter">
                 Find Your <br />
                 <span className="gradient-text">Perfect Match</span>
               </h1>
               <p className="text-xl text-muted-foreground max-w-lg mx-auto lg:mx-0 leading-relaxed">
-                Connect with people who share your sparks. Real connections, AI-powered matching, and safe messaging.
+                Connect with people who share your sparks. Real connections, AI-powered matching, and safe messaging in any language.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                 <Button size="lg" className="h-14 px-10 rounded-full text-lg font-bold gradient-bg shadow-xl shadow-primary/20" asChild>
