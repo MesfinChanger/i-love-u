@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -51,9 +50,11 @@ import {
   Trash2,
   Gift,
   Star,
-  CheckCircle
+  CheckCircle,
+  AlertTriangle
 } from 'lucide-react';
 import { generateBio } from '@/ai/flows/generate-bio-flow';
+import { moderateText } from '@/ai/flows/moderate-text-flow';
 import { useToast } from '@/hooks/use-toast';
 import { useUser, useFirestore, useAuth, useDoc } from '@/firebase';
 import { doc, setDoc, deleteDoc } from 'firebase/firestore';
@@ -104,6 +105,7 @@ export default function ProfilePage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDonating, setIsDonating] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     if (profileData) {
@@ -120,23 +122,47 @@ export default function ProfilePage() {
   }, [profileData]);
 
   const handleSave = async () => {
-    if (!user || !db) return;
+    if (!user || !db || isSaving) return;
+    
     const userAge = parseInt(age);
     if (isNaN(userAge) || userAge < 18) {
       toast({ variant: "destructive", title: "Restricted", description: "You must be 18+ to use Spark." });
       return;
     }
-    
-    setDoc(doc(db, 'users', user.uid), {
-      displayName, age: userAge, gender, religion, bio,
-      interests: interests.split(',').map(s => s.trim()).filter(i => i),
-      preferredLanguage,
-      settings: { allowSensitiveContent },
-      preferences: { preferredAgeRanges },
-      updatedAt: new Date().toISOString()
-    }, { merge: true });
 
-    toast({ title: "Saved!", description: "Profile updated successfully." });
+    setIsSaving(true);
+    try {
+      // Anti-Spam / Content Moderation Check
+      const [nameModeration, bioModeration] = await Promise.all([
+        moderateText({ text: displayName }),
+        moderateText({ text: bio })
+      ]);
+
+      if (nameModeration.isFlagged || bioModeration.isFlagged) {
+        toast({ 
+          variant: "destructive", 
+          title: "Profile Flagged", 
+          description: "Your name or bio contains disrespectful content or appears to be spam. Please adjust it! ✨" 
+        });
+        setIsSaving(false);
+        return;
+      }
+      
+      await setDoc(doc(db, 'users', user.uid), {
+        displayName, age: userAge, gender, religion, bio,
+        interests: interests.split(',').map(s => s.trim()).filter(i => i),
+        preferredLanguage,
+        settings: { allowSensitiveContent },
+        preferences: { preferredAgeRanges },
+        updatedAt: new Date().toISOString()
+      }, { merge: true });
+
+      toast({ title: "Saved!", description: "Profile updated successfully." });
+    } catch (e) {
+      toast({ variant: "destructive", title: "Error", description: "Failed to save profile." });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleDonate = async (tierName: string) => {
@@ -198,7 +224,10 @@ export default function ProfilePage() {
           <h1 className="text-4xl font-black tracking-tighter">Profile</h1>
           <div className="flex gap-2">
             <Button variant="outline" size="icon" onClick={() => signOut(auth)} className="rounded-full"><LogOut className="w-4 h-4" /></Button>
-            <Button onClick={handleSave} className="gradient-bg rounded-full gap-2 px-6"><Save className="w-4 h-4" />Save</Button>
+            <Button onClick={handleSave} disabled={isSaving} className="gradient-bg rounded-full gap-2 px-6">
+              {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              Save
+            </Button>
           </div>
         </div>
 
@@ -256,11 +285,19 @@ export default function ProfilePage() {
           </Dialog>
         </div>
 
-        <Alert variant="destructive" className="mb-6 rounded-2xl bg-red-50 border-red-200">
-          <ShieldAlert className="h-4 w-4" />
-          <AlertTitle className="font-bold">18+ Only Environment</AlertTitle>
-          <AlertDescription className="text-xs">Spark strictly prohibits minors. Ensure your age is accurate.</AlertDescription>
-        </Alert>
+        <div className="space-y-4 mb-6">
+          <Alert variant="destructive" className="rounded-2xl bg-red-50 border-red-200">
+            <ShieldAlert className="h-4 w-4" />
+            <AlertTitle className="font-bold">18+ Only Environment</AlertTitle>
+            <AlertDescription className="text-xs">Spark strictly prohibits minors. Ensure your age is accurate.</AlertDescription>
+          </Alert>
+
+          <Alert className="rounded-2xl bg-blue-50 border-blue-200 text-blue-800">
+            <AlertTriangle className="h-4 w-4 text-blue-600" />
+            <AlertTitle className="font-bold">AI Moderation Enabled</AlertTitle>
+            <AlertDescription className="text-xs">Profiles are screened for spam and disrespectful content to keep our community safe.</AlertDescription>
+          </Alert>
+        </div>
 
         <div className="bg-white p-8 rounded-[2rem] shadow-sm space-y-8 border">
           <div className="flex flex-col items-center gap-4">
