@@ -10,6 +10,7 @@
         "displayName": { "type": "string" },
         "age": { "type": "number", "minimum": 18 },
         "gender": { "type": "string", "enum": ["male", "female"] },
+        "religion": { "type": "string" },
         "bio": { "type": "string" },
         "interests": { "type": "array", "items": { "type": "string" } },
         "photoUrl": { "type": "string" },
@@ -40,7 +41,7 @@
       "description": "Represents a successful connection between two users.",
       "type": "object",
       "properties": {
-        "userIds": { "type": "array", "items": { "type": "string" } },
+        "userIds": { "array": { "items": { "type": "string" } } },
         "timestamp": { "type": "string", "format": "date-time" },
         "lastMessage": { "type": "string" },
         "status": { "type": "string", "enum": ["active", "unmatched"] },

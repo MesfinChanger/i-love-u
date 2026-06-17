@@ -16,7 +16,7 @@ import {
   SelectTrigger, 
   SelectValue 
 } from '@/components/ui/select';
-import { Sparkles, Camera, Loader2, Save, LogOut, Globe, Heart, Zap, ShieldAlert, Lock, User } from 'lucide-react';
+import { Sparkles, Camera, Loader2, Save, LogOut, Globe, Heart, Zap, ShieldAlert, Lock, User, Church } from 'lucide-react';
 import { generateBio } from '@/ai/flows/generate-bio-flow';
 import { useToast } from '@/hooks/use-toast';
 import { useUser, useFirestore, useAuth, useDoc } from '@/firebase';
@@ -35,6 +35,10 @@ const GENDERS = [
   { value: 'female', label: 'Female' }
 ];
 
+const RELIGIONS = [
+  'Christianity', 'Islam', 'Hinduism', 'Buddhism', 'Judaism', 'Sikhism', 'Atheist', 'Agnostic', 'Other', 'None'
+];
+
 export default function ProfilePage() {
   const { user } = useUser();
   const db = useFirestore();
@@ -51,6 +55,7 @@ export default function ProfilePage() {
   const [displayName, setDisplayName] = useState('');
   const [age, setAge] = useState('');
   const [gender, setGender] = useState('');
+  const [religion, setReligion] = useState('');
   const [bio, setBio] = useState('');
   const [interests, setInterests] = useState('');
   const [preferredLanguage, setPreferredLanguage] = useState('English');
@@ -62,6 +67,7 @@ export default function ProfilePage() {
       setDisplayName(profileData.displayName || '');
       setAge(profileData.age?.toString() || '');
       setGender(profileData.gender || '');
+      setReligion(profileData.religion || '');
       setBio(profileData.bio || '');
       setInterests(profileData.interests?.join(', ') || '');
       setPreferredLanguage(profileData.preferredLanguage || 'English');
@@ -124,6 +130,7 @@ export default function ProfilePage() {
       displayName,
       age: userAge,
       gender,
+      religion,
       bio,
       interests: interests.split(',').map(s => s.trim()).filter(i => i),
       preferredLanguage,
@@ -246,6 +253,25 @@ export default function ProfilePage() {
                 </SelectContent>
               </Select>
             </div>
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <Church className="w-4 h-4" />
+                Religion
+              </Label>
+              <Select value={religion} onValueChange={setReligion}>
+                <SelectTrigger className="rounded-xl">
+                  <SelectValue placeholder="Select religion" />
+                </SelectTrigger>
+                <SelectContent>
+                  {RELIGIONS.map(rel => (
+                    <SelectItem key={rel} value={rel}>{rel}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-6">
             <div className="space-y-2">
               <Label className="flex items-center gap-2">
                 <Globe className="w-4 h-4" />

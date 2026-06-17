@@ -1,9 +1,10 @@
+
 'use client';
 
 import { useState, useMemo } from 'react';
 import { Header } from '@/components/Header';
 import { Button } from '@/components/ui/button';
-import { Heart, X, Info, Sparkles, MapPin, Zap, UserPlus, ShieldAlert } from 'lucide-react';
+import { Heart, X, Info, Sparkles, MapPin, Zap, UserPlus, ShieldAlert, Church } from 'lucide-react';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Card } from '@/components/ui/card';
@@ -30,7 +31,8 @@ export default function DiscoverPage() {
       id: img.id,
       name: ['Alex', 'Jordan', 'Taylor', 'Casey'][i % 4],
       age: 24 + i,
-      gender: i % 2 === 0 ? 'female' : 'male', // Added gender to mock data
+      gender: i % 2 === 0 ? 'female' : 'male',
+      religion: ['Christianity', 'Islam', 'None', 'Buddhism'][i % 4],
       location: 'New York, NY',
       bio: 'Lover of coffee, hiking, and late night jazz. Looking for someone to explore the city with.',
       image: img.imageUrl,
@@ -45,7 +47,6 @@ export default function DiscoverPage() {
     if (!user || !db) return;
 
     if (type === 'date') {
-      // 1. Relationship Constraint
       if (myProfile?.relationshipStatus === 'dating') {
         toast({
           variant: "destructive",
@@ -55,7 +56,6 @@ export default function DiscoverPage() {
         return;
       }
 
-      // 2. Opposite Sex Constraint
       if (myProfile?.gender && currentProfile.gender && myProfile.gender === currentProfile.gender) {
         toast({
           variant: "destructive",
@@ -65,7 +65,6 @@ export default function DiscoverPage() {
         return;
       }
       
-      // 3. Gender missing check
       if (!myProfile?.gender) {
         toast({
           variant: "destructive",
@@ -76,7 +75,6 @@ export default function DiscoverPage() {
       }
     }
 
-    // Simulate match creation
     const matchData = {
       userIds: [user.uid, currentProfile.id],
       timestamp: serverTimestamp(),
@@ -147,6 +145,12 @@ export default function DiscoverPage() {
                     <ShieldAlert className="w-3 h-3" />
                     {currentProfile.gender}
                   </div>
+                  {currentProfile.religion && (
+                    <div className="flex items-center gap-1">
+                      <Church className="w-3 h-3" />
+                      {currentProfile.religion}
+                    </div>
+                  )}
                 </div>
 
                 <p className="text-white/90 line-clamp-2 mb-6 text-lg leading-relaxed">
