@@ -3,12 +3,12 @@
   "entities": {
     "UserProfile": {
       "title": "User Profile",
-      "description": "Detailed profile information for a dating app user.",
+      "description": "Detailed profile information for a dating app user. Restricted to ages 18 and over.",
       "type": "object",
       "properties": {
         "uid": { "type": "string" },
         "displayName": { "type": "string" },
-        "age": { "type": "number" },
+        "age": { "type": "number", "minimum": 18 },
         "gender": { "type": "string", "enum": ["male", "female", "non-binary", "other"] },
         "bio": { "type": "string" },
         "interests": { "type": "array", "items": { "type": "string" } },
@@ -22,7 +22,7 @@
           "type": "object",
           "properties": {
             "lookingFor": { "type": "string" },
-            "minAge": { "type": "number" },
+            "minAge": { "type": "number", "minimum": 18 },
             "maxAge": { "type": "number" }
           }
         }

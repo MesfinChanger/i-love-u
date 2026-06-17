@@ -15,7 +15,7 @@ import {
   SelectTrigger, 
   SelectValue 
 } from '@/components/ui/select';
-import { Sparkles, Camera, Loader2, Save, LogOut, Globe, Heart, Zap } from 'lucide-react';
+import { Sparkles, Camera, Loader2, Save, LogOut, Globe, Heart, Zap, ShieldAlert } from 'lucide-react';
 import { generateBio } from '@/ai/flows/generate-bio-flow';
 import { useToast } from '@/hooks/use-toast';
 import { useUser, useFirestore, useAuth, useDoc } from '@/firebase';
@@ -23,6 +23,7 @@ import { doc, setDoc } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const LANGUAGES = [
   'English', 'Spanish', 'French', 'German', 'Chinese', 'Japanese', 'Korean', 'Italian', 'Portuguese', 'Russian'
@@ -88,11 +89,21 @@ export default function ProfilePage() {
 
   const handleSave = async () => {
     if (!user || !db) return;
+
+    const userAge = parseInt(age);
+    if (isNaN(userAge) || userAge < 18) {
+      toast({
+        variant: "destructive",
+        title: "Access Denied",
+        description: "You must be 18 years or older to use Spark. Accounts for minors are prohibited."
+      });
+      return;
+    }
     
     const profileRef = doc(db, 'users', user.uid);
     setDoc(profileRef, {
       displayName,
-      age: parseInt(age) || 0,
+      age: userAge,
       bio,
       interests: interests.split(',').map(s => s.trim()).filter(i => i),
       preferredLanguage,
@@ -135,6 +146,14 @@ export default function ProfilePage() {
           </div>
         </div>
 
+        <Alert variant="destructive" className="mb-6 bg-red-50 border-red-200 text-red-800 rounded-2xl">
+          <ShieldAlert className="h-4 w-4" />
+          <AlertTitle className="font-bold">Age Restriction Policy</AlertTitle>
+          <AlertDescription className="text-xs">
+            Spark is strictly for individuals 18 years of age and older. Providing false information about your age will result in permanent account suspension.
+          </AlertDescription>
+        </Alert>
+
         <div className="bg-white p-8 rounded-[2rem] shadow-sm space-y-8 border">
           {/* Photo Section */}
           <div className="flex flex-col items-center gap-4">
@@ -159,8 +178,9 @@ export default function ProfilePage() {
                    Looking for a Spark
                  </Badge>
                )}
-               <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">
-                 One date limit active
+               <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest flex items-center gap-1">
+                 <ShieldAlert className="w-3 h-3" />
+                 Verified Adult Space
                </p>
             </div>
           </div>
@@ -171,8 +191,18 @@ export default function ProfilePage() {
               <Input id="name" value={displayName} onChange={e => setDisplayName(e.target.value)} placeholder="How others see you" className="rounded-xl" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="age">Age</Label>
-              <Input id="age" type="number" value={age} onChange={e => setAge(e.target.value)} placeholder="25" className="rounded-xl" />
+              <Label htmlFor="age">Age (Must be 18+)</Label>
+              <Input 
+                id="age" 
+                type="number" 
+                value={age} 
+                onChange={e => setAge(e.target.value)} 
+                placeholder="21" 
+                className={`rounded-xl ${parseInt(age) < 18 ? 'border-red-500 text-red-500' : ''}`} 
+              />
+              {parseInt(age) < 18 && (
+                <p className="text-[10px] text-red-500 font-bold">You must be 18 or older.</p>
+              )}
             </div>
           </div>
 

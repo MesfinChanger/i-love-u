@@ -16,10 +16,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Heart, Mail, Phone, Chrome, Loader2, ArrowLeft } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/tabs';
+import { Heart, Mail, Phone, Chrome, Loader2, ArrowLeft, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
+import { Checkbox } from '@/components/ui/checkbox';
 
 export default function LoginPage() {
   const { auth } = useAuth();
@@ -34,6 +35,7 @@ export default function LoginPage() {
   const [isVerifyingPhone, setIsVerifyingPhone] = useState(false);
   const [confirmationResult, setConfirmationResult] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isAdult, setIsAdult] = useState(false);
 
   useEffect(() => {
     if (user && !authLoading) {
@@ -41,7 +43,20 @@ export default function LoginPage() {
     }
   }, [user, authLoading, router]);
 
+  const validateAdult = () => {
+    if (!isAdult) {
+      toast({
+        variant: "destructive",
+        title: "Age Verification Required",
+        description: "You must be 18 or older to use Spark."
+      });
+      return false;
+    }
+    return true;
+  };
+
   const handleEmailAuth = async (type: 'login' | 'signup') => {
+    if (!validateAdult()) return;
     setIsLoading(true);
     try {
       if (type === 'login') {
@@ -62,6 +77,7 @@ export default function LoginPage() {
   };
 
   const handleGoogleLogin = async () => {
+    if (!validateAdult()) return;
     setIsLoading(true);
     const provider = new GoogleAuthProvider();
     try {
@@ -87,6 +103,7 @@ export default function LoginPage() {
   };
 
   const handleSendCode = async () => {
+    if (!validateAdult()) return;
     setIsLoading(true);
     setupRecaptcha();
     const appVerifier = (window as any).recaptchaVerifier;
@@ -167,7 +184,28 @@ export default function LoginPage() {
               </TabsTrigger>
             </TabsList>
 
-            <CardContent className="pt-8 px-8">
+            <CardContent className="pt-8 px-8 pb-4">
+              <div className="flex items-start space-x-3 bg-primary/5 p-4 rounded-xl border border-primary/10 mb-6">
+                <Checkbox 
+                  id="age-check" 
+                  checked={isAdult} 
+                  onCheckedChange={(checked) => setIsAdult(checked as boolean)}
+                  className="mt-1"
+                />
+                <div className="grid gap-1.5 leading-none">
+                  <label
+                    htmlFor="age-check"
+                    className="text-xs font-bold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center gap-1.5 text-primary"
+                  >
+                    <ShieldCheck className="w-3 h-3" />
+                    I AM 18 YEARS OR OLDER
+                  </label>
+                  <p className="text-[10px] text-muted-foreground">
+                    By checking this, you confirm you are of legal age. Minors are strictly prohibited.
+                  </p>
+                </div>
+              </div>
+
               <TabsContent value="email" className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="email">Email Address</Label>
@@ -282,8 +320,8 @@ export default function LoginPage() {
             </CardContent>
           </Tabs>
           <CardFooter className="bg-muted/30 p-6 flex flex-col gap-2">
-             <Link href="/discover" className="text-sm text-primary font-bold hover:underline">
-               Browse as Guest (Optional)
+             <Link href="/discover" onClick={(e) => { if(!isAdult) { e.preventDefault(); validateAdult(); } }} className="text-sm text-primary font-bold hover:underline">
+               Browse as Guest (18+ only)
              </Link>
           </CardFooter>
         </Card>
