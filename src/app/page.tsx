@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -45,7 +44,7 @@ export default function Home() {
               <Link href="/login">Login</Link>
             </Button>
             <Button className="rounded-full px-6 gradient-bg hover:opacity-90 transition-opacity" asChild>
-              <Link href="/login">Join Now</Link>
+              <Link href="/login">Join Free</Link>
             </Button>
           </div>
         </div>
@@ -66,11 +65,12 @@ export default function Home() {
                 <span className="gradient-text">Perfect Match</span>
               </h1>
               <p className="text-xl text-muted-foreground max-w-lg mx-auto lg:mx-0 leading-relaxed">
-                Connect with people who share your sparks. Real connections, AI-powered matching, and safe messaging in any language.
+                Connect with people who share your sparks. Real connections, AI-powered matching, and safe messaging. 
+                <span className="block font-bold text-primary mt-2">100% Free Forever.</span>
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                 <Button size="lg" className="h-14 px-10 rounded-full text-lg font-bold gradient-bg shadow-xl shadow-primary/20" asChild>
-                  <Link href="/login">Start Matching</Link>
+                  <Link href="/login">Start Matching Free</Link>
                 </Button>
                 <Button variant="outline" size="lg" className="h-14 px-10 rounded-full text-lg font-bold border-2" asChild>
                   <Link href="/login">Learn More</Link>
@@ -88,6 +88,7 @@ export default function Home() {
                     fill 
                     className="object-cover"
                     priority
+                    data-ai-hint="happy couple"
                   />
                 )}
               </div>
@@ -111,17 +112,17 @@ export default function Home() {
               <FeatureCard 
                 icon={<Zap className="w-8 h-8" />}
                 title="AI Matching"
-                description="Our neural networks analyze interests to suggest highly compatible partners."
+                description="Our neural networks analyze interests to suggest highly compatible partners, absolutely free."
               />
               <FeatureCard 
                 icon={<MessageCircle className="w-8 h-8" />}
-                title="Smart Chat"
-                description="Personalized icebreakers to help you start conversations with confidence."
+                title="Free Smart Chat"
+                description="Personalized icebreakers to help you start conversations without any hidden costs."
               />
               <FeatureCard 
                 icon={<ShieldCheck className="w-8 h-8" />}
                 title="18+ Verified"
-                description="A strictly adult-only space with AI-moderated content for your safety."
+                description="A strictly adult-only space with AI-moderated content for your safety and peace of mind."
               />
             </div>
           </div>
@@ -134,7 +135,7 @@ export default function Home() {
             <Heart className="w-6 h-6 fill-primary" />
             <span>SPARK</span>
           </div>
-          <p>© {new Date().getFullYear()} Spark Dating. Made with ❤️ for everyone.</p>
+          <p>© {new Date().getFullYear()} Spark Dating. A 100% free community for everyone.</p>
         </div>
       </footer>
     </div>

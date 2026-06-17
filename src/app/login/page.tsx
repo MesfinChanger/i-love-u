@@ -1,5 +1,4 @@
-
-'use client';
+"use client";
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -163,8 +162,8 @@ export default function LoginPage() {
             <Heart className="w-10 h-10 fill-primary" />
             <span>SPARK</span>
           </div>
-          <h1 className="text-2xl font-bold">Welcome Back</h1>
-          <p className="text-muted-foreground">Sign in to find your perfect match</p>
+          <h1 className="text-2xl font-bold">Free Account Creation</h1>
+          <p className="text-muted-foreground">Sign in to find your perfect match for free</p>
         </div>
 
         <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden">
@@ -235,7 +234,7 @@ export default function LoginPage() {
                     disabled={isLoading}
                     className="rounded-xl"
                   >
-                    Sign Up
+                    Join Free
                   </Button>
                   <Button 
                     onClick={() => handleEmailAuth('login')}
@@ -266,7 +265,7 @@ export default function LoginPage() {
                       disabled={isLoading || !phoneNumber}
                       className="w-full rounded-xl gradient-bg"
                     >
-                      {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Send Verification Code'}
+                      {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Send Free SMS Code'}
                     </Button>
                     <div id="recaptcha-container"></div>
                   </>
@@ -313,7 +312,7 @@ export default function LoginPage() {
                 </Button>
                 <div className="text-center">
                   <p className="text-xs text-muted-foreground px-8">
-                    By continuing, you agree to Spark's Terms of Service and Privacy Policy.
+                    Start your free dating journey today.
                   </p>
                 </div>
               </TabsContent>
