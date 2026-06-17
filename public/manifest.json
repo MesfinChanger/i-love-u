@@ -1,7 +1,8 @@
+
 {
   "name": "Spark Dating",
   "short_name": "Spark",
-  "description": "Find your perfect match with AI-powered safety.",
+  "description": "Find your perfect match with AI-powered dating.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
