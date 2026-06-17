@@ -17,15 +17,27 @@ import {
   SelectTrigger, 
   SelectValue 
 } from '@/components/ui/select';
-import { Sparkles, Camera, Loader2, Save, LogOut, Globe, Heart, Zap, ShieldAlert, Lock, User, Church, Filter } from 'lucide-react';
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Sparkles, Camera, Loader2, Save, LogOut, Globe, Heart, Zap, ShieldAlert, Lock, User, Church, Filter, Trash2 } from 'lucide-react';
 import { generateBio } from '@/ai/flows/generate-bio-flow';
 import { useToast } from '@/hooks/use-toast';
 import { useUser, useFirestore, useAuth, useDoc } from '@/firebase';
-import { doc, setDoc } from 'firebase/firestore';
-import { signOut } from 'firebase/auth';
+import { doc, setDoc, deleteDoc } from 'firebase/firestore';
+import { signOut, deleteUser } from 'firebase/auth';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { useRouter } from 'next/navigation';
 
 const LANGUAGES = ['English', 'Spanish', 'French', 'German', 'Chinese', 'Japanese', 'Korean', 'Italian', 'Portuguese', 'Arabic'];
 const GENDERS = [{ value: 'male', label: 'Male' }, { value: 'female', label: 'Female' }];
@@ -42,6 +54,7 @@ export default function ProfilePage() {
   const db = useFirestore();
   const auth = useAuth();
   const { toast } = useToast();
+  const router = useRouter();
 
   const userRef = useMemoFirebase(() => {
     if (!db || !user) return null;
@@ -60,6 +73,7 @@ export default function ProfilePage() {
   const [allowSensitiveContent, setAllowSensitiveContent] = useState(false);
   const [preferredAgeRanges, setPreferredAgeRanges] = useState<string[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (profileData) {
@@ -106,6 +120,26 @@ export default function ProfilePage() {
       setBio(result.bio);
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!user || !db) return;
+    setIsDeleting(true);
+    try {
+      // 1. Delete Firestore Data
+      await deleteDoc(doc(db, 'users', user.uid));
+      // 2. Delete Auth Account
+      await deleteUser(user);
+      toast({ title: "Account Deleted", description: "Your data has been removed from Spark." });
+      router.push('/');
+    } catch (error: any) {
+      toast({ 
+        variant: "destructive", 
+        title: "Error", 
+        description: "Please re-login to verify your identity before deleting your account." 
+      });
+      setIsDeleting(false);
     }
   };
 
@@ -204,6 +238,41 @@ export default function ProfilePage() {
               </Button>
             </div>
             <Textarea value={bio} onChange={e => setBio(e.target.value)} className="min-h-[120px] rounded-2xl" />
+          </div>
+
+          <div className="pt-8 border-t">
+            <h3 className="text-red-500 font-bold mb-4 flex items-center gap-2 uppercase tracking-tighter text-xs">
+              <Trash2 className="w-4 h-4" /> Danger Zone
+            </h3>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" className="w-full rounded-xl gap-2 h-12">
+                  Delete Account & Data
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent className="rounded-[2rem]">
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete your account
+                    and remove all your profile data, matches, and messages from our servers.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel className="rounded-xl">Cancel</AlertDialogCancel>
+                  <AlertDialogAction 
+                    onClick={handleDeleteAccount}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-xl"
+                    disabled={isDeleting}
+                  >
+                    {isDeleting ? "Deleting..." : "Permanently Delete Account"}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+            <p className="text-[10px] text-muted-foreground text-center mt-4">
+              Spark follows strict privacy guidelines for data deletion.
+            </p>
           </div>
         </div>
       </main>
