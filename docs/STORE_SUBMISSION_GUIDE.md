@@ -1,4 +1,3 @@
-
 # Spark Store Submission Guide (Android & iOS)
 
 To publish Spark to the Google Play Store and Apple App Store, follow these professional steps to wrap your Next.js application into a native mobile container.
@@ -9,36 +8,29 @@ You must download the source code and run these steps on a local machine with:
 - **Android Studio** (for Android/Google Play)
 - **Xcode** (for iOS/Apple App Store - requires a Mac)
 
-## 2. PWA Verification
-Spark is already configured as a Progressive Web App (PWA). 
-- `public/manifest.json` is present.
-- `src/app/layout.tsx` contains the necessary meta tags.
+## 2. Hosting Setup (CRITICAL)
+Spark uses Server Actions (Genkit) and requires a live backend.
+1. Deploy your app to **Firebase App Hosting**.
+2. Once deployed, get your live URL (e.g., `https://spark-dating.web.app`).
+3. Update `capacitor.config.ts` with this URL in the `server.url` field.
 
 ## 3. Capacitor Setup
-Capacitor is the bridge that turns your website into a mobile app. Run these commands in your project root:
+Capacitor turns your website into a mobile app. Run these commands in your project root:
 
 ```bash
-# Install Capacitor CLI
-npm install @capacitor/core @capacitor/cli
+# Install dependencies
+npm install
 
-# Initialize Capacitor (if not already done)
-npx cap init Spark com.spark.dating --web-dir out
+# Build the web project
+npm run build
 
 # Add Mobile Platforms
-npm install @capacitor/android @capacitor/ios
 npx cap add android
 npx cap add ios
 ```
 
-## 4. Building the App
-Because Spark uses Server Actions (Genkit flows), you should host your app on **Firebase App Hosting** first.
-
-### Hosted Wrapper Approach
-In `capacitor.config.ts`, set the `server.url` to your live website URL (e.g., https://your-app.web.app). This ensures all AI flows and database operations work correctly from the mobile app.
-
+## 4. Building the Mobile Apps
 ```bash
-# Build the local project
-npm run build
 # Sync the code to the mobile platforms
 npx cap sync
 ```
