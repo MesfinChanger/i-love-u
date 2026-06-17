@@ -16,19 +16,18 @@
         "photoUrl": { "type": "string" },
         "location": { "type": "string" },
         "phone": { "type": "string" },
-        "preferredLanguage": { "type": "string", "description": "The user's preferred language (e.g., 'English', 'Spanish', 'French')." },
+        "preferredLanguage": { "type": "string", "description": "The user's preferred language (e.g., 'English', 'Spanish')." },
         "relationshipStatus": { "type": "string", "enum": ["single", "dating"], "default": "single" },
         "partnerId": { "type": "string", "description": "UID of the current dating partner." },
         "settings": {
           "type": "object",
           "properties": {
-            "allowSensitiveContent": { "type": "boolean", "default": false, "description": "Whether the user allows receiving explicit or sensitive images." }
+            "allowSensitiveContent": { "type": "boolean", "default": false }
           }
         },
         "preferences": {
           "type": "object",
           "properties": {
-            "lookingFor": { "type": "string", "enum": ["male", "female", "both"] },
             "preferredAgeRanges": { 
               "type": "array", 
               "items": { 
@@ -46,7 +45,7 @@
       "description": "Represents a successful connection between two users.",
       "type": "object",
       "properties": {
-        "userIds": { "array": { "items": { "type": "string" } } },
+        "userIds": { "type": "array", "items": { "type": "string" } },
         "timestamp": { "type": "string", "format": "date-time" },
         "lastMessage": { "type": "string" },
         "status": { "type": "string", "enum": ["active", "unmatched"] },

@@ -51,7 +51,7 @@ export default function DiscoverPage() {
         toast({
           variant: "destructive",
           title: "Exclusive Dating",
-          description: "You are already dating someone. To date others, you must first unmatch your current partner."
+          description: "You are already sparking with someone. To date others, you must first unmatch your current partner."
         });
         return;
       }
@@ -60,7 +60,7 @@ export default function DiscoverPage() {
         toast({
           variant: "destructive",
           title: "Preference Restriction",
-          description: "Same-sex sparking is currently not allowed. You can still add them as a friend!"
+          description: "Spark matches are currently limited to opposite-sex connections. You can still add them as a friend!"
         });
         return;
       }
@@ -78,7 +78,7 @@ export default function DiscoverPage() {
     const matchData = {
       userIds: [user.uid, currentProfile.id],
       timestamp: serverTimestamp(),
-      lastMessage: type === 'date' ? "We sparkled!" : "Let's be friends!",
+      lastMessage: type === 'date' ? "We sparked!" : "Let's be friends!",
       status: "active",
       type: type
     };
@@ -184,7 +184,7 @@ export default function DiscoverPage() {
                 onClick={() => handleAction('friend')}
               >
                 <UserPlus className="w-5 h-5" />
-                <span className="text-[10px] font-bold uppercase tracking-tighter">Friend</span>
+                <span className="text-[10px] font-bold uppercase tracking-tighter text-muted-foreground">Friend</span>
               </Button>
 
               <Button 
