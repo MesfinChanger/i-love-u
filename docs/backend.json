@@ -28,9 +28,14 @@
         "preferences": {
           "type": "object",
           "properties": {
-            "lookingFor": { "type": "string" },
-            "minAge": { "type": "number", "minimum": 18 },
-            "maxAge": { "type": "number" }
+            "lookingFor": { "type": "string", "enum": ["male", "female", "both"] },
+            "preferredAgeRanges": { 
+              "type": "array", 
+              "items": { 
+                "type": "string", 
+                "enum": ["18-33", "34-49", "50-65", "66+"] 
+              } 
+            }
           }
         }
       },

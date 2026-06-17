@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
 import { 
   Select, 
   SelectContent, 
@@ -16,7 +17,7 @@ import {
   SelectTrigger, 
   SelectValue 
 } from '@/components/ui/select';
-import { Sparkles, Camera, Loader2, Save, LogOut, Globe, Heart, Zap, ShieldAlert, Lock, User, Church } from 'lucide-react';
+import { Sparkles, Camera, Loader2, Save, LogOut, Globe, Heart, Zap, ShieldAlert, Lock, User, Church, Filter } from 'lucide-react';
 import { generateBio } from '@/ai/flows/generate-bio-flow';
 import { useToast } from '@/hooks/use-toast';
 import { useUser, useFirestore, useAuth, useDoc } from '@/firebase';
@@ -37,6 +38,13 @@ const GENDERS = [
 
 const RELIGIONS = [
   'Christianity', 'Islam', 'Hinduism', 'Buddhism', 'Judaism', 'Sikhism', 'Atheist', 'Agnostic', 'Other', 'None'
+];
+
+const AGE_RANGES = [
+  { id: '18-33', label: '18 - 33' },
+  { id: '34-49', label: '34 - 49' },
+  { id: '50-65', label: '50 - 65' },
+  { id: '66+', label: '66+' }
 ];
 
 export default function ProfilePage() {
@@ -60,6 +68,7 @@ export default function ProfilePage() {
   const [interests, setInterests] = useState('');
   const [preferredLanguage, setPreferredLanguage] = useState('English');
   const [allowSensitiveContent, setAllowSensitiveContent] = useState(false);
+  const [preferredAgeRanges, setPreferredAgeRanges] = useState<string[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
 
   useEffect(() => {
@@ -72,6 +81,7 @@ export default function ProfilePage() {
       setInterests(profileData.interests?.join(', ') || '');
       setPreferredLanguage(profileData.preferredLanguage || 'English');
       setAllowSensitiveContent(profileData.settings?.allowSensitiveContent || false);
+      setPreferredAgeRanges(profileData.preferences?.preferredAgeRanges || []);
     }
   }, [profileData]);
 
@@ -101,6 +111,14 @@ export default function ProfilePage() {
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  const handleAgeRangeToggle = (rangeId: string) => {
+    setPreferredAgeRanges(prev => 
+      prev.includes(rangeId) 
+        ? prev.filter(id => id !== rangeId) 
+        : [...prev, rangeId]
+    );
   };
 
   const handleSave = async () => {
@@ -136,6 +154,9 @@ export default function ProfilePage() {
       preferredLanguage,
       settings: {
         allowSensitiveContent
+      },
+      preferences: {
+        preferredAgeRanges
       },
       updatedAt: new Date().toISOString()
     }, { merge: true });
@@ -221,7 +242,7 @@ export default function ProfilePage() {
               <Input id="name" value={displayName} onChange={e => setDisplayName(e.target.value)} placeholder="How others see you" className="rounded-xl" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="age">Age (Must be 18+)</Label>
+              <Label htmlFor="age">Your Age (18+)</Label>
               <Input 
                 id="age" 
                 type="number" 
@@ -290,8 +311,30 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Safety Settings */}
-          <div className="pt-4 space-y-4">
+          {/* Preferences Section */}
+          <div className="pt-4 space-y-6">
+            <div className="space-y-4">
+              <Label className="text-lg font-black tracking-tight flex items-center gap-2">
+                <Filter className="w-5 h-5 text-primary" />
+                Age Preferences (Multi-Select)
+              </Label>
+              <p className="text-xs text-muted-foreground">Select one or more age categories you are interested in (15-year intervals).</p>
+              
+              <div className="grid grid-cols-2 gap-4">
+                {AGE_RANGES.map((range) => (
+                  <div key={range.id} className="flex items-center space-x-3 p-4 bg-muted/20 rounded-xl border border-transparent hover:border-primary/20 transition-colors">
+                    <Checkbox 
+                      id={`range-${range.id}`} 
+                      checked={preferredAgeRanges.includes(range.id)}
+                      onCheckedChange={() => handleAgeRangeToggle(range.id)}
+                    />
+                    <Label htmlFor={`range-${range.id}`} className="cursor-pointer font-bold">{range.label}</Label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Safety Settings */}
             <div className="flex items-center justify-between p-4 bg-muted/50 rounded-2xl border border-border/50">
               <div className="space-y-0.5">
                 <Label className="text-base flex items-center gap-2">
