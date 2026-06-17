@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -14,13 +15,14 @@ import {
   SelectTrigger, 
   SelectValue 
 } from '@/components/ui/select';
-import { Sparkles, Camera, Loader2, Save, LogOut, Globe } from 'lucide-react';
+import { Sparkles, Camera, Loader2, Save, LogOut, Globe, Heart, Zap } from 'lucide-react';
 import { generateBio } from '@/ai/flows/generate-bio-flow';
 import { useToast } from '@/hooks/use-toast';
 import { useUser, useFirestore, useAuth, useDoc } from '@/firebase';
 import { doc, setDoc } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
+import { Badge } from '@/components/ui/badge';
 
 const LANGUAGES = [
   'English', 'Spanish', 'French', 'German', 'Chinese', 'Japanese', 'Korean', 'Italian', 'Portuguese', 'Russian'
@@ -126,7 +128,7 @@ export default function ProfilePage() {
             <Button variant="outline" size="icon" onClick={handleLogout} className="rounded-full">
               <LogOut className="w-4 h-4" />
             </Button>
-            <Button onClick={handleSave} className="gradient-bg rounded-full gap-2">
+            <Button onClick={handleSave} className="gradient-bg rounded-full gap-2 px-6">
               <Save className="w-4 h-4" />
               Save
             </Button>
@@ -135,7 +137,7 @@ export default function ProfilePage() {
 
         <div className="bg-white p-8 rounded-[2rem] shadow-sm space-y-8 border">
           {/* Photo Section */}
-          <div className="flex justify-center">
+          <div className="flex flex-col items-center gap-4">
             <div className="relative group">
               <div className="w-40 h-40 rounded-full bg-accent flex items-center justify-center border-4 border-white shadow-xl overflow-hidden relative">
                 <Camera className="w-10 h-10 text-primary opacity-50" />
@@ -143,6 +145,23 @@ export default function ProfilePage() {
               <Button size="icon" className="absolute bottom-1 right-1 rounded-full gradient-bg border-4 border-white">
                 <Camera className="w-4 h-4 text-white" />
               </Button>
+            </div>
+            
+            <div className="flex flex-col items-center gap-2">
+               {profileData?.relationshipStatus === 'dating' ? (
+                 <Badge className="bg-primary text-white gap-1 px-4 py-1 animate-pulse">
+                   <Zap className="w-3 h-3 fill-white" />
+                   Currently Sparking
+                 </Badge>
+               ) : (
+                 <Badge variant="outline" className="text-muted-foreground gap-1 px-4 py-1">
+                   <Heart className="w-3 h-3" />
+                   Looking for a Spark
+                 </Badge>
+               )}
+               <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">
+                 One date limit active
+               </p>
             </div>
           </div>
 

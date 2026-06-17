@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "UserProfile": {
@@ -15,6 +16,8 @@
         "location": { "type": "string" },
         "phone": { "type": "string" },
         "preferredLanguage": { "type": "string", "description": "The user's preferred language (e.g., 'English', 'Spanish', 'French')." },
+        "relationshipStatus": { "type": "string", "enum": ["single", "dating"], "default": "single" },
+        "partnerId": { "type": "string", "description": "UID of the current dating partner." },
         "preferences": {
           "type": "object",
           "properties": {
@@ -34,7 +37,8 @@
         "userIds": { "type": "array", "items": { "type": "string" } },
         "timestamp": { "type": "string", "format": "date-time" },
         "lastMessage": { "type": "string" },
-        "status": { "type": "string", "enum": ["active", "unmatched"] }
+        "status": { "type": "string", "enum": ["active", "unmatched"] },
+        "type": { "type": "string", "enum": ["friend", "date"], "default": "friend" }
       }
     },
     "Message": {

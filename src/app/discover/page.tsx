@@ -1,16 +1,31 @@
+
 'use client';
 
 import { useState, useMemo } from 'react';
 import { Header } from '@/components/Header';
 import { Button } from '@/components/ui/button';
-import { Heart, X, Info, Sparkles, MapPin } from 'lucide-react';
+import { Heart, X, Info, Sparkles, MapPin, Zap, UserPlus } from 'lucide-react';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { BottomNav } from '@/components/BottomNav';
+import { useUser, useFirestore, useDoc } from '@/firebase';
+import { doc, setDoc, addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { useToast } from '@/hooks/use-toast';
+import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 
 export default function DiscoverPage() {
+  const { user } = useUser();
+  const db = useFirestore();
+  const { toast } = useToast();
+
+  const userRef = useMemoFirebase(() => {
+    if (!db || !user) return null;
+    return doc(db, 'users', user.uid);
+  }, [db, user]);
+  const { data: myProfile } = useDoc(userRef);
+
   const profiles = useMemo(() => {
     return PlaceHolderImages.filter(img => img.id.startsWith('user-')).map((img, i) => ({
       id: img.id,
@@ -26,7 +41,46 @@ export default function DiscoverPage() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const currentProfile = profiles[currentIndex];
 
-  const handleSwipe = (direction: 'left' | 'right') => {
+  const handleAction = async (type: 'friend' | 'date') => {
+    if (!user || !db) return;
+
+    if (type === 'date' && myProfile?.relationshipStatus === 'dating') {
+      toast({
+        variant: "destructive",
+        title: "Exclusive Dating",
+        description: "You are already dating someone. To date others, you must first unmatch your current partner."
+      });
+      return;
+    }
+
+    // In a real app, this would be a complex match-request system. 
+    // Here we'll simulate a match creation.
+    const matchData = {
+      userIds: [user.uid, currentProfile.id],
+      timestamp: serverTimestamp(),
+      lastMessage: type === 'date' ? "We sparkled!" : "Let's be friends!",
+      status: "active",
+      type: type
+    };
+
+    addDoc(collection(db, 'matches'), matchData);
+
+    if (type === 'date') {
+      setDoc(doc(db, 'users', user.uid), {
+        relationshipStatus: 'dating',
+        partnerId: currentProfile.id
+      }, { merge: true });
+    }
+
+    toast({
+      title: type === 'date' ? "Sparked!" : "Friend Request Sent",
+      description: `You and ${currentProfile.name} have connected as ${type}s.`
+    });
+
+    handleNext();
+  };
+
+  const handleNext = () => {
     if (currentIndex < profiles.length - 1) {
       setCurrentIndex(prev => prev + 1);
     } else {
@@ -81,28 +135,33 @@ export default function DiscoverPage() {
               </div>
             </Card>
 
-            <div className="flex justify-center items-center gap-6 mt-8">
+            <div className="flex justify-center items-center gap-4 mt-8">
               <Button 
                 variant="outline" 
                 size="icon" 
-                className="w-16 h-16 rounded-full border-2 border-muted-foreground/20 bg-white hover:bg-red-50 hover:border-red-200 text-red-500 shadow-lg"
-                onClick={() => handleSwipe('left')}
+                className="w-14 h-14 rounded-full border-2 border-muted-foreground/20 bg-white hover:bg-red-50 hover:border-red-200 text-red-500 shadow-lg"
+                onClick={handleNext}
               >
-                <X className="w-8 h-8" />
+                <X className="w-6 h-6" />
               </Button>
+              
               <Button 
                 variant="outline" 
                 size="icon" 
-                className="w-12 h-12 rounded-full border-muted-foreground/20 bg-white"
+                className="w-14 h-14 rounded-full border-2 border-primary/20 bg-white text-primary hover:bg-primary/5 shadow-lg flex flex-col gap-1 h-14 w-24 rounded-full"
+                onClick={() => handleAction('friend')}
               >
-                <Info className="w-6 h-6 text-muted-foreground" />
+                <UserPlus className="w-5 h-5" />
+                <span className="text-[10px] font-bold uppercase tracking-tighter">Friend</span>
               </Button>
+
               <Button 
                 size="icon" 
-                className="w-16 h-16 rounded-full gradient-bg hover:opacity-90 text-white shadow-xl shadow-primary/30"
-                onClick={() => handleSwipe('right')}
+                className="w-14 h-14 rounded-full gradient-bg hover:opacity-90 text-white shadow-xl shadow-primary/30 flex flex-col gap-1 h-14 w-24 rounded-full"
+                onClick={() => handleAction('date')}
               >
-                <Heart className="w-8 h-8 fill-white" />
+                <Zap className="w-5 h-5 fill-white" />
+                <span className="text-[10px] font-bold uppercase tracking-tighter">Spark</span>
               </Button>
             </div>
           </div>
