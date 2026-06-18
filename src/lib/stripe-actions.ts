@@ -1,4 +1,3 @@
-
 'use server';
 
 import Stripe from 'stripe';
@@ -43,10 +42,9 @@ export async function createDonationSession(amount: number, currency: string, us
 
 /**
  * Creates a Stripe Checkout Session for a recurring seller subscription.
+ * Fee is determined dynamically (mocked here, but intended to be fetched from Admin Config).
  */
-export async function createSubscriptionSession(planType: 'basic_seller' | 'pro_seller', currency: string, userId: string) {
-  const priceAmount = planType === 'pro_seller' ? 79 : 29;
-  
+export async function createSubscriptionSession(planType: 'basic_seller' | 'pro_seller', currency: string, userId: string, adminSetPrice: number) {
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ['card'],
     line_items: [
@@ -55,9 +53,9 @@ export async function createSubscriptionSession(planType: 'basic_seller' | 'pro_
           currency: currency.toLowerCase(),
           product_data: {
             name: planType === 'pro_seller' ? 'Spark Pro Seller Plan' : 'Spark Basic Seller Plan',
-            description: `Monthly subscription for Spark ${planType.replace('_', ' ')} status.`,
+            description: `Monthly subscription for Spark ${planType.replace('_', ' ')} status. Pricing determined by Admin demand.`,
           },
-          unit_amount: Math.round(priceAmount * 100),
+          unit_amount: Math.round(adminSetPrice * 100),
           recurring: {
             interval: 'month',
           },

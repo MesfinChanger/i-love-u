@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -9,7 +8,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { CheckCircle2, Store, Plus, Package, CreditCard, Sparkles, Loader2 } from 'lucide-react';
+import { CheckCircle2, Store, Plus, Package, CreditCard, Sparkles, Loader2, TrendingUp } from 'lucide-react';
 import { useUser, useFirestore, useDoc } from '@/firebase';
 import { doc, setDoc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
@@ -33,6 +32,17 @@ export default function SellerManagePage() {
   const db = useFirestore();
   const { toast } = useToast();
   const searchParams = useSearchParams();
+
+  // Fetch Admin-Managed Pricing Configuration
+  const adminConfigRef = useMemoFirebase(() => {
+    if (!db) return null;
+    return doc(db, 'config', 'pricing');
+  }, [db]);
+  const { data: adminPricing } = useDoc(adminConfigRef);
+
+  // Default prices if admin hasn't set them yet
+  const basicPrice = adminPricing?.basic_seller_fee || 29;
+  const proPrice = adminPricing?.pro_seller_fee || 79;
 
   const userRef = useMemoFirebase(() => {
     if (!db || !user) return null;
@@ -60,8 +70,10 @@ export default function SellerManagePage() {
   const handleSubscribe = async (plan: 'basic_seller' | 'pro_seller') => {
     if (!user || !db) return;
     setIsSubscribing(true);
+    const priceToCharge = plan === 'basic_seller' ? basicPrice : proPrice;
+    
     try {
-      await createSubscriptionSession(plan, userCurrency, user.uid);
+      await createSubscriptionSession(plan, userCurrency, user.uid, priceToCharge);
     } catch (e) {
       console.error(e);
       toast({ variant: "destructive", title: "Error", description: "Payment redirect failed." });
@@ -93,12 +105,17 @@ export default function SellerManagePage() {
             <h1 className="text-5xl font-black tracking-tighter">Become a Seller</h1>
             <p className="text-xl text-muted-foreground">Start your own gifting business on Spark. Reach local sparks with localized pricing.</p>
             
+            <div className="flex items-center justify-center gap-2 bg-blue-50 text-blue-700 py-3 px-6 rounded-2xl border border-blue-100 inline-flex mx-auto">
+               <TrendingUp className="w-5 h-5" />
+               <span className="text-sm font-bold uppercase tracking-wider">Demand-Based Pricing Active</span>
+            </div>
+
             <div className="grid md:grid-cols-2 gap-6 mt-12">
               <Card className="border-2 border-primary/20 bg-white">
                 <CardHeader>
                   <CardTitle>Basic Seller</CardTitle>
                   <CardDescription>Perfect for local artisans</CardDescription>
-                  <div className="text-3xl font-black mt-4">{currencySymbol}29/mo</div>
+                  <div className="text-3xl font-black mt-4">{currencySymbol}{basicPrice}/mo</div>
                 </CardHeader>
                 <CardContent className="space-y-4 text-left">
                   <div className="flex items-center gap-2 text-sm"><CheckCircle2 className="w-4 h-4 text-green-500" /> List up to 10 products</div>
@@ -118,7 +135,7 @@ export default function SellerManagePage() {
                     Pro Seller
                   </CardTitle>
                   <CardDescription>For growing businesses</CardDescription>
-                  <div className="text-3xl font-black mt-4">{currencySymbol}79/mo</div>
+                  <div className="text-3xl font-black mt-4">{currencySymbol}{proPrice}/mo</div>
                 </CardHeader>
                 <CardContent className="space-y-4 text-left">
                   <div className="flex items-center gap-2 text-sm font-bold"><CheckCircle2 className="w-4 h-4 text-primary" /> Unlimited products</div>
@@ -131,6 +148,9 @@ export default function SellerManagePage() {
                 </CardFooter>
               </Card>
             </div>
+            <p className="text-xs text-muted-foreground uppercase tracking-widest font-bold">
+              Fees are set by administration based on current platform demand.
+            </p>
           </div>
         ) : (
           <div className="space-y-8">
