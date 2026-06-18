@@ -48,6 +48,8 @@ import {
   Soup,
   HeartOff,
   Key,
+  MapPin,
+  Navigation,
   UserCheck
 } from 'lucide-react';
 import { generateBio } from '@/ai/flows/generate-bio-flow';
@@ -57,7 +59,7 @@ import { useUser, useFirestore, useAuth, useDoc } from '@/firebase';
 import { doc, setDoc, deleteDoc, updateDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { signOut, deleteUser } from 'firebase/auth';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
-import { Badge } from '@/components/ui/badge';
+import { Badge } from '@/badge';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { generateKeyPair } from '@/lib/crypto';
@@ -102,6 +104,8 @@ export default function ProfilePage() {
   const [isSaving, setIsSaving] = useState(false);
   const [isUnmatching, setIsUnmatching] = useState(false);
   const [hasKeys, setHasKeys] = useState(false);
+  const [isFetchingLocation, setIsFetchingLocation] = useState(false);
+  const [exactLocation, setExactLocation] = useState<{lat: number, lng: number} | null>(null);
 
   useEffect(() => {
     if (profileData) {
@@ -118,8 +122,36 @@ export default function ProfilePage() {
       setIsDatingEnabled(profileData.isDatingEnabled !== false);
       setPreferredAgeRanges(profileData.preferences?.preferredAgeRanges || []);
       setHasKeys(!!profileData.publicKey && !!localStorage.getItem(`spark_priv_${user?.uid}`));
+      if (profileData.exactLocation) {
+        setExactLocation({
+          lat: profileData.exactLocation.latitude,
+          lng: profileData.exactLocation.longitude
+        });
+      }
     }
   }, [profileData, user]);
+
+  const handleUpdateLocation = () => {
+    if (!navigator.geolocation) {
+      toast({ variant: "destructive", title: "Unsupported", description: "Geolocation is not supported by your browser." });
+      return;
+    }
+
+    setIsFetchingLocation(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        setExactLocation({ lat: latitude, lng: longitude });
+        setIsFetchingLocation(false);
+        toast({ title: "Location Verified", description: "Your exact coordinates have been captured for accountability." });
+      },
+      (error) => {
+        console.error(error);
+        setIsFetchingLocation(false);
+        toast({ variant: "destructive", title: "Location Error", description: "Could not fetch your exact location. Please enable GPS." });
+      }
+    );
+  };
 
   const handleSetupEncryption = async () => {
     if (!user || !db) return;
@@ -172,6 +204,11 @@ export default function ProfilePage() {
         languagesLearning: languagesLearning.split(',').map(s => s.trim()).filter(i => i),
         preferredLanguage,
         isDatingEnabled,
+        exactLocation: exactLocation ? {
+          latitude: exactLocation.lat,
+          longitude: exactLocation.lng,
+          lastUpdated: new Date().toISOString()
+        } : null,
         settings: { allowSensitiveContent },
         preferences: { preferredAgeRanges },
         updatedAt: new Date().toISOString()
@@ -314,6 +351,27 @@ export default function ProfilePage() {
               </div>
             </div>
             <Switch checked={isDatingEnabled} onCheckedChange={setIsDatingEnabled} />
+          </div>
+
+          <div className="p-6 bg-red-50 border border-red-200 rounded-[1.5rem] space-y-4">
+            <div className="flex items-start gap-3">
+              <MapPin className="w-6 h-6 text-red-600 shrink-0 mt-1" />
+              <div>
+                <h3 className="font-bold text-red-800">Verified Exact Location</h3>
+                <p className="text-sm text-red-700">Accountability First: Your exact GPS coordinates will be visible to your <strong>exclusive dating partner</strong> only. This prevents cheating and builds trust.</p>
+              </div>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Button onClick={handleUpdateLocation} disabled={isFetchingLocation} variant="outline" className="w-full rounded-xl gap-2 border-red-300 text-red-700 hover:bg-red-100">
+                {isFetchingLocation ? <Loader2 className="w-4 h-4 animate-spin" /> : <Navigation className="w-4 h-4" />}
+                Refresh My Exact Location
+              </Button>
+              {exactLocation && (
+                <p className="text-[10px] text-center text-red-400 font-mono">
+                  Current: {exactLocation.lat.toFixed(4)}, {exactLocation.lng.toFixed(4)}
+                </p>
+              )}
+            </div>
           </div>
 
           {!hasKeys && (

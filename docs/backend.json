@@ -3,7 +3,7 @@
   "entities": {
     "UserProfile": {
       "title": "User Profile",
-      "description": "Dating app profile restricted to 18+. Includes relationship constraints and cultural/language preferences.",
+      "description": "Dating app profile restricted to 18+. Includes relationship constraints, cultural preferences, and verified location tracking.",
       "type": "object",
       "properties": {
         "uid": { "type": "string" },
@@ -13,20 +13,29 @@
         "religion": { "type": "string" },
         "bio": { "type": "string" },
         "interests": { "type": "array", "items": { "type": "string" } },
-        "culturalInterests": { "type": "array", "items": { "type": "string" }, "description": "Traditions, foods, or regions the user is interested in." },
-        "languagesLearning": { "type": "array", "items": { "type": "string" }, "description": "Languages the user is currently learning." },
+        "culturalInterests": { "type": "array", "items": { "type": "string" } },
+        "languagesLearning": { "type": "array", "items": { "type": "string" } },
         "photoUrl": { "type": "string" },
-        "location": { "type": "string" },
+        "location": { "type": "string", "description": "Display location (e.g., City, Country)" },
+        "exactLocation": {
+          "type": "object",
+          "properties": {
+            "latitude": { "type": "number" },
+            "longitude": { "type": "number" },
+            "lastUpdated": { "type": "string", "format": "date-time" }
+          }
+        },
         "preferredLanguage": { "type": "string", "default": "English" },
         "relationshipStatus": { "type": "string", "enum": ["single", "dating"], "default": "single" },
-        "isDatingEnabled": { "type": "boolean", "default": true, "description": "Whether the user is capable or eligible for dating matches." },
-        "partnerId": { "type": "string", "description": "UID of current dating partner." },
-        "publicKey": { "type": "string", "description": "Base64 encoded public key for E2EE." },
-        "isSupporter": { "type": "boolean", "default": false, "description": "Whether the user has donated to support the app." },
+        "isDatingEnabled": { "type": "boolean", "default": true },
+        "partnerId": { "type": "string" },
+        "publicKey": { "type": "string" },
+        "isSupporter": { "type": "boolean", "default": false },
         "settings": {
           "type": "object",
           "properties": {
-            "allowSensitiveContent": { "type": "boolean", "default": false }
+            "allowSensitiveContent": { "type": "boolean", "default": false },
+            "shareExactLocation": { "type": "boolean", "default": true, "description": "Requirement for exclusive partners." }
           }
         },
         "preferences": {
@@ -60,7 +69,7 @@
       "properties": {
         "senderId": { "type": "string" },
         "text": { "type": "string" },
-        "encryptedText": { "type": "string", "description": "Base64 encoded encrypted message." },
+        "encryptedText": { "type": "string" },
         "imageUrl": { "type": "string" },
         "isSensitive": { "type": "boolean", "default": false },
         "timestamp": { "type": "string", "format": "date-time" }
@@ -73,7 +82,7 @@
   "firestore": {
     "/users/{userId}": {
       "schema": "UserProfile",
-      "description": "User profiles with strict 18+ enforcement."
+      "description": "User profiles with strict 18+ enforcement and verified GPS location."
     },
     "/matches/{matchId}": {
       "schema": "Match",

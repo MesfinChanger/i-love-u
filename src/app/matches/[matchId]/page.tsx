@@ -5,7 +5,7 @@ import { useState, useMemo, useEffect, useRef } from 'react';
 import { Header } from '@/components/Header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Send, ChevronLeft, Sparkles, Loader2, Camera, ShieldAlert, EyeOff, Info, Lock } from 'lucide-react';
+import { Send, ChevronLeft, Sparkles, Loader2, Camera, ShieldAlert, EyeOff, Info, Lock, MapPin, ExternalLink } from 'lucide-react';
 import { useUser, useFirestore, useCollection, useDoc } from '@/firebase';
 import { collection, addDoc, query, orderBy, serverTimestamp, doc, getDoc } from 'firebase/firestore';
 import { useParams, useRouter } from 'next/navigation';
@@ -18,7 +18,7 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import Image from 'next/image';
 import { encryptText, decryptText } from '@/lib/crypto';
-import { Badge } from '@/components/ui/badge';
+import { Badge } from '@/badge';
 
 export default function ChatPage() {
   const { matchId } = useParams();
@@ -41,15 +41,31 @@ export default function ChatPage() {
   }, [db, user]);
   const { data: myProfile } = useDoc(userRef);
 
+  const matchRef = useMemoFirebase(() => {
+    if (!db || !matchId) return null;
+    return doc(db, 'matches', String(matchId));
+  }, [db, matchId]);
+  const { data: matchData } = useDoc(matchRef);
+
+  const partnerId = useMemo(() => {
+    return matchData?.userIds?.find((id: string) => id !== user?.uid);
+  }, [matchData, user]);
+
+  const partnerRef = useMemoFirebase(() => {
+    if (!db || !partnerId) return null;
+    return doc(db, 'users', partnerId);
+  }, [db, partnerId]);
+  const { data: partnerProfile } = useDoc(partnerRef);
+
   const matchInfo = useMemo(() => {
     const idNum = parseInt(String(matchId).split('-')[1]) || 0;
     const img = PlaceHolderImages.filter(img => img.id.startsWith('user-'))[idNum % 4];
     return {
-      name: ['Alex', 'Jordan', 'Taylor', 'Casey'][idNum % 4],
-      photoUrl: img?.imageUrl,
-      interests: ['Hiking', 'Coffee', 'Music', 'Travel']
+      name: partnerProfile?.displayName || ['Alex', 'Jordan', 'Taylor', 'Casey'][idNum % 4],
+      photoUrl: partnerProfile?.photoUrl || img?.imageUrl,
+      interests: partnerProfile?.interests || ['Hiking', 'Coffee', 'Music', 'Travel']
     };
-  }, [matchId]);
+  }, [matchId, partnerProfile]);
 
   const messagesQuery = useMemoFirebase(() => {
     if (!db || !matchId) return null;
@@ -102,10 +118,7 @@ export default function ChatPage() {
         return;
       }
 
-      const matchDoc = await getDoc(doc(db, 'matches', String(matchId)));
-      const partnerId = matchDoc.data()?.userIds.find((id: string) => id !== user.uid);
-      const partnerDoc = await getDoc(doc(db, 'users', partnerId));
-      const partnerPubKey = partnerDoc.data()?.publicKey;
+      const partnerPubKey = partnerProfile?.publicKey;
 
       let encryptedText = null;
       if (partnerPubKey) {
@@ -183,6 +196,9 @@ export default function ChatPage() {
     }
   }, [messages]);
 
+  const isDatingMatch = matchData?.type === 'date';
+  const partnerExactLoc = partnerProfile?.exactLocation;
+
   return (
     <div className="flex flex-col h-screen bg-white">
       <header className="flex items-center gap-4 px-4 h-16 border-b shrink-0">
@@ -211,6 +227,30 @@ export default function ChatPage() {
           <span className="hidden sm:inline">Icebreaker</span>
         </Button>
       </header>
+
+      {isDatingMatch && (
+        <div className="bg-red-50 border-b border-red-100 p-3 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <MapPin className="w-4 h-4 text-red-500 animate-pulse" />
+            <div>
+              <p className="text-[10px] font-black text-red-700 uppercase tracking-widest leading-none">Verified Exact Place</p>
+              <p className="text-[8px] text-red-500 uppercase tracking-tighter mt-0.5">Accountability: Anti-Cheating Tracking Active</p>
+            </div>
+          </div>
+          {partnerExactLoc ? (
+            <div className="flex items-center gap-2">
+              <p className="text-[10px] font-mono font-bold text-red-800">
+                {partnerExactLoc.latitude.toFixed(4)}, {partnerExactLoc.longitude.toFixed(4)}
+              </p>
+              <Button size="icon" variant="ghost" className="h-6 w-6 text-red-600" onClick={() => window.open(`https://www.google.com/maps?q=${partnerExactLoc.latitude},${partnerExactLoc.longitude}`)}>
+                <ExternalLink className="w-3 h-3" />
+              </Button>
+            </div>
+          ) : (
+            <p className="text-[8px] text-red-400 font-bold uppercase">Partner is fetching location...</p>
+          )}
+        </div>
+      )}
 
       <main ref={scrollRef} className="flex-grow overflow-y-auto p-4 space-y-4 bg-muted/10">
         <div className="flex justify-center mb-4">
