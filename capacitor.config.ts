@@ -6,9 +6,14 @@ const config: CapacitorConfig = {
   appName: 'Spark',
   webDir: 'out',
   server: {
-    // Replace this with your actual hosted URL once deployed to Firebase App Hosting
+    // Firebase automatically provides free domains for testing:
+    // https://<your-project-id>.web.app
+    // Replace 'spark-dating' with your actual Firebase Project ID found in the console.
     url: 'https://spark-dating.web.app',
-    allowNavigation: ['spark-dating.firebaseapp.com'],
+    allowNavigation: [
+      'spark-dating.firebaseapp.com',
+      'spark-dating.web.app'
+    ],
     cleartext: true
   }
 };
