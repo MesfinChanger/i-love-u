@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react';
 import { Header } from '@/components/Header';
 import { Button } from '@/components/ui/button';
-import { Heart, X, Sparkles, MapPin, Zap, UserPlus, ShieldAlert, Church, Globe2, Languages, Soup, Lock, HeartOff, Building2 } from 'lucide-react';
+import { Heart, X, Sparkles, MapPin, Zap, UserPlus, ShieldAlert, Church, Globe2, Languages, Soup, Lock, HeartOff, Building2, Ban } from 'lucide-react';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Card } from '@/components/ui/card';
@@ -95,11 +95,12 @@ export default function DiscoverPage() {
         return;
       }
 
+      // ENFORCE: Same-sex dating restriction
       if (myProfile?.gender === currentProfile.gender) {
         toast({
           variant: "destructive",
           title: "Spark Restriction",
-          description: "Dating sparks are limited to opposite-sex connections. Add as a friend instead!"
+          description: "Dating sparks are limited to opposite-sex connections. Please connect as a Global Friend instead! 🤝"
         });
         return;
       }
@@ -146,7 +147,8 @@ export default function DiscoverPage() {
     </div>
   );
 
-  const datingIncapable = isAlreadyDating || isDatingDisabled || (myProfile?.gender === currentProfile.gender);
+  const isSameSex = myProfile?.gender === currentProfile.gender;
+  const datingIncapable = isAlreadyDating || isDatingDisabled || isSameSex;
 
   return (
     <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
@@ -251,6 +253,11 @@ export default function DiscoverPage() {
                 <>
                   <Lock className="w-5 h-5" aria-hidden="true" />
                   <span className="text-[10px] font-bold uppercase tracking-tighter">Exclusive</span>
+                </>
+              ) : isSameSex ? (
+                <>
+                  <Ban className="w-5 h-5" aria-hidden="true" />
+                  <span className="text-[10px] font-bold uppercase tracking-tighter">Restricted</span>
                 </>
               ) : (
                 <>
