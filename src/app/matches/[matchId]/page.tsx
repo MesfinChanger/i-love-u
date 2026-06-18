@@ -21,10 +21,11 @@ import {
   TreePine, 
   BookOpen,
   Flag,
-  Info
+  Info,
+  Users
 } from 'lucide-react';
 import { useUser, useFirestore, useCollection, useDoc } from '@/firebase';
-import { collection, addDoc, query, orderBy, serverTimestamp, doc } from 'firebase/firestore';
+import { collection, addDoc, query, orderBy, serverTimestamp, doc, updateDoc } from 'firebase/firestore';
 import { useParams, useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { generateIcebreaker } from '@/ai/flows/generate-icebreaker-flow';
@@ -70,6 +71,8 @@ export default function ChatPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [isReporting, setIsReporting] = useState(false);
+  const [isInvitingWitness, setIsInvitingWitness] = useState(false);
+  const [witnessUid, setWitnessUid] = useState('');
   const [decryptedMessages, setDecryptedMessages] = useState<Record<string, string>>({});
 
   const userRef = useMemoFirebase(() => {
@@ -239,6 +242,26 @@ export default function ChatPage() {
     }
   };
 
+  const handleInviteWitness = async () => {
+    if (!user || !db || !matchId || !witnessUid) return;
+    setIsInvitingWitness(true);
+    try {
+      await updateDoc(doc(db, 'matches', String(matchId)), {
+        witnessId: witnessUid,
+        witnessStatus: 'pending'
+      });
+      toast({
+        title: "Witness Invited",
+        description: "A trusted third party has been invited to vouch for your relationship! ✨"
+      });
+      setWitnessUid('');
+    } catch (e) {
+      toast({ variant: "destructive", title: "Error", description: "Could not invite witness." });
+    } finally {
+      setIsInvitingWitness(false);
+    }
+  };
+
   const handleIcebreaker = async () => {
     setIsGenerating(true);
     try {
@@ -263,6 +286,7 @@ export default function ChatPage() {
 
   const isDatingMatch = matchData?.type === 'date';
   const partnerExactLoc = partnerProfile?.exactLocation;
+  const isWitnessed = matchData?.witnessStatus === 'confirmed';
 
   return (
     <div className="flex flex-col h-screen bg-white">
@@ -278,10 +302,48 @@ export default function ChatPage() {
           <h2 className="font-black text-sm tracking-tight flex items-center gap-1.5 truncate">
             {matchInfo.name}
             <Lock className="w-3 h-3 text-green-500" aria-label="E2EE Active" />
+            {isWitnessed && <ShieldCheck className="w-3 h-3 text-primary" aria-label="Witnessed" />}
           </h2>
-          <p className="text-[9px] text-green-500 font-black uppercase tracking-widest leading-none">Private Channel</p>
+          <p className="text-[9px] text-green-500 font-black uppercase tracking-widest leading-none">
+            {isWitnessed ? "Community Witnessed" : "Private Channel"}
+          </p>
         </div>
         <div className="flex items-center gap-1">
+          {isDatingMatch && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="ghost" size="icon" className="text-primary hover:text-primary/80" aria-label="Invite Witness">
+                  <Users className="w-4 h-4" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent className="rounded-[2.5rem] border-none shadow-2xl">
+                <AlertDialogHeader>
+                  <AlertDialogTitle className="text-2xl font-black tracking-tighter">Invite Relationship Witness</AlertDialogTitle>
+                  <AlertDialogDescription className="text-muted-foreground leading-relaxed">
+                    Successful dates can invite a trusted third party to vouch for their relationship. Enter the User ID of your witness.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <div className="py-4">
+                  <Input 
+                    placeholder="Enter Witness User ID..." 
+                    value={witnessUid} 
+                    onChange={e => setWitnessUid(e.target.value)}
+                    className="rounded-xl h-12"
+                  />
+                  <p className="text-[10px] text-muted-foreground mt-2 font-bold uppercase tracking-widest">
+                    Your witness will be able to view the status of this match and vouch for your success.
+                  </p>
+                </div>
+                <AlertDialogFooter className="gap-2">
+                  <AlertDialogCancel className="rounded-xl">Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleInviteWitness} disabled={!witnessUid || isInvitingWitness} className="bg-primary text-white rounded-xl shadow-lg shadow-primary/20">
+                    {isInvitingWitness ? <Loader2 className="w-4 h-4 animate-spin" /> : "Invite Witness"}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
+
           <Button 
             variant="ghost" 
             size="sm" 
@@ -502,4 +564,3 @@ export default function ChatPage() {
     </div>
   );
 }
-

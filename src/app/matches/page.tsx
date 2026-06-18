@@ -11,7 +11,7 @@ import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { Badge } from '@/components/ui/badge';
-import { Heart, Zap, Globe2, MessageCircle, Loader2, Sparkles } from 'lucide-react';
+import { Heart, Zap, Globe2, MessageCircle, Loader2, Sparkles, ShieldCheck, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function MatchesPage() {
@@ -87,10 +87,22 @@ export default function MatchesPage() {
                         <p className="text-muted-foreground text-lg italic line-clamp-2">
                           {dateMatch.lastMessage ? `"${dateMatch.lastMessage}"` : "Start your sparkling journey..."}
                         </p>
-                        <div className="flex justify-center sm:justify-start gap-2 pt-2">
-                           <Badge className="bg-primary/10 text-primary border-none text-[9px] font-black uppercase tracking-widest px-3 h-6">
-                             Exclusive Match
-                           </Badge>
+                        <div className="flex flex-wrap justify-center sm:justify-start gap-2 pt-2">
+                           {dateMatch.witnessStatus === 'confirmed' ? (
+                             <Badge className="bg-primary text-white border-none text-[9px] font-black uppercase tracking-widest px-3 h-6 flex items-center gap-1">
+                               <ShieldCheck className="w-3 h-3" />
+                               Community Witnessed
+                             </Badge>
+                           ) : dateMatch.witnessStatus === 'pending' ? (
+                             <Badge className="bg-amber-100 text-amber-700 border-none text-[9px] font-black uppercase tracking-widest px-3 h-6 flex items-center gap-1">
+                               <Clock className="w-3 h-3" />
+                               Witness Pending
+                             </Badge>
+                           ) : (
+                             <Badge className="bg-primary/10 text-primary border-none text-[9px] font-black uppercase tracking-widest px-3 h-6">
+                               Exclusive Match
+                             </Badge>
+                           )}
                            <Badge className="bg-green-500/10 text-green-600 border-none text-[9px] font-black uppercase tracking-widest px-3 h-6">
                              E2EE Protected
                            </Badge>

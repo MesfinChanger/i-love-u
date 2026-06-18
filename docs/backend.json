@@ -30,6 +30,20 @@
       },
       "required": ["uid", "displayName", "age", "gender"]
     },
+    "Match": {
+      "title": "Match",
+      "description": "Connection between users.",
+      "type": "object",
+      "properties": {
+        "userIds": { "type": "array", "items": { "type": "string" } },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "lastMessage": { "type": "string" },
+        "status": { "type": "string", "enum": ["active", "unmatched"] },
+        "type": { "type": "string", "enum": ["friend", "date"], "default": "friend" },
+        "witnessId": { "type": "string", "description": "The UID of the user invited to witness the relationship" },
+        "witnessStatus": { "type": "string", "enum": ["none", "pending", "confirmed"], "default": "none" }
+      }
+    },
     "AdCampaign": {
       "title": "Ad Campaign",
       "description": "A paid advertisement shown in the discover feed, supporting text or video.",
@@ -96,18 +110,6 @@
         "productId": { "type": "string" },
         "status": { "type": "string", "enum": ["pending", "delivered"] },
         "timestamp": { "type": "string", "format": "date-time" }
-      }
-    },
-    "Match": {
-      "title": "Match",
-      "description": "Connection between users.",
-      "type": "object",
-      "properties": {
-        "userIds": { "type": "array", "items": { "type": "string" } },
-        "timestamp": { "type": "string", "format": "date-time" },
-        "lastMessage": { "type": "string" },
-        "status": { "type": "string", "enum": ["active", "unmatched"] },
-        "type": { "type": "string", "enum": ["friend", "date"], "default": "friend" }
       }
     },
     "Message": {
