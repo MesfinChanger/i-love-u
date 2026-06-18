@@ -57,7 +57,6 @@ import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { Badge } from '@/components/ui/badge';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { DonationDialog } from '@/components/DonationDialog';
 
 const GENDERS = [{ value: 'male', label: 'Male' }, { value: 'female', label: 'Female' }];
 const RELIGIONS = ['Christianity', 'Islam', 'Hinduism', 'Buddhism', 'Judaism', 'Sikhism', 'Atheist', 'Agnostic', 'None'];
@@ -105,7 +104,6 @@ export default function ProfilePage() {
   const [bio, setBio] = useState('');
   const [interests, setInterests] = useState('');
   const [culturalInterests, setCulturalInterests] = useState('');
-  const [languagesLearning, setLanguagesLearning] = useState('');
   const [preferredLanguage, setPreferredLanguage] = useState('English');
   const [currency, setCurrency] = useState('USD');
   const [allowSensitiveContent, setAllowSensitiveContent] = useState(false);
@@ -114,9 +112,7 @@ export default function ProfilePage() {
   const [isNewEntrepreneur, setIsNewEntrepreneur] = useState(false);
   const [isAdvertiser, setIsAdvertiser] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [hasKeys, setHasKeys] = useState(false);
   const [isFetchingLocation, setIsFetchingLocation] = useState(false);
   const [exactLocation, setExactLocation] = useState<{lat: number, lng: number} | null>(null);
 
@@ -131,15 +127,12 @@ export default function ProfilePage() {
       setBio(profileData.bio || '');
       setInterests(profileData.interests?.join(', ') || '');
       setCulturalInterests(profileData.culturalInterests?.join(', ') || '');
-      setLanguagesLearning(profileData.languagesLearning?.join(', ') || '');
-      setPreferredLanguage(profileData.preferredLanguage || 'English');
       setCurrency(profileData.currency || 'USD');
       setAllowSensitiveContent(profileData.settings?.allowSensitiveContent || false);
       setIsDatingEnabled(profileData.isDatingEnabled !== false);
       setIsLocalProducer(profileData.isLocalProducer || false);
       setIsNewEntrepreneur(profileData.isNewEntrepreneur || false);
       setIsAdvertiser(profileData.isAdvertiser || false);
-      setHasKeys(!!profileData.publicKey && !!localStorage.getItem(`spark_priv_${user?.uid}`));
       if (profileData.exactLocation) {
         setExactLocation({
           lat: profileData.exactLocation.latitude,
@@ -147,7 +140,7 @@ export default function ProfilePage() {
         });
       }
     }
-  }, [profileData, user]);
+  }, [profileData]);
 
   const handleUpdateLocation = () => {
     if (!navigator.geolocation) return;
@@ -194,8 +187,6 @@ export default function ProfilePage() {
         currency,
         interests: interests.split(',').map(s => s.trim()).filter(i => i),
         culturalInterests: culturalInterests.split(',').map(s => s.trim()).filter(i => i),
-        languagesLearning: languagesLearning.split(',').map(s => s.trim()).filter(i => i),
-        preferredLanguage, 
         isDatingEnabled, 
         isLocalProducer, 
         isNewEntrepreneur, 
@@ -246,15 +237,15 @@ export default function ProfilePage() {
   return (
     <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
       <Header />
-      <main className="container mx-auto px-4 max-w-2xl py-8">
+      <main className="container mx-auto px-4 max-w-2xl py-8" role="main">
         <div className="flex flex-col sm:flex-row items-center justify-between mb-8 gap-4">
           <h1 className="text-4xl font-black tracking-tighter">Profile Settings</h1>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={() => signOut(auth)} className="rounded-full gap-2 border-muted-foreground/20">
+            <Button variant="outline" onClick={() => signOut(auth)} className="rounded-full gap-2" aria-label="Sign out">
               <LogOut className="w-4 h-4" />
               Sign Out
             </Button>
-            <Button onClick={handleSave} disabled={isSaving} className="gradient-bg rounded-full gap-2 px-6">
+            <Button onClick={handleSave} disabled={isSaving} className="gradient-bg rounded-full gap-2 px-6" aria-label="Save profile changes">
               {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               Save Changes
             </Button>
@@ -262,16 +253,16 @@ export default function ProfilePage() {
         </div>
 
         <div className="space-y-6">
-          <Card className="rounded-[2.5rem] border-none shadow-xl bg-white overflow-hidden p-8 space-y-8">
+          <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-8 space-y-8">
             <div className="grid sm:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Display Name</Label>
-                <Input value={displayName} onChange={e => setDisplayName(e.target.value)} className="rounded-xl h-12" />
+                <Label htmlFor="display-name" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Display Name</Label>
+                <Input id="display-name" value={displayName} onChange={e => setDisplayName(e.target.value)} className="rounded-xl h-12" />
               </div>
               <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Country (Legal Compliance)</Label>
+                <Label htmlFor="country-select" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Country (Legal Compliance)</Label>
                 <Select value={country} onValueChange={setCountry}>
-                  <SelectTrigger className="rounded-xl h-12">
+                  <SelectTrigger id="country-select" className="rounded-xl h-12">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -283,20 +274,20 @@ export default function ProfilePage() {
 
             <div className="grid sm:grid-cols-3 gap-6">
               <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Gender</Label>
+                <Label htmlFor="gender-select" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Gender</Label>
                 <Select value={gender} onValueChange={setGender}>
-                  <SelectTrigger className="rounded-xl h-12"><SelectValue /></SelectTrigger>
+                  <SelectTrigger id="gender-select" className="rounded-xl h-12"><SelectValue /></SelectTrigger>
                   <SelectContent>{GENDERS.map(g => <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Age (18+)</Label>
-                <Input type="number" value={age} onChange={e => setAge(e.target.value)} className="rounded-xl h-12" />
+                <Label htmlFor="age-input" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Age (18+)</Label>
+                <Input id="age-input" type="number" value={age} onChange={e => setAge(e.target.value)} className="rounded-xl h-12" />
               </div>
               <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Currency</Label>
+                <Label htmlFor="currency-select" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Currency</Label>
                 <Select value={currency} onValueChange={setCurrency}>
-                  <SelectTrigger className="rounded-xl h-12"><SelectValue /></SelectTrigger>
+                  <SelectTrigger id="currency-select" className="rounded-xl h-12"><SelectValue /></SelectTrigger>
                   <SelectContent>{CURRENCIES.map(c => <SelectItem key={c.code} value={c.code}>{c.code} ({c.symbol})</SelectItem>)}</SelectContent>
                 </Select>
               </div>
@@ -304,83 +295,26 @@ export default function ProfilePage() {
 
             <div className="space-y-2">
               <div className="flex items-center justify-between mb-1">
-                <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">About You</Label>
-                <Button variant="ghost" size="sm" onClick={handleGenerateBio} disabled={isGenerating} className="text-primary gap-2 font-bold text-xs uppercase tracking-tighter">
-                  {isGenerating ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}AI Bio Generator
+                <Label htmlFor="bio-textarea" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">About You</Label>
+                <Button variant="ghost" size="sm" onClick={handleGenerateBio} disabled={isGenerating} className="text-primary gap-2 font-bold text-xs">
+                  {isGenerating ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}AI Bio
                 </Button>
               </div>
-              <Textarea value={bio} onChange={e => setBio(e.target.value)} className="min-h-[120px] rounded-[1.5rem] bg-muted/20 border-none p-4" placeholder="Tell the world who you are..." />
-            </div>
-
-            <div className="space-y-4 pt-4">
-              <h3 className="text-xs font-black uppercase tracking-widest text-muted-foreground">Safety Guard & Privacy</h3>
-              <div className="grid gap-4">
-                <div className="flex items-center justify-between p-4 bg-muted/20 rounded-2xl border">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-white rounded-xl shadow-sm"><EyeOff className="w-5 h-5 text-amber-600" /></div>
-                    <div>
-                      <Label className="font-bold">Safety Filter</Label>
-                      <p className="text-[10px] text-muted-foreground">Always blur sensitive AI-flagged content.</p>
-                    </div>
-                  </div>
-                  <Switch checked={!allowSensitiveContent} onCheckedChange={(checked) => setAllowSensitiveContent(!checked)} />
-                </div>
-                
-                <div className="flex items-center justify-between p-4 bg-muted/20 rounded-2xl border">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-white rounded-xl shadow-sm"><Zap className="w-5 h-5 text-primary" /></div>
-                    <div>
-                      <Label className="font-bold">Dating Mode</Label>
-                      <p className="text-[10px] text-muted-foreground">Allow sparks for romantic connections.</p>
-                    </div>
-                  </div>
-                  <Switch checked={isDatingEnabled} onCheckedChange={setIsDatingEnabled} />
-                </div>
-              </div>
+              <Textarea id="bio-textarea" value={bio} onChange={e => setBio(e.target.value)} className="min-h-[120px] rounded-[1.5rem]" placeholder="Tell the world who you are..." />
             </div>
 
             <div className="p-6 bg-red-50 border border-red-200 rounded-[2rem] space-y-4">
               <div className="flex items-start gap-4">
-                <div className="p-2 bg-white rounded-xl shadow-sm"><MapPin className="w-6 h-6 text-red-600" /></div>
+                <MapPin className="w-6 h-6 text-red-600 shrink-0 mt-1" aria-hidden="true" />
                 <div>
-                  <h3 className="font-black text-red-800 text-lg tracking-tighter">GPS Accountability</h3>
-                  <p className="text-xs text-red-700 leading-relaxed font-medium">Your exact coordinates are <strong>ONLY</strong> shared with your exclusive dating partner to ensure safety and transparency. It is never public.</p>
+                  <h3 className="font-black text-red-800 text-lg">GPS Accountability</h3>
+                  <p className="text-xs text-red-700 font-medium">Your exact location is ONLY shared with dating partners for transparency. Respect & Love is mandatory.</p>
                 </div>
               </div>
-              <Button onClick={handleUpdateLocation} disabled={isFetchingLocation} className="w-full h-12 rounded-xl gap-2 bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-200">
+              <Button onClick={handleUpdateLocation} disabled={isFetchingLocation} className="w-full h-12 rounded-xl bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-200">
                 {isFetchingLocation ? <Loader2 className="w-4 h-4 animate-spin" /> : <Navigation className="w-4 h-4" />}
                 Refresh Accountable GPS
               </Button>
-            </div>
-
-            <div className="space-y-4 pt-4 border-t">
-              <h3 className="text-xs font-black uppercase tracking-widest text-muted-foreground">Business & Community Tools</h3>
-              <div className="grid sm:grid-cols-2 gap-4">
-                <Card className="p-4 border border-dashed flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-3">
-                    <Megaphone className="w-5 h-5 text-blue-500" />
-                    <Label className="font-bold text-xs">Advertiser Mode</Label>
-                  </div>
-                  <Switch checked={isAdvertiser} onCheckedChange={setIsAdvertiser} />
-                </Card>
-                <Card className="p-4 border border-dashed flex items-center justify-between gap-2">
-                   <div className="flex items-center gap-3">
-                    <Briefcase className="w-5 h-5 text-green-600" />
-                    <Label className="font-bold text-xs">Entrepreneur Mode</Label>
-                  </div>
-                  <Switch checked={isNewEntrepreneur} onCheckedChange={setIsNewEntrepreneur} />
-                </Card>
-              </div>
-              {isAdvertiser && (
-                <Button variant="outline" className="w-full rounded-xl gap-2 h-12 border-blue-100 text-blue-600" asChild>
-                  <Link href="/ads/manage">Manage My Ads</Link>
-                </Button>
-              )}
-               {isNewEntrepreneur && (
-                <Button variant="outline" className="w-full rounded-xl gap-2 h-12 border-green-100 text-green-700" asChild>
-                  <Link href="/shop/manage">My Seller Dashboard</Link>
-                </Button>
-              )}
             </div>
 
             <div className="pt-8 border-t flex flex-col gap-4">
@@ -392,7 +326,7 @@ export default function ProfilePage() {
 
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <Button variant="ghost" className="w-full text-destructive/50 hover:text-destructive hover:bg-destructive/5 rounded-xl gap-2 h-12 font-bold text-xs uppercase tracking-widest">
+                    <Button variant="ghost" className="w-full text-destructive/50 hover:text-destructive rounded-xl h-12 font-bold text-xs uppercase tracking-widest">
                       <Trash2 className="w-4 h-4" />
                       Request Account Deletion
                     </Button>
@@ -401,12 +335,12 @@ export default function ProfilePage() {
                     <AlertDialogHeader>
                       <AlertDialogTitle className="text-2xl font-black tracking-tighter">Purge Account Data?</AlertDialogTitle>
                       <AlertDialogDescription className="text-muted-foreground leading-relaxed">
-                        In accordance with privacy laws, deleting your account will permanently remove all your messages, profile data, and sparks from our active servers. This action is irreversible.
+                        In accordance with privacy laws, deleting your account will permanently remove all your messages and sparks from our active servers.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter className="gap-2">
-                      <AlertDialogCancel className="rounded-xl">Keep my Sparks</AlertDialogCancel>
-                      <AlertDialogAction onClick={handleDeleteAccount} className="bg-destructive text-white rounded-xl shadow-lg shadow-destructive/20">Purge Data Forever</AlertDialogAction>
+                      <AlertDialogCancel className="rounded-xl">Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleDeleteAccount} className="bg-destructive text-white rounded-xl">Purge Data Forever</AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
@@ -418,4 +352,3 @@ export default function ProfilePage() {
     </div>
   );
 }
-

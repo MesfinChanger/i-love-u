@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -100,7 +101,6 @@ export default function AdvertiserManagePage() {
 
     setIsCreating(true);
     try {
-      // Moderate content for legal compliance
       const moderation = await moderateText({ 
         text: `${title} - ${description}`,
         context: 'advertisement' 
@@ -116,7 +116,6 @@ export default function AdvertiserManagePage() {
         return;
       }
 
-      // Create the record first (pending payment)
       await addDoc(collection(db, 'ads'), {
         advertiserId: user.uid,
         adType,
@@ -164,7 +163,7 @@ export default function AdvertiserManagePage() {
 
         <div className="grid lg:grid-cols-12 gap-8">
           <div className="lg:col-span-7 space-y-6">
-            <Card className="rounded-[2rem] border-none shadow-xl bg-white overflow-hidden">
+            <Card className="rounded-[2.5rem] border-none shadow-xl bg-white overflow-hidden">
               <CardHeader className="bg-primary/5 border-b">
                 <CardTitle className="flex items-center gap-2 text-2xl tracking-tighter">
                   <Plus className="w-5 h-5 text-primary" />
@@ -265,7 +264,7 @@ export default function AdvertiserManagePage() {
 
                 <div className="bg-slate-900 p-6 rounded-3xl border border-primary/20 space-y-3 shadow-lg">
                    <div className="flex items-center gap-2 text-primary">
-                     <Scale className="w-5 h-5" />
+                     <Scale className="w-5 h-5" aria-hidden="true" />
                      <h4 className="text-sm font-black uppercase tracking-tighter">Advertiser Liability Agreement</h4>
                    </div>
                    <p className="text-[10px] text-white/80 font-bold leading-relaxed uppercase tracking-widest">
@@ -273,17 +272,11 @@ export default function AdvertiserManagePage() {
                    </p>
                 </div>
 
-                <div className="bg-amber-50 p-4 rounded-2xl border border-dashed border-amber-200 flex items-start gap-3">
-                   <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-                   <p className="text-[10px] text-amber-700 font-bold leading-relaxed uppercase tracking-tighter">
-                     Legal Notice: Illegal solicitation or prohibited items will result in immediate permanent ban without refund.
-                   </p>
-                </div>
-
                 <Button 
                   className="w-full h-16 rounded-2xl gradient-bg text-lg font-bold shadow-xl shadow-primary/20 active:scale-95 transition-all"
                   onClick={handleCreateCampaign}
                   disabled={isCreating || !title || !description}
+                  aria-label="Launch Ad Campaign"
                 >
                   {isCreating ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : <CreditCard className="w-5 h-5 mr-2" />}
                   Accept Liability & Launch Ad
@@ -299,25 +292,12 @@ export default function AdvertiserManagePage() {
             ) : myAds && myAds.length > 0 ? (
               myAds.map((ad: any) => (
                 <Card key={ad.id} className="rounded-3xl border-none shadow-sm bg-white overflow-hidden">
-                  <div className="p-4 bg-muted/30 border-b flex items-center justify-between">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{new Date(ad.timestamp?.toDate()).toLocaleDateString()}</span>
-                    <div className="flex items-center gap-2">
-                      <MapPin className="w-3 h-3 text-muted-foreground" />
-                      <span className="text-[10px] font-bold text-muted-foreground uppercase">{ad.targetCountries?.[0] || 'GLOBAL'}</span>
-                    </div>
-                  </div>
                   <CardContent className="p-5 space-y-2">
                     <h3 className="font-bold">{ad.title}</h3>
                     <p className="text-xs text-muted-foreground line-clamp-2">{ad.description}</p>
                     <div className="flex items-center justify-between pt-2 border-t mt-2">
-                       <div className="flex items-center gap-1.5 text-xs font-bold">
-                          <Target className="w-3 h-3 text-primary" />
-                          <span>Budget: {ad.budget} {ad.currency}</span>
-                       </div>
-                       <div className="flex items-center gap-1.5 text-xs text-blue-500 font-black">
-                          <CheckCircle2 className="w-3 h-3" />
-                          <span className="uppercase">Verified</span>
-                       </div>
+                       <span className="text-[10px] font-bold text-muted-foreground uppercase">{ad.targetCountries?.[0] || 'GLOBAL'}</span>
+                       <Badge variant="outline" className="text-[9px] uppercase font-black">{ad.status}</Badge>
                     </div>
                   </CardContent>
                 </Card>

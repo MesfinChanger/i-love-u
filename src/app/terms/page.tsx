@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Header } from '@/components/Header';
@@ -12,20 +13,20 @@ export default function TermsPage() {
       <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-md">
         <div className="container mx-auto px-4 h-16 flex items-center gap-4">
           <Button variant="ghost" size="icon" asChild>
-            <Link href="/profile"><ArrowLeft className="w-5 h-5" /></Link>
+            <Link href="/profile" aria-label="Back to profile"><ArrowLeft className="w-5 h-5" /></Link>
           </Button>
           <h1 className="text-xl font-bold">Terms of Service</h1>
         </div>
       </header>
       
-      <main className="container mx-auto px-6 py-10 prose prose-sm max-w-2xl">
+      <main className="container mx-auto px-6 py-10 prose prose-sm max-w-2xl" role="main">
         <h2 className="text-2xl font-black mb-6 tracking-tighter uppercase">Legal Agreement</h2>
         <p className="text-muted-foreground mb-4 italic">Last updated: {new Date().toLocaleDateString()}</p>
         
         <section className="space-y-8">
           <div className="p-6 bg-primary/5 border border-primary/20 rounded-[1.5rem] space-y-4">
             <div className="flex items-start gap-3">
-              <Heart className="w-6 h-6 text-primary shrink-0 mt-1 fill-primary" />
+              <Heart className="w-6 h-6 text-primary shrink-0 mt-1 fill-primary" aria-hidden="true" />
               <div>
                 <h3 className="font-bold text-primary text-lg">MANDATORY: RESPECT & LOVE</h3>
                 <p className="text-sm text-primary/80 leading-relaxed font-bold">
@@ -37,7 +38,7 @@ export default function TermsPage() {
 
           <div className="p-6 bg-amber-50 border border-amber-200 rounded-[1.5rem] space-y-4 shadow-sm">
             <div className="flex items-start gap-3">
-              <AlertTriangle className="w-6 h-6 text-amber-600 shrink-0 mt-1" />
+              <AlertTriangle className="w-6 h-6 text-amber-600 shrink-0 mt-1" aria-hidden="true" />
               <div>
                 <h3 className="font-bold text-amber-800 text-lg uppercase tracking-tighter">Critical Limitation of Liability</h3>
                 <p className="text-[11px] text-amber-700 leading-relaxed font-black uppercase">
@@ -49,9 +50,9 @@ export default function TermsPage() {
 
           <div className="p-6 bg-slate-900 text-white rounded-[1.5rem] space-y-4 shadow-xl">
             <div className="flex items-start gap-3">
-              <Scale className="w-6 h-6 text-primary shrink-0 mt-1" />
+              <Scale className="w-6 h-6 text-primary shrink-0 mt-1" aria-hidden="true" />
               <div>
-                <h3 className="font-bold text-lg text-primary uppercase tracking-tighter">7. Specific Advertiser Liability</h3>
+                <h3 className="font-bold text-lg text-primary uppercase tracking-tighter">Specific Advertiser Liability</h3>
                 <p className="text-[11px] leading-relaxed font-bold uppercase opacity-90">
                   IF YOU USE THE ADVERTISING TOOLS, YOU AGREE THAT THE ADVERTISER IS SOLELY RESPONSIBLE FOR THE CONTENT, LEGALITY, AND CONSEQUENCES OF THE ADVERTISEMENT. THE OWNER, THE DEVELOPER, THE WEB PLATFORM, AND THE MOBILE APP ARE NOT LIABLE FOR ANY CLAIMS, DAMAGES, OR ILLEGALITIES ARISING FROM AN ADVERTISEMENT. THE ADVERTISER INDEMNIFIES THE PLATFORM AGAINST ALL LOSSES.
                 </p>
@@ -71,7 +72,7 @@ export default function TermsPage() {
 
           <div className="p-6 bg-red-50 border border-red-200 rounded-[1.5rem] space-y-4">
             <div className="flex items-start gap-3">
-              <ShieldAlert className="w-6 h-6 text-red-600 shrink-0 mt-1" />
+              <ShieldAlert className="w-6 h-6 text-red-600 shrink-0 mt-1" aria-hidden="true" />
               <div>
                 <h3 className="font-bold text-red-800 text-lg">3. Zero-Tolerance Policy</h3>
                 <p className="text-sm text-red-700 leading-relaxed">
@@ -81,18 +82,6 @@ export default function TermsPage() {
                 </p>
               </div>
             </div>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-bold mb-2 text-primary uppercase tracking-widest text-xs font-black">4. General Disclaimer</h3>
-            <p className="font-medium bg-muted/30 p-4 rounded-xl border border-dashed">
-              TO THE MAXIMUM EXTENT PERMITTED BY LAW, SPARK, ITS OWNERS, AND ITS DEVELOPERS SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS OR REVENUES, WHETHER INCURRED DIRECTLY OR INDIRECTLY.
-            </p>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-bold mb-2">6. Free Service & Donations</h3>
-            <p>Spark is 100% free. We do not charge for matching or messaging. Donations and shop purchases are voluntary and do not grant special privileges beyond the designated badges.</p>
           </div>
         </section>
       </main>

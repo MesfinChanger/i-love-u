@@ -1,3 +1,4 @@
+
 # Spark - Match with Respect & Love
 
 Welcome to Spark, the AI-powered dating and cultural exchange platform where "Respect & Love is Mandatory."
@@ -16,7 +17,7 @@ Firebase provides **two free domains** for every project, allowing you to test y
 
 To see your app live on your `.web.app` domain, run these commands in your terminal:
 
-1.  **Install Firebase CLI** (if you haven't):
+1.  **Install Firebase CLI**:
     ```bash
     npm install -g firebase-tools
     ```
@@ -37,6 +38,7 @@ To see your app live on your `.web.app` domain, run these commands in your termi
 - **E2EE Privacy**: End-to-end encryption for all private messages.
 - **Localized Economy**: Global currency support for donations and shop management.
 - **GPS Accountability**: Precise location sharing restricted to exclusive partners.
+- **Global Compliance**: Geo-fenced advertising system protecting users and the platform.
 
 ## 📁 Documentation
 

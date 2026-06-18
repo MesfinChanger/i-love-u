@@ -39,6 +39,7 @@ import { doc, setDoc, addDoc, collection, serverTimestamp, query, where } from '
 import { useToast } from '@/hooks/use-toast';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { cn } from '@/lib/utils';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 export default function DiscoverPage() {
   const { user } = useUser();
@@ -70,7 +71,6 @@ export default function DiscoverPage() {
   const [isMuted, setIsMuted] = useState(true);
 
   const profiles = useMemo(() => {
-    // Merge real DB users with placeholders
     const baseProfiles = (dbUsers || [])
       .filter((u: any) => u.uid !== user?.uid)
       .map((u: any) => ({
@@ -373,4 +373,3 @@ export default function DiscoverPage() {
     </div>
   );
 }
-
