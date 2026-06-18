@@ -3,55 +3,45 @@
 
 To publish Spark to the Google Play Store and Apple App Store, follow these professional steps.
 
-## 1. Hosting Setup (CRITICAL)
+## 1. Pre-Submission Checklist (TESTING)
+Before building the final binaries, ensure you have completed the [Testing Guide](./TESTING_GUIDE.md).
+- [ ] AI Moderation is flagging disrespect.
+- [ ] E2EE Keys are generating and storing locally.
+- [ ] Account deletion is functional.
+- [ ] GPS permissions are requested correctly on mobile.
+
+## 2. Hosting Setup
 Spark uses Server Actions (Genkit) and requires a live backend.
 
 ### Option A: Firebase App Hosting (Recommended)
-1. **Enable API**: Go to the [Google Cloud Console API Library](https://console.cloud.google.com/apis/library/firebaseapphosting.googleapis.com) and click **Enable**.
-2. **If you can't enable the API**: Ensure your Google account has "Owner" permissions and that a Billing Account is linked (even for the free tier).
+1. **Enable API**: Go to the Google Cloud Console and enable the "Firebase App Hosting" API.
+2. **Link GitHub**: Connect your repository to App Hosting for automatic builds.
 
-### Option B: Local CLI Deployment (Workaround)
-If the web console fails, use the Firebase CLI on your computer:
-1. Install CLI: `npm install -g firebase-tools`
-2. Login: `firebase login`
-3. Initialize: `firebase init hosting` (Choose "Next.js" when prompted)
-4. Deploy: `firebase deploy`
+### Option B: Manual Deployment
+1. Build: `npm run build`
+2. Deploy: `firebase deploy`
 
-Once deployed, get your live URL (e.g., `https://spark-dating.web.app`).
-
-## 2. Capacitor Setup
-Run these commands in your project root on your local computer:
-
+## 3. Capacitor Setup
+Run these commands locally to prepare your mobile projects:
 ```bash
-# Install dependencies
-npm install
-
-# Build the web project
-npm run build
-
-# Add Mobile Platforms
-npx cap add android
-npx cap add ios
+# Sync web changes to native projects
+npx cap sync
 ```
 
-## 3. Configuration
+## 4. Native Configuration
 Update `capacitor.config.ts`:
-- Change `server.url` to your live Firebase URL.
-- This allows your mobile app to communicate with the AI backend.
+- Ensure `server.url` points to your production URL (e.g., `https://spark-dating.web.app`).
 
-## 4. Submitting to Stores
-
-### Google Play Store (Android)
-1. Run `npx cap open android`.
-2. In Android Studio, generate a Signed Bundle (.aab).
-3. Upload to the Google Play Console.
+## 5. Store Specific Requirements
 
 ### Apple App Store (iOS)
-1. Run `npx cap open ios`.
-2. In Xcode, ensure you have a "Delete Account" button in settings (Spark already includes this in `src/app/profile/page.tsx`).
-3. Archive and Distribute the app via App Store Connect.
+- **Safety**: Provide a "Demo Account" for the reviewer.
+- **Human Verification**: Mention the "Bot-Check" during login to prove you prevent spam.
+- **Moderation**: Explain that Spark uses AI (Genkit) to enforce a mandatory "Respect & Love" policy.
 
-## 5. Privacy & Safety (Required for Approval)
-- **Account Deletion**: Both stores require a way for users to delete their data. This is implemented in the Profile page.
-- **AI Moderation**: Both stores require moderation for User Generated Content. Spark uses AI to moderate every chat message and profile bio for insults and spam.
-- **Human Verification**: Spark includes a bot-check on login to ensure only real humans join.
+### Google Play Store (Android)
+- **Data Safety**: Disclose that you collect location data for "Accountability and Anti-Cheating" in dating matches.
+- **Encryption**: Highlight that private chats are End-to-End Encrypted.
+
+## 6. Post-Launch
+Once live, you can adjust the `config/pricing` document in Firestore to change seller fees globally based on the demand you see in your analytics.
