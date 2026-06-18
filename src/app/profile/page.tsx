@@ -50,7 +50,8 @@ import {
   Key,
   MapPin,
   Navigation,
-  EyeOff
+  EyeOff,
+  Building2
 } from 'lucide-react';
 import { generateBio } from '@/ai/flows/generate-bio-flow';
 import { moderateText } from '@/ai/flows/moderate-text-flow';
@@ -66,12 +67,6 @@ import { generateKeyPair } from '@/lib/crypto';
 
 const GENDERS = [{ value: 'male', label: 'Male' }, { value: 'female', label: 'Female' }];
 const RELIGIONS = ['Christianity', 'Islam', 'Hinduism', 'Buddhism', 'Judaism', 'Sikhism', 'Atheist', 'Agnostic', 'None'];
-const AGE_RANGES = [
-  { id: '18-33', label: '18 - 33' },
-  { id: '34-49', label: '34 - 49' },
-  { id: '50-65', label: '50 - 65' },
-  { id: '66+', label: '66+' }
-];
 
 export default function ProfilePage() {
   const { user } = useUser();
@@ -91,6 +86,7 @@ export default function ProfilePage() {
   const [age, setAge] = useState('');
   const [gender, setGender] = useState('');
   const [religion, setReligion] = useState('');
+  const [location, setLocation] = useState('');
   const [bio, setBio] = useState('');
   const [interests, setInterests] = useState('');
   const [culturalInterests, setCulturalInterests] = useState('');
@@ -113,6 +109,7 @@ export default function ProfilePage() {
       setAge(profileData.age?.toString() || '');
       setGender(profileData.gender || '');
       setReligion(profileData.religion || '');
+      setLocation(profileData.location || '');
       setBio(profileData.bio || '');
       setInterests(profileData.interests?.join(', ') || '');
       setCulturalInterests(profileData.culturalInterests?.join(', ') || '');
@@ -182,23 +179,24 @@ export default function ProfilePage() {
 
     setIsSaving(true);
     try {
-      const [nameModeration, bioModeration] = await Promise.all([
+      const [nameModeration, bioModeration, locationModeration] = await Promise.all([
         moderateText({ text: displayName }),
-        moderateText({ text: bio })
+        moderateText({ text: bio }),
+        moderateText({ text: location })
       ]);
 
-      if (nameModeration.isFlagged || bioModeration.isFlagged) {
+      if (nameModeration.isFlagged || bioModeration.isFlagged || locationModeration.isFlagged) {
         toast({ 
           variant: "destructive", 
           title: "Profile Flagged", 
-          description: "Your name or bio contains disrespectful content. Let's keep things friendly! ✨" 
+          description: "Your name, bio, or location contains disrespectful content. Let's keep things friendly! ✨" 
         });
         setIsSaving(false);
         return;
       }
       
       await setDoc(doc(db, 'users', user.uid), {
-        displayName, age: userAge, gender, religion, bio,
+        displayName, age: userAge, gender, religion, bio, location,
         interests: interests.split(',').map(s => s.trim()).filter(i => i),
         culturalInterests: culturalInterests.split(',').map(s => s.trim()).filter(i => i),
         languagesLearning: languagesLearning.split(',').map(s => s.trim()).filter(i => i),
@@ -219,54 +217,6 @@ export default function ProfilePage() {
       toast({ variant: "destructive", title: "Error", description: "Failed to save profile." });
     } finally {
       setIsSaving(false);
-    }
-  };
-
-  const handleUnmatch = async () => {
-    if (!user || !db || !profileData?.partnerId) return;
-    setIsUnmatching(true);
-    try {
-      const partnerId = profileData.partnerId;
-      const matchesRef = collection(db, 'matches');
-      const q = query(
-        matchesRef, 
-        where('userIds', 'array-contains', user.uid),
-        where('type', '==', 'date'),
-        where('status', '==', 'active')
-      );
-      const snapshot = await getDocs(q);
-      
-      for (const docSnap of snapshot.docs) {
-        if (docSnap.data().userIds.includes(partnerId)) {
-          const messagesRef = collection(db, 'matches', docSnap.id, 'messages');
-          const messagesSnapshot = await getDocs(messagesRef);
-          const deletePromises = messagesSnapshot.docs.map(msgDoc => deleteDoc(msgDoc.ref));
-          await Promise.all(deletePromises);
-
-          await updateDoc(docSnap.ref, { 
-            status: 'unmatched',
-            lastMessage: "Relationship ended. History cleared for privacy. 🔒"
-          });
-        }
-      }
-
-      await updateDoc(doc(db, 'users', user.uid), {
-        relationshipStatus: 'single',
-        partnerId: null
-      });
-      await updateDoc(doc(db, 'users', partnerId), {
-        relationshipStatus: 'single',
-        partnerId: null
-      });
-
-      toast({ 
-        title: "Spark Ended & Purged", 
-        description: "All messages have been permanently removed from both sides. 🔒" 
-      });
-    } catch (error) {
-      toast({ variant: "destructive", title: "Error", description: "Could not end Spark and clear history." });
-    } finally {
-      setIsUnmatching(false);
     }
   };
 
@@ -421,6 +371,21 @@ export default function ProfilePage() {
                 <SelectContent>{RELIGIONS.map(r => <SelectItem key={r} value={r}>{r}</SelectItem>)}</SelectContent>
               </Select>
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2">
+              <Building2 className="w-4 h-4 text-muted-foreground" />
+              City / Town / Country
+            </Label>
+            <Input 
+              id="location" 
+              placeholder="e.g. Tokyo, Japan" 
+              value={location} 
+              onChange={e => setLocation(e.target.value)} 
+              className="rounded-xl" 
+            />
+            <p className="text-[10px] text-muted-foreground">This is your home location for the discover feed.</p>
           </div>
 
           <div className="space-y-6 pt-4 border-t">
