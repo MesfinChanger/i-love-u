@@ -1,7 +1,7 @@
 {
-  "name": "Spark Dating",
+  "name": "Spark Dating & Culture",
   "short_name": "Spark",
-  "description": "AI-powered dating for real connections.",
+  "description": "Find your perfect match or global friend.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
@@ -10,12 +10,14 @@
     {
       "src": "https://picsum.photos/seed/spark-logo/192/192",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "https://picsum.photos/seed/spark-logo/512/512",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }

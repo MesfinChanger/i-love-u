@@ -1,4 +1,3 @@
-
 'use client';
 
 import type {Metadata, Viewport} from 'next';
@@ -15,7 +14,7 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <title>Spark - Find Your Perfect Match</title>
-        <meta name="description" content="AI-powered dating for real connections." />
+        <meta name="description" content="AI-powered dating and cultural exchange." />
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#FF3366" />
         <link rel="apple-touch-icon" href="https://picsum.photos/seed/spark-logo/192/192" />
