@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -138,7 +137,7 @@ export default function DiscoverPage() {
   if (!currentProfile) return (
     <div className="flex flex-col min-h-screen bg-muted/30 pb-24 items-center justify-center p-8 text-center">
       <Header />
-      <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
+      <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4" aria-hidden="true">
         <Sparkles className="w-8 h-8 text-muted-foreground opacity-50" />
       </div>
       <h2 className="text-xl font-bold">Searching the Globe...</h2>
@@ -153,29 +152,29 @@ export default function DiscoverPage() {
     <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
       <Header />
       
-      <main className="flex-grow flex items-center justify-center p-4">
+      <main className="flex-grow flex items-center justify-center p-4" role="main">
         <div className="w-full max-w-md relative aspect-[3/4]">
-          <Card className="absolute inset-0 overflow-hidden border-none shadow-2xl rounded-[2.5rem]">
+          <Card className="absolute inset-0 overflow-hidden border-none shadow-2xl rounded-[2.5rem]" aria-label={`Profile of ${currentProfile.name}`}>
             <Image 
               src={currentProfile.image} 
-              alt={currentProfile.name} 
+              alt={`Profile photo of ${currentProfile.name}`} 
               fill 
               className="object-cover"
               priority
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" aria-hidden="true" />
             
             <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
               <div className="flex items-center gap-2 mb-2">
                 <h2 className="text-3xl font-black">{currentProfile.name}, {currentProfile.age}</h2>
                 {currentProfile.isGlobalFriend ? (
                   <Badge variant="secondary" className="bg-blue-500/30 text-white border-blue-400/30 backdrop-blur-md">
-                    <Globe2 className="w-3 h-3 mr-1" />
+                    <Globe2 className="w-3 h-3 mr-1" aria-hidden="true" />
                     Global Friend
                   </Badge>
                 ) : (
                   <Badge variant="secondary" className="bg-primary/20 text-white border-primary/30 backdrop-blur-md">
-                    <Sparkles className="w-3 h-3 mr-1 fill-white" />
+                    <Sparkles className="w-3 h-3 mr-1 fill-white" aria-hidden="true" />
                     AI Match
                   </Badge>
                 )}
@@ -183,17 +182,20 @@ export default function DiscoverPage() {
               
               <div className="flex flex-wrap items-center gap-4 text-xs text-white/80 mb-4">
                 <div className="flex items-center gap-1">
-                  <Building2 className="w-3 h-3" />
+                  <Building2 className="w-3 h-3" aria-hidden="true" />
                   <span className="font-bold">{currentProfile.location}</span>
                 </div>
-                <div className="flex items-center gap-1"><Church className="w-3 h-3" />{currentProfile.religion}</div>
+                <div className="flex items-center gap-1">
+                  <Church className="w-3 h-3" aria-hidden="true" />
+                  <span>{currentProfile.religion}</span>
+                </div>
               </div>
 
               <div className="space-y-3 mb-6">
                 <p className="text-white/90 line-clamp-2 text-lg">{currentProfile.bio}</p>
                 {currentProfile.culturalInterests && (
                   <div className="flex items-center gap-2 text-blue-300 text-sm font-bold">
-                    <Soup className="w-4 h-4" />
+                    <Soup className="w-4 h-4" aria-hidden="true" />
                     Interested in: {currentProfile.culturalInterests}
                   </div>
                 )}
@@ -215,8 +217,9 @@ export default function DiscoverPage() {
               size="icon" 
               className="w-14 h-14 rounded-full border-2 bg-white text-red-500 shadow-lg hover:bg-red-50"
               onClick={handleNext}
+              aria-label="Skip profile"
             >
-              <X className="w-6 h-6" />
+              <X className="w-6 h-6" aria-hidden="true" />
             </Button>
             
             <Button 
@@ -224,8 +227,9 @@ export default function DiscoverPage() {
               size="icon" 
               className="rounded-full border-2 bg-white text-blue-500 shadow-lg flex flex-col gap-1 h-14 w-24 border-blue-100 hover:bg-blue-50"
               onClick={() => handleAction('friend')}
+              aria-label="Connect for Global Friendship"
             >
-              <Globe2 className="w-5 h-5" />
+              <Globe2 className="w-5 h-5" aria-hidden="true" />
               <span className="text-[10px] font-bold uppercase tracking-tighter text-muted-foreground">Friendship</span>
             </Button>
 
@@ -236,20 +240,21 @@ export default function DiscoverPage() {
                 datingIncapable ? "bg-muted text-muted-foreground border-2 border-dashed grayscale cursor-not-allowed" : "gradient-bg text-white"
               )}
               onClick={() => handleAction('date')}
+              aria-label={datingIncapable ? "Sparking currently unavailable" : "Initiate an exclusive Spark"}
             >
               {isDatingDisabled ? (
                 <>
-                  <HeartOff className="w-5 h-5" />
+                  <HeartOff className="w-5 h-5" aria-hidden="true" />
                   <span className="text-[10px] font-bold uppercase tracking-tighter">Limited</span>
                 </>
               ) : isAlreadyDating ? (
                 <>
-                  <Lock className="w-5 h-5" />
+                  <Lock className="w-5 h-5" aria-hidden="true" />
                   <span className="text-[10px] font-bold uppercase tracking-tighter">Exclusive</span>
                 </>
               ) : (
                 <>
-                  <Zap className="w-5 h-5 fill-white" />
+                  <Zap className="w-5 h-5 fill-white" aria-hidden="true" />
                   <span className="text-[10px] font-bold uppercase tracking-tighter">Spark</span>
                 </>
               )}

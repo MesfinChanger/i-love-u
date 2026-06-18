@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect, useRef } from 'react';
@@ -257,18 +256,18 @@ export default function ChatPage() {
 
   return (
     <div className="flex flex-col h-screen bg-white">
-      <header className="flex items-center gap-4 px-4 h-16 border-b shrink-0">
-        <Button variant="ghost" size="icon" onClick={() => router.back()}>
-          <ChevronLeft className="w-6 h-6" />
+      <header className="flex items-center gap-4 px-4 h-16 border-b shrink-0" role="banner">
+        <Button variant="ghost" size="icon" onClick={() => router.back()} aria-label="Go back to matches list">
+          <ChevronLeft className="w-6 h-6" aria-hidden="true" />
         </Button>
         <Avatar className="w-10 h-10">
-          <AvatarImage src={matchInfo.photoUrl} className="object-cover" />
+          <AvatarImage src={matchInfo.photoUrl} className="object-cover" alt="" />
           <AvatarFallback>{matchInfo.name[0]}</AvatarFallback>
         </Avatar>
         <div className="flex-grow">
           <h2 className="font-bold flex items-center gap-1">
             {matchInfo.name}
-            <Lock className="w-3 h-3 text-green-500" />
+            <Lock className="w-3 h-3 text-green-500" aria-label="Encrypted conversation" />
           </h2>
           <p className="text-[10px] text-green-500 font-bold uppercase tracking-tighter">Verified Private Channel</p>
         </div>
@@ -279,14 +278,15 @@ export default function ChatPage() {
             onClick={handleIcebreaker}
             disabled={isGenerating}
             className="text-primary gap-1"
+            aria-label="Generate AI icebreaker message"
           >
-            {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+            {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" aria-hidden="true" />}
           </Button>
           
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive">
-                <Flag className="w-4 h-4" />
+              <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive" aria-label="Report disrespectful behavior">
+                <Flag className="w-4 h-4" aria-hidden="true" />
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent className="rounded-[2rem]">
@@ -307,29 +307,29 @@ export default function ChatPage() {
         </div>
       </header>
 
-      <div className="bg-slate-50 border-b px-4 py-2 flex items-center justify-center gap-4 overflow-x-auto no-scrollbar">
+      <div className="bg-slate-50 border-b px-4 py-2 flex items-center justify-center gap-4 overflow-x-auto no-scrollbar" role="note" aria-label="Chat security information">
          <div className="flex items-center gap-1.5 shrink-0">
-            <ShieldCheck className="w-3 h-3 text-slate-400" />
+            <ShieldCheck className="w-3 h-3 text-slate-400" aria-hidden="true" />
             <span className="text-[9px] text-slate-500 font-bold uppercase tracking-widest whitespace-nowrap">Permanent Records Enabled</span>
          </div>
          <div className="flex items-center gap-1.5 shrink-0 bg-white/50 px-2 py-0.5 rounded-full border">
-            <Cake className="w-3 h-3 text-pink-500" />
+            <Cake className="w-3 h-3 text-pink-500" aria-hidden="true" />
             <span className="text-[8px] text-muted-foreground font-bold uppercase tracking-tighter">Birthday Moments</span>
          </div>
          <div className="flex items-center gap-1.5 shrink-0 bg-white/50 px-2 py-0.5 rounded-full border">
-            <TreePine className="w-3 h-3 text-green-600" />
+            <TreePine className="w-3 h-3 text-green-600" aria-hidden="true" />
             <span className="text-[8px] text-muted-foreground font-bold uppercase tracking-tighter">Holiday Traditions</span>
          </div>
          <div className="flex items-center gap-1.5 shrink-0 bg-white/50 px-2 py-0.5 rounded-full border">
-            <BookOpen className="w-3 h-3 text-blue-500" />
+            <BookOpen className="w-3 h-3 text-blue-500" aria-hidden="true" />
             <span className="text-[8px] text-muted-foreground font-bold uppercase tracking-tighter">Teachable Pics</span>
          </div>
       </div>
 
       {isDatingMatch && (
-        <div className="bg-red-50 border-b border-red-100 p-3 flex items-center justify-between">
+        <div className="bg-red-50 border-b border-red-100 p-3 flex items-center justify-between" role="complementary" aria-label="Partner exact location data">
           <div className="flex items-center gap-2">
-            <MapPin className="w-4 h-4 text-red-500 animate-pulse" />
+            <MapPin className="w-4 h-4 text-red-500 animate-pulse" aria-hidden="true" />
             <div>
               <p className="text-[10px] font-black text-red-700 uppercase tracking-widest leading-none">Verified Exact Place</p>
               <p className="text-[8px] text-red-500 uppercase tracking-tighter mt-0.5">Anti-Cheating Protection Active</p>
@@ -340,8 +340,8 @@ export default function ChatPage() {
               <p className="text-[10px] font-mono font-bold text-red-800">
                 {partnerExactLoc.latitude.toFixed(4)}, {partnerExactLoc.longitude.toFixed(4)}
               </p>
-              <Button size="icon" variant="ghost" className="h-6 w-6 text-red-600" onClick={() => window.open(`https://www.google.com/maps?q=${partnerExactLoc.latitude},${partnerExactLoc.longitude}`)}>
-                <ExternalLink className="w-3 h-3" />
+              <Button size="icon" variant="ghost" className="h-6 w-6 text-red-600" onClick={() => window.open(`https://www.google.com/maps?q=${partnerExactLoc.latitude},${partnerExactLoc.longitude}`)} aria-label="View exact location on Google Maps">
+                <ExternalLink className="w-3 h-3" aria-hidden="true" />
               </Button>
             </div>
           ) : (
@@ -350,17 +350,17 @@ export default function ChatPage() {
         </div>
       )}
 
-      <main ref={scrollRef} className="flex-grow overflow-y-auto p-4 space-y-4 bg-muted/10">
+      <main ref={scrollRef} className="flex-grow overflow-y-auto p-4 space-y-4 bg-muted/10" role="main" aria-label="Chat messages history">
         <div className="flex justify-center mb-4">
           <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 gap-1.5 py-1 px-3 rounded-full text-[10px] uppercase font-bold tracking-wider">
-            <Lock className="w-3 h-3" />
+            <Lock className="w-3 h-3" aria-hidden="true" />
             Immutable Vault Active
           </Badge>
         </div>
 
         {loading ? (
           <div className="flex justify-center py-10">
-            <Loader2 className="w-6 h-6 animate-spin text-primary" />
+            <Loader2 className="w-6 h-6 animate-spin text-primary" aria-label="Loading messages" />
           </div>
         ) : (
           messages?.map((msg: any, i) => {
@@ -371,23 +371,26 @@ export default function ChatPage() {
 
             return (
               <div key={i} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[80%] px-4 py-2 rounded-[1.5rem] text-sm ${
-                  isMe 
-                    ? 'bg-primary text-white rounded-tr-none shadow-md' 
-                    : 'bg-white text-foreground rounded-tl-none border shadow-sm'
-                }`}>
+                <div 
+                  className={`max-w-[80%] px-4 py-2 rounded-[1.5rem] text-sm ${
+                    isMe 
+                      ? 'bg-primary text-white rounded-tr-none shadow-md' 
+                      : 'bg-white text-foreground rounded-tl-none border shadow-sm'
+                  }`}
+                  aria-label={`${isMe ? 'My message' : 'Message from ' + matchInfo.name} sent at ${msg.timestamp?.toDate().toLocaleTimeString()}`}
+                >
                   {msg.imageUrl ? (
                     <div className="relative w-48 h-64 overflow-hidden rounded-xl bg-muted group">
                       {blurContent ? (
                         <div className="w-full h-full bg-slate-900/90 flex flex-col items-center justify-center text-center p-4 gap-2">
-                          <EyeOff className="w-8 h-8 text-white/50" />
+                          <EyeOff className="w-8 h-8 text-white/50" aria-hidden="true" />
                           <p className="text-[10px] font-bold text-white/70 uppercase">Protected Content</p>
                           <p className="text-[8px] text-white/40">Enable "Safety Guard" in profile to view</p>
                         </div>
                       ) : (
                         <Image 
                           src={msg.imageUrl} 
-                          alt="Shared moment" 
+                          alt="Shared moment in chat" 
                           fill 
                           className={cn("object-cover transition-all", isSensitive && "blur-xl hover:blur-none")}
                         />
@@ -413,10 +416,11 @@ export default function ChatPage() {
         )}
       </main>
 
-      <footer className="p-4 border-t pb-8 bg-white">
+      <footer className="p-4 border-t pb-8 bg-white" role="contentinfo">
         <div className="flex items-center gap-2 mb-2">
           <input 
             type="file" 
+            id="chat-photo-input"
             accept="image/*" 
             className="hidden" 
             ref={fileInputRef} 
@@ -428,8 +432,9 @@ export default function ChatPage() {
             className="rounded-full shrink-0 border-muted h-12 w-12"
             onClick={() => fileInputRef.current?.click()}
             disabled={isUploading}
+            aria-label="Upload and share a moment"
           >
-            {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Camera className="w-5 h-5 text-muted-foreground" />}
+            {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Camera className="w-5 h-5 text-muted-foreground" aria-hidden="true" />}
           </Button>
           <form onSubmit={handleSendMessage} className="flex-grow flex gap-2">
             <Input 
@@ -438,19 +443,21 @@ export default function ChatPage() {
               placeholder="Immutable encrypted message..."
               className="rounded-full bg-muted/30 border-none focus-visible:ring-primary h-12 px-6"
               disabled={isSending}
+              aria-label="Message text"
             />
             <Button 
               type="submit" 
               size="icon" 
               className="rounded-full h-12 w-12 gradient-bg shrink-0 shadow-lg"
               disabled={!newMessage.trim() || isSending}
+              aria-label="Send message"
             >
-              {isSending ? <Loader2 className="w-5 h-5 animate-spin text-white" /> : <Send className="w-5 h-5 text-white" />}
+              {isSending ? <Loader2 className="w-5 h-5 animate-spin text-white" /> : <Send className="w-5 h-5 text-white" aria-hidden="true" />}
             </Button>
           </form>
         </div>
         <div className="flex items-center justify-center gap-1.5 mt-2">
-          <ShieldCheck className="w-3 h-3 text-green-500" />
+          <ShieldCheck className="w-3 h-3 text-green-500" aria-hidden="true" />
           <p className="text-[8px] text-center text-muted-foreground uppercase font-bold tracking-widest">
             Respect Mandatory: Messages are immutable and logged for community safety
           </p>
