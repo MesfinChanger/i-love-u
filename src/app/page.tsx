@@ -9,16 +9,16 @@ import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 const LOVE_TRANSLATIONS = [
-  { lang: "English", text: "Spark Love", icon: "❤️" },
-  { lang: "Spanish", text: "Chispa de Amor", icon: "💖" },
-  { lang: "French", text: "Étincelle d'Amour", icon: "✨" },
-  { lang: "Japanese", text: "愛の火花", icon: "🌸" },
-  { lang: "German", text: "Funke der Liebe", icon: "🔥" },
-  { lang: "Italian", text: "Scintilla d'Amore", icon: "🌹" },
-  { lang: "Portuguese", text: "Faísca de Amor", icon: "💘" },
-  { lang: "Korean", text: "사랑의 불꽃", icon: "💎" },
-  { lang: "Arabic", text: "شرارة الحب", icon: "🌙" },
-  { lang: "Hindi", text: "प्यार की चिंगारी", icon: "🪔" }
+  { lang: "English", text: "I Love U", icon: "❤️" },
+  { lang: "Spanish", text: "Te Amo", icon: "💖" },
+  { lang: "French", text: "Je t'aime", icon: "✨" },
+  { lang: "Japanese", text: "愛してる", icon: "🌸" },
+  { lang: "German", text: "Ich liebe dich", icon: "🔥" },
+  { lang: "Italian", text: "Ti amo", icon: "🌹" },
+  { lang: "Portuguese", text: "Eu te amo", icon: "💘" },
+  { lang: "Korean", text: "사랑해", icon: "💎" },
+  { lang: "Arabic", text: "أحبك", icon: "🌙" },
+  { lang: "Hindi", text: "मैं तुमसे प्यार करता हूँ", icon: "🪔" }
 ];
 
 export default function Home() {
@@ -32,13 +32,12 @@ export default function Home() {
     return () => clearInterval(interval);
   }, []);
 
-  // Structured Data for Google (JSON-LD)
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "name": "Spark Dating",
+    "name": "I Love U Dating",
     "url": "https://spark-dating.web.app",
-    "description": "AI-powered dating and cultural exchange with a mandatory respect policy.",
+    "description": "I Love U: AI-powered dating and cultural exchange with a mandatory respect policy.",
     "potentialAction": {
       "@type": "SearchAction",
       "target": "https://spark-dating.web.app/discover?q={search_term_string}",
@@ -54,9 +53,12 @@ export default function Home() {
       />
       <header className="fixed top-0 z-50 w-full border-b bg-background/80 backdrop-blur-md">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2 font-black text-2xl tracking-tighter text-primary">
-            <Heart className="w-8 h-8 fill-primary" />
-            <span>SPARK</span>
+          <div className="flex items-center gap-1">
+            <Heart className="w-8 h-8 fill-primary text-primary" />
+            <div className="flex flex-col leading-none">
+              <span className="font-black text-xl tracking-tighter text-primary">I LOVE</span>
+              <span className="font-black text-[10px] tracking-[0.4em] text-muted-foreground">YOU</span>
+            </div>
           </div>
           <div className="flex items-center gap-4">
             <Button variant="ghost" asChild>
@@ -73,37 +75,37 @@ export default function Home() {
         <section className="relative py-20 lg:py-32 overflow-hidden">
           <div className="container mx-auto px-4 grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8 text-center lg:text-left z-10">
-              <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-bold border border-primary/20">
+              <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-primary/10 text-primary text-sm font-black border border-primary/20 shadow-sm">
                 <Globe className="w-4 h-4 animate-spin-slow" />
-                <span className="transition-all duration-500 ease-in-out min-w-[150px]">
+                <span className="transition-all duration-500 ease-in-out min-w-[150px] uppercase tracking-widest">
                   {LOVE_TRANSLATIONS[langIndex].text} {LOVE_TRANSLATIONS[langIndex].icon}
                 </span>
               </div>
               <h1 className="text-6xl lg:text-8xl font-black leading-tight tracking-tighter">
                 Find Your <br />
-                <span className="gradient-text">Perfect Match</span>
+                <span className="gradient-text">True Happiness</span>
               </h1>
-              <p className="text-xl text-muted-foreground max-w-lg mx-auto lg:mx-0 leading-relaxed">
-                Connect with people who share your sparks. Real connections, AI-powered matching, and safe messaging. 
-                <span className="block font-bold text-primary mt-2 uppercase tracking-widest text-xs">Respect & Love is Mandatory ❤️</span>
+              <p className="text-xl text-muted-foreground max-w-lg mx-auto lg:mx-0 leading-relaxed font-medium">
+                Connect with hearts that beat like yours. I Love U is the community where every connection is rooted in joy.
+                <span className="block font-black text-primary mt-4 uppercase tracking-[0.2em] text-[10px]">Respect & Love is Mandatory ❤️</span>
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                <Button size="lg" className="h-14 px-10 rounded-full text-lg font-bold gradient-bg shadow-xl shadow-primary/20" asChild>
-                  <Link href="/login">Start Matching Free</Link>
+                <Button size="lg" className="h-16 px-12 rounded-full text-lg font-black gradient-bg shadow-2xl shadow-primary/40 hover:scale-105 transition-transform" asChild>
+                  <Link href="/login">Start Loving Free</Link>
                 </Button>
-                <Button variant="outline" size="lg" className="h-14 px-10 rounded-full text-lg font-bold border-2" asChild>
-                  <Link href="/login">Learn More</Link>
+                <Button variant="outline" size="lg" className="h-16 px-10 rounded-full text-lg font-bold border-2" asChild>
+                  <Link href="/login">Our Mission</Link>
                 </Button>
               </div>
             </div>
 
             <div className="relative">
               <div className="absolute -inset-10 bg-primary/20 rounded-full blur-[120px] -z-10 animate-pulse" />
-              <div className="relative aspect-square rounded-[3rem] overflow-hidden shadow-2xl rotate-3 hover:rotate-0 transition-transform duration-500 border-[12px] border-white">
+              <div className="relative aspect-square rounded-[4rem] overflow-hidden shadow-2xl rotate-3 hover:rotate-0 transition-transform duration-700 border-[16px] border-white">
                 {heroImage && (
                   <Image 
                     src={heroImage.imageUrl} 
-                    alt="Couple" 
+                    alt="Happy People" 
                     fill 
                     className="object-cover"
                     priority
@@ -111,13 +113,13 @@ export default function Home() {
                   />
                 )}
               </div>
-              <div className="absolute -bottom-6 -left-6 bg-white p-4 rounded-2xl shadow-2xl border flex items-center gap-3 animate-bounce">
-                <div className="w-12 h-12 rounded-full gradient-bg flex items-center justify-center text-white">
-                  <Heart className="w-6 h-6 fill-white" />
+              <div className="absolute -bottom-8 -left-8 bg-white p-6 rounded-[2rem] shadow-2xl border flex items-center gap-4 animate-bounce">
+                <div className="w-14 h-14 rounded-2xl gradient-bg flex items-center justify-center text-white shadow-lg">
+                  <Heart className="w-8 h-8 fill-white" />
                 </div>
                 <div>
-                  <p className="font-bold text-sm">It's a Spark!</p>
-                  <p className="text-xs text-muted-foreground">You and Alex matched</p>
+                  <p className="font-black text-lg tracking-tighter">It's a Connection!</p>
+                  <p className="text-xs text-muted-foreground font-medium">Happiness found with Alex</p>
                 </div>
               </div>
             </div>
@@ -126,35 +128,43 @@ export default function Home() {
 
         <section className="py-24 bg-accent/30">
           <div className="container mx-auto px-4 text-center">
-            <h2 className="text-4xl font-black mb-12">Designed for Real People</h2>
+            <h2 className="text-4xl font-black mb-12 tracking-tighter">Designed for Real Happiness</h2>
             <div className="grid md:grid-cols-3 gap-8">
               <FeatureCard 
-                icon={<Smile className="w-8 h-8" />}
-                title="Respect Mandatory"
-                description="We prioritize kindness. Disrespect is not allowed; love and respect for all members is required."
+                icon={<Heart className="w-8 h-8 fill-primary" />}
+                title="Respect is Mandatory"
+                description="We are built on kindness. Disrespect is never an option; love for all members is our first law."
               />
               <FeatureCard 
-                icon={<MessageCircle className="w-8 h-8" />}
-                title="Free Smart Chat"
-                description="Personalized icebreakers to help you start conversations without any hidden costs."
+                icon={<Sparkles className="w-8 h-8" />}
+                title="AI Happiness Bridge"
+                description="Smart icebreakers and cultural exchange tools to help you find meaning in every conversation."
               />
               <FeatureCard 
                 icon={<ShieldCheck className="w-8 h-8" />}
-                title="18+ Verified"
-                description="A strictly adult-only space with AI-moderated content for your safety and peace of mind."
+                title="Verified Safe Space"
+                description="Strict 18+ verification and real-time AI moderation to ensure your joy is never interrupted."
               />
             </div>
           </div>
         </section>
       </main>
 
-      <footer className="py-12 border-t">
+      <footer className="py-16 border-t bg-white">
         <div className="container mx-auto px-4 text-center text-muted-foreground">
-          <div className="flex items-center justify-center gap-2 font-black text-2xl text-primary mb-6">
-            <Heart className="w-6 h-6 fill-primary" />
-            <span>SPARK</span>
+          <div className="flex items-center justify-center gap-1 mb-6">
+            <Heart className="w-8 h-8 fill-primary text-primary" />
+            <div className="flex flex-col text-left leading-none">
+              <span className="font-black text-xl tracking-tighter text-primary">I LOVE</span>
+              <span className="font-black text-[10px] tracking-[0.4em] text-muted-foreground">YOU</span>
+            </div>
           </div>
-          <p>© {new Date().getFullYear()} Spark Dating. A 100% free community for everyone.</p>
+          <p className="font-bold text-sm">© {new Date().getFullYear()} I Love U. A 100% free community for finding true happiness.</p>
+          <div className="flex justify-center gap-6 mt-6 text-[10px] font-black uppercase tracking-[0.2em]">
+            <Link href="/privacy" className="hover:text-primary transition-colors">Privacy</Link>
+            <Link href="/terms" className="hover:text-primary transition-colors">Terms</Link>
+            <Link href="/donate" className="hover:text-primary transition-colors">Support Us</Link>
+          </div>
         </div>
       </footer>
     </div>
@@ -163,12 +173,12 @@ export default function Home() {
 
 function FeatureCard({ icon, title, description }: { icon: React.ReactNode, title: string, description: string }) {
   return (
-    <div className="bg-white p-8 rounded-[2rem] shadow-sm hover:shadow-xl transition-all border border-transparent hover:border-primary/10 group">
-      <div className="w-16 h-16 rounded-2xl bg-accent flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform">
+    <div className="bg-white p-10 rounded-[3rem] shadow-sm hover:shadow-2xl transition-all border border-transparent hover:border-primary/10 group text-left">
+      <div className="w-20 h-20 rounded-[1.5rem] bg-accent flex items-center justify-center text-primary mb-8 group-hover:scale-110 transition-transform shadow-inner">
         {icon}
       </div>
-      <h3 className="text-2xl font-bold mb-3">{title}</h3>
-      <p className="text-muted-foreground leading-relaxed">{description}</p>
+      <h3 className="text-2xl font-black mb-4 tracking-tighter">{title}</h3>
+      <p className="text-muted-foreground leading-relaxed font-medium">{description}</p>
     </div>
   );
 }

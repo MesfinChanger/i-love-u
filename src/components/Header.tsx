@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -9,9 +10,18 @@ export function Header() {
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur-md" role="banner">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 font-black text-2xl tracking-tighter text-primary" aria-label="Spark Home">
-          <Heart className="w-8 h-8 fill-primary" aria-hidden="true" />
-          <span>SPARK</span>
+        <Link href="/" className="flex items-center gap-1 group" aria-label="I Love U Home">
+          <div className="relative">
+            <Heart className="w-8 h-8 fill-primary text-primary transition-transform group-hover:scale-110" aria-hidden="true" />
+            <div className="absolute inset-0 flex items-center justify-center">
+               <div className="w-1 h-1 bg-white rounded-full mt-[-2px] ml-[-3px]" />
+               <div className="w-1 h-1 bg-white rounded-full mt-[-2px] ml-[3px]" />
+            </div>
+          </div>
+          <div className="flex flex-col leading-none">
+            <span className="font-black text-xl tracking-tighter text-primary">I LOVE</span>
+            <span className="font-black text-xs tracking-[0.3em] text-muted-foreground ml-0.5">YOU</span>
+          </div>
         </Link>
         
         <div className="flex items-center gap-1">

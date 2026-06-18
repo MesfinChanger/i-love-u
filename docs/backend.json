@@ -3,7 +3,7 @@
   "entities": {
     "UserProfile": {
       "title": "User Profile",
-      "description": "Dating app profile restricted to 18+. Includes relationship constraints and verified location tracking.",
+      "description": "I Love U app profile restricted to 18+. Includes relationship constraints and verified location tracking for happiness accountability.",
       "type": "object",
       "properties": {
         "uid": { "type": "string" },
@@ -32,7 +32,7 @@
     },
     "Match": {
       "title": "Match",
-      "description": "Connection between users.",
+      "description": "Heart connection between users.",
       "type": "object",
       "properties": {
         "userIds": { "type": "array", "items": { "type": "string" } },
@@ -40,13 +40,13 @@
         "lastMessage": { "type": "string" },
         "status": { "type": "string", "enum": ["active", "unmatched"] },
         "type": { "type": "string", "enum": ["friend", "date"], "default": "friend" },
-        "witnessId": { "type": "string", "description": "The UID of the user invited to witness the relationship" },
+        "witnessId": { "type": "string", "description": "The UID of the user invited to witness the happiness connection" },
         "witnessStatus": { "type": "string", "enum": ["none", "pending", "confirmed"], "default": "none" }
       }
     },
     "AdCampaign": {
       "title": "Ad Campaign",
-      "description": "A paid advertisement shown in the discover feed, supporting text or video.",
+      "description": "A paid advertisement shown in the discovery feed, supporting text or video.",
       "type": "object",
       "properties": {
         "advertiserId": { "type": "string" },
@@ -66,7 +66,7 @@
     },
     "Donation": {
       "title": "Donation",
-      "description": "A voluntary contribution to support the 100% free community.",
+      "description": "A voluntary contribution to support the 100% free I Love U community.",
       "type": "object",
       "properties": {
         "userId": { "type": "string" },
@@ -77,7 +77,7 @@
     },
     "Shop": {
       "title": "Shop",
-      "description": "A seller's virtual store for gifting items.",
+      "description": "A seller's virtual store for gifting happiness items.",
       "type": "object",
       "properties": {
         "ownerId": { "type": "string" },
@@ -89,7 +89,7 @@
     },
     "Product": {
       "title": "Product",
-      "description": "Items available for purchase as gifts.",
+      "description": "Items available for purchase as happiness gifts.",
       "type": "object",
       "properties": {
         "shopId": { "type": "string" },
@@ -102,7 +102,7 @@
     },
     "Gift": {
       "title": "Gift",
-      "description": "A purchased item sent to a match.",
+      "description": "A purchased item sent to a connection.",
       "type": "object",
       "properties": {
         "senderId": { "type": "string" },

@@ -14,28 +14,28 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <title>Spark - Respect & Love is Mandatory ❤️</title>
-        <meta name="description" content="AI-powered dating and cultural exchange. Find your perfect match in a community where respect is mandatory." />
-        <meta name="keywords" content="dating, cultural exchange, AI dating, safe dating, spark, respect and love" />
+        <title>I Love U - Respect & Love is Mandatory ❤️</title>
+        <meta name="description" content="I Love U: AI-powered dating and cultural exchange. Find your perfect match in a community where love and respect are mandatory." />
+        <meta name="keywords" content="dating, cultural exchange, AI dating, safe dating, I Love U, respect and love" />
         
         {/* Open Graph / Facebook / Instagram */}
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://spark-dating.web.app/" />
-        <meta property="og:title" content="Spark - Find Your Perfect Match" />
+        <meta property="og:title" content="I Love U - Find Real Happiness" />
         <meta property="og:description" content="Join the 100% free community where Respect & Love is Mandatory. AI-powered matching for real connections." />
-        <meta property="og:image" content="https://picsum.photos/seed/spark-social/1200/630" />
+        <meta property="og:image" content="https://picsum.photos/seed/iloveu-social/1200/630" />
 
         {/* Twitter */}
         <meta property="twitter:card" content="summary_large_image" />
         <meta property="twitter:url" content="https://spark-dating.web.app/" />
-        <meta property="twitter:title" content="Spark - Respect & Love is Mandatory" />
+        <meta property="twitter:title" content="I Love U - Respect & Love is Mandatory" />
         <meta property="twitter:description" content="AI-powered dating and cultural exchange for a respectful global community." />
-        <meta property="twitter:image" content="https://picsum.photos/seed/spark-social/1200/630" />
+        <meta property="twitter:image" content="https://picsum.photos/seed/iloveu-social/1200/630" />
 
         {/* Mobile & PWA */}
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#FF3366" />
-        <link rel="apple-touch-icon" href="https://picsum.photos/seed/spark-logo/192/192" />
+        <link rel="apple-touch-icon" href="https://picsum.photos/seed/iloveu-logo/192/192" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />

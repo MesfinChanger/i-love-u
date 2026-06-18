@@ -1,11 +1,11 @@
 
-# Spark - Respect & Love is Mandatory ❤️
+# I Love U - Respect & Love is Mandatory ❤️
 
-Welcome to Spark, the AI-powered dating and cultural exchange platform where "Respect & Love is Mandatory."
+Welcome to **I Love U**, the AI-powered dating and cultural exchange platform where happiness is the only metric. In this community, "Respect & Love is Mandatory."
 
 ## 🚀 One-Click Global Publishing
 
-Spark is configured for free, high-performance hosting on Firebase.
+I Love U is configured for free, high-performance hosting on Firebase.
 
 ### Steps to Publish:
 
@@ -13,7 +13,7 @@ Spark is configured for free, high-performance hosting on Firebase.
     ```bash
     npm run deploy
     ```
-    Your app will be live at: `https://<your-project-id>.web.app`
+    Your app will be live at: `https://<your-project-id>.web.app` (e.g., `https://iloveu.web.app`)
 
 2.  **Test Locally**:
     ```bash
@@ -31,7 +31,7 @@ Spark is configured for free, high-performance hosting on Firebase.
 
 - **E2EE Privacy**: End-to-end encrypted private messaging.
 - **Global Compliance**: Geo-fenced text/video ads based on local laws.
-- **Witness System**: Community-vouched relationship success.
+- **Happiness Witness**: Community-vouched relationship success.
 - **Respect Moderation**: AI enforcements for community kindness.
 - **Localized Marketplace**: Support for global currencies via Stripe.
 

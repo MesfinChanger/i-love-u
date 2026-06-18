@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -51,14 +52,14 @@ export default function LoginPage() {
       toast({
         variant: "destructive",
         title: "Age Verification Required",
-        description: "You must be 18 or older to use Spark."
+        description: "You must be 18 or older to use I Love U."
       });
       return false;
     }
     if (!isRespectful) {
       toast({
         variant: "destructive",
-        title: "Community Pledge Required",
+        title: "Happiness Pledge Required",
         description: "You must agree to treat everyone with respect and love."
       });
       return false;
@@ -82,7 +83,7 @@ export default function LoginPage() {
         setIsBotChecking(false);
         toast({
           title: "Verification Successful",
-          description: "Human status confirmed. ✨"
+          description: "Human status confirmed. Welcome home! ✨"
         });
       }, 800);
     } else {
@@ -148,7 +149,7 @@ export default function LoginPage() {
       setIsVerifyingPhone(true);
       toast({
         title: "Code Sent",
-        description: "Check your phone for the verification code."
+        description: "Check your phone for the happiness code."
       });
     } catch (error: any) {
       toast({
@@ -187,42 +188,44 @@ export default function LoginPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-muted/30 items-center justify-center p-4">
-      <Link href="/" className="absolute top-8 left-8 flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors">
+      <Link href="/" className="absolute top-8 left-8 flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors font-bold text-sm">
         <ArrowLeft className="w-4 h-4" />
-        Back to Home
+        Home
       </Link>
 
       <div className="w-full max-w-md space-y-8">
         <div className="text-center space-y-2">
-          <div className="flex items-center justify-center gap-2 font-black text-4xl tracking-tighter text-primary">
-            <Heart className="w-10 h-10 fill-primary" />
-            <span>SPARK</span>
+          <div className="flex items-center justify-center gap-1 group">
+            <Heart className="w-12 h-12 fill-primary text-primary group-hover:scale-110 transition-transform" />
+            <div className="flex flex-col text-left leading-none">
+              <span className="font-black text-2xl tracking-tighter text-primary">I LOVE</span>
+              <span className="font-black text-xs tracking-[0.4em] text-muted-foreground">YOU</span>
+            </div>
           </div>
-          <h1 className="text-2xl font-bold">Community Access</h1>
-          <p className="text-muted-foreground text-sm">Mandatory Respect & Love Community ❤️</p>
+          <h1 className="text-xl font-bold tracking-tight">Community Access</h1>
+          <p className="text-muted-foreground text-xs font-medium">Happiness is Mandatory ❤️</p>
         </div>
 
-        <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden">
+        <Card className="border-none shadow-2xl rounded-[3rem] overflow-hidden bg-white">
           <Tabs defaultValue="email" className="w-full">
-            <TabsList className="w-full grid grid-cols-3 h-14 bg-muted/50 p-1">
-              <TabsTrigger value="email" className="rounded-xl gap-2 text-xs">
-                <Mail className="w-3 h-3" />
+            <TabsList className="w-full grid grid-cols-3 h-16 bg-muted/50 p-1.5">
+              <TabsTrigger value="email" className="rounded-2xl gap-2 text-xs font-bold">
+                <Mail className="w-3.5 h-3.5" />
                 Email
               </TabsTrigger>
-              <TabsTrigger value="phone" className="rounded-xl gap-2 text-xs">
-                <Phone className="w-3 h-3" />
+              <TabsTrigger value="phone" className="rounded-2xl gap-2 text-xs font-bold">
+                <Phone className="w-3.5 h-3.5" />
                 Phone
               </TabsTrigger>
-              <TabsTrigger value="social" className="rounded-xl gap-2 text-xs">
-                <Chrome className="w-3 h-3" />
-                Social
+              <TabsTrigger value="social" className="rounded-2xl gap-2 text-xs font-bold">
+                <Chrome className="w-3.5 h-3.5" />
+                Google
               </TabsTrigger>
             </TabsList>
 
-            <CardContent className="pt-8 px-8 pb-4">
-              <div className="space-y-4 mb-6">
-                <div className="flex items-start space-x-3 bg-primary/5 p-4 rounded-xl border border-primary/10">
-                  <div className="flex flex-col gap-3 w-full">
+            <CardContent className="pt-8 px-10 pb-6">
+              <div className="space-y-4 mb-8">
+                <div className="flex flex-col gap-4 bg-primary/5 p-6 rounded-[2rem] border border-primary/10">
                     <div className="flex items-start space-x-3">
                       <Checkbox 
                         id="age-check" 
@@ -230,36 +233,33 @@ export default function LoginPage() {
                         onCheckedChange={(checked) => setIsAdult(checked as boolean)}
                         className="mt-1"
                       />
-                      <div className="grid gap-1.5 leading-none">
-                        <label htmlFor="age-check" className="text-xs font-bold leading-none text-primary flex items-center gap-1.5">
-                          <ShieldCheck className="w-3 h-3" />
-                          I AM 18 YEARS OR OLDER
-                        </label>
-                      </div>
+                      <label htmlFor="age-check" className="text-xs font-black leading-none text-primary uppercase tracking-widest flex items-center gap-2 cursor-pointer">
+                        <ShieldCheck className="w-3.5 h-3.5" />
+                        I AM 18+ YEARS OLD
+                      </label>
                     </div>
 
-                    <div className="flex items-start space-x-3 border-t border-primary/10 pt-3">
+                    <div className="flex items-start space-x-3 border-t border-primary/10 pt-4">
                       <Checkbox 
                         id="respect-check" 
                         checked={isRespectful} 
                         onCheckedChange={(checked) => setIsRespectful(checked as boolean)}
                         className="mt-1"
                       />
-                      <div className="grid gap-1.5 leading-none">
-                        <label htmlFor="respect-check" className="text-xs font-bold leading-none text-primary flex items-center gap-1.5">
-                          <HeartHandshake className="w-3 h-3" />
-                          MANDATORY: RESPECT & LOVE
+                      <div className="grid gap-1.5 leading-none cursor-pointer">
+                        <label htmlFor="respect-check" className="text-xs font-black leading-none text-primary uppercase tracking-widest flex items-center gap-2">
+                          <HeartHandshake className="w-3.5 h-3.5" />
+                          HAPPINESS PLEDGE
                         </label>
-                        <p className="text-[10px] text-muted-foreground italic">
-                          I pledge to love and respect every member. Meanness is not tolerated.
+                        <p className="text-[10px] text-muted-foreground font-medium italic">
+                          I pledge to bring respect and love to every heart.
                         </p>
                       </div>
                     </div>
-                  </div>
                 </div>
 
                 <div className={cn(
-                  "flex items-start space-x-3 p-4 rounded-xl border transition-all duration-300",
+                  "flex items-center space-x-3 p-5 rounded-[1.5rem] border transition-all duration-500",
                   isHuman ? "bg-green-50 border-green-200" : "bg-muted/30 border-dashed"
                 )}>
                   <Checkbox 
@@ -267,59 +267,32 @@ export default function LoginPage() {
                     checked={isHuman} 
                     disabled={isBotChecking}
                     onCheckedChange={(checked) => handleBotCheck(checked as boolean)}
-                    className="mt-1"
                   />
-                  <div className="grid gap-1.5 leading-none">
-                    <label
-                      htmlFor="bot-check"
-                      className={cn(
-                        "text-xs font-bold leading-none flex items-center gap-1.5",
-                        isHuman ? "text-green-600" : "text-muted-foreground"
-                      )}
-                    >
-                      {isBotChecking ? <Loader2 className="w-3 h-3 animate-spin" /> : isHuman ? <UserCheck className="w-3 h-3" /> : <BotOff className="w-3 h-3" />}
-                      {isBotChecking ? "Verifying..." : isHuman ? "Verified Human" : "I am not a robot"}
-                    </label>
-                  </div>
+                  <label
+                    htmlFor="bot-check"
+                    className={cn(
+                      "text-xs font-black uppercase tracking-widest flex items-center gap-2 cursor-pointer",
+                      isHuman ? "text-green-600" : "text-muted-foreground"
+                    )}
+                  >
+                    {isBotChecking ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : isHuman ? <UserCheck className="w-3.5 h-3.5" /> : <BotOff className="w-3.5 h-3.5" />}
+                    {isBotChecking ? "Checking..." : isHuman ? "Verified Human" : "I am not a robot"}
+                  </label>
                 </div>
               </div>
 
               <TabsContent value="email" className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email Address</Label>
-                  <Input 
-                    id="email" 
-                    type="email" 
-                    placeholder="name@example.com" 
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="rounded-xl"
-                  />
+                  <Label htmlFor="email" className="text-[10px] font-black uppercase tracking-widest ml-1">Email</Label>
+                  <Input id="email" type="email" placeholder="heart@iloveu.com" value={email} onChange={(e) => setEmail(e.target.value)} className="rounded-2xl h-12 bg-muted/20 border-none px-6" />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
-                  <Input 
-                    id="password" 
-                    type="password" 
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="rounded-xl"
-                  />
+                  <Label htmlFor="password" id="pass-label" className="text-[10px] font-black uppercase tracking-widest ml-1">Password</Label>
+                  <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="rounded-2xl h-12 bg-muted/20 border-none px-6" />
                 </div>
-                <div className="grid grid-cols-2 gap-4 pt-2">
-                  <Button 
-                    variant="outline" 
-                    onClick={() => handleEmailAuth('signup')}
-                    disabled={isLoading || isBotChecking}
-                    className="rounded-xl"
-                  >
-                    Join Free
-                  </Button>
-                  <Button 
-                    onClick={() => handleEmailAuth('login')}
-                    disabled={isLoading || isBotChecking}
-                    className="rounded-xl gradient-bg"
-                  >
+                <div className="grid grid-cols-2 gap-4 pt-4">
+                  <Button variant="outline" onClick={() => handleEmailAuth('signup')} disabled={isLoading || isBotChecking} className="rounded-2xl h-12 font-bold">Join Free</Button>
+                  <Button onClick={() => handleEmailAuth('login')} disabled={isLoading || isBotChecking} className="rounded-2xl h-12 gradient-bg font-bold">
                     {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Log In'}
                   </Button>
                 </div>
@@ -329,77 +302,43 @@ export default function LoginPage() {
                 {!isVerifyingPhone ? (
                   <>
                     <div className="space-y-2">
-                      <Label htmlFor="phone">Phone Number</Label>
-                      <Input 
-                        id="phone" 
-                        type="tel" 
-                        placeholder="+1 (555) 000-0000" 
-                        value={phoneNumber}
-                        onChange={(e) => setPhoneNumber(e.target.value)}
-                        className="rounded-xl"
-                      />
+                      <Label htmlFor="phone" className="text-[10px] font-black uppercase tracking-widest ml-1">Phone Number</Label>
+                      <Input id="phone" type="tel" placeholder="+1..." value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} className="rounded-2xl h-12 bg-muted/20 border-none px-6" />
                     </div>
-                    <Button 
-                      onClick={handleSendCode}
-                      disabled={isLoading || !phoneNumber || isBotChecking}
-                      className="w-full rounded-xl gradient-bg"
-                    >
-                      {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Send Free SMS Code'}
+                    <Button onClick={handleSendCode} disabled={isLoading || !phoneNumber || isBotChecking} className="w-full h-14 rounded-2xl gradient-bg font-black uppercase tracking-widest text-xs">
+                      {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Send Verification'}
                     </Button>
                     <div id="recaptcha-container"></div>
                   </>
                 ) : (
                   <>
                     <div className="space-y-2">
-                      <Label htmlFor="code">Verification Code</Label>
-                      <Input 
-                        id="code" 
-                        type="text" 
-                        placeholder="123456" 
-                        value={verificationCode}
-                        onChange={(e) => setVerificationCode(e.target.value)}
-                        className="rounded-xl"
-                      />
+                      <Label htmlFor="code" className="text-[10px] font-black uppercase tracking-widest ml-1">Code</Label>
+                      <Input id="code" type="text" placeholder="123456" value={verificationCode} onChange={(e) => setVerificationCode(e.target.value)} className="rounded-2xl h-12 bg-muted/20 border-none px-6" />
                     </div>
-                    <Button 
-                      onClick={handleVerifyCode}
-                      disabled={isLoading || !verificationCode}
-                      className="w-full rounded-xl gradient-bg"
-                    >
-                      {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Verify & Sign In'}
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      onClick={() => setIsVerifyingPhone(false)}
-                      className="w-full text-xs"
-                    >
-                      Change Phone Number
+                    <Button onClick={handleVerifyCode} disabled={isLoading || !verificationCode} className="w-full h-14 rounded-2xl gradient-bg font-bold">
+                      {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Verify & Enter'}
                     </Button>
                   </>
                 )}
               </TabsContent>
 
               <TabsContent value="social" className="space-y-4">
-                <Button 
-                  variant="outline" 
-                  onClick={handleGoogleLogin}
-                  disabled={isLoading || isBotChecking}
-                  className="w-full h-14 rounded-xl gap-3 text-lg border-2 hover:bg-accent"
-                >
-                  <Chrome className="w-6 h-6" />
+                <Button variant="outline" onClick={handleGoogleLogin} disabled={isLoading || isBotChecking} className="w-full h-16 rounded-[1.5rem] gap-4 text-lg border-2 font-bold hover:bg-primary/5">
+                  <Chrome className="w-6 h-6 text-primary" />
                   Continue with Google
                 </Button>
               </TabsContent>
             </CardContent>
           </Tabs>
-          <CardFooter className="bg-muted/30 p-6 flex flex-col items-center gap-4">
-             <Link href="/discover" onClick={(e) => { if(!isAdult || !isHuman || !isRespectful) { e.preventDefault(); validateAccess(); } }} className="text-sm text-primary font-bold hover:underline">
-               Browse as Guest (Respect Pledge required)
+          <CardFooter className="bg-muted/30 p-8 flex flex-col items-center gap-4">
+             <Link href="/discover" className="text-sm text-primary font-black uppercase tracking-widest hover:underline">
+               Guest Experience
              </Link>
-             <div className="flex gap-4 text-[10px] text-muted-foreground font-bold uppercase tracking-widest">
-               <Link href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link>
+             <div className="flex gap-4 text-[9px] text-muted-foreground font-black uppercase tracking-widest">
+               <Link href="/privacy" className="hover:text-primary transition-colors">Privacy</Link>
                <span>•</span>
-               <Link href="/terms" className="hover:text-primary transition-colors">Terms of Service</Link>
+               <Link href="/terms" className="hover:text-primary transition-colors">Terms</Link>
              </div>
           </CardFooter>
         </Card>

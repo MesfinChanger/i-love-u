@@ -2,33 +2,33 @@
   "placeholderImages": [
     {
       "id": "app-logo",
-      "description": "Spark dating app logo",
-      "imageUrl": "https://picsum.photos/seed/spark-logo/200/200",
-      "imageHint": "heart flame"
+      "description": "I Love U app logo",
+      "imageUrl": "https://picsum.photos/seed/iloveu-logo/200/200",
+      "imageHint": "happy heart"
     },
     {
       "id": "user-1",
-      "description": "Dating profile user 1",
+      "description": "Happiness profile user 1",
       "imageUrl": "https://picsum.photos/seed/user1/400/600",
-      "imageHint": "portrait woman"
+      "imageHint": "smiling person"
     },
     {
       "id": "user-2",
-      "description": "Dating profile user 2",
+      "description": "Happiness profile user 2",
       "imageUrl": "https://picsum.photos/seed/user2/400/600",
       "imageHint": "portrait man"
     },
     {
       "id": "user-3",
-      "description": "Dating profile user 3",
+      "description": "Happiness profile user 3",
       "imageUrl": "https://picsum.photos/seed/user3/400/600",
       "imageHint": "fashion person"
     },
     {
       "id": "landing-hero",
-      "description": "Happy couple together",
-      "imageUrl": "https://picsum.photos/seed/couple1/1200/800",
-      "imageHint": "happy couple"
+      "description": "Pure happiness found here",
+      "imageUrl": "https://picsum.photos/seed/happiness1/1200/800",
+      "imageHint": "happy people"
     }
   ]
 }
