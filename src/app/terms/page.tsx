@@ -2,7 +2,7 @@
 
 import { Header } from '@/components/Header';
 import { BottomNav } from '@/components/BottomNav';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
@@ -31,6 +31,20 @@ export default function TermsPage() {
           <div>
             <h3 className="text-lg font-bold mb-2">2. User Conduct & AI Moderation</h3>
             <p>Users must be respectful. Harassment, insults, and spam are not tolerated. AI moderation is active to enforce these standards. We reserve the right to terminate accounts that violate our community guidelines without notice.</p>
+          </div>
+
+          <div className="p-6 bg-red-50 border border-red-200 rounded-[1.5rem] space-y-4">
+            <div className="flex items-start gap-3">
+              <ShieldAlert className="w-6 h-6 text-red-600 shrink-0 mt-1" />
+              <div>
+                <h3 className="font-bold text-red-800 text-lg">6. Zero-Tolerance: No Commercial or Sexual Solicitation</h3>
+                <p className="text-sm text-red-700 leading-relaxed">
+                  Spark is a <strong>100% free community</strong>. Asking for money, gifts, or any form of financial compensation for sexual activities, "sugar dating," or commercial services is <strong>strictly prohibited</strong>. 
+                  <br /><br />
+                  Any user found soliciting financial transactions, engaging in transactional dating, or prostitution will be <strong>permanently banned immediately</strong> and without appeal. We use advanced AI to monitor and block these activities to keep our community safe and free.
+                </p>
+              </div>
+            </div>
           </div>
 
           <div>
