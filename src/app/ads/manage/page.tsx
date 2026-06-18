@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -24,7 +23,8 @@ import {
   Type,
   Badge,
   AlertTriangle,
-  MapPin
+  MapPin,
+  Scale
 } from 'lucide-react';
 import { useUser, useFirestore, useDoc, useCollection } from '@/firebase';
 import { doc, setDoc, addDoc, collection, serverTimestamp, query, where } from 'firebase/firestore';
@@ -166,7 +166,7 @@ export default function AdvertiserManagePage() {
           <div className="lg:col-span-7 space-y-6">
             <Card className="rounded-[2rem] border-none shadow-xl bg-white overflow-hidden">
               <CardHeader className="bg-primary/5 border-b">
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 text-2xl tracking-tighter">
                   <Plus className="w-5 h-5 text-primary" />
                   New Ad Campaign
                 </CardTitle>
@@ -263,20 +263,30 @@ export default function AdvertiserManagePage() {
                   </div>
                 </div>
 
+                <div className="bg-slate-900 p-6 rounded-3xl border border-primary/20 space-y-3 shadow-lg">
+                   <div className="flex items-center gap-2 text-primary">
+                     <Scale className="w-5 h-5" />
+                     <h4 className="text-sm font-black uppercase tracking-tighter">Advertiser Liability Agreement</h4>
+                   </div>
+                   <p className="text-[10px] text-white/80 font-bold leading-relaxed uppercase tracking-widest">
+                     By launching this campaign, you acknowledge that you are SOLELY responsible for its content and legal compliance. The owners, developers, and platform are NOT liable for any damages or legal issues arising from your advertisement.
+                   </p>
+                </div>
+
                 <div className="bg-amber-50 p-4 rounded-2xl border border-dashed border-amber-200 flex items-start gap-3">
                    <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
                    <p className="text-[10px] text-amber-700 font-bold leading-relaxed uppercase tracking-tighter">
-                     Legal Notice: You are responsible for ensuring your advertisement complies with the laws of your country and targeted regions. Illegal solicitation will result in permanent ban without refund.
+                     Legal Notice: Illegal solicitation or prohibited items will result in immediate permanent ban without refund.
                    </p>
                 </div>
 
                 <Button 
-                  className="w-full h-14 rounded-xl gradient-bg text-lg font-bold shadow-xl shadow-primary/20"
+                  className="w-full h-16 rounded-2xl gradient-bg text-lg font-bold shadow-xl shadow-primary/20 active:scale-95 transition-all"
                   onClick={handleCreateCampaign}
                   disabled={isCreating || !title || !description}
                 >
                   {isCreating ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : <CreditCard className="w-5 h-5 mr-2" />}
-                  Launch Legal Campaign
+                  Accept Liability & Launch Ad
                 </Button>
               </CardContent>
             </Card>
@@ -306,7 +316,7 @@ export default function AdvertiserManagePage() {
                        </div>
                        <div className="flex items-center gap-1.5 text-xs text-blue-500 font-black">
                           <CheckCircle2 className="w-3 h-3" />
-                          <span className="uppercase">Legally Verified</span>
+                          <span className="uppercase">Verified</span>
                        </div>
                     </div>
                   </CardContent>

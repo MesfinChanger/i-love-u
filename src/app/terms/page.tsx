@@ -2,7 +2,7 @@
 
 import { Header } from '@/components/Header';
 import { BottomNav } from '@/components/BottomNav';
-import { ArrowLeft, ShieldAlert, AlertTriangle, Heart } from 'lucide-react';
+import { ArrowLeft, ShieldAlert, AlertTriangle, Heart, Scale } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
@@ -19,7 +19,7 @@ export default function TermsPage() {
       </header>
       
       <main className="container mx-auto px-6 py-10 prose prose-sm max-w-2xl">
-        <h2 className="text-2xl font-black mb-6 tracking-tighter">Terms of Service</h2>
+        <h2 className="text-2xl font-black mb-6 tracking-tighter uppercase">Legal Agreement</h2>
         <p className="text-muted-foreground mb-4 italic">Last updated: {new Date().toLocaleDateString()}</p>
         
         <section className="space-y-8">
@@ -35,13 +35,25 @@ export default function TermsPage() {
             </div>
           </div>
 
-          <div className="p-6 bg-amber-50 border border-amber-200 rounded-[1.5rem] space-y-4">
+          <div className="p-6 bg-amber-50 border border-amber-200 rounded-[1.5rem] space-y-4 shadow-sm">
             <div className="flex items-start gap-3">
               <AlertTriangle className="w-6 h-6 text-amber-600 shrink-0 mt-1" />
               <div>
-                <h3 className="font-bold text-amber-800 text-lg">CRITICAL: LIMITATION OF LIABILITY</h3>
-                <p className="text-sm text-amber-700 leading-relaxed font-bold uppercase">
-                  THE DEVELOPERS, OWNERS, AND OPERATORS OF SPARK ARE NOT LIABLE FOR ANY DAMAGES, HARMFUL INTERACTIONS, OR "UNNECESSARY THINGS" ARISING FROM THE USE OF THIS APP. BY USING SPARK, YOU AGREE THAT YOU DO SO AT YOUR OWN RISK. THE OWNER IS NOT LIABLE BY ANY MEANS FOR THE CONDUCT OF OTHER USERS OR ANY CONSEQUENCES OF YOUR INTERACTIONS.
+                <h3 className="font-bold text-amber-800 text-lg uppercase tracking-tighter">Critical Limitation of Liability</h3>
+                <p className="text-[11px] text-amber-700 leading-relaxed font-black uppercase">
+                  THE DEVELOPERS, OWNERS, AND OPERATORS OF SPARK (COLLECTIVELY "THE PLATFORM") ARE NOT LIABLE BY ANY MEANS FOR ANY DAMAGES, HARMFUL INTERACTIONS, FINANCIAL LOSSES, OR ANY "UNNECESSARY THINGS" ARISING FROM THE USE OF THIS APP. BY USING SPARK, YOU AGREE THAT YOU DO SO AT YOUR OWN RISK. THE PLATFORM IS NOT LIABLE FOR THE CONDUCT OF USERS, ADVERTISERS, OR SELLERS.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-6 bg-slate-900 text-white rounded-[1.5rem] space-y-4 shadow-xl">
+            <div className="flex items-start gap-3">
+              <Scale className="w-6 h-6 text-primary shrink-0 mt-1" />
+              <div>
+                <h3 className="font-bold text-lg text-primary uppercase tracking-tighter">7. Specific Advertiser Liability</h3>
+                <p className="text-[11px] leading-relaxed font-bold uppercase opacity-90">
+                  IF YOU USE THE ADVERTISING TOOLS, YOU AGREE THAT THE ADVERTISER IS SOLELY RESPONSIBLE FOR THE CONTENT, LEGALITY, AND CONSEQUENCES OF THE ADVERTISEMENT. THE OWNER, THE DEVELOPER, THE WEB PLATFORM, AND THE MOBILE APP ARE NOT LIABLE FOR ANY CLAIMS, DAMAGES, OR ILLEGALITIES ARISING FROM AN ADVERTISEMENT. THE ADVERTISER INDEMNIFIES THE PLATFORM AGAINST ALL LOSSES.
                 </p>
               </div>
             </div>
@@ -61,26 +73,21 @@ export default function TermsPage() {
             <div className="flex items-start gap-3">
               <ShieldAlert className="w-6 h-6 text-red-600 shrink-0 mt-1" />
               <div>
-                <h3 className="font-bold text-red-800 text-lg">3. Zero-Tolerance: No Commercial or Sexual Solicitation</h3>
+                <h3 className="font-bold text-red-800 text-lg">3. Zero-Tolerance Policy</h3>
                 <p className="text-sm text-red-700 leading-relaxed">
                   Spark is a <strong>100% free community</strong>. Asking for money, gifts, or any form of financial compensation for sexual activities, "sugar dating," or commercial services is <strong>strictly prohibited</strong>. 
                   <br /><br />
-                  Any user found soliciting financial transactions, engaging in transactional dating, or prostitution will be <strong>permanently banned immediately</strong> and without appeal.
+                  Any user found soliciting financial transactions, engaging in transactional dating, or prostitution will be <strong>permanently banned immediately</strong>.
                 </p>
               </div>
             </div>
           </div>
 
           <div>
-            <h3 className="text-lg font-bold mb-2 text-primary uppercase tracking-widest text-xs font-black">4. Legal Disclaimer</h3>
+            <h3 className="text-lg font-bold mb-2 text-primary uppercase tracking-widest text-xs font-black">4. General Disclaimer</h3>
             <p className="font-medium bg-muted/30 p-4 rounded-xl border border-dashed">
-              TO THE MAXIMUM EXTENT PERMITTED BY LAW, SPARK, ITS OWNERS, AND ITS DEVELOPERS SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS OR REVENUES, WHETHER INCURRED DIRECTLY OR INDIRECTLY, OR ANY LOSS OF DATA, USE, GOODWILL, OR OTHER INTANGIBLE LOSSES, RESULTING FROM YOUR USE OF THE SERVICE.
+              TO THE MAXIMUM EXTENT PERMITTED BY LAW, SPARK, ITS OWNERS, AND ITS DEVELOPERS SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS OR REVENUES, WHETHER INCURRED DIRECTLY OR INDIRECTLY.
             </p>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-bold mb-2">5. Disclaimers</h3>
-            <p>Spark provides the service "as is" and "as available". We do not guarantee that the service will be secure or error-free. You use the service at your own risk. Spark does not conduct criminal background checks on its users.</p>
           </div>
 
           <div>
