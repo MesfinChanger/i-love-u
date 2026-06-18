@@ -26,7 +26,8 @@ import {
   Play,
   Volume2,
   VolumeX,
-  ShieldCheck
+  ShieldCheck,
+  HeartHandshake
 } from 'lucide-react';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
@@ -139,15 +140,15 @@ export default function DiscoverPage() {
 
     if (type === 'date') {
       if (isDatingDisabled) {
-        toast({ variant: "destructive", title: "Incapable for Dating", description: "Your profile is restricted from dating." });
+        toast({ variant: "destructive", title: "Safety Restriction", description: "Your profile settings have disabled romantic sparks. ✨" });
         return;
       }
       if (isAlreadyDating) {
-        toast({ variant: "destructive", title: "Exclusive Spark", description: "You are currently sparking with someone." });
+        toast({ variant: "destructive", title: "Exclusive Spark Active", description: "In this community, you can only have one dating spark at a time for accountability." });
         return;
       }
       if (myProfile?.gender === currentItem.gender) {
-        toast({ variant: "destructive", title: "Restriction", description: "Dating sparks are limited to opposite-sex connections." });
+        toast({ variant: "destructive", title: "Gender Restriction", description: "Dating sparks are limited to opposite-sex connections per community policy." });
         return;
       }
     }
@@ -170,8 +171,8 @@ export default function DiscoverPage() {
     }
 
     toast({
-      title: type === 'date' ? "It's a Spark!" : "Global Connection Made",
-      description: type === 'date' ? `Exclusive connection made with ${currentItem.name}.` : `You are now global friends with ${currentItem.name}.`
+      title: type === 'date' ? "Mutual Spark!" : "Global Connection",
+      description: type === 'date' ? `Accountable dating match with ${currentItem.name} is now active.` : `Cultural exchange started with ${currentItem.name}.`
     });
 
     handleNext();
@@ -185,7 +186,8 @@ export default function DiscoverPage() {
     <div className="flex flex-col min-h-screen bg-muted/30 pb-24 items-center justify-center p-8 text-center">
       <Header />
       <Sparkles className="w-12 h-12 text-muted-foreground opacity-30 mb-4 animate-pulse" />
-      <h2 className="text-xl font-bold">Searching the Globe...</h2>
+      <h2 className="text-xl font-black tracking-tighter">Searching the Globe...</h2>
+      <p className="text-xs text-muted-foreground uppercase tracking-widest mt-2">Connecting respectful sparks</p>
       <BottomNav />
     </div>
   );
@@ -199,8 +201,8 @@ export default function DiscoverPage() {
         <main className="flex-grow flex items-center justify-center p-4">
           <div className="w-full max-w-md relative aspect-[3/4]">
             <Card className={cn(
-              "absolute inset-0 overflow-hidden border-none shadow-2xl rounded-[2.5rem] text-white",
-              isVideo ? "bg-black" : "bg-gradient-to-br from-blue-700 to-indigo-900"
+              "absolute inset-0 overflow-hidden border-none shadow-[0_20px_50px_rgba(0,0,0,0.2)] rounded-[3rem] text-white",
+              isVideo ? "bg-black" : "bg-gradient-to-br from-indigo-700 via-blue-800 to-slate-900"
             )}>
               {isVideo && currentItem.videoUrl && (
                 <div className="absolute inset-0 z-0">
@@ -210,13 +212,13 @@ export default function DiscoverPage() {
                     loop 
                     muted={isMuted}
                     playsInline
-                    className="w-full h-full object-cover opacity-60"
+                    className="w-full h-full object-cover opacity-70"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
                   <Button 
                     variant="ghost" 
                     size="icon" 
-                    className="absolute top-6 right-6 z-20 text-white/50 hover:text-white"
+                    className="absolute top-8 right-8 z-20 bg-black/20 backdrop-blur-md rounded-full text-white/80 hover:text-white"
                     onClick={(e) => { e.stopPropagation(); setIsMuted(!isMuted); }}
                   >
                     {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
@@ -225,35 +227,44 @@ export default function DiscoverPage() {
               )}
               
               <div className="relative z-10 p-10 flex flex-col h-full">
-                 <div className="flex items-center justify-between mb-4">
+                 <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-2">
-                       <Megaphone className="w-6 h-6 text-blue-200" />
-                       <Badge variant="outline" className="border-blue-300 text-blue-100 uppercase font-black text-[10px] tracking-widest">
-                         {isVideo ? "Video Spotlight" : "Legally Compliant Ad"}
+                       <Megaphone className="w-6 h-6 text-blue-300" />
+                       <Badge className="bg-blue-500/30 backdrop-blur-md border border-blue-400/30 text-white uppercase font-black text-[9px] tracking-widest px-3">
+                         {isVideo ? "Video Spotlight" : "Legally Compliant"}
                        </Badge>
                     </div>
-                    <ShieldCheck className="w-5 h-5 text-blue-300" aria-label="Legally Verified" />
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                           <ShieldCheck className="w-6 h-6 text-green-400" />
+                        </TooltipTrigger>
+                        <TooltipContent className="bg-green-600 text-white border-none rounded-xl">
+                          <p className="text-[10px] font-bold">Verified for Global Laws</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                  </div>
                  
-                 <div className="flex-grow flex flex-col justify-center gap-4">
-                    <h2 className="text-4xl font-black tracking-tighter leading-tight">{currentItem.title}</h2>
-                    <p className="text-lg text-blue-100/90 leading-relaxed font-medium">{currentItem.description}</p>
+                 <div className="flex-grow flex flex-col justify-center gap-6">
+                    <h2 className="text-4xl lg:text-5xl font-black tracking-tighter leading-[1.1]">{currentItem.title}</h2>
+                    <p className="text-lg text-blue-100/80 leading-relaxed font-medium line-clamp-4">{currentItem.description}</p>
                  </div>
 
                  <div className="mt-8 space-y-4">
                     <Button 
-                      className="w-full h-14 rounded-2xl bg-white text-blue-900 font-black text-lg gap-2 shadow-xl shadow-blue-900/30"
+                      className="w-full h-16 rounded-3xl bg-white text-blue-900 font-black text-lg gap-3 shadow-2xl shadow-blue-900/40 hover:scale-[1.02] transition-transform"
                       onClick={() => currentItem.targetUrl && window.open(currentItem.targetUrl)}
                     >
-                      Visit Official Link
+                      Explore More
                       <ExternalLink className="w-5 h-5" />
                     </Button>
                     <Button 
                       variant="ghost" 
-                      className="w-full text-blue-200 uppercase font-black text-[10px] tracking-widest opacity-60"
+                      className="w-full text-white/40 uppercase font-black text-[10px] tracking-[0.2em] hover:text-white/60"
                       onClick={handleNext}
                     >
-                      Skip Sponsored Ad
+                      Skip Sponsored Moment
                     </Button>
                  </div>
               </div>
@@ -273,70 +284,85 @@ export default function DiscoverPage() {
       <Header />
       <main className="flex-grow flex items-center justify-center p-4" role="main">
         <div className="w-full max-w-md relative aspect-[3/4]">
-          <Card className="absolute inset-0 overflow-hidden border-none shadow-2xl rounded-[2.5rem]" aria-label={`Profile of ${currentItem.name}`}>
+          <Card className="absolute inset-0 overflow-hidden border-none shadow-[0_30px_60px_rgba(0,0,0,0.15)] rounded-[3rem]" aria-label={`Profile of ${currentItem.name}`}>
             <Image src={currentItem.image} alt="" fill className="object-cover" priority />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" aria-hidden="true" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" aria-hidden="true" />
             
-            <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
-              <div className="flex items-center gap-2 mb-2">
-                <h2 className="text-3xl font-black">{currentItem.name}, {currentItem.age}</h2>
-                {currentItem.isGlobalFriend ? (
-                  <Badge variant="secondary" className="bg-blue-500/30 text-white border-blue-400/30 backdrop-blur-md">
-                    <Globe2 className="w-3 h-3 mr-1" aria-hidden="true" /> Global Friend
-                  </Badge>
-                ) : (
-                  <Badge variant="secondary" className="bg-primary/20 text-white border-primary/30 backdrop-blur-md">
-                    <Sparkles className="w-3 h-3 mr-1 fill-white" aria-hidden="true" /> AI Match
-                  </Badge>
-                )}
+            <div className="absolute bottom-0 left-0 right-0 p-10 text-white">
+              <div className="flex flex-wrap items-center gap-3 mb-4">
+                <h2 className="text-4xl font-black tracking-tighter">{currentItem.name}, {currentItem.age}</h2>
+                <Badge className="bg-green-500/20 backdrop-blur-md text-green-300 border-green-400/30 flex items-center gap-1.5 uppercase font-black text-[9px] tracking-widest">
+                   <HeartHandshake className="w-3 h-3" /> Respect Pledged
+                </Badge>
               </div>
               
-              <div className="flex flex-wrap items-center gap-4 text-xs text-white/80 mb-4">
-                <div className="flex items-center gap-1">
-                  <Building2 className="w-3 h-3" /> <span className="font-bold">{currentItem.location}</span>
+              <div className="flex flex-wrap items-center gap-5 text-[11px] font-bold uppercase tracking-widest text-white/60 mb-6">
+                <div className="flex items-center gap-1.5">
+                  <MapPin className="w-3.5 h-3.5 text-primary" /> <span>{currentItem.location}</span>
                 </div>
-                <div className="flex items-center gap-1">
-                  <Church className="w-3 h-3" /> <span>{currentItem.religion}</span>
+                <div className="flex items-center gap-1.5">
+                  <Building2 className="w-3.5 h-3.5" /> <span>{currentItem.religion}</span>
                 </div>
               </div>
 
-              <div className="space-y-3 mb-6">
-                <p className="text-white/90 line-clamp-2 text-lg">{currentItem.bio}</p>
+              <div className="space-y-4 mb-8">
+                <p className="text-white/80 line-clamp-3 text-lg leading-relaxed font-medium italic">"{currentItem.bio}"</p>
                 {currentItem.culturalInterests && (
-                  <div className="flex items-center gap-2 text-blue-300 text-sm font-bold">
-                    <Soup className="w-4 h-4" /> Interested in: {currentItem.culturalInterests}
+                  <div className="flex items-center gap-3 bg-white/10 backdrop-blur-sm p-4 rounded-2xl border border-white/10">
+                    <Soup className="w-5 h-5 text-primary shrink-0" />
+                    <p className="text-[11px] font-bold text-white/90">Teachable Culture: <span className="text-primary">{currentItem.culturalInterests}</span></p>
                   </div>
                 )}
               </div>
 
               <div className="flex flex-wrap gap-2">
                 {currentItem.interests.map(interest => (
-                  <Badge key={interest} variant="outline" className="bg-white/10 border-white/20 text-white">{interest}</Badge>
+                  <Badge key={interest} variant="outline" className="bg-white/5 border-white/20 text-white/90 font-bold text-[10px] uppercase tracking-tighter px-3 h-7">
+                    {interest}
+                  </Badge>
                 ))}
               </div>
             </div>
           </Card>
 
-          <div className="absolute -bottom-20 left-0 right-0 flex justify-center items-center gap-4">
-            <Button variant="outline" size="icon" className="w-14 h-14 rounded-full border-2 bg-white text-red-500 shadow-lg hover:bg-red-50" onClick={handleNext} aria-label="Skip profile">
-              <X className="w-6 h-6" aria-hidden="true" />
+          <div className="absolute -bottom-24 left-0 right-0 flex justify-center items-center gap-6">
+            <Button 
+              variant="outline" 
+              size="icon" 
+              className="w-16 h-16 rounded-full border-2 bg-white text-red-500 shadow-2xl shadow-red-500/10 hover:bg-red-50 active:scale-90 transition-transform" 
+              onClick={handleNext} 
+              aria-label="Skip"
+            >
+              <X className="w-7 h-7" aria-hidden="true" />
             </Button>
             
-            <Button variant="outline" size="icon" className="rounded-full border-2 bg-white text-blue-500 shadow-lg flex flex-col gap-1 h-14 w-24 border-blue-100 hover:bg-blue-50" onClick={() => handleAction('friend')} aria-label="Friendship connection">
-              <Globe2 className="w-5 h-5" />
-              <span className="text-[10px] font-bold uppercase tracking-tighter text-muted-foreground">Friendship</span>
+            <Button 
+              variant="outline" 
+              className="rounded-full border-2 bg-white text-blue-600 shadow-2xl shadow-blue-500/10 flex flex-col gap-1 h-16 w-28 border-blue-50 hover:bg-blue-50 active:scale-95 transition-all" 
+              onClick={() => handleAction('friend')} 
+              aria-label="Connect for Friendship"
+            >
+              <Globe2 className="w-6 h-6" />
+              <span className="text-[10px] font-black uppercase tracking-widest">Exchange</span>
             </Button>
 
-            <Button size="icon" className={cn("rounded-full shadow-xl flex flex-col gap-1 h-14 w-24 transition-all", datingIncapable ? "bg-muted text-muted-foreground border-2 border-dashed grayscale cursor-not-allowed" : "gradient-bg text-white")} onClick={() => handleAction('date')} aria-label="Dating spark">
+            <Button 
+              className={cn(
+                "rounded-full shadow-2xl flex flex-col gap-1 h-16 w-28 active:scale-95 transition-all", 
+                datingIncapable ? "bg-muted text-muted-foreground border-2 border-dashed grayscale cursor-not-allowed" : "gradient-bg text-white shadow-primary/30"
+              )} 
+              onClick={() => handleAction('date')} 
+              aria-label="Spark for Dating"
+            >
               {datingIncapable ? (
                 <>
-                  <Ban className="w-5 h-5" aria-hidden="true" />
-                  <span className="text-[10px] font-bold uppercase tracking-tighter">Restricted</span>
+                  <Lock className="w-6 h-6" aria-hidden="true" />
+                  <span className="text-[10px] font-black uppercase tracking-widest">Restricted</span>
                 </>
               ) : (
                 <>
-                  <Zap className="w-5 h-5 fill-white" aria-hidden="true" />
-                  <span className="text-[10px] font-bold uppercase tracking-tighter">Spark</span>
+                  <Zap className="w-6 h-6 fill-white" aria-hidden="true" />
+                  <span className="text-[10px] font-black uppercase tracking-widest">Spark</span>
                 </>
               )}
             </Button>
@@ -347,3 +373,4 @@ export default function DiscoverPage() {
     </div>
   );
 }
+
