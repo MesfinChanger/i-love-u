@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Heart, Sparkles, MessageCircle, ShieldCheck, Zap, Globe } from 'lucide-react';
+import { Heart, Sparkles, MessageCircle, ShieldCheck, Zap, Globe, Smile } from 'lucide-react';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
@@ -66,7 +66,7 @@ export default function Home() {
               </h1>
               <p className="text-xl text-muted-foreground max-w-lg mx-auto lg:mx-0 leading-relaxed">
                 Connect with people who share your sparks. Real connections, AI-powered matching, and safe messaging. 
-                <span className="block font-bold text-primary mt-2">100% Free Forever.</span>
+                <span className="block font-bold text-primary mt-2 uppercase tracking-widest text-xs">Respect & Love is Mandatory ❤️</span>
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                 <Button size="lg" className="h-14 px-10 rounded-full text-lg font-bold gradient-bg shadow-xl shadow-primary/20" asChild>
@@ -110,9 +110,9 @@ export default function Home() {
             <h2 className="text-4xl font-black mb-12">Designed for Real People</h2>
             <div className="grid md:grid-cols-3 gap-8">
               <FeatureCard 
-                icon={<Zap className="w-8 h-8" />}
-                title="AI Matching"
-                description="Our neural networks analyze interests to suggest highly compatible partners, absolutely free."
+                icon={<Smile className="w-8 h-8" />}
+                title="Respect Mandatory"
+                description="We prioritize kindness. Disrespect is not allowed; love and respect for all members is required."
               />
               <FeatureCard 
                 icon={<MessageCircle className="w-8 h-8" />}

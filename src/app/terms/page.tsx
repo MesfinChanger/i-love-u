@@ -2,7 +2,7 @@
 
 import { Header } from '@/components/Header';
 import { BottomNav } from '@/components/BottomNav';
-import { ArrowLeft, ShieldAlert, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, ShieldAlert, AlertTriangle, Heart } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
@@ -23,6 +23,18 @@ export default function TermsPage() {
         <p className="text-muted-foreground mb-4 italic">Last updated: {new Date().toLocaleDateString()}</p>
         
         <section className="space-y-8">
+          <div className="p-6 bg-primary/5 border border-primary/20 rounded-[1.5rem] space-y-4">
+            <div className="flex items-start gap-3">
+              <Heart className="w-6 h-6 text-primary shrink-0 mt-1 fill-primary" />
+              <div>
+                <h3 className="font-bold text-primary text-lg">MANDATORY: RESPECT & LOVE</h3>
+                <p className="text-sm text-primary/80 leading-relaxed font-bold">
+                  IN THIS COMMUNITY, RESPECTING EACH OTHER AND LOVING EACH OTHER IS MANDATORY. THIS IS NOT AN OPTION; IT IS THE FOUNDATION OF SPARK. ANY FORM OF DISRESPECT, HATE, OR UNLOVING BEHAVIOR IS A DIRECT VIOLATION OF THESE TERMS.
+                </p>
+              </div>
+            </div>
+          </div>
+
           <div className="p-6 bg-amber-50 border border-amber-200 rounded-[1.5rem] space-y-4">
             <div className="flex items-start gap-3">
               <AlertTriangle className="w-6 h-6 text-amber-600 shrink-0 mt-1" />

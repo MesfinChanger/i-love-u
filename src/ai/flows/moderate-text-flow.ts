@@ -1,6 +1,7 @@
 'use server';
 /**
  * @fileOverview A Genkit flow to moderate text messages for disrespect, insults, harassment, and financial/sexual solicitation.
+ * Enforces the "Respect and Love is Mandatory" rule.
  */
 
 import {ai} from '@/ai/genkit';
@@ -28,17 +29,20 @@ const prompt = ai.definePrompt({
   prompt: `You are a professional content moderator for a safe, 100% free dating community.
 Your job is to identify text that violates the following strict rules:
 
-1. Disrespect, insults, aggression, or harassment/hate speech.
+MANDATORY RULE: RESPECT & LOVE
+1. Disrespect, insults, aggression, harassment, hate speech, or UNLOVING behavior.
+   - Any sign of "meanness," bullying, or toxicity must be flagged.
+   - Respect and love for each other is MANDATORY in this community.
+
+PROHIBITED TRANSACTIONS:
 2. SOLICITATION OF MONEY: Asking for money, bank transfers, crypto, or gifts.
 3. TRANSACTIONAL DATING: Asking for financial compensation for sexual activities, "sugar dating," or any sexual services.
 4. COMMERCIAL SERVICES: Promoting a business, selling products, or offering professional services for pay.
 
-Spark is a 100% free app, and any attempt to turn an interaction into a financial transaction is strictly prohibited.
-
 Analyze the following message:
 "{{{text}}}"
 
-If the message violates any of these rules (harmful, insulting, or transactional/commercial), return isFlagged: true.
+If the message violates any of these rules (harmful, disrespectful, insulting, or transactional/commercial), return isFlagged: true.
 Otherwise, return isFlagged: false.`,
 });
 

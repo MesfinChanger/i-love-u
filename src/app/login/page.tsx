@@ -16,7 +16,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Heart, Mail, Phone, Chrome, Loader2, ArrowLeft, ShieldCheck, UserCheck, BotOff } from 'lucide-react';
+import { Heart, Mail, Phone, Chrome, Loader2, ArrowLeft, ShieldCheck, UserCheck, BotOff, HeartHandshake } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -36,6 +36,7 @@ export default function LoginPage() {
   const [confirmationResult, setConfirmationResult] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isAdult, setIsAdult] = useState(false);
+  const [isRespectful, setIsRespectful] = useState(false);
   const [isHuman, setIsHuman] = useState(false);
   const [isBotChecking, setIsBotChecking] = useState(false);
 
@@ -51,6 +52,14 @@ export default function LoginPage() {
         variant: "destructive",
         title: "Age Verification Required",
         description: "You must be 18 or older to use Spark."
+      });
+      return false;
+    }
+    if (!isRespectful) {
+      toast({
+        variant: "destructive",
+        title: "Community Pledge Required",
+        description: "You must agree to treat everyone with respect and love."
       });
       return false;
     }
@@ -190,7 +199,7 @@ export default function LoginPage() {
             <span>SPARK</span>
           </div>
           <h1 className="text-2xl font-bold">Community Access</h1>
-          <p className="text-muted-foreground text-sm">Safe, secure, and bot-free dating.</p>
+          <p className="text-muted-foreground text-sm">Mandatory Respect & Love Community ❤️</p>
         </div>
 
         <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden">
@@ -213,23 +222,39 @@ export default function LoginPage() {
             <CardContent className="pt-8 px-8 pb-4">
               <div className="space-y-4 mb-6">
                 <div className="flex items-start space-x-3 bg-primary/5 p-4 rounded-xl border border-primary/10">
-                  <Checkbox 
-                    id="age-check" 
-                    checked={isAdult} 
-                    onCheckedChange={(checked) => setIsAdult(checked as boolean)}
-                    className="mt-1"
-                  />
-                  <div className="grid gap-1.5 leading-none">
-                    <label
-                      htmlFor="age-check"
-                      className="text-xs font-bold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center gap-1.5 text-primary"
-                    >
-                      <ShieldCheck className="w-3 h-3" />
-                      I AM 18 YEARS OR OLDER
-                    </label>
-                    <p className="text-[10px] text-muted-foreground italic">
-                      Strict 18+ policy for community safety.
-                    </p>
+                  <div className="flex flex-col gap-3 w-full">
+                    <div className="flex items-start space-x-3">
+                      <Checkbox 
+                        id="age-check" 
+                        checked={isAdult} 
+                        onCheckedChange={(checked) => setIsAdult(checked as boolean)}
+                        className="mt-1"
+                      />
+                      <div className="grid gap-1.5 leading-none">
+                        <label htmlFor="age-check" className="text-xs font-bold leading-none text-primary flex items-center gap-1.5">
+                          <ShieldCheck className="w-3 h-3" />
+                          I AM 18 YEARS OR OLDER
+                        </label>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start space-x-3 border-t border-primary/10 pt-3">
+                      <Checkbox 
+                        id="respect-check" 
+                        checked={isRespectful} 
+                        onCheckedChange={(checked) => setIsRespectful(checked as boolean)}
+                        className="mt-1"
+                      />
+                      <div className="grid gap-1.5 leading-none">
+                        <label htmlFor="respect-check" className="text-xs font-bold leading-none text-primary flex items-center gap-1.5">
+                          <HeartHandshake className="w-3 h-3" />
+                          MANDATORY: RESPECT & LOVE
+                        </label>
+                        <p className="text-[10px] text-muted-foreground italic">
+                          I pledge to love and respect every member. Meanness is not tolerated.
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -255,9 +280,6 @@ export default function LoginPage() {
                       {isBotChecking ? <Loader2 className="w-3 h-3 animate-spin" /> : isHuman ? <UserCheck className="w-3 h-3" /> : <BotOff className="w-3 h-3" />}
                       {isBotChecking ? "Verifying..." : isHuman ? "Verified Human" : "I am not a robot"}
                     </label>
-                    <p className="text-[10px] text-muted-foreground italic">
-                      Anti-spam security measure.
-                    </p>
                   </div>
                 </div>
               </div>
@@ -367,17 +389,12 @@ export default function LoginPage() {
                   <Chrome className="w-6 h-6" />
                   Continue with Google
                 </Button>
-                <div className="text-center">
-                  <p className="text-[10px] text-muted-foreground px-8 italic">
-                    Fast, secure, and human-only login.
-                  </p>
-                </div>
               </TabsContent>
             </CardContent>
           </Tabs>
           <CardFooter className="bg-muted/30 p-6 flex flex-col items-center gap-4">
-             <Link href="/discover" onClick={(e) => { if(!isAdult || !isHuman) { e.preventDefault(); validateAccess(); } }} className="text-sm text-primary font-bold hover:underline">
-               Browse as Guest (Verified Human only)
+             <Link href="/discover" onClick={(e) => { if(!isAdult || !isHuman || !isRespectful) { e.preventDefault(); validateAccess(); } }} className="text-sm text-primary font-bold hover:underline">
+               Browse as Guest (Respect Pledge required)
              </Link>
              <div className="flex gap-4 text-[10px] text-muted-foreground font-bold uppercase tracking-widest">
                <Link href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link>
