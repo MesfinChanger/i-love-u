@@ -19,6 +19,9 @@
         "location": { "type": "string" },
         "relationshipStatus": { "type": "string", "enum": ["single", "dating"] },
         "isSeller": { "type": "boolean", "default": false },
+        "isLocalProducer": { "type": "boolean", "default": false },
+        "isNewEntrepreneur": { "type": "boolean", "default": false },
+        "negotiationRequested": { "type": "boolean", "default": false },
         "subscriptionType": { "type": "string", "enum": ["free", "basic_seller", "pro_seller"], "default": "free" },
         "publicKey": { "type": "string" },
         "currency": { "type": "string", "default": "USD" }

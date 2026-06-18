@@ -50,7 +50,9 @@ import {
   Navigation,
   EyeOff,
   Building2,
-  Coins
+  Coins,
+  Store,
+  Briefcase
 } from 'lucide-react';
 import { generateBio } from '@/ai/flows/generate-bio-flow';
 import { moderateText } from '@/ai/flows/moderate-text-flow';
@@ -104,6 +106,8 @@ export default function ProfilePage() {
   const [currency, setCurrency] = useState('USD');
   const [allowSensitiveContent, setAllowSensitiveContent] = useState(false);
   const [isDatingEnabled, setIsDatingEnabled] = useState(true);
+  const [isLocalProducer, setIsLocalProducer] = useState(false);
+  const [isNewEntrepreneur, setIsNewEntrepreneur] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -126,6 +130,8 @@ export default function ProfilePage() {
       setCurrency(profileData.currency || 'USD');
       setAllowSensitiveContent(profileData.settings?.allowSensitiveContent || false);
       setIsDatingEnabled(profileData.isDatingEnabled !== false);
+      setIsLocalProducer(profileData.isLocalProducer || false);
+      setIsNewEntrepreneur(profileData.isNewEntrepreneur || false);
       setHasKeys(!!profileData.publicKey && !!localStorage.getItem(`spark_priv_${user?.uid}`));
       if (profileData.exactLocation) {
         setExactLocation({
@@ -156,24 +162,6 @@ export default function ProfilePage() {
         toast({ variant: "destructive", title: "Location Error", description: "Could not fetch your exact location. Please enable GPS." });
       }
     );
-  };
-
-  const handleSetupEncryption = async () => {
-    if (!user || !db) return;
-    try {
-      const keys = await generateKeyPair();
-      localStorage.setItem(`spark_priv_${user.uid}`, keys.privateKey);
-      await updateDoc(doc(db, 'users', user.uid), {
-        publicKey: keys.publicKey
-      });
-      setHasKeys(true);
-      toast({
-        title: "Encryption Enabled",
-        description: "Your messages are now secured with End-to-End Encryption. ✨"
-      });
-    } catch (e) {
-      toast({ variant: "destructive", title: "Setup Failed", description: "Could not generate security keys." });
-    }
   };
 
   const handleSave = async () => {
@@ -210,6 +198,8 @@ export default function ProfilePage() {
         languagesLearning: languagesLearning.split(',').map(s => s.trim()).filter(i => i),
         preferredLanguage,
         isDatingEnabled,
+        isLocalProducer,
+        isNewEntrepreneur,
         exactLocation: exactLocation ? {
           latitude: exactLocation.lat,
           longitude: exactLocation.lng,
@@ -310,6 +300,29 @@ export default function ProfilePage() {
                 {CURRENCIES.map(c => <SelectItem key={c.code} value={c.code}>{c.code} ({c.symbol})</SelectItem>)}
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="space-y-4">
+            <Label className="font-bold flex items-center gap-2">
+              <Briefcase className="w-4 h-4 text-primary" />
+              Entrepreneur Status
+            </Label>
+            <div className="grid gap-3">
+              <div className="flex items-center justify-between p-4 bg-muted/30 rounded-xl border border-dashed">
+                <div className="space-y-0.5">
+                  <div className="text-sm font-bold">Local Producer</div>
+                  <div className="text-[10px] text-muted-foreground">I produce goods locally in my town</div>
+                </div>
+                <Switch checked={isLocalProducer} onCheckedChange={setIsLocalProducer} />
+              </div>
+              <div className="flex items-center justify-between p-4 bg-muted/30 rounded-xl border border-dashed">
+                <div className="space-y-0.5">
+                  <div className="text-sm font-bold">New Entrepreneur</div>
+                  <div className="text-[10px] text-muted-foreground">I am starting a new gifting business</div>
+                </div>
+                <Switch checked={isNewEntrepreneur} onCheckedChange={setIsNewEntrepreneur} />
+              </div>
+            </div>
           </div>
 
           <div className="p-6 bg-accent/20 rounded-[1.5rem] border border-accent flex items-center justify-between">
