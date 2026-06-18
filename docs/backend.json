@@ -20,9 +20,21 @@
         "relationshipStatus": { "type": "string", "enum": ["single", "dating"] },
         "isSeller": { "type": "boolean", "default": false },
         "subscriptionType": { "type": "string", "enum": ["free", "basic_seller", "pro_seller"], "default": "free" },
-        "publicKey": { "type": "string" }
+        "publicKey": { "type": "string" },
+        "currency": { "type": "string", "default": "USD" }
       },
       "required": ["uid", "displayName", "age", "gender"]
+    },
+    "Donation": {
+      "title": "Donation",
+      "description": "A voluntary contribution to support the 100% free community.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "amount": { "type": "number", "minimum": 1 },
+        "currency": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      }
     },
     "Shop": {
       "title": "Shop",
@@ -91,6 +103,7 @@
   },
   "firestore": {
     "/users/{userId}": { "schema": "UserProfile", "description": "User profiles" },
+    "/donations/{donationId}": { "schema": "Donation", "description": "Support donations" },
     "/shops/{shopId}": { "schema": "Shop", "description": "Seller shops" },
     "/shops/{shopId}/products/{productId}": { "schema": "Product", "description": "Shop inventory" },
     "/matches/{matchId}": { "schema": "Match", "description": "Active connections" },

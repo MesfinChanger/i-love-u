@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Header } from '@/components/Header';
 import { BottomNav } from '@/components/BottomNav';
 import { Button } from '@/components/ui/button';
@@ -9,11 +9,22 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { CheckCircle2, Store, Plus, Package, CreditCard, Sparkles, Zap } from 'lucide-react';
+import { CheckCircle2, Store, Plus, Package, CreditCard, Sparkles } from 'lucide-react';
 import { useUser, useFirestore, useDoc } from '@/firebase';
 import { doc, setDoc, updateDoc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
+
+const CURRENCIES = [
+  { code: 'USD', symbol: '$' },
+  { code: 'EUR', symbol: '€' },
+  { code: 'GBP', symbol: '£' },
+  { code: 'JPY', symbol: '¥' },
+  { code: 'NGN', symbol: '₦' },
+  { code: 'KES', symbol: 'KSh' },
+  { code: 'INR', symbol: '₹' },
+  { code: 'IDR', symbol: 'Rp' }
+];
 
 export default function SellerManagePage() {
   const { user } = useUser();
@@ -31,6 +42,8 @@ export default function SellerManagePage() {
   const [isSubscribing, setIsSubscribing] = useState(false);
 
   const isSeller = profile?.isSeller || false;
+  const userCurrency = profile?.currency || 'USD';
+  const currencySymbol = useMemo(() => CURRENCIES.find(c => c.code === userCurrency)?.symbol || '$', [userCurrency]);
 
   const handleSubscribe = async () => {
     if (!user || !db) return;
@@ -68,19 +81,18 @@ export default function SellerManagePage() {
               <Store className="w-12 h-12 text-primary" />
             </div>
             <h1 className="text-5xl font-black tracking-tighter">Become a Seller</h1>
-            <p className="text-xl text-muted-foreground">Start your own gifting business on Spark. Reach thousands of singles looking for that perfect gift.</p>
+            <p className="text-xl text-muted-foreground">Start your own gifting business on Spark. Reach local sparks with localized pricing.</p>
             
             <div className="grid md:grid-cols-2 gap-6 mt-12">
               <Card className="border-2 border-primary/20 bg-white">
                 <CardHeader>
                   <CardTitle>Basic Seller</CardTitle>
                   <CardDescription>Perfect for local artisans</CardDescription>
-                  <div className="text-3xl font-black mt-4">$29/mo</div>
+                  <div className="text-3xl font-black mt-4">{currencySymbol}29/mo</div>
                 </CardHeader>
                 <CardContent className="space-y-4 text-left">
                   <div className="flex items-center gap-2 text-sm"><CheckCircle2 className="w-4 h-4 text-green-500" /> List up to 10 products</div>
                   <div className="flex items-center gap-2 text-sm"><CheckCircle2 className="w-4 h-4 text-green-500" /> Basic sales analytics</div>
-                  <div className="flex items-center gap-2 text-sm"><CheckCircle2 className="w-4 h-4 text-green-500" /> Standard store badge</div>
                 </CardContent>
                 <CardFooter>
                   <Button className="w-full rounded-xl gradient-bg" onClick={handleSubscribe} disabled={isSubscribing}>
@@ -90,20 +102,17 @@ export default function SellerManagePage() {
               </Card>
 
               <Card className="border-4 border-primary bg-primary/5 relative overflow-hidden">
-                <div className="absolute top-0 right-0 bg-primary text-white text-[8px] font-black uppercase px-3 py-1 -rotate-45 translate-x-3 translate-y-1">POPULAR</div>
                 <CardHeader>
                   <CardTitle className="text-primary flex items-center gap-2">
                     <Sparkles className="w-4 h-4" />
                     Pro Seller
                   </CardTitle>
                   <CardDescription>For growing businesses</CardDescription>
-                  <div className="text-3xl font-black mt-4">$79/mo</div>
+                  <div className="text-3xl font-black mt-4">{currencySymbol}79/mo</div>
                 </CardHeader>
                 <CardContent className="space-y-4 text-left">
                   <div className="flex items-center gap-2 text-sm font-bold"><CheckCircle2 className="w-4 h-4 text-primary" /> Unlimited products</div>
-                  <div className="flex items-center gap-2 text-sm"><CheckCircle2 className="w-4 h-4 text-green-500" /> Advanced AI placement</div>
-                  <div className="flex items-center gap-2 text-sm"><CheckCircle2 className="w-4 h-4 text-green-500" /> Pro Gold Seller Badge</div>
-                  <div className="flex items-center gap-2 text-sm"><CheckCircle2 className="w-4 h-4 text-green-500" /> Same-day delivery tagging</div>
+                  <div className="flex items-center gap-2 text-sm font-bold"><CheckCircle2 className="w-4 h-4 text-primary" /> Priority Placement</div>
                 </CardContent>
                 <CardFooter>
                   <Button className="w-full rounded-xl gradient-bg" onClick={handleSubscribe} disabled={isSubscribing}>
@@ -142,19 +151,17 @@ export default function SellerManagePage() {
                 <Package className="w-8 h-8 text-primary mx-auto" />
                 <div className="text-2xl font-black">12</div>
                 <div className="text-xs text-muted-foreground uppercase font-bold tracking-widest">Products</div>
-                <Button variant="ghost" size="sm" className="w-full text-xs text-primary">Manage</Button>
               </Card>
               <Card className="p-6 text-center space-y-2 rounded-[1.5rem] border-none shadow-sm bg-white">
                 <CreditCard className="w-8 h-8 text-green-500 mx-auto" />
-                <div className="text-2xl font-black">$4,250</div>
+                <div className="text-2xl font-black">{currencySymbol}4,250</div>
                 <div className="text-xs text-muted-foreground uppercase font-bold tracking-widest">Monthly Sales</div>
-                <Button variant="ghost" size="sm" className="w-full text-xs text-green-500">Payout</Button>
               </Card>
             </div>
 
             <Button variant="outline" className="w-full rounded-xl gap-2 h-14 border-2">
               <Plus className="w-5 h-5" />
-              Add New Product (Inventory Management)
+              Add New Product
             </Button>
           </div>
         )}

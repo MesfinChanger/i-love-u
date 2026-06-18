@@ -9,7 +9,6 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Checkbox } from '@/components/ui/checkbox';
 import { 
   Select, 
   SelectContent, 
@@ -38,7 +37,6 @@ import {
   Zap, 
   ShieldAlert, 
   Lock, 
-  Filter, 
   Trash2,
   Star,
   FileText,
@@ -51,13 +49,14 @@ import {
   MapPin,
   Navigation,
   EyeOff,
-  Building2
+  Building2,
+  Coins
 } from 'lucide-react';
 import { generateBio } from '@/ai/flows/generate-bio-flow';
 import { moderateText } from '@/ai/flows/moderate-text-flow';
 import { useToast } from '@/hooks/use-toast';
 import { useUser, useFirestore, useAuth, useDoc } from '@/firebase';
-import { doc, setDoc, deleteDoc, updateDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { doc, setDoc, deleteDoc, updateDoc } from 'firebase/firestore';
 import { signOut, deleteUser } from 'firebase/auth';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { Badge } from '@/components/ui/badge';
@@ -67,6 +66,16 @@ import { generateKeyPair } from '@/lib/crypto';
 
 const GENDERS = [{ value: 'male', label: 'Male' }, { value: 'female', label: 'Female' }];
 const RELIGIONS = ['Christianity', 'Islam', 'Hinduism', 'Buddhism', 'Judaism', 'Sikhism', 'Atheist', 'Agnostic', 'None'];
+const CURRENCIES = [
+  { code: 'USD', symbol: '$' },
+  { code: 'EUR', symbol: '€' },
+  { code: 'GBP', symbol: '£' },
+  { code: 'JPY', symbol: '¥' },
+  { code: 'NGN', symbol: '₦' },
+  { code: 'KES', symbol: 'KSh' },
+  { code: 'INR', symbol: '₹' },
+  { code: 'IDR', symbol: 'Rp' }
+];
 
 export default function ProfilePage() {
   const { user } = useUser();
@@ -92,13 +101,12 @@ export default function ProfilePage() {
   const [culturalInterests, setCulturalInterests] = useState('');
   const [languagesLearning, setLanguagesLearning] = useState('');
   const [preferredLanguage, setPreferredLanguage] = useState('English');
+  const [currency, setCurrency] = useState('USD');
   const [allowSensitiveContent, setAllowSensitiveContent] = useState(false);
   const [isDatingEnabled, setIsDatingEnabled] = useState(true);
-  const [preferredAgeRanges, setPreferredAgeRanges] = useState<string[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [isUnmatching, setIsUnmatching] = useState(false);
   const [hasKeys, setHasKeys] = useState(false);
   const [isFetchingLocation, setIsFetchingLocation] = useState(false);
   const [exactLocation, setExactLocation] = useState<{lat: number, lng: number} | null>(null);
@@ -115,9 +123,9 @@ export default function ProfilePage() {
       setCulturalInterests(profileData.culturalInterests?.join(', ') || '');
       setLanguagesLearning(profileData.languagesLearning?.join(', ') || '');
       setPreferredLanguage(profileData.preferredLanguage || 'English');
+      setCurrency(profileData.currency || 'USD');
       setAllowSensitiveContent(profileData.settings?.allowSensitiveContent || false);
       setIsDatingEnabled(profileData.isDatingEnabled !== false);
-      setPreferredAgeRanges(profileData.preferences?.preferredAgeRanges || []);
       setHasKeys(!!profileData.publicKey && !!localStorage.getItem(`spark_priv_${user?.uid}`));
       if (profileData.exactLocation) {
         setExactLocation({
@@ -189,14 +197,14 @@ export default function ProfilePage() {
         toast({ 
           variant: "destructive", 
           title: "Profile Flagged", 
-          description: "Your name, bio, or location contains disrespectful content. Let's keep things friendly! ✨" 
+          description: "Your content violates respect guidelines." 
         });
         setIsSaving(false);
         return;
       }
       
       await setDoc(doc(db, 'users', user.uid), {
-        displayName, age: userAge, gender, religion, bio, location,
+        displayName, age: userAge, gender, religion, bio, location, currency,
         interests: interests.split(',').map(s => s.trim()).filter(i => i),
         culturalInterests: culturalInterests.split(',').map(s => s.trim()).filter(i => i),
         languagesLearning: languagesLearning.split(',').map(s => s.trim()).filter(i => i),
@@ -208,7 +216,6 @@ export default function ProfilePage() {
           lastUpdated: new Date().toISOString()
         } : null,
         settings: { allowSensitiveContent },
-        preferences: { preferredAgeRanges },
         updatedAt: new Date().toISOString()
       }, { merge: true });
 
@@ -276,11 +283,6 @@ export default function ProfilePage() {
               <Camera className="w-10 h-10 text-primary opacity-30" />
             </div>
             <div className="flex flex-wrap justify-center gap-2">
-              {profileData?.isSupporter && (
-                <Badge className="bg-yellow-500 text-white gap-1 py-1 px-3 rounded-full">
-                  <Star className="w-3 h-3 fill-white" /> Supporter
-                </Badge>
-              )}
               {profileData?.relationshipStatus === 'dating' && (
                 <Badge className="bg-primary text-white gap-1 animate-pulse"><Zap className="w-3 h-3 fill-white" />Currently Sparking</Badge>
               )}
@@ -290,6 +292,26 @@ export default function ProfilePage() {
             </div>
           </div>
 
+          <div className="p-6 bg-slate-50 border border-slate-200 rounded-[1.5rem] flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-white rounded-full text-blue-500">
+                <Coins className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="font-bold">Local Currency</h3>
+                <p className="text-xs text-muted-foreground">Used for localized shops and donations</p>
+              </div>
+            </div>
+            <Select value={currency} onValueChange={setCurrency}>
+              <SelectTrigger className="w-24 rounded-xl">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {CURRENCIES.map(c => <SelectItem key={c.code} value={c.code}>{c.code} ({c.symbol})</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+
           <div className="p-6 bg-accent/20 rounded-[1.5rem] border border-accent flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="p-3 bg-white rounded-full text-primary">
@@ -297,53 +319,25 @@ export default function ProfilePage() {
               </div>
               <div>
                 <h3 className="font-bold">Dating Mode</h3>
-                <p className="text-xs text-muted-foreground">{isDatingEnabled ? "Eligible for exclusive Sparks" : "Restricted to Friendship mode"}</p>
+                <p className="text-xs text-muted-foreground">{isDatingEnabled ? "Eligible for exclusive Sparks" : "Friendship mode only"}</p>
               </div>
             </div>
             <Switch checked={isDatingEnabled} onCheckedChange={setIsDatingEnabled} />
-          </div>
-
-          <div className="p-6 bg-slate-50 border border-slate-200 rounded-[1.5rem] flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-white rounded-full text-blue-500">
-                <EyeOff className="w-6 h-6" />
-              </div>
-              <div>
-                <h3 className="font-bold">Private Safety Guard</h3>
-                <p className="text-xs text-muted-foreground">Blur sensitive content in private chats</p>
-              </div>
-            </div>
-            <Switch checked={allowSensitiveContent} onCheckedChange={setAllowSensitiveContent} />
           </div>
 
           <div className="p-6 bg-red-50 border border-red-200 rounded-[1.5rem] space-y-4">
             <div className="flex items-start gap-3">
               <MapPin className="w-6 h-6 text-red-600 shrink-0 mt-1" />
               <div>
-                <h3 className="font-bold text-red-800">Verified Exact Location</h3>
-                <p className="text-sm text-red-700">Accountability First: Your coordinates are visible to your <strong>exclusive partner</strong> only.</p>
+                <h3 className="font-bold text-red-800">GPS Accountability</h3>
+                <p className="text-sm text-red-700">Coordinates visible to your <strong>exclusive partner</strong> only.</p>
               </div>
             </div>
             <Button onClick={handleUpdateLocation} disabled={isFetchingLocation} variant="outline" className="w-full rounded-xl gap-2 border-red-300 text-red-700">
               {isFetchingLocation ? <Loader2 className="w-4 h-4 animate-spin" /> : <Navigation className="w-4 h-4" />}
-              Refresh GPS Accountability
+              Refresh Location
             </Button>
           </div>
-
-          {!hasKeys && (
-            <div className="p-6 bg-green-50 border border-green-200 rounded-[1.5rem] flex flex-col gap-4">
-              <div className="flex items-start gap-3">
-                <Key className="w-6 h-6 text-green-600 shrink-0 mt-1" />
-                <div>
-                  <h3 className="font-bold text-green-800">Enable Encryption Vault</h3>
-                  <p className="text-sm text-green-700">Protect private chats with on-device security keys.</p>
-                </div>
-              </div>
-              <Button onClick={handleSetupEncryption} className="bg-green-600 hover:bg-green-700 text-white rounded-xl">
-                Activate Secure Vault
-              </Button>
-            </div>
-          )}
 
           <div className="grid sm:grid-cols-2 gap-6">
             <div className="space-y-2">
@@ -373,53 +367,18 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label className="flex items-center gap-2">
-              <Building2 className="w-4 h-4 text-muted-foreground" />
-              City / Town / Country
-            </Label>
-            <Input 
-              id="location" 
-              placeholder="e.g. Tokyo, Japan" 
-              value={location} 
-              onChange={e => setLocation(e.target.value)} 
-              className="rounded-xl" 
-            />
-            <p className="text-[10px] text-muted-foreground">This is your home location for the discover feed.</p>
-          </div>
-
           <div className="space-y-6 pt-4 border-t">
             <Label className="font-black text-lg flex items-center gap-2 text-blue-600">
               <Globe2 className="w-5 h-5" />
-              Culture & Language Exchange
+              Culture & Exchange
             </Label>
-            
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label className="flex items-center gap-2">
-                  <Soup className="w-4 h-4 text-orange-500" />
-                  Cultural Interests / Food / Holidays
-                </Label>
-                <Input 
-                  placeholder="e.g. Christmas, Maulid, Japanese Food" 
-                  value={culturalInterests} 
-                  onChange={e => setCulturalInterests(e.target.value)}
-                  className="rounded-xl" 
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label className="flex items-center gap-2">
-                  <Languages className="w-4 h-4 text-blue-500" />
-                  Languages You are Learning
-                </Label>
-                <Input 
-                  placeholder="e.g. Spanish, Arabic, French" 
-                  value={languagesLearning} 
-                  onChange={e => setLanguagesLearning(e.target.value)}
-                  className="rounded-xl" 
-                />
-              </div>
+            <div className="space-y-2">
+                <Label>City / Country</Label>
+                <Input placeholder="e.g. Tokyo, Japan" value={location} onChange={e => setLocation(e.target.value)} className="rounded-xl" />
+            </div>
+            <div className="space-y-2">
+                <Label>Cultural Interests</Label>
+                <Input placeholder="e.g. Christmas, Japanese Food" value={culturalInterests} onChange={e => setCulturalInterests(e.target.value)} className="rounded-xl" />
             </div>
           </div>
 
@@ -434,21 +393,15 @@ export default function ProfilePage() {
           </div>
 
           <div className="pt-8 border-t space-y-4">
-             <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
-                <Shield className="w-4 h-4" /> Safety Controls
-              </h3>
-              <div className="bg-amber-50 p-4 rounded-xl border border-amber-100 text-[10px] text-amber-800 italic">
-                Notice: Public profile photos are strictly moderated. Nudity is never allowed for public viewing but can be shared privately in secure chats with partners.
-              </div>
               <div className="grid gap-2">
                 <Button variant="outline" className="w-full rounded-xl justify-between h-12" asChild>
-                  <Link href="/privacy">
-                    <span className="flex items-center gap-2"><Lock className="w-4 h-4" /> Privacy Policy</span>
+                  <Link href="/donate">
+                    <span className="flex items-center gap-2"><Heart className="w-4 h-4 text-primary fill-primary" /> Support the Community</span>
                   </Link>
                 </Button>
                 <Button variant="outline" className="w-full rounded-xl justify-between h-12" asChild>
-                  <Link href="/terms">
-                    <span className="flex items-center gap-2"><FileText className="w-4 h-4" /> Terms of Service</span>
+                  <Link href="/privacy">
+                    <span className="flex items-center gap-2"><Lock className="w-4 h-4" /> Privacy Policy</span>
                   </Link>
                 </Button>
               </div>
@@ -464,7 +417,7 @@ export default function ProfilePage() {
                   <AlertDialogHeader>
                     <AlertDialogTitle>Permanent Account Purge?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      This will permanently delete your profile, matches, and messages. This action is final.
+                      This will permanently delete your profile, matches, and messages.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
