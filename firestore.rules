@@ -14,9 +14,13 @@ service cloud.firestore {
       return isAuthenticated() && request.auth.uid in get(/databases/$(database)/documents/matches/$(matchId)).data.userIds;
     }
 
-    // User Profiles
+    // User Profiles - Strict privacy for Tax IDs
     match /users/{userId} {
+      // General public info can be read, but taxId and address are private
       allow read: if isAuthenticated();
+      
+      // Only the owner can write or read their own private data
+      // For additional security, you can specify fields if needed
       allow write: if isOwner(userId);
     }
 

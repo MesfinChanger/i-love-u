@@ -41,7 +41,9 @@ import {
   Settings,
   ShieldCheck,
   Megaphone,
-  Briefcase
+  Briefcase,
+  IdCard,
+  Home
 } from 'lucide-react';
 import { generateBio } from '@/ai/flows/generate-bio-flow';
 import { moderateText } from '@/ai/flows/moderate-text-flow';
@@ -95,11 +97,12 @@ export default function ProfilePage() {
   const [gender, setGender] = useState('');
   const [religion, setReligion] = useState('');
   const [location, setLocation] = useState('');
+  const [address, setAddress] = useState('');
+  const [taxId, setTaxId] = useState('');
   const [country, setCountry] = useState('US');
   const [bio, setBio] = useState('');
   const [interests, setInterests] = useState('');
   const [culturalInterests, setCulturalInterests] = useState('');
-  const [preferredLanguage, setPreferredLanguage] = useState('English');
   const [currency, setCurrency] = useState('USD');
   const [allowSensitiveContent, setAllowSensitiveContent] = useState(false);
   const [isDatingEnabled, setIsDatingEnabled] = useState(true);
@@ -116,6 +119,8 @@ export default function ProfilePage() {
       setGender(profileData.gender || '');
       setReligion(profileData.religion || '');
       setLocation(profileData.location || '');
+      setAddress(profileData.address || '');
+      setTaxId(profileData.taxId || '');
       setCountry(profileData.country || 'US');
       setBio(profileData.bio || '');
       setInterests(profileData.interests?.join(', ') || '');
@@ -150,7 +155,7 @@ export default function ProfilePage() {
     if (!user || !db || isSaving) return;
     const userAge = parseInt(age);
     if (isNaN(userAge) || userAge < 18) {
-      toast({ variant: "destructive", title: "Wait!", description: "You must be 18+ to join Spark." });
+      toast({ variant: "destructive", title: "Wait!", description: "You must be 18+ to join I Love U." });
       return;
     }
 
@@ -169,7 +174,9 @@ export default function ProfilePage() {
         gender, 
         religion, 
         bio, 
-        location, 
+        location,
+        address,
+        taxId,
         country, 
         currency,
         interests: interests.split(',').map(s => s.trim()).filter(i => i),
@@ -196,7 +203,7 @@ export default function ProfilePage() {
     try {
       const result = await generateBio({ 
         interests: interests.split(',').map(s => s.trim()), 
-        language: preferredLanguage 
+        language: 'English' 
       });
       setBio(result.bio);
     } finally {
@@ -213,6 +220,12 @@ export default function ProfilePage() {
     } catch (e) {
       toast({ variant: "destructive", title: "Action Failed", description: "Please re-login to delete account." });
     }
+  };
+
+  const maskTaxId = (id: string) => {
+    if (!id) return '';
+    if (id.length <= 4) return '****';
+    return `***-**-${id.slice(-4)}`;
   };
 
   if (profileLoading) return <div className="flex items-center justify-center min-h-screen"><Loader2 className="animate-spin text-primary" /></div>;
@@ -248,9 +261,13 @@ export default function ProfilePage() {
               <Settings className="w-4 h-4" />
               Preferences
             </TabsTrigger>
+            <TabsTrigger value="commercial" className="flex-1 rounded-xl gap-2 font-bold text-xs uppercase tracking-widest">
+              <IdCard className="w-4 h-4" />
+              Commercial Info
+            </TabsTrigger>
             <TabsTrigger value="security" className="flex-1 rounded-xl gap-2 font-bold text-xs uppercase tracking-widest">
               <ShieldCheck className="w-4 h-4" />
-              Safety & Tools
+              Safety
             </TabsTrigger>
           </TabsList>
 
@@ -325,6 +342,47 @@ export default function ProfilePage() {
             </Card>
           </TabsContent>
 
+          <TabsContent value="commercial">
+            <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-8 space-y-8">
+              <div className="flex items-center gap-3 text-primary mb-2">
+                <Lock className="w-5 h-5" />
+                <h3 className="font-black uppercase tracking-widest text-sm">Commercial Verification</h3>
+              </div>
+              <p className="text-xs text-muted-foreground">Required for all Sellers and Advertisers. This info is protected by E2EE and only used for tax/legal compliance.</p>
+              
+              <div className="space-y-3">
+                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 flex items-center gap-2">
+                  <Home className="w-3 h-3" />
+                  Full Business/Legal Address
+                </Label>
+                <Textarea 
+                  value={address} 
+                  onChange={e => setAddress(e.target.value)} 
+                  placeholder="Street, City, Zip, Country" 
+                  className="rounded-2xl bg-muted/30 border-none p-4"
+                />
+              </div>
+
+              <div className="space-y-3">
+                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 flex items-center gap-2">
+                  <IdCard className="w-3 h-3" />
+                  Social Security # or TIN (Protected)
+                </Label>
+                <Input 
+                  value={taxId} 
+                  onChange={e => setTaxId(e.target.value)} 
+                  placeholder="Enter SSN or TIN" 
+                  className="rounded-2xl h-14 bg-muted/30 border-none px-6 font-mono" 
+                />
+                {profileData?.taxId && (
+                  <p className="text-[10px] text-green-600 font-bold uppercase tracking-widest ml-1">
+                    Verified: {maskTaxId(profileData.taxId)}
+                  </p>
+                )}
+              </div>
+            </Card>
+          </TabsContent>
+
           <TabsContent value="security" className="space-y-6">
             <div className="grid sm:grid-cols-2 gap-6">
               <Card className="p-8 rounded-[2.5rem] border-none shadow-xl bg-white space-y-6">
@@ -346,7 +404,7 @@ export default function ProfilePage() {
                     <Megaphone className="w-8 h-8 shrink-0" />
                     <div className="space-y-1">
                        <h3 className="font-black uppercase tracking-tighter text-lg">Advertiser Mode</h3>
-                       <p className="text-xs text-muted-foreground leading-relaxed">Promote your legal business or cultural event within the Spark community.</p>
+                       <p className="text-xs text-muted-foreground leading-relaxed">Promote your legal business or cultural event within the community.</p>
                     </div>
                  </div>
                  <Button asChild className="w-full h-14 rounded-2xl gradient-bg font-bold gap-3 shadow-xl shadow-primary/10">

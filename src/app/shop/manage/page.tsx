@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -19,14 +20,16 @@ import {
   TrendingUp, 
   Handshake,
   Percent,
-  Check
+  Check,
+  ShieldAlert,
+  IdCard
 } from 'lucide-react';
 import { useUser, useFirestore, useDoc } from '@/firebase';
 import { doc, setDoc, updateDoc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { createSubscriptionSession } from '@/lib/stripe-actions';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 
 const CURRENCIES = [
   { code: 'USD', symbol: '$' },
@@ -43,6 +46,7 @@ export default function SellerManagePage() {
   const { user } = useUser();
   const db = useFirestore();
   const { toast } = useToast();
+  const router = useRouter();
   const searchParams = useSearchParams();
 
   const adminConfigRef = useMemoFirebase(() => {
@@ -69,7 +73,7 @@ export default function SellerManagePage() {
     if (searchParams.get('success')) {
       toast({
         title: "Subscription Active",
-        description: "Welcome to the Spark Seller community! ✨",
+        description: "Welcome to the I Love U Seller community! ✨",
       });
     }
   }, [searchParams, toast]);
@@ -78,9 +82,21 @@ export default function SellerManagePage() {
   const negotiationRequested = profile?.negotiationRequested || false;
   const userCurrency = profile?.currency || 'USD';
   const currencySymbol = useMemo(() => CURRENCIES.find(c => c.code === userCurrency)?.symbol || '$', [userCurrency]);
+  const hasFullCommercialInfo = profile?.address && profile?.taxId;
 
   const handleSubscribe = async (plan: 'basic_seller' | 'pro_seller') => {
     if (!user || !db) return;
+    
+    if (!hasFullCommercialInfo) {
+      toast({
+        variant: "destructive",
+        title: "Verification Required",
+        description: "Please complete your Business Address and SSN/TIN in Profile before subscribing as a Seller."
+      });
+      router.push('/profile?tab=commercial');
+      return;
+    }
+
     setIsSubscribing(true);
     const priceToCharge = plan === 'basic_seller' ? basicPrice : proPrice;
     
@@ -95,6 +111,17 @@ export default function SellerManagePage() {
 
   const handleRequestCommissionPlan = () => {
     if (!user || !db) return;
+
+    if (!hasFullCommercialInfo) {
+      toast({
+        variant: "destructive",
+        title: "Verification Required",
+        description: "Please complete your Business Address and SSN/TIN in Profile before requesting a plan."
+      });
+      router.push('/profile?tab=commercial');
+      return;
+    }
+
     setIsRequestingNegotiation(true);
     
     updateDoc(doc(db, 'users', user.uid), {
@@ -133,8 +160,21 @@ export default function SellerManagePage() {
             </div>
             <h1 className="text-5xl font-black tracking-tighter">Become a Seller</h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Start your own gifting business on Spark. Reach local sparks with custom pricing structures built for real growth.
+              Start your own gifting business on I Love U. Reach local hearts with custom pricing structures built for real growth.
             </p>
+
+            {!hasFullCommercialInfo && (
+              <Card className="max-w-xl mx-auto rounded-[2.5rem] border-2 border-dashed border-amber-300 bg-amber-50 p-6 flex items-center gap-4 text-left">
+                 <div className="p-3 bg-white rounded-full text-amber-600 shadow-sm">
+                   <IdCard className="w-6 h-6" />
+                 </div>
+                 <div className="flex-grow">
+                   <h3 className="font-black uppercase tracking-tighter text-amber-900">Verification Required</h3>
+                   <p className="text-xs text-amber-700">Commercial sellers must provide a Business Address and SSN/TIN for tax compliance before opening a shop.</p>
+                 </div>
+                 <Button variant="outline" size="sm" onClick={() => router.push('/profile')} className="rounded-xl font-bold bg-white">Verify</Button>
+              </Card>
+            )}
             
             <div className="flex flex-col items-center gap-4 mt-6">
               <div className="flex items-center justify-center gap-2 bg-blue-50 text-blue-700 py-3 px-6 rounded-2xl border border-blue-100 w-full max-w-md">
@@ -155,7 +195,6 @@ export default function SellerManagePage() {
             </div>
 
             <div className="grid md:grid-cols-3 gap-6 mt-12 items-stretch text-left">
-              {/* Card 1: Free Subscription + Commission by Agreement */}
               <Card className="border-2 border-dashed border-green-300 bg-green-50/30 flex flex-col justify-between">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-1.5 text-green-700">
@@ -169,7 +208,7 @@ export default function SellerManagePage() {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4 text-sm flex-grow">
-                  <p className="text-xs text-muted-foreground">Pay zero monthly membership fees. Instead, operate via a fair commission percentage determined entirely by your signed agreement.</p>
+                  <p className="text-xs text-muted-foreground">Pay zero monthly membership fees. Instead, operate via a fair commission percentage determined by your signed agreement.</p>
                   <div className="flex items-center gap-2 text-xs font-medium text-slate-700"><Check className="w-3.5 h-3.5 text-green-600" aria-hidden="true" /> Complete storefront setup</div>
                   <div className="flex items-center gap-2 text-xs font-medium text-slate-700"><Check className="w-3.5 h-3.5 text-green-600" aria-hidden="true" /> Mutually agreed sales cut</div>
                 </CardContent>
@@ -188,7 +227,6 @@ export default function SellerManagePage() {
                 </CardFooter>
               </Card>
 
-              {/* Card 2: Basic Seller Plan */}
               <Card className="border border-neutral-200 bg-white flex flex-col justify-between">
                 <CardHeader>
                   <CardTitle>Basic Seller</CardTitle>
@@ -210,7 +248,6 @@ export default function SellerManagePage() {
                 </CardFooter>
               </Card>
 
-              {/* Card 3: Pro Plan */}
               <Card className="border-2 border-primary bg-primary/5 relative overflow-hidden flex flex-col justify-between">
                 <CardHeader>
                   <CardTitle className="text-primary flex items-center gap-2">
@@ -235,9 +272,6 @@ export default function SellerManagePage() {
                 </CardFooter>
               </Card>
             </div>
-            <p className="text-xs text-muted-foreground uppercase tracking-widest font-bold mt-6">
-              All subscription tiers and terms are backed by community security guarantees.
-            </p>
           </div>
         ) : (
           <div className="space-y-8">

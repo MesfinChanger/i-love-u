@@ -3,7 +3,7 @@
   "entities": {
     "UserProfile": {
       "title": "User Profile",
-      "description": "I Love U app profile restricted to 18+. Includes relationship constraints and verified location tracking for happiness accountability.",
+      "description": "I Love U app profile restricted to 18+. Includes relationship constraints, verified location tracking, and mandatory tax info for commercial users.",
       "type": "object",
       "properties": {
         "uid": { "type": "string" },
@@ -17,6 +17,8 @@
         "languagesLearning": { "type": "array", "items": { "type": "string" } },
         "photoUrl": { "type": "string" },
         "location": { "type": "string" },
+        "address": { "type": "string", "description": "Full physical address for commercial compliance." },
+        "taxId": { "type": "string", "description": "SSN or TIN. Strictly protected and used for payment verification." },
         "country": { "type": "string", "description": "ISO 3166-1 alpha-2 country code" },
         "relationshipStatus": { "type": "string", "enum": ["single", "dating"] },
         "isSeller": { "type": "boolean", "default": false },

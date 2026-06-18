@@ -25,14 +25,15 @@ import {
   Badge,
   AlertTriangle,
   MapPin,
-  Scale
+  Scale,
+  ShieldAlert
 } from 'lucide-react';
 import { useUser, useFirestore, useDoc, useCollection } from '@/firebase';
 import { doc, setDoc, addDoc, collection, serverTimestamp, query, where } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { createAdCampaignSession } from '@/lib/stripe-actions';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { moderateText } from '@/ai/flows/moderate-text-flow';
@@ -52,6 +53,7 @@ export default function AdvertiserManagePage() {
   const { user } = useUser();
   const db = useFirestore();
   const { toast } = useToast();
+  const router = useRouter();
   const searchParams = useSearchParams();
 
   const userRef = useMemoFirebase(() => {
@@ -85,9 +87,20 @@ export default function AdvertiserManagePage() {
   }, [searchParams, toast]);
 
   const userCurrency = profile?.currency || 'USD';
+  const hasFullCommercialInfo = profile?.address && profile?.taxId;
 
   const handleCreateCampaign = async () => {
     if (!user || !db || !title || !description) return;
+
+    if (!hasFullCommercialInfo) {
+      toast({
+        variant: "destructive",
+        title: "Verification Required",
+        description: "Please complete your Business Address and SSN/TIN in Profile before launching ads."
+      });
+      router.push('/profile?tab=commercial');
+      return;
+    }
 
     const amount = parseFloat(budget);
     if (isNaN(amount) || amount < 10) {
@@ -110,7 +123,7 @@ export default function AdvertiserManagePage() {
         toast({
           variant: "destructive",
           title: "Legal or Respect Policy Violation",
-          description: moderation.reason || "Your ad content is not allowed on Spark."
+          description: moderation.reason || "Your ad content is not allowed on I Love U."
         });
         setIsCreating(false);
         return;
@@ -151,11 +164,17 @@ export default function AdvertiserManagePage() {
             <p className="text-muted-foreground">Promote legally and respectfully to our community.</p>
           </div>
           <div className="flex gap-2">
+            {!hasFullCommercialInfo && (
+              <div className="bg-amber-50 text-amber-700 px-4 py-3 rounded-2xl border border-amber-200 flex items-center gap-3 animate-pulse">
+                <ShieldAlert className="w-5 h-5" />
+                <span className="text-xs font-bold">Verification Incomplete</span>
+              </div>
+            )}
             <div className="bg-primary/10 text-primary p-4 rounded-2xl border border-primary/20 flex items-center gap-3">
                <TrendingUp className="w-5 h-5" />
                <div className="text-left">
                   <p className="text-[10px] font-black uppercase tracking-widest leading-none">Market Reach</p>
-                  <p className="text-lg font-bold">12k+ Active Sparks</p>
+                  <p className="text-lg font-bold">12k+ Active Hearts</p>
                </div>
             </div>
           </div>
@@ -163,6 +182,19 @@ export default function AdvertiserManagePage() {
 
         <div className="grid lg:grid-cols-12 gap-8">
           <div className="lg:col-span-7 space-y-6">
+            {!hasFullCommercialInfo && (
+              <Card className="rounded-[2.5rem] border-2 border-dashed border-amber-300 bg-amber-50 p-6 flex items-center gap-4">
+                 <div className="p-3 bg-white rounded-full text-amber-600 shadow-sm">
+                   <IdCard className="w-6 h-6" />
+                 </div>
+                 <div className="flex-grow">
+                   <h3 className="font-black uppercase tracking-tighter text-amber-900">Tax ID Required</h3>
+                   <p className="text-xs text-amber-700">Commercial users must provide a Business Address and SSN/TIN for legal compliance before paying.</p>
+                 </div>
+                 <Button variant="outline" size="sm" onClick={() => router.push('/profile')} className="rounded-xl font-bold bg-white">Verify Now</Button>
+              </Card>
+            )}
+
             <Card className="rounded-[2.5rem] border-none shadow-xl bg-white overflow-hidden">
               <CardHeader className="bg-primary/5 border-b">
                 <CardTitle className="flex items-center gap-2 text-2xl tracking-tighter">
@@ -268,7 +300,7 @@ export default function AdvertiserManagePage() {
                      <h4 className="text-sm font-black uppercase tracking-tighter">Advertiser Liability Agreement</h4>
                    </div>
                    <p className="text-[10px] text-white/80 font-bold leading-relaxed uppercase tracking-widest">
-                     By launching this campaign, you acknowledge that you are SOLELY responsible for its content and legal compliance. The owners, developers, and platform are NOT liable for any damages or legal issues arising from your advertisement.
+                     By launching this campaign, you acknowledge that you are SOLELY responsible for its content and legal compliance. You have provided a valid Tax ID and Address. The owners, developers, and platform are NOT liable for any damages or legal issues arising from your advertisement.
                    </p>
                 </div>
 
@@ -279,7 +311,7 @@ export default function AdvertiserManagePage() {
                   aria-label="Launch Ad Campaign"
                 >
                   {isCreating ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : <CreditCard className="w-5 h-5 mr-2" />}
-                  Accept Liability & Launch Ad
+                  {hasFullCommercialInfo ? 'Accept Liability & Launch' : 'Complete Profile to Launch'}
                 </Button>
               </CardContent>
             </Card>
