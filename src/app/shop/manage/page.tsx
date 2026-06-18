@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Header } from '@/components/Header';
 import { BottomNav } from '@/components/BottomNav';
 import { Button } from '@/components/ui/button';
@@ -9,11 +9,13 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { CheckCircle2, Store, Plus, Package, CreditCard, Sparkles } from 'lucide-react';
+import { CheckCircle2, Store, Plus, Package, CreditCard, Sparkles, Loader2 } from 'lucide-react';
 import { useUser, useFirestore, useDoc } from '@/firebase';
-import { doc, setDoc, updateDoc } from 'firebase/firestore';
+import { doc, setDoc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
+import { createSubscriptionSession } from '@/lib/stripe-actions';
+import { useSearchParams } from 'next/navigation';
 
 const CURRENCIES = [
   { code: 'USD', symbol: '$' },
@@ -30,6 +32,7 @@ export default function SellerManagePage() {
   const { user } = useUser();
   const db = useFirestore();
   const { toast } = useToast();
+  const searchParams = useSearchParams();
 
   const userRef = useMemoFirebase(() => {
     if (!db || !user) return null;
@@ -41,20 +44,27 @@ export default function SellerManagePage() {
   const [shopDesc, setShopDesc] = useState('');
   const [isSubscribing, setIsSubscribing] = useState(false);
 
+  useEffect(() => {
+    if (searchParams.get('success')) {
+      toast({
+        title: "Subscription Active",
+        description: "Welcome to the Spark Seller community! ✨",
+      });
+    }
+  }, [searchParams, toast]);
+
   const isSeller = profile?.isSeller || false;
   const userCurrency = profile?.currency || 'USD';
   const currencySymbol = useMemo(() => CURRENCIES.find(c => c.code === userCurrency)?.symbol || '$', [userCurrency]);
 
-  const handleSubscribe = async () => {
+  const handleSubscribe = async (plan: 'basic_seller' | 'pro_seller') => {
     if (!user || !db) return;
     setIsSubscribing(true);
     try {
-      await updateDoc(doc(db, 'users', user.uid), {
-        isSeller: true,
-        subscriptionType: 'basic_seller'
-      });
-      toast({ title: "Subscription Active", description: "You are now a Spark Seller! ✨" });
-    } finally {
+      await createSubscriptionSession(plan, userCurrency, user.uid);
+    } catch (e) {
+      console.error(e);
+      toast({ variant: "destructive", title: "Error", description: "Payment redirect failed." });
       setIsSubscribing(false);
     }
   };
@@ -95,8 +105,8 @@ export default function SellerManagePage() {
                   <div className="flex items-center gap-2 text-sm"><CheckCircle2 className="w-4 h-4 text-green-500" /> Basic sales analytics</div>
                 </CardContent>
                 <CardFooter>
-                  <Button className="w-full rounded-xl gradient-bg" onClick={handleSubscribe} disabled={isSubscribing}>
-                    Start Basic Plan
+                  <Button className="w-full rounded-xl gradient-bg" onClick={() => handleSubscribe('basic_seller')} disabled={isSubscribing}>
+                    {isSubscribing ? <Loader2 className="w-4 h-4 animate-spin" /> : "Start Basic Plan"}
                   </Button>
                 </CardFooter>
               </Card>
@@ -115,8 +125,8 @@ export default function SellerManagePage() {
                   <div className="flex items-center gap-2 text-sm font-bold"><CheckCircle2 className="w-4 h-4 text-primary" /> Priority Placement</div>
                 </CardContent>
                 <CardFooter>
-                  <Button className="w-full rounded-xl gradient-bg" onClick={handleSubscribe} disabled={isSubscribing}>
-                    Scale with Pro
+                  <Button className="w-full rounded-xl gradient-bg" onClick={() => handleSubscribe('pro_seller')} disabled={isSubscribing}>
+                    {isSubscribing ? <Loader2 className="w-4 h-4 animate-spin" /> : "Scale with Pro"}
                   </Button>
                 </CardFooter>
               </Card>
