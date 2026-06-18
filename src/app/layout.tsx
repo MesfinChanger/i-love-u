@@ -1,5 +1,4 @@
-
-'use client';
+"use client";
 
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
@@ -14,22 +13,22 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <title>I Love U - Global Job Creation Mission ❤️ Connect & Build</title>
-        <meta name="description" content="I Love U: AI-powered dating and cultural exchange dedicated to job creation. Empowering rural and urban communities worldwide through economic growth." />
-        <meta name="keywords" content="dating, job creation, employment, rural development, urban growth, entrepreneurship, I Love U, mission" />
+        <title>I Love U - Eliminate Poverty Through Global Job Creation ❤️</title>
+        <meta name="description" content="I Love U: AI-powered dating and cultural exchange dedicated to eliminating poverty. Empowering every community through sustainable job creation." />
+        <meta name="keywords" content="dating, poverty elimination, job creation, end poverty, global mission, employment, economic growth, I Love U" />
         
         {/* Open Graph / Facebook / Instagram */}
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://spark-dating.web.app/" />
-        <meta property="og:title" content="I Love U - Global Impact & Job Creation" />
-        <meta property="og:description" content="Reach every community. Create jobs in rural and city areas. Join the mission where connection builds livelihoods." />
+        <meta property="og:title" content="I Love U - Ending Poverty Globally" />
+        <meta property="og:description" content="One connection at a time. Join the mission to eliminate poverty through job creation in every village and city." />
         <meta property="og:image" content="https://picsum.photos/seed/iloveu-mission/1200/630" />
 
         {/* Twitter */}
         <meta property="twitter:card" content="summary_large_image" />
         <meta property="twitter:url" content="https://spark-dating.web.app/" />
         <meta property="twitter:title" content="I Love U - Global Job Mission" />
-        <meta property="twitter:description" content="AI-powered dating with a mission to create jobs in poor communities worldwide." />
+        <meta property="twitter:description" content="AI-powered dating on a mission to end world poverty through job creation." />
         <meta property="twitter:image" content="https://picsum.photos/seed/iloveu-mission/1200/630" />
 
         {/* Mobile & PWA */}

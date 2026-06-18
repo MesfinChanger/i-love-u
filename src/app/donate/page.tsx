@@ -1,5 +1,4 @@
-
-'use client';
+"use client";
 
 import { useState, useMemo, useEffect } from 'react';
 import { Header } from '@/components/Header';
@@ -8,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Heart, Loader2, Sparkles, Coins, ShieldCheck, CheckCircle, HandHeart, Globe, Briefcase } from 'lucide-react';
+import { Heart, Loader2, Sparkles, Coins, ShieldCheck, CheckCircle, HandHeart, Globe, Briefcase, TrendingDown } from 'lucide-react';
 import { useUser, useFirestore, useDoc } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
@@ -45,7 +44,7 @@ export default function DonatePage() {
   useEffect(() => {
     if (searchParams.get('success')) {
       toast({
-        title: "Investment Received!",
+        title: "Poverty Elimination Investment!",
         description: "Thank you for funding global job creation and economic growth! ❤️",
       });
     }
@@ -83,11 +82,11 @@ export default function DonatePage() {
       <main className="container mx-auto px-4 py-8 max-w-lg">
         <div className="text-center space-y-4 mb-8">
           <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
-            <Briefcase className="w-10 h-10 text-primary" />
+            <TrendingDown className="w-10 h-10 text-primary" />
           </div>
-          <h1 className="text-4xl font-black tracking-tighter text-foreground">Job Creation Mission</h1>
+          <h1 className="text-4xl font-black tracking-tighter text-foreground">Eliminate Poverty</h1>
           <p className="text-muted-foreground font-medium">
-            We do not distribute charity. We create **jobs**. Your contributions fund training, resources, and placement for workers in rural and urban areas worldwide.
+            We are on a mission to end world poverty. Your investment funds the creation of sustainable jobs in rural and city areas, empowering people to build their own prosperity.
           </p>
         </div>
 
@@ -97,7 +96,7 @@ export default function DonatePage() {
                 <CheckCircle className="w-8 h-8" />
              </div>
              <h2 className="text-2xl font-black">Mission Funded</h2>
-             <p className="text-muted-foreground">Your contribution has been received. You are actively building livelihoods in rural and city areas globally!</p>
+             <p className="text-muted-foreground">Your contribution has been received. You are actively dismantling poverty by building sustainable livelihoods globally!</p>
              <Button className="w-full rounded-xl gradient-bg" onClick={() => window.location.href = '/discover'}>Return to Discover</Button>
           </Card>
         ) : (
@@ -108,7 +107,7 @@ export default function DonatePage() {
                 Empowerment Fund
               </CardTitle>
               <CardDescription className="text-primary/60 font-bold uppercase tracking-widest text-xs mt-2">
-                Direct Funding for Rural & Urban Jobs
+                Ending Poverty Through Job Creation
               </CardDescription>
             </CardHeader>
             <CardContent className="p-8 space-y-6">
@@ -127,7 +126,7 @@ export default function DonatePage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="custom-amount">Investment Amount ({userCurrency})</Label>
+                  <Label htmlFor="custom-amount">Mission Investment ({userCurrency})</Label>
                   <div className="relative">
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-muted-foreground">{currencySymbol}</span>
                     <Input 
@@ -147,11 +146,11 @@ export default function DonatePage() {
                 <div className="flex items-center gap-3">
                   <ShieldCheck className="w-5 h-5 text-green-500" />
                   <p className="text-[10px] text-slate-600 font-bold uppercase tracking-tighter">
-                    Secure Empowerment Fund
+                    Poverty Elimination Mission
                   </p>
                 </div>
                 <p className="text-[9px] text-muted-foreground leading-relaxed italic">
-                  100% of mission funds are allocated to vocational training, equipment for new entrepreneurs, and local infrastructure projects that generate employment.
+                  100% of these funds go toward vocational training, equipment for local entrepreneurs, and infrastructure projects that create long-term jobs and eliminate economic hardship.
                 </p>
               </div>
 
@@ -161,11 +160,11 @@ export default function DonatePage() {
                 disabled={isDonating || !amount}
               >
                 {isDonating ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : <Sparkles className="w-5 h-5 mr-2" />}
-                Contribute {currencySymbol}{amount}
+                Invest {currencySymbol}{amount}
               </Button>
               
               <p className="text-[10px] text-center text-muted-foreground uppercase font-black tracking-widest opacity-50">
-                Building Livelihoods • Rural & City • Worldwide
+                Ending World Poverty • Global Job Creation • Worldwide
               </p>
             </CardContent>
           </Card>
