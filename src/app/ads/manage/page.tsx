@@ -22,7 +22,9 @@ import {
   Globe2,
   Video,
   Type,
-  Badge
+  Badge,
+  AlertTriangle,
+  MapPin
 } from 'lucide-react';
 import { useUser, useFirestore, useDoc, useCollection } from '@/firebase';
 import { doc, setDoc, addDoc, collection, serverTimestamp, query, where } from 'firebase/firestore';
@@ -31,6 +33,19 @@ import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { createAdCampaignSession } from '@/lib/stripe-actions';
 import { useSearchParams } from 'next/navigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { moderateText } from '@/ai/flows/moderate-text-flow';
+
+const COUNTRIES = [
+  { code: 'GLOBAL', name: 'Global (All Safe Countries)' },
+  { code: 'US', name: 'United States' },
+  { code: 'GB', name: 'United Kingdom' },
+  { code: 'NG', name: 'Nigeria' },
+  { code: 'KE', name: 'Kenya' },
+  { code: 'JP', name: 'Japan' },
+  { code: 'DE', name: 'Germany' },
+  { code: 'FR', name: 'France' }
+];
 
 export default function AdvertiserManagePage() {
   const { user } = useUser();
@@ -55,6 +70,7 @@ export default function AdvertiserManagePage() {
   const [description, setDescription] = useState('');
   const [targetUrl, setTargetUrl] = useState('');
   const [videoUrl, setVideoUrl] = useState('');
+  const [targetCountry, setTargetCountry] = useState('GLOBAL');
   const [budget, setBudget] = useState('50');
   const [isCreating, setIsCreating] = useState(false);
 
@@ -62,7 +78,7 @@ export default function AdvertiserManagePage() {
     if (searchParams.get('success')) {
       toast({
         title: "Campaign Funded",
-        description: "Your advertisement is being reviewed for respect & love guidelines! ✨",
+        description: "Your advertisement is being reviewed for legal and community guidelines! ✨",
       });
     }
   }, [searchParams, toast]);
@@ -82,17 +98,24 @@ export default function AdvertiserManagePage() {
       return;
     }
 
-    if (adType === 'video' && !videoUrl) {
-      toast({
-        variant: "destructive",
-        title: "Video Required",
-        description: "Please provide a video URL for your campaign."
-      });
-      return;
-    }
-
     setIsCreating(true);
     try {
+      // Moderate content for legal compliance
+      const moderation = await moderateText({ 
+        text: `${title} - ${description}`,
+        context: 'advertisement' 
+      });
+
+      if (moderation.isFlagged) {
+        toast({
+          variant: "destructive",
+          title: "Legal or Respect Policy Violation",
+          description: moderation.reason || "Your ad content is not allowed on Spark."
+        });
+        setIsCreating(false);
+        return;
+      }
+
       // Create the record first (pending payment)
       await addDoc(collection(db, 'ads'), {
         advertiserId: user.uid,
@@ -101,6 +124,7 @@ export default function AdvertiserManagePage() {
         description,
         targetUrl,
         videoUrl: adType === 'video' ? videoUrl : null,
+        targetCountries: targetCountry === 'GLOBAL' ? COUNTRIES.map(c => c.code) : [targetCountry],
         budget: amount,
         currency: userCurrency,
         status: 'pending',
@@ -125,7 +149,7 @@ export default function AdvertiserManagePage() {
               <Megaphone className="w-10 h-10 text-primary" aria-hidden="true" />
               Advertiser Tools
             </h1>
-            <p className="text-muted-foreground">Promote your brand to our "Respect & Love" community.</p>
+            <p className="text-muted-foreground">Promote legally and respectfully to our community.</p>
           </div>
           <div className="flex gap-2">
             <div className="bg-primary/10 text-primary p-4 rounded-2xl border border-primary/20 flex items-center gap-3">
@@ -146,7 +170,7 @@ export default function AdvertiserManagePage() {
                   <Plus className="w-5 h-5 text-primary" />
                   New Ad Campaign
                 </CardTitle>
-                <CardDescription>Choose your format and reach thousands.</CardDescription>
+                <CardDescription>Target legally compliant regions.</CardDescription>
               </CardHeader>
               <CardContent className="p-8 space-y-6">
                 <Tabs value={adType} onValueChange={(v) => setAdType(v as 'text' | 'video')} className="w-full">
@@ -174,6 +198,20 @@ export default function AdvertiserManagePage() {
                     />
                   </div>
                   
+                  <div className="space-y-2">
+                    <Label htmlFor="target-country">Legal Target Region</Label>
+                    <Select value={targetCountry} onValueChange={setTargetCountry}>
+                      <SelectTrigger className="rounded-xl h-12">
+                        <SelectValue placeholder="Select Target Country" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {COUNTRIES.map(c => (
+                          <SelectItem key={c.code} value={c.code}>{c.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
                   {adType === 'video' && (
                     <div className="space-y-2 animate-in fade-in slide-in-from-top-1 duration-300">
                       <Label htmlFor="ad-video">Video URL (Direct link to MP4)</Label>
@@ -185,7 +223,6 @@ export default function AdvertiserManagePage() {
                         onChange={e => setVideoUrl(e.target.value)}
                         className="rounded-xl h-12"
                       />
-                      <p className="text-[10px] text-muted-foreground ml-1">Supports direct video links (MP4, WebM).</p>
                     </div>
                   )}
 
@@ -226,10 +263,10 @@ export default function AdvertiserManagePage() {
                   </div>
                 </div>
 
-                <div className="bg-slate-50 p-4 rounded-2xl border border-dashed flex items-start gap-3">
-                   <ShieldCheck className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-                   <p className="text-[10px] text-slate-600 font-medium leading-relaxed uppercase tracking-tighter">
-                     All advertisements must adhere to the <strong>Respect & Love Mandatory</strong> policy. Any disrespectful or unloving content will be removed without refund.
+                <div className="bg-amber-50 p-4 rounded-2xl border border-dashed border-amber-200 flex items-start gap-3">
+                   <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+                   <p className="text-[10px] text-amber-700 font-bold leading-relaxed uppercase tracking-tighter">
+                     Legal Notice: You are responsible for ensuring your advertisement complies with the laws of your country and targeted regions. Illegal solicitation will result in permanent ban without refund.
                    </p>
                 </div>
 
@@ -239,7 +276,7 @@ export default function AdvertiserManagePage() {
                   disabled={isCreating || !title || !description}
                 >
                   {isCreating ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : <CreditCard className="w-5 h-5 mr-2" />}
-                  Launch Campaign
+                  Launch Legal Campaign
                 </Button>
               </CardContent>
             </Card>
@@ -255,8 +292,8 @@ export default function AdvertiserManagePage() {
                   <div className="p-4 bg-muted/30 border-b flex items-center justify-between">
                     <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{new Date(ad.timestamp?.toDate()).toLocaleDateString()}</span>
                     <div className="flex items-center gap-2">
-                      {ad.adType === 'video' && <Video className="w-3 h-3 text-blue-500" />}
-                      <span className="text-[10px] font-black uppercase text-blue-500">{ad.status}</span>
+                      <MapPin className="w-3 h-3 text-muted-foreground" />
+                      <span className="text-[10px] font-bold text-muted-foreground uppercase">{ad.targetCountries?.[0] || 'GLOBAL'}</span>
                     </div>
                   </div>
                   <CardContent className="p-5 space-y-2">
@@ -268,8 +305,8 @@ export default function AdvertiserManagePage() {
                           <span>Budget: {ad.budget} {ad.currency}</span>
                        </div>
                        <div className="flex items-center gap-1.5 text-xs text-blue-500 font-black">
-                          <Globe2 className="w-3 h-3" />
-                          <span>GLOBAL REACH</span>
+                          <CheckCircle2 className="w-3 h-3" />
+                          <span className="uppercase">Legally Verified</span>
                        </div>
                     </div>
                   </CardContent>
@@ -280,26 +317,6 @@ export default function AdvertiserManagePage() {
                 <p className="text-muted-foreground text-sm font-medium">No active campaigns.</p>
               </div>
             )}
-
-            <Card className="rounded-3xl border-none bg-blue-600 text-white shadow-xl shadow-blue-500/20">
-               <CardContent className="p-6 space-y-4">
-                  <h3 className="text-xl font-black">Why Advertise Here?</h3>
-                  <div className="space-y-3">
-                     <div className="flex items-center gap-3">
-                        <CheckCircle2 className="w-5 h-5" />
-                        <span className="text-sm font-bold">100% Respectful Audience</span>
-                     </div>
-                     <div className="flex items-center gap-3">
-                        <CheckCircle2 className="w-5 h-5" />
-                        <span className="text-sm font-bold">Local Community Targeting</span>
-                     </div>
-                     <div className="flex items-center gap-3">
-                        <CheckCircle2 className="w-5 h-5" />
-                        <span className="text-sm font-bold">No Bottled Traffic</span>
-                     </div>
-                  </div>
-               </CardContent>
-            </Card>
           </div>
         </div>
       </main>

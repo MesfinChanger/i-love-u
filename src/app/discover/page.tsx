@@ -25,7 +25,8 @@ import {
   Video,
   Play,
   Volume2,
-  VolumeX
+  VolumeX,
+  ShieldCheck
 } from 'lucide-react';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
@@ -63,6 +64,7 @@ export default function DiscoverPage() {
 
   const isAlreadyDating = myProfile?.relationshipStatus === 'dating';
   const isDatingDisabled = myProfile?.isDatingEnabled === false;
+  const viewerCountry = myProfile?.country || 'GLOBAL';
 
   const [isMuted, setIsMuted] = useState(true);
 
@@ -102,16 +104,21 @@ export default function DiscoverPage() {
 
     const combined = [...baseProfiles, ...mockProfiles];
     
-    // Inject Ads every few profiles
-    const adItems = (activeAds || []).map((ad: any) => ({
-      id: ad.id,
-      title: ad.title,
-      description: ad.description,
-      targetUrl: ad.targetUrl,
-      adType: ad.adType || 'text',
-      videoUrl: ad.videoUrl,
-      type: 'ad'
-    }));
+    // Inject Ads every few profiles, filtered by Viewer's Country for legal compliance
+    const adItems = (activeAds || [])
+      .filter((ad: any) => {
+        if (!ad.targetCountries) return true;
+        return ad.targetCountries.includes(viewerCountry) || ad.targetCountries.includes('GLOBAL');
+      })
+      .map((ad: any) => ({
+        id: ad.id,
+        title: ad.title,
+        description: ad.description,
+        targetUrl: ad.targetUrl,
+        adType: ad.adType || 'text',
+        videoUrl: ad.videoUrl,
+        type: 'ad'
+      }));
 
     const finalFeed = [];
     for (let i = 0; i < combined.length; i++) {
@@ -122,7 +129,7 @@ export default function DiscoverPage() {
     }
     
     return finalFeed;
-  }, [dbUsers, activeAds, user]);
+  }, [dbUsers, activeAds, user, viewerCountry]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const currentItem = profiles[currentIndex];
@@ -132,29 +139,15 @@ export default function DiscoverPage() {
 
     if (type === 'date') {
       if (isDatingDisabled) {
-        toast({
-          variant: "destructive",
-          title: "Incapable for Dating",
-          description: "Your profile is currently restricted from dating matches."
-        });
+        toast({ variant: "destructive", title: "Incapable for Dating", description: "Your profile is restricted from dating." });
         return;
       }
-
       if (isAlreadyDating) {
-        toast({
-          variant: "destructive",
-          title: "Relationship Exclusive",
-          description: "You are currently sparking with someone."
-        });
+        toast({ variant: "destructive", title: "Exclusive Spark", description: "You are currently sparking with someone." });
         return;
       }
-
       if (myProfile?.gender === currentItem.gender) {
-        toast({
-          variant: "destructive",
-          title: "Spark Restriction",
-          description: "Dating sparks are limited to opposite-sex connections."
-        });
+        toast({ variant: "destructive", title: "Restriction", description: "Dating sparks are limited to opposite-sex connections." });
         return;
       }
     }
@@ -191,9 +184,7 @@ export default function DiscoverPage() {
   if (!currentItem) return (
     <div className="flex flex-col min-h-screen bg-muted/30 pb-24 items-center justify-center p-8 text-center">
       <Header />
-      <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4" aria-hidden="true">
-        <Sparkles className="w-8 h-8 text-muted-foreground opacity-50" />
-      </div>
+      <Sparkles className="w-12 h-12 text-muted-foreground opacity-30 mb-4 animate-pulse" />
       <h2 className="text-xl font-bold">Searching the Globe...</h2>
       <BottomNav />
     </div>
@@ -209,7 +200,7 @@ export default function DiscoverPage() {
           <div className="w-full max-w-md relative aspect-[3/4]">
             <Card className={cn(
               "absolute inset-0 overflow-hidden border-none shadow-2xl rounded-[2.5rem] text-white",
-              isVideo ? "bg-black" : "bg-gradient-to-br from-blue-600 to-indigo-900"
+              isVideo ? "bg-black" : "bg-gradient-to-br from-blue-700 to-indigo-900"
             )}>
               {isVideo && currentItem.videoUrl && (
                 <div className="absolute inset-0 z-0">
@@ -234,22 +225,19 @@ export default function DiscoverPage() {
               )}
               
               <div className="relative z-10 p-10 flex flex-col h-full">
-                 <div className="flex items-center gap-2 mb-4">
-                    <Megaphone className="w-8 h-8 text-blue-200" />
-                    <Badge variant="outline" className="border-blue-300 text-blue-100 uppercase font-black text-[10px] tracking-widest">
-                      {isVideo ? "Exclusive Video Ad" : "Sponsored Spark"}
-                    </Badge>
+                 <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                       <Megaphone className="w-6 h-6 text-blue-200" />
+                       <Badge variant="outline" className="border-blue-300 text-blue-100 uppercase font-black text-[10px] tracking-widest">
+                         {isVideo ? "Video Spotlight" : "Legally Compliant Ad"}
+                       </Badge>
+                    </div>
+                    <ShieldCheck className="w-5 h-5 text-blue-300" aria-label="Legally Verified" />
                  </div>
                  
                  <div className="flex-grow flex flex-col justify-center gap-4">
                     <h2 className="text-4xl font-black tracking-tighter leading-tight">{currentItem.title}</h2>
                     <p className="text-lg text-blue-100/90 leading-relaxed font-medium">{currentItem.description}</p>
-                    {isVideo && (
-                      <div className="flex items-center gap-2 text-blue-300">
-                        <Play className="w-4 h-4 fill-blue-300" />
-                        <span className="text-xs font-black uppercase tracking-widest">Playing Now</span>
-                      </div>
-                    )}
                  </div>
 
                  <div className="mt-8 space-y-4">
@@ -257,12 +245,12 @@ export default function DiscoverPage() {
                       className="w-full h-14 rounded-2xl bg-white text-blue-900 font-black text-lg gap-2 shadow-xl shadow-blue-900/30"
                       onClick={() => currentItem.targetUrl && window.open(currentItem.targetUrl)}
                     >
-                      Visit Website
+                      Visit Official Link
                       <ExternalLink className="w-5 h-5" />
                     </Button>
                     <Button 
                       variant="ghost" 
-                      className="w-full text-blue-200 uppercase font-black text-xs tracking-widest"
+                      className="w-full text-blue-200 uppercase font-black text-[10px] tracking-widest opacity-60"
                       onClick={handleNext}
                     >
                       Skip Sponsored Ad
@@ -283,17 +271,10 @@ export default function DiscoverPage() {
   return (
     <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
       <Header />
-      
       <main className="flex-grow flex items-center justify-center p-4" role="main">
         <div className="w-full max-w-md relative aspect-[3/4]">
           <Card className="absolute inset-0 overflow-hidden border-none shadow-2xl rounded-[2.5rem]" aria-label={`Profile of ${currentItem.name}`}>
-            <Image 
-              src={currentItem.image} 
-              alt={`Profile photo of ${currentItem.name}`} 
-              fill 
-              className="object-cover"
-              priority
-            />
+            <Image src={currentItem.image} alt="" fill className="object-cover" priority />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" aria-hidden="true" />
             
             <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
@@ -301,25 +282,21 @@ export default function DiscoverPage() {
                 <h2 className="text-3xl font-black">{currentItem.name}, {currentItem.age}</h2>
                 {currentItem.isGlobalFriend ? (
                   <Badge variant="secondary" className="bg-blue-500/30 text-white border-blue-400/30 backdrop-blur-md">
-                    <Globe2 className="w-3 h-3 mr-1" aria-hidden="true" />
-                    Global Friend
+                    <Globe2 className="w-3 h-3 mr-1" aria-hidden="true" /> Global Friend
                   </Badge>
                 ) : (
                   <Badge variant="secondary" className="bg-primary/20 text-white border-primary/30 backdrop-blur-md">
-                    <Sparkles className="w-3 h-3 mr-1 fill-white" aria-hidden="true" />
-                    AI Match
+                    <Sparkles className="w-3 h-3 mr-1 fill-white" aria-hidden="true" /> AI Match
                   </Badge>
                 )}
               </div>
               
               <div className="flex flex-wrap items-center gap-4 text-xs text-white/80 mb-4">
                 <div className="flex items-center gap-1">
-                  <Building2 className="w-3 h-3" aria-hidden="true" />
-                  <span className="font-bold">{currentItem.location}</span>
+                  <Building2 className="w-3 h-3" /> <span className="font-bold">{currentItem.location}</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <Church className="w-3 h-3" aria-hidden="true" />
-                  <span>{currentItem.religion}</span>
+                  <Church className="w-3 h-3" /> <span>{currentItem.religion}</span>
                 </div>
               </div>
 
@@ -327,64 +304,31 @@ export default function DiscoverPage() {
                 <p className="text-white/90 line-clamp-2 text-lg">{currentItem.bio}</p>
                 {currentItem.culturalInterests && (
                   <div className="flex items-center gap-2 text-blue-300 text-sm font-bold">
-                    <Soup className="w-4 h-4" aria-hidden="true" />
-                    Interested in: {currentItem.culturalInterests}
+                    <Soup className="w-4 h-4" /> Interested in: {currentItem.culturalInterests}
                   </div>
                 )}
               </div>
 
               <div className="flex flex-wrap gap-2">
                 {currentItem.interests.map(interest => (
-                  <Badge key={interest} variant="outline" className="bg-white/10 border-white/20 text-white">
-                    {interest}
-                  </Badge>
+                  <Badge key={interest} variant="outline" className="bg-white/10 border-white/20 text-white">{interest}</Badge>
                 ))}
               </div>
             </div>
           </Card>
 
           <div className="absolute -bottom-20 left-0 right-0 flex justify-center items-center gap-4">
-            <Button 
-              variant="outline" 
-              size="icon" 
-              className="w-14 h-14 rounded-full border-2 bg-white text-red-500 shadow-lg hover:bg-red-50"
-              onClick={handleNext}
-              aria-label="Skip profile"
-            >
+            <Button variant="outline" size="icon" className="w-14 h-14 rounded-full border-2 bg-white text-red-500 shadow-lg hover:bg-red-50" onClick={handleNext} aria-label="Skip profile">
               <X className="w-6 h-6" aria-hidden="true" />
             </Button>
             
-            <Button 
-              variant="outline" 
-              size="icon" 
-              className="rounded-full border-2 bg-white text-blue-500 shadow-lg flex flex-col gap-1 h-14 w-24 border-blue-100 hover:bg-blue-50"
-              onClick={() => handleAction('friend')}
-              aria-label="Connect for Global Friendship"
-            >
-              <Globe2 className="w-5 h-5" aria-hidden="true" />
+            <Button variant="outline" size="icon" className="rounded-full border-2 bg-white text-blue-500 shadow-lg flex flex-col gap-1 h-14 w-24 border-blue-100 hover:bg-blue-50" onClick={() => handleAction('friend')} aria-label="Friendship connection">
+              <Globe2 className="w-5 h-5" />
               <span className="text-[10px] font-bold uppercase tracking-tighter text-muted-foreground">Friendship</span>
             </Button>
 
-            <Button 
-              size="icon" 
-              className={cn(
-                "rounded-full shadow-xl flex flex-col gap-1 h-14 w-24 transition-all",
-                datingIncapable ? "bg-muted text-muted-foreground border-2 border-dashed grayscale cursor-not-allowed" : "gradient-bg text-white"
-              )}
-              onClick={() => handleAction('date')}
-              aria-label={datingIncapable ? "Sparking currently unavailable" : "Initiate an exclusive Spark"}
-            >
-              {isDatingDisabled ? (
-                <>
-                  <HeartOff className="w-5 h-5" aria-hidden="true" />
-                  <span className="text-[10px] font-bold uppercase tracking-tighter">Limited</span>
-                </>
-              ) : isAlreadyDating ? (
-                <>
-                  <Lock className="w-5 h-5" aria-hidden="true" />
-                  <span className="text-[10px] font-bold uppercase tracking-tighter">Exclusive</span>
-                </>
-              ) : isSameSex ? (
+            <Button size="icon" className={cn("rounded-full shadow-xl flex flex-col gap-1 h-14 w-24 transition-all", datingIncapable ? "bg-muted text-muted-foreground border-2 border-dashed grayscale cursor-not-allowed" : "gradient-bg text-white")} onClick={() => handleAction('date')} aria-label="Dating spark">
+              {datingIncapable ? (
                 <>
                   <Ban className="w-5 h-5" aria-hidden="true" />
                   <span className="text-[10px] font-bold uppercase tracking-tighter">Restricted</span>
@@ -399,7 +343,6 @@ export default function DiscoverPage() {
           </div>
         </div>
       </main>
-
       <BottomNav />
     </div>
   );

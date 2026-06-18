@@ -59,6 +59,16 @@ import { DonationDialog } from '@/components/DonationDialog';
 
 const GENDERS = [{ value: 'male', label: 'Male' }, { value: 'female', label: 'Female' }];
 const RELIGIONS = ['Christianity', 'Islam', 'Hinduism', 'Buddhism', 'Judaism', 'Sikhism', 'Atheist', 'Agnostic', 'None'];
+const COUNTRIES = [
+  { code: 'US', name: 'United States' },
+  { code: 'GB', name: 'United Kingdom' },
+  { code: 'NG', name: 'Nigeria' },
+  { code: 'KE', name: 'Kenya' },
+  { code: 'JP', name: 'Japan' },
+  { code: 'DE', name: 'Germany' },
+  { code: 'FR', name: 'France' },
+  { code: 'GLOBAL', name: 'Other' }
+];
 const CURRENCIES = [
   { code: 'USD', symbol: '$' },
   { code: 'EUR', symbol: '€' },
@@ -89,6 +99,7 @@ export default function ProfilePage() {
   const [gender, setGender] = useState('');
   const [religion, setReligion] = useState('');
   const [location, setLocation] = useState('');
+  const [country, setCountry] = useState('US');
   const [bio, setBio] = useState('');
   const [interests, setInterests] = useState('');
   const [culturalInterests, setCulturalInterests] = useState('');
@@ -114,6 +125,7 @@ export default function ProfilePage() {
       setGender(profileData.gender || '');
       setReligion(profileData.religion || '');
       setLocation(profileData.location || '');
+      setCountry(profileData.country || 'US');
       setBio(profileData.bio || '');
       setInterests(profileData.interests?.join(', ') || '');
       setCulturalInterests(profileData.culturalInterests?.join(', ') || '');
@@ -136,88 +148,51 @@ export default function ProfilePage() {
   }, [profileData, user]);
 
   const handleUpdateLocation = () => {
-    if (!navigator.geolocation) {
-      toast({ variant: "destructive", title: "Unsupported", description: "Geolocation is not supported by your browser." });
-      return;
-    }
-
+    if (!navigator.geolocation) return;
     setIsFetchingLocation(true);
     navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        setExactLocation({ lat: latitude, lng: longitude });
+      (pos) => {
+        setExactLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
         setIsFetchingLocation(false);
-        toast({ title: "Location Verified", description: "Your exact coordinates have been captured for accountability." });
+        toast({ title: "Location Verified" });
       },
-      (error) => {
-        console.error(error);
-        setIsFetchingLocation(false);
-        toast({ variant: "destructive", title: "Location Error", description: "Could not fetch your exact location. Please enable GPS." });
-      }
+      () => setIsFetchingLocation(false)
     );
   };
 
   const handleSave = async () => {
     if (!user || !db || isSaving) return;
-    
     const userAge = parseInt(age);
-    if (isNaN(userAge) || userAge < 18) {
-      toast({ variant: "destructive", title: "Restricted", description: "You must be 18+ to use Spark." });
-      return;
-    }
-
-    if (!gender) {
-      toast({ variant: "destructive", title: "Incomplete Profile", description: "Please select your gender." });
-      return;
-    }
+    if (isNaN(userAge) || userAge < 18) return;
+    if (!gender) return;
 
     setIsSaving(true);
     try {
-      const [nameModeration, bioModeration, locationModeration] = await Promise.all([
-        moderateText({ text: displayName }),
-        moderateText({ text: bio }),
-        moderateText({ text: location })
-      ]);
-
-      if (nameModeration.isFlagged || bioModeration.isFlagged || locationModeration.isFlagged) {
-        toast({ 
-          variant: "destructive", 
-          title: "Profile Flagged", 
-          description: "Your content violates respect guidelines." 
-        });
+      const moderation = await moderateText({ text: `${displayName} ${bio}` });
+      if (moderation.isFlagged) {
+        toast({ variant: "destructive", title: "Respect Policy Violation" });
         setIsSaving(false);
         return;
       }
       
       await setDoc(doc(db, 'users', user.uid), {
-        displayName, age: userAge, gender, religion, bio, location, currency,
+        displayName, age: userAge, gender, religion, bio, location, country, currency,
         interests: interests.split(',').map(s => s.trim()).filter(i => i),
         culturalInterests: culturalInterests.split(',').map(s => s.trim()).filter(i => i),
         languagesLearning: languagesLearning.split(',').map(s => s.trim()).filter(i => i),
-        preferredLanguage,
-        isDatingEnabled,
-        isLocalProducer,
-        isNewEntrepreneur,
-        isAdvertiser,
-        exactLocation: exactLocation ? {
-          latitude: exactLocation.lat,
-          longitude: exactLocation.lng,
-          lastUpdated: new Date().toISOString()
-        } : null,
-        settings: { allowSensitiveContent },
-        updatedAt: new Date().toISOString()
+        preferredLanguage, isDatingEnabled, isLocalProducer, isNewEntrepreneur, isAdvertiser,
+        exactLocation: exactLocation ? { latitude: exactLocation.lat, longitude: exactLocation.lng } : null,
+        updatedAt: serverTimestamp()
       }, { merge: true });
 
-      toast({ title: "Saved!", description: "Profile updated successfully." });
-    } catch (e) {
-      toast({ variant: "destructive", title: "Error", description: "Failed to save profile." });
+      toast({ title: "Profile Saved" });
     } finally {
       setIsSaving(false);
     }
   };
 
   const handleGenerateBio = async () => {
-    if (!interests) return toast({ title: "Interests required", variant: "destructive" });
+    if (!interests) return;
     setIsGenerating(true);
     try {
       const result = await generateBio({ 
@@ -232,128 +207,70 @@ export default function ProfilePage() {
 
   const handleDeleteAccount = async () => {
     if (!user || !db) return;
-    setIsDeleting(true);
     try {
       await deleteDoc(doc(db, 'users', user.uid));
       await deleteUser(user);
-      localStorage.removeItem(`spark_priv_${user.uid}`);
-      toast({ title: "Account Deleted", description: "Your data has been removed from Spark." });
       router.push('/');
-    } catch (error: any) {
-      toast({ 
-        variant: "destructive", 
-        title: "Error", 
-        description: "Please re-login to verify identity before account deletion." 
-      });
-      setIsDeleting(false);
+    } catch (e) {
+      toast({ variant: "destructive", title: "Error deleting account" });
     }
   };
 
-  if (profileLoading) return <div className="flex items-center justify-center min-h-screen"><Loader2 className="animate-spin text-primary" /></div>;
+  if (profileLoading) return <div className="flex items-center justify-center min-h-screen"><Loader2 className="animate-spin" /></div>;
 
   return (
     <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
       <Header />
       <main className="container mx-auto px-4 max-w-2xl py-8">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-4xl font-black tracking-tighter text-foreground">Profile</h1>
-          <div className="flex gap-2">
-            <Button variant="outline" size="icon" onClick={() => signOut(auth)} className="rounded-full"><LogOut className="w-4 h-4" /></Button>
-            <Button onClick={handleSave} disabled={isSaving} className="gradient-bg rounded-full gap-2 px-6">
-              {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-              Save
-            </Button>
-          </div>
+          <h1 className="text-4xl font-black tracking-tighter">Profile</h1>
+          <Button onClick={handleSave} disabled={isSaving} className="gradient-bg rounded-full gap-2">
+            {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            Save Changes
+          </Button>
         </div>
 
         <div className="bg-white p-8 rounded-[2rem] shadow-sm space-y-8 border">
-          <div className="flex flex-col items-center gap-4">
-            <div className="w-40 h-40 rounded-full bg-accent flex items-center justify-center border-4 border-white shadow-xl overflow-hidden relative">
-              <Camera className="w-10 h-10 text-primary opacity-30" />
+          <div className="grid sm:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label>Display Name</Label>
+              <Input value={displayName} onChange={e => setDisplayName(e.target.value)} className="rounded-xl" />
             </div>
-            <div className="flex flex-wrap justify-center gap-2">
-              {profileData?.relationshipStatus === 'dating' && (
-                <Badge className="bg-primary text-white gap-1 animate-pulse"><Zap className="w-3 h-3 fill-white" />Currently Sparking</Badge>
-              )}
-              {hasKeys && (
-                <Badge className="bg-green-500 text-white gap-1"><Lock className="w-3 h-3 mr-1" /> E2EE Active</Badge>
-              )}
-            </div>
-          </div>
-
-          <div className="p-6 bg-slate-50 border border-slate-200 rounded-[1.5rem] flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-white rounded-full text-blue-500">
-                <Coins className="w-6 h-6" />
-              </div>
-              <div>
-                <h3 className="font-bold">Local Currency</h3>
-                <p className="text-xs text-muted-foreground">Used for localized shops and ads</p>
-              </div>
-            </div>
-            <Select value={currency} onValueChange={setCurrency}>
-              <SelectTrigger className="w-24 rounded-xl">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {CURRENCIES.map(c => <SelectItem key={c.code} value={c.code}>{c.code} ({c.symbol})</SelectItem>)}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-4">
-            <Label className="font-bold flex items-center gap-2">
-              <Briefcase className="w-4 h-4 text-primary" />
-              Business & Tools
-            </Label>
-            <div className="grid gap-3">
-              <div className="flex items-center justify-between p-4 bg-muted/30 rounded-xl border border-dashed">
-                <div className="space-y-0.5">
-                  <div className="text-sm font-bold">Local Producer</div>
-                  <div className="text-[10px] text-muted-foreground">I produce goods locally in my town</div>
-                </div>
-                <Switch checked={isLocalProducer} onCheckedChange={setIsLocalProducer} />
-              </div>
-              <div className="flex items-center justify-between p-4 bg-muted/30 rounded-xl border border-dashed">
-                <div className="space-y-0.5">
-                  <div className="text-sm font-bold">New Entrepreneur</div>
-                  <div className="text-[10px] text-muted-foreground">I am starting a new gifting business</div>
-                </div>
-                <Switch checked={isNewEntrepreneur} onCheckedChange={setIsNewEntrepreneur} />
-              </div>
-              <div className="flex items-center justify-between p-4 bg-muted/30 rounded-xl border border-dashed">
-                <div className="space-y-0.5">
-                  <div className="text-sm font-bold">Advertiser Mode</div>
-                  <div className="text-[10px] text-muted-foreground">I want to promote products/services</div>
-                </div>
-                <Switch checked={isAdvertiser} onCheckedChange={setIsAdvertiser} />
-              </div>
+            <div className="space-y-2">
+              <Label>Country (For Legal Ad Compliance)</Label>
+              <Select value={country} onValueChange={setCountry}>
+                <SelectTrigger className="rounded-xl">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {COUNTRIES.map(c => <SelectItem key={c.code} value={c.code}>{c.name}</SelectItem>)}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
-          {isAdvertiser && (
-            <div className="p-4 bg-blue-50 rounded-2xl border border-blue-200 flex items-center justify-between">
-               <div className="flex items-center gap-3">
-                  <Megaphone className="w-5 h-5 text-blue-600" />
-                  <span className="text-sm font-bold text-blue-800 uppercase tracking-tighter">Campaign Management</span>
-               </div>
-               <Button size="sm" variant="outline" className="rounded-xl border-blue-200 text-blue-700 h-8" asChild>
-                  <Link href="/ads/manage">Open Ads Manager</Link>
-               </Button>
+          <div className="grid sm:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label>Gender</Label>
+              <Select value={gender} onValueChange={setGender}>
+                <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
+                <SelectContent>{GENDERS.map(g => <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>)}</SelectContent>
+              </Select>
             </div>
-          )}
+            <div className="space-y-2">
+              <Label>Age</Label>
+              <Input type="number" value={age} onChange={e => setAge(e.target.value)} className="rounded-xl" />
+            </div>
+          </div>
 
-          <div className="p-6 bg-accent/20 rounded-[1.5rem] border border-accent flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-white rounded-full text-primary">
-                {isDatingEnabled ? <Heart className="w-6 h-6 fill-primary" /> : <ShieldAlert className="w-6 h-6" />}
-              </div>
-              <div>
-                <h3 className="font-bold">Dating Mode</h3>
-                <p className="text-xs text-muted-foreground">{isDatingEnabled ? "Eligible for exclusive Sparks" : "Friendship mode only"}</p>
-              </div>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label>Bio</Label>
+              <Button variant="ghost" size="sm" onClick={handleGenerateBio} disabled={isGenerating} className="text-primary gap-2">
+                {isGenerating ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}AI Generate
+              </Button>
             </div>
-            <Switch checked={isDatingEnabled} onCheckedChange={setIsDatingEnabled} />
+            <Textarea value={bio} onChange={e => setBio(e.target.value)} className="min-h-[100px] rounded-2xl" />
           </div>
 
           <div className="p-6 bg-red-50 border border-red-200 rounded-[1.5rem] space-y-4">
@@ -366,100 +283,26 @@ export default function ProfilePage() {
             </div>
             <Button onClick={handleUpdateLocation} disabled={isFetchingLocation} variant="outline" className="w-full rounded-xl gap-2 border-red-300 text-red-700">
               {isFetchingLocation ? <Loader2 className="w-4 h-4 animate-spin" /> : <Navigation className="w-4 h-4" />}
-              Refresh Location
+              Refresh GPS Location
             </Button>
           </div>
 
-          <div className="grid sm:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <Label htmlFor="name">Display Name</Label>
-              <Input id="name" value={displayName} onChange={e => setDisplayName(e.target.value)} className="rounded-xl" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="age">Age (18+)</Label>
-              <Input id="age" type="number" value={age} onChange={e => setAge(e.target.value)} className="rounded-xl" />
-            </div>
-          </div>
-
-          <div className="grid sm:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <Label>Gender (Mandatory Selection)</Label>
-              <Select value={gender} onValueChange={setGender}>
-                <SelectTrigger className="rounded-xl"><SelectValue placeholder="Select Gender" /></SelectTrigger>
-                <SelectContent>
-                  {GENDERS.map(g => <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>Religion</Label>
-              <Select value={religion} onValueChange={setReligion}>
-                <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
-                <SelectContent>{RELIGIONS.map(r => <SelectItem key={r} value={r}>{r}</SelectItem>)}</SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div className="space-y-6 pt-4 border-t">
-            <Label className="font-black text-lg flex items-center gap-2 text-blue-600">
-              <Globe2 className="w-5 h-5" />
-              Culture & Exchange
-            </Label>
-            <div className="space-y-2">
-                <Label>City / Country</Label>
-                <Input placeholder="e.g. Tokyo, Japan" value={location} onChange={e => setLocation(e.target.value)} className="rounded-xl" />
-            </div>
-            <div className="space-y-2">
-                <Label>Cultural Interests</Label>
-                <Input placeholder="e.g. Christmas, Japanese Food" value={culturalInterests} onChange={e => setCulturalInterests(e.target.value)} className="rounded-xl" />
-            </div>
-          </div>
-
-          <div className="space-y-2 pt-4 border-t">
-            <div className="flex items-center justify-between">
-              <Label>Bio</Label>
-              <Button variant="ghost" size="sm" onClick={handleGenerateBio} disabled={isGenerating} className="text-primary gap-2">
-                {isGenerating ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}AI Bio
-              </Button>
-            </div>
-            <Textarea value={bio} onChange={e => setBio(e.target.value)} className="min-h-[120px] rounded-2xl" />
-          </div>
-
           <div className="pt-8 border-t space-y-4">
-              <div className="grid gap-2">
-                <DonationDialog 
-                  trigger={
-                    <Button variant="outline" className="w-full rounded-xl justify-between h-12">
-                      <span className="flex items-center gap-2"><Heart className="w-4 h-4 text-primary fill-primary" /> Support the Community</span>
-                    </Button>
-                  }
-                />
-                <Button variant="outline" className="w-full rounded-xl justify-between h-12" asChild>
-                  <Link href="/privacy">
-                    <span className="flex items-center gap-2"><Lock className="w-4 h-4" /> Privacy Policy</span>
-                  </Link>
-                </Button>
-              </div>
-
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button variant="ghost" className="w-full text-destructive hover:bg-destructive/5 rounded-xl gap-2 h-12">
                     <Trash2 className="w-4 h-4" />
-                    Delete Account Permanently
+                    Delete My Account
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent className="rounded-[2rem]">
                   <AlertDialogHeader>
-                    <AlertDialogTitle>Permanent Account Purge?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This will permanently delete your profile, matches, and messages.
-                    </AlertDialogDescription>
+                    <AlertDialogTitle>Account Purge?</AlertDialogTitle>
+                    <AlertDialogDescription>This will permanently remove your data, matches, and messages.</AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel className="rounded-xl">Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleDeleteAccount} className="bg-destructive text-white rounded-xl">
-                      {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Delete Forever"}
-                    </AlertDialogAction>
+                    <AlertDialogAction onClick={handleDeleteAccount} className="bg-destructive text-white rounded-xl">Delete Forever</AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
