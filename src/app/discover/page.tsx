@@ -1,10 +1,9 @@
-
 'use client';
 
 import { useState, useMemo } from 'react';
 import { Header } from '@/components/Header';
 import { Button } from '@/components/ui/button';
-import { Heart, X, Sparkles, MapPin, Zap, UserPlus, ShieldAlert, Church, Globe2, Languages, Soup } from 'lucide-react';
+import { Heart, X, Sparkles, MapPin, Zap, UserPlus, ShieldAlert, Church, Globe2, Languages, Soup, Lock } from 'lucide-react';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Card } from '@/components/ui/card';
@@ -14,6 +13,7 @@ import { useUser, useFirestore, useDoc } from '@/firebase';
 import { doc, setDoc, addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
+import { cn } from '@/lib/utils';
 
 export default function DiscoverPage() {
   const { user } = useUser();
@@ -25,6 +25,8 @@ export default function DiscoverPage() {
     return doc(db, 'users', user.uid);
   }, [db, user]);
   const { data: myProfile } = useDoc(userRef);
+
+  const isAlreadyDating = myProfile?.relationshipStatus === 'dating';
 
   const profiles = useMemo(() => {
     return PlaceHolderImages.filter(img => img.id.startsWith('user-')).map((img, i) => ({
@@ -49,11 +51,11 @@ export default function DiscoverPage() {
     if (!user || !db || !currentProfile) return;
 
     if (type === 'date') {
-      if (myProfile?.relationshipStatus === 'dating') {
+      if (isAlreadyDating) {
         toast({
           variant: "destructive",
           title: "Relationship Exclusive",
-          description: "You are currently sparking with someone. Unmatch to date others."
+          description: "You are currently sparking with someone. Go to Profile to end your current Spark before dating others."
         });
         return;
       }
@@ -83,6 +85,9 @@ export default function DiscoverPage() {
         relationshipStatus: 'dating',
         partnerId: currentProfile.id
       }, { merge: true });
+      
+      // Also update the partner if we had real user accounts
+      // In this demo, we're just updating our own status
     }
 
     toast({
@@ -178,11 +183,23 @@ export default function DiscoverPage() {
 
             <Button 
               size="icon" 
-              className="rounded-full gradient-bg text-white shadow-xl flex flex-col gap-1 h-14 w-24"
+              className={cn(
+                "rounded-full shadow-xl flex flex-col gap-1 h-14 w-24",
+                isAlreadyDating ? "bg-muted text-muted-foreground border-2 border-dashed" : "gradient-bg text-white"
+              )}
               onClick={() => handleAction('date')}
             >
-              <Zap className="w-5 h-5 fill-white" />
-              <span className="text-[10px] font-bold uppercase tracking-tighter">Spark</span>
+              {isAlreadyDating ? (
+                <>
+                  <Lock className="w-5 h-5" />
+                  <span className="text-[10px] font-bold uppercase tracking-tighter">Exclusive</span>
+                </>
+              ) : (
+                <>
+                  <Zap className="w-5 h-5 fill-white" />
+                  <span className="text-[10px] font-bold uppercase tracking-tighter">Spark</span>
+                </>
+              )}
             </Button>
           </div>
         </div>

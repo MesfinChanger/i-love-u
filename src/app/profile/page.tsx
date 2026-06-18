@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -29,15 +28,6 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { 
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogFooter
-} from "@/components/ui/dialog";
-import { 
   Sparkles, 
   Camera, 
   Loader2, 
@@ -49,25 +39,22 @@ import {
   Lock, 
   Filter, 
   Trash2,
-  Gift,
   Star,
-  CheckCircle,
-  AlertTriangle,
   FileText,
   Shield,
   Globe2,
   Languages,
-  Soup
+  Soup,
+  HeartOff
 } from 'lucide-react';
 import { generateBio } from '@/ai/flows/generate-bio-flow';
 import { moderateText } from '@/ai/flows/moderate-text-flow';
 import { useToast } from '@/hooks/use-toast';
 import { useUser, useFirestore, useAuth, useDoc } from '@/firebase';
-import { doc, setDoc, deleteDoc } from 'firebase/firestore';
+import { doc, setDoc, deleteDoc, updateDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { signOut, deleteUser } from 'firebase/auth';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -78,12 +65,6 @@ const AGE_RANGES = [
   { id: '34-49', label: '34 - 49' },
   { id: '50-65', label: '50 - 65' },
   { id: '66+', label: '66+' }
-];
-
-const DONATION_TIERS = [
-  { id: 'tier-1', name: 'Coffee Support', price: '$5', icon: '☕' },
-  { id: 'tier-2', name: 'Big Spark', price: '$15', icon: '🔥' },
-  { id: 'tier-3', name: 'Community Hero', price: '$50', icon: '👑' }
 ];
 
 export default function ProfilePage() {
@@ -113,8 +94,8 @@ export default function ProfilePage() {
   const [preferredAgeRanges, setPreferredAgeRanges] = useState<string[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [isDonating, setIsDonating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUnmatching, setIsUnmatching] = useState(false);
 
   useEffect(() => {
     if (profileData) {
@@ -177,20 +158,43 @@ export default function ProfilePage() {
     }
   };
 
-  const handleDonate = async (tierName: string) => {
-    if (!user || !db) return;
-    setIsDonating(true);
-    setTimeout(async () => {
-      await setDoc(doc(db, 'users', user.uid), {
-        isSupporter: true,
-      }, { merge: true });
+  const handleUnmatch = async () => {
+    if (!user || !db || !profileData?.partnerId) return;
+    setIsUnmatching(true);
+    try {
+      const partnerId = profileData.partnerId;
       
-      toast({ 
-        title: "Thank You!", 
-        description: `Your ${tierName} donation keeps Spark free for everyone.` 
+      // Update both profiles to single
+      await updateDoc(doc(db, 'users', user.uid), {
+        relationshipStatus: 'single',
+        partnerId: null
       });
-      setIsDonating(false);
-    }, 1500);
+      await updateDoc(doc(db, 'users', partnerId), {
+        relationshipStatus: 'single',
+        partnerId: null
+      });
+
+      // Find and deactivate the match in Firestore
+      const matchesRef = collection(db, 'matches');
+      const q = query(
+        matchesRef, 
+        where('userIds', 'array-contains', user.uid),
+        where('type', '==', 'date'),
+        where('status', '==', 'active')
+      );
+      const snapshot = await getDocs(q);
+      snapshot.docs.forEach(async (docSnap) => {
+        if (docSnap.data().userIds.includes(partnerId)) {
+          await updateDoc(docSnap.ref, { status: 'unmatched' });
+        }
+      });
+
+      toast({ title: "Spark Ended", description: "You are now single and can explore new connections." });
+    } catch (error) {
+      toast({ variant: "destructive", title: "Error", description: "Could not end Spark." });
+    } finally {
+      setIsUnmatching(false);
+    }
   };
 
   const handleGenerateBio = async () => {
@@ -288,6 +292,43 @@ export default function ProfilePage() {
             </div>
           </div>
 
+          {/* Relationship Status Management */}
+          {profileData?.relationshipStatus === 'dating' && (
+            <div className="p-6 bg-primary/5 border border-primary/20 rounded-[1.5rem] space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="p-3 bg-primary/10 rounded-full">
+                  <Heart className="w-6 h-6 text-primary fill-primary" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg">Relationship Exclusive</h3>
+                  <p className="text-sm text-muted-foreground">You are currently exclusive with one person. To Spark with someone else, you must end your current relationship.</p>
+                </div>
+              </div>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="outline" className="w-full rounded-xl gap-2 border-primary/30 text-primary hover:bg-primary/5">
+                    <HeartOff className="w-4 h-4" />
+                    End Current Spark
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="rounded-[2rem]">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Ending this Spark will clear your partner status and return you to "Single". This action will be visible to your partner.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel className="rounded-xl">Keep Sparking</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleUnmatch} className="rounded-xl bg-primary">
+                      {isUnmatching ? <Loader2 className="w-4 h-4 animate-spin" /> : "End Spark"}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+          )}
+
           {/* Friendship & Culture Room Features */}
           <div className="space-y-6 pt-4 border-t">
             <Label className="font-black text-lg flex items-center gap-2 text-blue-600">
@@ -370,6 +411,29 @@ export default function ProfilePage() {
                   </Link>
                 </Button>
               </div>
+
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="ghost" className="w-full text-destructive hover:text-destructive hover:bg-destructive/5 rounded-xl gap-2 h-12">
+                    <Trash2 className="w-4 h-4" />
+                    Delete Account Permanently
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="rounded-[2rem]">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Absolute Destruction?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This will permanently delete your profile, matches, and messages. This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel className="rounded-xl">Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDeleteAccount} className="bg-destructive text-white rounded-xl">
+                      {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Delete Forever"}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
           </div>
         </div>
       </main>
