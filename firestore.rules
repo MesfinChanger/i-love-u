@@ -10,17 +10,28 @@ service cloud.firestore {
       return isAuthenticated() && request.auth.uid == userId;
     }
 
+    // Helper to check if a match exists between two users using a deterministic ID
+    function hasActiveMatch(uid1, uid2) {
+      let matchId = uid1 < uid2 ? uid1 + "_" + uid2 : uid2 + "_" + uid1;
+      return exists(/databases/$(database)/documents/matches/$(matchId)) && 
+             get(/databases/$(database)/documents/matches/$(matchId)).data.status == 'active';
+    }
+
     function isParticipant(matchId) {
       return isAuthenticated() && request.auth.uid in get(/databases/$(database)/documents/matches/$(matchId)).data.userIds;
     }
 
-    // User Profiles - Strict privacy for Tax IDs
+    // User Profiles - Strict privacy
     match /users/{userId} {
-      // General public info can be read, but taxId and address are private
+      // Only the owner can see everything (TaxID, address, etc)
+      // Only a matched partner can see the profile (Age, Gender, Bio, Photo)
+      allow read: if isOwner(userId) || (isAuthenticated() && hasActiveMatch(request.auth.uid, userId));
+      allow write: if isOwner(userId);
+    }
+
+    // Discovery Profiles - Minimal info for everyone
+    match /publicProfiles/{userId} {
       allow read: if isAuthenticated();
-      
-      // Only the owner can write or read their own private data
-      // For additional security, you can specify fields if needed
       allow write: if isOwner(userId);
     }
 
@@ -35,18 +46,6 @@ service cloud.firestore {
     match /donations/{donationId} {
       allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
       allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
-    }
-
-    // Shops & Products
-    match /shops/{shopId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
-      allow update, delete: if isAuthenticated() && request.auth.uid == resource.data.ownerId;
-
-      match /products/{productId} {
-        allow read: if isAuthenticated();
-        allow write: if isAuthenticated() && request.auth.uid == get(/databases/$(database)/documents/shops/$(shopId)).data.ownerId;
-      }
     }
 
     // Matches & E2EE Messages - Immutable for safety

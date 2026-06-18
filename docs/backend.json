@@ -23,18 +23,32 @@
         "relationshipStatus": { "type": "string", "enum": ["single", "dating"] },
         "isSeller": { "type": "boolean", "default": false },
         "isAdvertiser": { "type": "boolean", "default": false },
-        "isLocalProducer": { "type": "boolean", "default": false },
-        "isNewEntrepreneur": { "type": "boolean", "default": false },
-        "negotiationRequested": { "type": "boolean", "default": false },
-        "subscriptionType": { "type": "string", "enum": ["free", "basic_seller", "pro_seller"], "default": "free" },
         "publicKey": { "type": "string" },
-        "currency": { "type": "string", "default": "USD" }
+        "currency": { "type": "string", "default": "USD" },
+        "settings": {
+          "type": "object",
+          "properties": {
+            "allowSensitiveContent": { "type": "boolean", "default": false }
+          }
+        }
       },
       "required": ["uid", "displayName", "age", "gender"]
     },
+    "PublicProfile": {
+      "title": "Public Profile",
+      "description": "Minimal discovery data visible to everyone. Hides identifying info.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "bio": { "type": "string" },
+        "interests": { "type": "array", "items": { "type": "string" } },
+        "culturalInterests": { "type": "array", "items": { "type": "string" } },
+        "locationHint": { "type": "string" }
+      }
+    },
     "Match": {
       "title": "Match",
-      "description": "Heart connection between users.",
+      "description": "Heart connection between users using a deterministic ID for security verification.",
       "type": "object",
       "properties": {
         "userIds": { "type": "array", "items": { "type": "string" } },
@@ -42,8 +56,8 @@
         "lastMessage": { "type": "string" },
         "status": { "type": "string", "enum": ["active", "unmatched"] },
         "type": { "type": "string", "enum": ["friend", "date"], "default": "friend" },
-        "witnessId": { "type": "string", "description": "The UID of the user invited to witness the happiness connection" },
-        "witnessStatus": { "type": "string", "enum": ["none", "pending", "confirmed"], "default": "none" }
+        "witnessId": { "type": "string" },
+        "witnessStatus": { "type": "string", "enum": ["none", "pending", "confirmed"] }
       }
     },
     "AdCampaign": {
@@ -55,11 +69,7 @@
         "title": { "type": "string" },
         "description": { "type": "string" },
         "adType": { "type": "string", "enum": ["text", "video"], "default": "text" },
-        "videoUrl": { "type": "string" },
-        "imageUrl": { "type": "string" },
-        "targetUrl": { "type": "string" },
-        "targetCountries": { "type": "array", "items": { "type": "string" }, "description": "List of country codes where this ad is legal and targeted." },
-        "isGloballyLegal": { "type": "boolean", "default": true },
+        "targetCountries": { "type": "array", "items": { "type": "string" } },
         "budget": { "type": "number" },
         "currency": { "type": "string" },
         "status": { "type": "string", "enum": ["pending", "active", "paused"] },
@@ -77,43 +87,6 @@
         "timestamp": { "type": "string", "format": "date-time" }
       }
     },
-    "Shop": {
-      "title": "Shop",
-      "description": "A seller's virtual store for gifting happiness items.",
-      "type": "object",
-      "properties": {
-        "ownerId": { "type": "string" },
-        "name": { "type": "string" },
-        "description": { "type": "string" },
-        "logoUrl": { "type": "string" },
-        "category": { "type": "string", "enum": ["Flowers", "Jewelry", "Electronics", "Apparel", "Home"] }
-      }
-    },
-    "Product": {
-      "title": "Product",
-      "description": "Items available for purchase as happiness gifts.",
-      "type": "object",
-      "properties": {
-        "shopId": { "type": "string" },
-        "name": { "type": "string" },
-        "price": { "type": "number" },
-        "category": { "type": "string" },
-        "imageUrl": { "type": "string" },
-        "description": { "type": "string" }
-      }
-    },
-    "Gift": {
-      "title": "Gift",
-      "description": "A purchased item sent to a connection.",
-      "type": "object",
-      "properties": {
-        "senderId": { "type": "string" },
-        "receiverId": { "type": "string" },
-        "productId": { "type": "string" },
-        "status": { "type": "string", "enum": ["pending", "delivered"] },
-        "timestamp": { "type": "string", "format": "date-time" }
-      }
-    },
     "Message": {
       "title": "Message",
       "description": "Chat message with gift attachment support.",
@@ -122,7 +95,6 @@
         "senderId": { "type": "string" },
         "text": { "type": "string" },
         "encryptedText": { "type": "string" },
-        "giftId": { "type": "string" },
         "timestamp": { "type": "string", "format": "date-time" }
       }
     }
@@ -131,13 +103,11 @@
     "providers": ["google.com", "password", "phone"]
   },
   "firestore": {
-    "/users/{userId}": { "schema": "UserProfile", "description": "User profiles" },
+    "/users/{userId}": { "schema": "UserProfile", "description": "Private user profiles" },
+    "/publicProfiles/{userId}": { "schema": "PublicProfile", "description": "Minimal discovery data" },
     "/donations/{donationId}": { "schema": "Donation", "description": "Support donations" },
-    "/shops/{shopId}": { "schema": "Shop", "description": "Seller shops" },
-    "/shops/{shopId}/products/{productId}": { "schema": "Product", "description": "Shop inventory" },
     "/matches/{matchId}": { "schema": "Match", "description": "Active connections" },
     "/matches/{matchId}/messages/{messageId}": { "schema": "Message", "description": "Moderated chat history" },
-    "/users/{userId}/receivedGifts/{giftId}": { "schema": "Gift", "description": "User gift history" },
     "/ads/{adId}": { "schema": "AdCampaign", "description": "Sponsored discovery ads" }
   }
 }

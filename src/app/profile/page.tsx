@@ -168,7 +168,12 @@ export default function ProfilePage() {
         return;
       }
       
+      const interestList = interests.split(',').map(s => s.trim()).filter(i => i);
+      const culturalList = culturalInterests.split(',').map(s => s.trim()).filter(i => i);
+
+      // Save full private profile
       await setDoc(doc(db, 'users', user.uid), {
+        uid: user.uid,
         displayName, 
         age: userAge, 
         gender, 
@@ -179,8 +184,8 @@ export default function ProfilePage() {
         taxId,
         country, 
         currency,
-        interests: interests.split(',').map(s => s.trim()).filter(i => i),
-        culturalInterests: culturalInterests.split(',').map(s => s.trim()).filter(i => i),
+        interests: interestList,
+        culturalInterests: culturalList,
         isDatingEnabled, 
         isAdvertiser,
         settings: { allowSensitiveContent },
@@ -188,7 +193,20 @@ export default function ProfilePage() {
         updatedAt: serverTimestamp()
       }, { merge: true });
 
-      toast({ title: "Profile Ready", description: "Your changes have been saved." });
+      // Save minimal discovery profile
+      await setDoc(doc(db, 'publicProfiles', user.uid), {
+        uid: user.uid,
+        bio,
+        interests: interestList,
+        culturalInterests: culturalList,
+        locationHint: location || country,
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+
+      toast({ title: "Profile Ready", description: "Your changes have been saved. Safe data synced for discovery." });
+    } catch (e) {
+      console.error(e);
+      toast({ variant: "destructive", title: "Error", description: "Could not save profile." });
     } finally {
       setIsSaving(false);
     }
@@ -215,6 +233,7 @@ export default function ProfilePage() {
     if (!user || !db) return;
     try {
       await deleteDoc(doc(db, 'users', user.uid));
+      await deleteDoc(doc(db, 'publicProfiles', user.uid));
       await deleteUser(user);
       router.push('/');
     } catch (e) {
