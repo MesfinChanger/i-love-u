@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -41,7 +42,8 @@ import {
   MapPin,
   Navigation,
   Coins,
-  Briefcase
+  Briefcase,
+  Megaphone
 } from 'lucide-react';
 import { generateBio } from '@/ai/flows/generate-bio-flow';
 import { moderateText } from '@/ai/flows/moderate-text-flow';
@@ -97,6 +99,7 @@ export default function ProfilePage() {
   const [isDatingEnabled, setIsDatingEnabled] = useState(true);
   const [isLocalProducer, setIsLocalProducer] = useState(false);
   const [isNewEntrepreneur, setIsNewEntrepreneur] = useState(false);
+  const [isAdvertiser, setIsAdvertiser] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -121,6 +124,7 @@ export default function ProfilePage() {
       setIsDatingEnabled(profileData.isDatingEnabled !== false);
       setIsLocalProducer(profileData.isLocalProducer || false);
       setIsNewEntrepreneur(profileData.isNewEntrepreneur || false);
+      setIsAdvertiser(profileData.isAdvertiser || false);
       setHasKeys(!!profileData.publicKey && !!localStorage.getItem(`spark_priv_${user?.uid}`));
       if (profileData.exactLocation) {
         setExactLocation({
@@ -194,6 +198,7 @@ export default function ProfilePage() {
         isDatingEnabled,
         isLocalProducer,
         isNewEntrepreneur,
+        isAdvertiser,
         exactLocation: exactLocation ? {
           latitude: exactLocation.lat,
           longitude: exactLocation.lng,
@@ -283,7 +288,7 @@ export default function ProfilePage() {
               </div>
               <div>
                 <h3 className="font-bold">Local Currency</h3>
-                <p className="text-xs text-muted-foreground">Used for localized shops and donations</p>
+                <p className="text-xs text-muted-foreground">Used for localized shops and ads</p>
               </div>
             </div>
             <Select value={currency} onValueChange={setCurrency}>
@@ -299,7 +304,7 @@ export default function ProfilePage() {
           <div className="space-y-4">
             <Label className="font-bold flex items-center gap-2">
               <Briefcase className="w-4 h-4 text-primary" />
-              Entrepreneur Status
+              Business & Tools
             </Label>
             <div className="grid gap-3">
               <div className="flex items-center justify-between p-4 bg-muted/30 rounded-xl border border-dashed">
@@ -316,8 +321,27 @@ export default function ProfilePage() {
                 </div>
                 <Switch checked={isNewEntrepreneur} onCheckedChange={setIsNewEntrepreneur} />
               </div>
+              <div className="flex items-center justify-between p-4 bg-muted/30 rounded-xl border border-dashed">
+                <div className="space-y-0.5">
+                  <div className="text-sm font-bold">Advertiser Mode</div>
+                  <div className="text-[10px] text-muted-foreground">I want to promote products/services</div>
+                </div>
+                <Switch checked={isAdvertiser} onCheckedChange={setIsAdvertiser} />
+              </div>
             </div>
           </div>
+
+          {isAdvertiser && (
+            <div className="p-4 bg-blue-50 rounded-2xl border border-blue-200 flex items-center justify-between">
+               <div className="flex items-center gap-3">
+                  <Megaphone className="w-5 h-5 text-blue-600" />
+                  <span className="text-sm font-bold text-blue-800 uppercase tracking-tighter">Campaign Management</span>
+               </div>
+               <Button size="sm" variant="outline" className="rounded-xl border-blue-200 text-blue-700 h-8" asChild>
+                  <Link href="/ads/manage">Open Ads Manager</Link>
+               </Button>
+            </div>
+          )}
 
           <div className="p-6 bg-accent/20 rounded-[1.5rem] border border-accent flex items-center justify-between">
             <div className="flex items-center gap-3">

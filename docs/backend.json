@@ -19,6 +19,7 @@
         "location": { "type": "string" },
         "relationshipStatus": { "type": "string", "enum": ["single", "dating"] },
         "isSeller": { "type": "boolean", "default": false },
+        "isAdvertiser": { "type": "boolean", "default": false },
         "isLocalProducer": { "type": "boolean", "default": false },
         "isNewEntrepreneur": { "type": "boolean", "default": false },
         "negotiationRequested": { "type": "boolean", "default": false },
@@ -27,6 +28,22 @@
         "currency": { "type": "string", "default": "USD" }
       },
       "required": ["uid", "displayName", "age", "gender"]
+    },
+    "AdCampaign": {
+      "title": "Ad Campaign",
+      "description": "A paid advertisement shown in the discover feed.",
+      "type": "object",
+      "properties": {
+        "advertiserId": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "targetUrl": { "type": "string" },
+        "budget": { "type": "number" },
+        "currency": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "active", "paused"] },
+        "timestamp": { "type": "string", "format": "date-time" }
+      }
     },
     "Donation": {
       "title": "Donation",
@@ -111,6 +128,7 @@
     "/shops/{shopId}/products/{productId}": { "schema": "Product", "description": "Shop inventory" },
     "/matches/{matchId}": { "schema": "Match", "description": "Active connections" },
     "/matches/{matchId}/messages/{messageId}": { "schema": "Message", "description": "Moderated chat history" },
-    "/users/{userId}/receivedGifts/{giftId}": { "schema": "Gift", "description": "User gift history" }
+    "/users/{userId}/receivedGifts/{giftId}": { "schema": "Gift", "description": "User gift history" },
+    "/ads/{adId}": { "schema": "AdCampaign", "description": "Sponsored discovery ads" }
   }
 }

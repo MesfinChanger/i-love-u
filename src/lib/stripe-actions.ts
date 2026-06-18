@@ -1,3 +1,4 @@
+
 'use server';
 
 import Stripe from 'stripe';
@@ -41,8 +42,41 @@ export async function createDonationSession(amount: number, currency: string, us
 }
 
 /**
+ * Creates a Stripe Checkout Session for an advertiser to pay for a campaign.
+ */
+export async function createAdCampaignSession(amount: number, currency: string, userId: string, campaignTitle: string) {
+  const session = await stripe.checkout.sessions.create({
+    payment_method_types: ['card'],
+    line_items: [
+      {
+        price_data: {
+          currency: currency.toLowerCase(),
+          product_data: {
+            name: `Ad Campaign: ${campaignTitle}`,
+            description: 'Payment for Spark Discover Feed advertisement.',
+          },
+          unit_amount: Math.round(amount * 100),
+        },
+        quantity: 1,
+      },
+    ],
+    mode: 'payment',
+    success_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:9002'}/ads/manage?success=true`,
+    cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:9002'}/ads/manage?canceled=true`,
+    metadata: {
+      userId,
+      campaignTitle,
+      type: 'advertisement',
+    },
+  });
+
+  if (session.url) {
+    redirect(session.url);
+  }
+}
+
+/**
  * Creates a Stripe Checkout Session for a recurring seller subscription.
- * Fee is determined dynamically (mocked here, but intended to be fetched from Admin Config).
  */
 export async function createSubscriptionSession(planType: 'basic_seller' | 'pro_seller', currency: string, userId: string, adminSetPrice: number) {
   const session = await stripe.checkout.sessions.create({
