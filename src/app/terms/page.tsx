@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Header } from '@/components/Header';
@@ -20,28 +19,35 @@ export default function TermsPage() {
       </header>
       
       <main className="container mx-auto px-6 py-10 prose prose-sm max-w-2xl">
-        <h2 className="text-2xl font-black mb-6">Terms of Service</h2>
+        <h2 className="text-2xl font-black mb-6 tracking-tighter">Terms of Service</h2>
         <p className="text-muted-foreground mb-4 italic">Last updated: {new Date().toLocaleDateString()}</p>
         
-        <section className="space-y-6">
+        <section className="space-y-8">
           <div>
-            <h3 className="text-lg font-bold mb-2">1. Age Requirement</h3>
-            <p>You must be at least 18 years old to use Spark. Use by anyone under 18 is strictly prohibited and accounts will be terminated.</p>
+            <h3 className="text-lg font-bold mb-2">1. Age Requirement & Eligibility</h3>
+            <p>You must be at least 18 years old to use Spark. By creating an account, you represent and warrant that you are at least 18 years of age and that you have never been convicted of a felony or any crime involving violence or sexual misconduct.</p>
           </div>
 
           <div>
-            <h3 className="text-lg font-bold mb-2">2. User Conduct</h3>
-            <p>Users must be respectful. Harassment, insults, and spam are not tolerated. AI moderation is active to enforce these standards.</p>
+            <h3 className="text-lg font-bold mb-2">2. User Conduct & AI Moderation</h3>
+            <p>Users must be respectful. Harassment, insults, and spam are not tolerated. AI moderation is active to enforce these standards. We reserve the right to terminate accounts that violate our community guidelines without notice.</p>
           </div>
 
           <div>
-            <h3 className="text-lg font-bold mb-2">3. Free Service</h3>
-            <p>Spark is 100% free. We do not charge for matching or messaging. Donations are voluntary to support server costs.</p>
+            <h3 className="text-lg font-bold mb-2 text-primary uppercase tracking-widest text-xs font-black">3. Limitation of Liability</h3>
+            <p className="font-medium bg-muted/30 p-4 rounded-xl border border-dashed">
+              TO THE MAXIMUM EXTENT PERMITTED BY LAW, SPARK AND ITS AFFILIATES SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS OR REVENUES, WHETHER INCURRED DIRECTLY OR INDIRECTLY, OR ANY LOSS OF DATA, USE, GOODWILL, OR OTHER INTANGIBLE LOSSES, RESULTING FROM: (A) YOUR ACCESS TO OR USE OF OR INABILITY TO ACCESS OR USE THE SERVICES; (B) THE CONDUCT OR CONTENT OF OTHER USERS; OR (C) UNAUTHORIZED ACCESS, USE, OR ALTERATION OF YOUR CONTENT.
+            </p>
           </div>
 
           <div>
-            <h3 className="text-lg font-bold mb-2">4. Termination</h3>
-            <p>We reserve the right to suspend or terminate accounts that violate our safety policies or community guidelines.</p>
+            <h3 className="text-lg font-bold mb-2">4. Disclaimers</h3>
+            <p>Spark provides the service "as is" and "as available". We do not guarantee that the service will be secure or error-free. You use the service at your own risk. Spark does not conduct criminal background checks on its users.</p>
+          </div>
+
+          <div>
+            <h3 className="text-lg font-bold mb-2">5. Free Service & Donations</h3>
+            <p>Spark is 100% free. We do not charge for matching or messaging. Donations are voluntary to support server costs and do not grant special privileges beyond the "Supporter" badge.</p>
           </div>
         </section>
       </main>
