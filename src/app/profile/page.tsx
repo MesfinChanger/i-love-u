@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -45,7 +46,8 @@ import {
   Globe2,
   Languages,
   Soup,
-  HeartOff
+  HeartOff,
+  Key
 } from 'lucide-react';
 import { generateBio } from '@/ai/flows/generate-bio-flow';
 import { moderateText } from '@/ai/flows/moderate-text-flow';
@@ -57,6 +59,7 @@ import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { Badge } from '@/components/ui/badge';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { generateKeyPair } from '@/lib/crypto';
 
 const GENDERS = [{ value: 'male', label: 'Male' }, { value: 'female', label: 'Female' }];
 const RELIGIONS = ['Christianity', 'Islam', 'Hinduism', 'Buddhism', 'Judaism', 'Sikhism', 'Atheist', 'Agnostic', 'None'];
@@ -96,6 +99,7 @@ export default function ProfilePage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isUnmatching, setIsUnmatching] = useState(false);
+  const [hasKeys, setHasKeys] = useState(false);
 
   useEffect(() => {
     if (profileData) {
@@ -110,8 +114,27 @@ export default function ProfilePage() {
       setPreferredLanguage(profileData.preferredLanguage || 'English');
       setAllowSensitiveContent(profileData.settings?.allowSensitiveContent || false);
       setPreferredAgeRanges(profileData.preferences?.preferredAgeRanges || []);
+      setHasKeys(!!profileData.publicKey && !!localStorage.getItem(`spark_priv_${user?.uid}`));
     }
-  }, [profileData]);
+  }, [profileData, user]);
+
+  const handleSetupEncryption = async () => {
+    if (!user || !db) return;
+    try {
+      const keys = await generateKeyPair();
+      localStorage.setItem(`spark_priv_${user.uid}`, keys.privateKey);
+      await updateDoc(doc(db, 'users', user.uid), {
+        publicKey: keys.publicKey
+      });
+      setHasKeys(true);
+      toast({
+        title: "Encryption Enabled",
+        description: "Your messages are now secured with End-to-End Encryption. ✨"
+      });
+    } catch (e) {
+      toast({ variant: "destructive", title: "Setup Failed", description: "Could not generate security keys." });
+    }
+  };
 
   const handleSave = async () => {
     if (!user || !db || isSaving) return;
@@ -164,7 +187,6 @@ export default function ProfilePage() {
     try {
       const partnerId = profileData.partnerId;
       
-      // Update both profiles to single
       await updateDoc(doc(db, 'users', user.uid), {
         relationshipStatus: 'single',
         partnerId: null
@@ -174,7 +196,6 @@ export default function ProfilePage() {
         partnerId: null
       });
 
-      // Find and deactivate the match in Firestore
       const matchesRef = collection(db, 'matches');
       const q = query(
         matchesRef, 
@@ -217,6 +238,7 @@ export default function ProfilePage() {
     try {
       await deleteDoc(doc(db, 'users', user.uid));
       await deleteUser(user);
+      localStorage.removeItem(`spark_priv_${user.uid}`);
       toast({ title: "Account Deleted", description: "Your data has been removed from Spark." });
       router.push('/');
     } catch (error: any) {
@@ -260,10 +282,27 @@ export default function ProfilePage() {
               {profileData?.relationshipStatus === 'dating' && (
                 <Badge className="bg-primary text-white gap-1 animate-pulse"><Zap className="w-3 h-3 fill-white" />Currently Sparking</Badge>
               )}
+              {hasKeys && (
+                <Badge className="bg-green-500 text-white gap-1"><Shield className="w-3 h-3" /> E2EE Active</Badge>
+              )}
             </div>
           </div>
 
-          {/* Core Info */}
+          {!hasKeys && (
+            <div className="p-6 bg-green-50 border border-green-200 rounded-[1.5rem] flex flex-col gap-4">
+              <div className="flex items-start gap-3">
+                <Key className="w-6 h-6 text-green-600 shrink-0 mt-1" />
+                <div>
+                  <h3 className="font-bold text-green-800">Enable End-to-End Encryption</h3>
+                  <p className="text-sm text-green-700">Protect your messages with a unique security key stored only on this device.</p>
+                </div>
+              </div>
+              <Button onClick={handleSetupEncryption} className="bg-green-600 hover:bg-green-700 text-white rounded-xl">
+                Activate Secure Vault
+              </Button>
+            </div>
+          )}
+
           <div className="grid sm:grid-cols-2 gap-6">
             <div className="space-y-2">
               <Label htmlFor="name">Display Name</Label>
@@ -292,7 +331,6 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Relationship Status Management */}
           {profileData?.relationshipStatus === 'dating' && (
             <div className="p-6 bg-primary/5 border border-primary/20 rounded-[1.5rem] space-y-4">
               <div className="flex items-center gap-3">
@@ -329,7 +367,6 @@ export default function ProfilePage() {
             </div>
           )}
 
-          {/* Friendship & Culture Room Features */}
           <div className="space-y-6 pt-4 border-t">
             <Label className="font-black text-lg flex items-center gap-2 text-blue-600">
               <Globe2 className="w-5 h-5" />
@@ -392,7 +429,6 @@ export default function ProfilePage() {
             <Textarea value={bio} onChange={e => setBio(e.target.value)} className="min-h-[120px] rounded-2xl" />
           </div>
 
-          {/* Legal and Safety */}
           <div className="pt-8 border-t space-y-4">
              <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
                 <Shield className="w-4 h-4" /> Legal & Safety

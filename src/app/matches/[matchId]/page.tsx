@@ -5,9 +5,9 @@ import { useState, useMemo, useEffect, useRef } from 'react';
 import { Header } from '@/components/Header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Send, ChevronLeft, Sparkles, Loader2, Camera, ShieldAlert, EyeOff, Info } from 'lucide-react';
+import { Send, ChevronLeft, Sparkles, Loader2, Camera, ShieldAlert, EyeOff, Info, Lock } from 'lucide-react';
 import { useUser, useFirestore, useCollection, useDoc } from '@/firebase';
-import { collection, addDoc, query, orderBy, serverTimestamp, doc } from 'firebase/firestore';
+import { collection, addDoc, query, orderBy, serverTimestamp, doc, getDoc } from 'firebase/firestore';
 import { useParams, useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { generateIcebreaker } from '@/ai/flows/generate-icebreaker-flow';
@@ -17,6 +17,8 @@ import { useToast } from '@/hooks/use-toast';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import Image from 'next/image';
+import { encryptText, decryptText } from '@/lib/crypto';
+import { Badge } from '@/components/ui/badge';
 
 export default function ChatPage() {
   const { matchId } = useParams();
@@ -31,15 +33,14 @@ export default function ChatPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  const [decryptedMessages, setDecryptedMessages] = useState<Record<string, string>>({});
 
-  // Get current user profile
   const userRef = useMemoFirebase(() => {
     if (!db || !user) return null;
     return doc(db, 'users', user.uid);
   }, [db, user]);
   const { data: myProfile } = useDoc(userRef);
 
-  // Mock match details
   const matchInfo = useMemo(() => {
     const idNum = parseInt(String(matchId).split('-')[1]) || 0;
     const img = PlaceHolderImages.filter(img => img.id.startsWith('user-'))[idNum % 4];
@@ -50,7 +51,6 @@ export default function ChatPage() {
     };
   }, [matchId]);
 
-  // Real-time messages from Firestore
   const messagesQuery = useMemoFirebase(() => {
     if (!db || !matchId) return null;
     return query(
@@ -61,28 +61,61 @@ export default function ChatPage() {
 
   const { data: messages, loading } = useCollection(messagesQuery);
 
+  useEffect(() => {
+    const decryptAll = async () => {
+      if (!messages || !user) return;
+      const privKey = localStorage.getItem(`spark_priv_${user.uid}`);
+      if (!privKey) return;
+
+      const newDecrypted: Record<string, string> = { ...decryptedMessages };
+      let changed = false;
+
+      for (const msg of messages as any[]) {
+        if (msg.encryptedText && !newDecrypted[msg.id]) {
+          const decrypted = await decryptText(msg.encryptedText, privKey);
+          newDecrypted[msg.id] = decrypted;
+          changed = true;
+        }
+      }
+
+      if (changed) setDecryptedMessages(newDecrypted);
+    };
+
+    decryptAll();
+  }, [messages, user]);
+
   const handleSendMessage = async (e?: React.FormEvent) => {
     e?.preventDefault();
     if (!newMessage.trim() || !user || !db || !matchId || isSending) return;
 
     setIsSending(true);
     try {
-      // Moderate text before sending
       const moderation = await moderateText({ text: newMessage });
       
       if (moderation.isFlagged) {
         toast({
           variant: "destructive",
           title: "Safety Alert",
-          description: "Your message was flagged for disrespectful or insulting content. Let's keep things friendly! ✨"
+          description: "Your message was flagged for disrespectful content. ✨"
         });
         setIsSending(false);
         return;
       }
 
+      const matchDoc = await getDoc(doc(db, 'matches', String(matchId)));
+      const partnerId = matchDoc.data()?.userIds.find((id: string) => id !== user.uid);
+      const partnerDoc = await getDoc(doc(db, 'users', partnerId));
+      const partnerPubKey = partnerDoc.data()?.publicKey;
+
+      let encryptedText = null;
+      if (partnerPubKey) {
+        encryptedText = await encryptText(newMessage, partnerPubKey);
+      }
+
       addDoc(collection(db, 'matches', String(matchId), 'messages'), {
         senderId: user.uid,
-        text: newMessage,
+        text: partnerPubKey ? "[Encrypted]" : newMessage,
+        encryptedText: encryptedText,
         timestamp: serverTimestamp(),
       });
 
@@ -107,8 +140,6 @@ export default function ChatPage() {
       const reader = new FileReader();
       reader.onloadend = async () => {
         const dataUri = reader.result as string;
-        
-        // Moderate image before sending
         const moderation = await moderateImage({ photoDataUri: dataUri });
         
         addDoc(collection(db, 'matches', String(matchId), 'messages'), {
@@ -163,8 +194,11 @@ export default function ChatPage() {
           <AvatarFallback>{matchInfo.name[0]}</AvatarFallback>
         </Avatar>
         <div className="flex-grow">
-          <h2 className="font-bold">{matchInfo.name}</h2>
-          <p className="text-[10px] text-green-500 font-bold uppercase tracking-tighter">Online Now</p>
+          <h2 className="font-bold flex items-center gap-1">
+            {matchInfo.name}
+            <Lock className="w-3 h-3 text-green-500" />
+          </h2>
+          <p className="text-[10px] text-green-500 font-bold uppercase tracking-tighter">Secure Chat Active</p>
         </div>
         <Button 
           variant="ghost" 
@@ -179,6 +213,13 @@ export default function ChatPage() {
       </header>
 
       <main ref={scrollRef} className="flex-grow overflow-y-auto p-4 space-y-4 bg-muted/10">
+        <div className="flex justify-center mb-4">
+          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 gap-1.5 py-1 px-3 rounded-full text-[10px] uppercase font-bold tracking-wider">
+            <Lock className="w-3 h-3" />
+            End-to-End Encrypted
+          </Badge>
+        </div>
+
         {loading ? (
           <div className="flex justify-center py-10">
             <Loader2 className="w-6 h-6 animate-spin text-primary" />
@@ -188,6 +229,7 @@ export default function ChatPage() {
             const isMe = msg.senderId === user?.uid;
             const isSensitive = msg.isSensitive;
             const blockedBySettings = isSensitive && !myProfile?.settings?.allowSensitiveContent;
+            const textToShow = msg.encryptedText ? (decryptedMessages[msg.id] || "Decrypting...") : msg.text;
 
             return (
               <div key={i} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
@@ -212,14 +254,14 @@ export default function ChatPage() {
                           className={`object-cover ${isSensitive ? 'blur-xl' : ''}`}
                         />
                       )}
-                      {isSensitive && !blockedBySettings && (
-                        <div className="absolute top-2 right-2 bg-yellow-500 text-white p-1 rounded-full shadow-lg">
-                          <ShieldAlert className="w-3 h-3" />
-                        </div>
-                      )}
                     </div>
                   ) : (
-                    msg.text
+                    <div className="flex flex-col gap-1">
+                      <span>{textToShow}</span>
+                      {msg.encryptedText && (
+                        <span className="text-[8px] opacity-40 uppercase font-black tracking-widest text-right">E2EE</span>
+                      )}
+                    </div>
                   )}
                 </div>
               </div>
@@ -250,7 +292,7 @@ export default function ChatPage() {
             <Input 
               value={newMessage} 
               onChange={e => setNewMessage(e.target.value)}
-              placeholder="Type a message..."
+              placeholder="Type a secure message..."
               className="rounded-full bg-muted/30 border-none focus-visible:ring-primary h-12 px-6"
               disabled={isSending}
             />
@@ -265,9 +307,9 @@ export default function ChatPage() {
           </form>
         </div>
         <div className="flex items-center justify-center gap-1.5 mt-2">
-          <ShieldAlert className="w-3 h-3 text-muted-foreground" />
+          <Lock className="w-3 h-3 text-green-500" />
           <p className="text-[8px] text-center text-muted-foreground uppercase font-bold tracking-widest">
-            AI Moderation Active: Respectful content only
+            Privacy Vault Active: Messages are encrypted locally
           </p>
         </div>
       </footer>

@@ -20,6 +20,7 @@
         "preferredLanguage": { "type": "string", "default": "English" },
         "relationshipStatus": { "type": "string", "enum": ["single", "dating"], "default": "single" },
         "partnerId": { "type": "string", "description": "UID of current dating partner." },
+        "publicKey": { "type": "string", "description": "Base64 encoded public key for E2EE." },
         "isSupporter": { "type": "boolean", "default": false, "description": "Whether the user has donated to support the app." },
         "settings": {
           "type": "object",
@@ -58,6 +59,7 @@
       "properties": {
         "senderId": { "type": "string" },
         "text": { "type": "string" },
+        "encryptedText": { "type": "string", "description": "Base64 encoded encrypted message." },
         "imageUrl": { "type": "string" },
         "isSensitive": { "type": "boolean", "default": false },
         "timestamp": { "type": "string", "format": "date-time" }
