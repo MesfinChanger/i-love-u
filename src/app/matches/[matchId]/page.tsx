@@ -22,10 +22,11 @@ import {
   BookOpen,
   Flag,
   Info,
-  Users
+  Users,
+  HeartOff
 } from 'lucide-react';
 import { useUser, useFirestore, useCollection, useDoc } from '@/firebase';
-import { collection, addDoc, query, orderBy, serverTimestamp, doc, updateDoc } from 'firebase/firestore';
+import { collection, addDoc, query, orderBy, serverTimestamp, doc, updateDoc, writeBatch } from 'firebase/firestore';
 import { useParams, useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { generateIcebreaker } from '@/ai/flows/generate-icebreaker-flow';
@@ -71,6 +72,7 @@ export default function ChatPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [isReporting, setIsReporting] = useState(false);
+  const [isUnconnecting, setIsUnconnecting] = useState(false);
   const [isInvitingWitness, setIsInvitingWitness] = useState(false);
   const [witnessUid, setWitnessUid] = useState('');
   const [decryptedMessages, setDecryptedMessages] = useState<Record<string, string>>({});
@@ -242,6 +244,43 @@ export default function ChatPage() {
     }
   };
 
+  const handleUnconnect = async () => {
+    if (!user || !db || !matchId) return;
+    setIsUnconnecting(true);
+    try {
+      const batch = writeBatch(db);
+      
+      // Update match status to unmatched
+      batch.update(doc(db, 'matches', String(matchId)), {
+        status: 'unmatched',
+        unmatchedAt: serverTimestamp(),
+        unmatchedBy: user.uid
+      });
+
+      // If it was a date match, reset relationship status for both
+      if (matchData?.type === 'date') {
+        matchData.userIds.forEach((uid: string) => {
+          batch.update(doc(db, 'users', uid), {
+            relationshipStatus: 'single',
+            partnerId: null
+          });
+        });
+      }
+
+      await batch.commit();
+      
+      toast({
+        title: "Unconnected",
+        description: "Your connection has been ended respectfully."
+      });
+      router.push('/matches');
+    } catch (e) {
+      toast({ variant: "destructive", title: "Error", description: "Could not unconnect." });
+    } finally {
+      setIsUnconnecting(false);
+    }
+  };
+
   const handleInviteWitness = async () => {
     if (!user || !db || !matchId || !witnessUid) return;
     setIsInvitingWitness(true);
@@ -356,6 +395,28 @@ export default function ChatPage() {
             AI
           </Button>
           
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary" aria-label="Unconnect from person">
+                <HeartOff className="w-4 h-4" aria-hidden="true" />
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent className="rounded-[2.5rem] border-none shadow-2xl">
+              <AlertDialogHeader>
+                <AlertDialogTitle className="text-2xl font-black tracking-tighter">End Connection?</AlertDialogTitle>
+                <AlertDialogDescription className="text-muted-foreground leading-relaxed italic">
+                  Stopping this connection is final. You can always restart a journey with someone else in a respectful manner.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter className="gap-2">
+                <AlertDialogCancel className="rounded-xl">Keep Connecting</AlertDialogCancel>
+                <AlertDialogAction onClick={handleUnconnect} className="bg-primary text-white rounded-xl shadow-lg shadow-primary/20">
+                  {isUnconnecting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Unconnect Now"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive" aria-label="Report violation">

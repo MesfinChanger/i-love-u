@@ -23,6 +23,7 @@ export default function MatchesPage() {
     return query(
       collection(db, 'matches'),
       where('userIds', 'array-contains', user.uid),
+      where('status', '==', 'active'),
       orderBy('timestamp', 'desc')
     );
   }, [user, db]);
