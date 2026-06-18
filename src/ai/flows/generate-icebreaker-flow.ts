@@ -1,7 +1,7 @@
 
 'use server';
 /**
- * @fileOverview A Genkit flow to generate creative icebreaker messages in various languages, supporting cultural exchange.
+ * @fileOverview A Genkit flow to generate creative icebreaker messages in various languages, supporting cultural exchange and personal photo sharing suggestions.
  */
 
 import {ai} from '@/ai/genkit';
@@ -42,13 +42,22 @@ Cultural/Language Interests:
 {{#each culturalInterests}} - {{{this}}} {{/each}}
 {{/if}}
 
+CORE DIRECTIVE:
+Encourage sharing meaningful moments through photos. Suggest topics like:
+- "Teachable" pictures (sharing a skill or a piece of culture)
+- Birthdays or family celebrations
+- Holiday traditions (Christmas, Maulid, Eid, etc.)
+- Travel memories
+
 {{#if isFriendshipOnly}}
 This is a FRIENDSHIP connection for CULTURAL EXCHANGE.
 Focus on finding common ground in traditions, international food, travel, or language learning.
+Encourage them to share a photo of their local food or a recent holiday celebration.
 Avoid romantic undertones. Be curious and respectful.
 {{else}}
 This is a DATING connection.
 Generate a short, friendly, and personalized opening message (icebreaker).
+Include a light suggestion to share a birthday or holiday memory photo.
 It should be a question or a playful observation related to their interests.
 {{/if}}
 

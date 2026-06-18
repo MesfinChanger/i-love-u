@@ -5,7 +5,7 @@ import { useState, useMemo, useEffect, useRef } from 'react';
 import { Header } from '@/components/Header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Send, ChevronLeft, Sparkles, Loader2, Camera, ShieldAlert, EyeOff, Info, Lock, MapPin, ExternalLink, ShieldCheck } from 'lucide-react';
+import { Send, ChevronLeft, Sparkles, Loader2, Camera, ShieldAlert, EyeOff, Info, Lock, MapPin, ExternalLink, ShieldCheck, Gift, Cake, TreePine, BookOpen } from 'lucide-react';
 import { useUser, useFirestore, useCollection, useDoc } from '@/firebase';
 import { collection, addDoc, query, orderBy, serverTimestamp, doc } from 'firebase/firestore';
 import { useParams, useRouter } from 'next/navigation';
@@ -19,6 +19,7 @@ import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import Image from 'next/image';
 import { encryptText, decryptText } from '@/lib/crypto';
 import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 
 export default function ChatPage() {
   const { matchId } = useParams();
@@ -111,8 +112,8 @@ export default function ChatPage() {
       if (moderation.isFlagged) {
         toast({
           variant: "destructive",
-          title: "Safety Alert",
-          description: "Your message was flagged for prohibited content. ✨"
+          title: "Community Guidelines",
+          description: "Your message violates our mandatory respect & love policy. ✨"
         });
         setIsSending(false);
         return;
@@ -160,6 +161,11 @@ export default function ChatPage() {
           imageUrl: dataUri,
           isSensitive: moderation.isSensitive,
           timestamp: serverTimestamp(),
+        });
+        
+        toast({
+          title: "Image Sent",
+          description: moderation.isSensitive ? "Protected sensitive content sent." : "Moment shared successfully."
         });
       };
       reader.readAsDataURL(file);
@@ -228,9 +234,23 @@ export default function ChatPage() {
         </Button>
       </header>
 
-      <div className="bg-slate-50 border-b px-4 py-2 flex items-center justify-center gap-2">
-         <ShieldCheck className="w-3 h-3 text-slate-400" />
-         <span className="text-[9px] text-slate-500 font-bold uppercase tracking-widest">Permanent Record: Sent messages cannot be deleted or altered</span>
+      <div className="bg-slate-50 border-b px-4 py-2 flex items-center justify-center gap-4 overflow-x-auto no-scrollbar">
+         <div className="flex items-center gap-1.5 shrink-0">
+            <ShieldCheck className="w-3 h-3 text-slate-400" />
+            <span className="text-[9px] text-slate-500 font-bold uppercase tracking-widest whitespace-nowrap">Permanent Records Enabled</span>
+         </div>
+         <div className="flex items-center gap-1.5 shrink-0 bg-white/50 px-2 py-0.5 rounded-full border">
+            <Cake className="w-3 h-3 text-pink-500" />
+            <span className="text-[8px] text-muted-foreground font-bold uppercase tracking-tighter">Share Birthday Photos</span>
+         </div>
+         <div className="flex items-center gap-1.5 shrink-0 bg-white/50 px-2 py-0.5 rounded-full border">
+            <TreePine className="w-3 h-3 text-green-600" />
+            <span className="text-[8px] text-muted-foreground font-bold uppercase tracking-tighter">Holiday Memories</span>
+         </div>
+         <div className="flex items-center gap-1.5 shrink-0 bg-white/50 px-2 py-0.5 rounded-full border">
+            <BookOpen className="w-3 h-3 text-blue-500" />
+            <span className="text-[8px] text-muted-foreground font-bold uppercase tracking-tighter">Teachable Moments</span>
+         </div>
       </div>
 
       {isDatingMatch && (
@@ -239,7 +259,7 @@ export default function ChatPage() {
             <MapPin className="w-4 h-4 text-red-500 animate-pulse" />
             <div>
               <p className="text-[10px] font-black text-red-700 uppercase tracking-widest leading-none">Verified Exact Place</p>
-              <p className="text-[8px] text-red-500 uppercase tracking-tighter mt-0.5">Accountability: Anti-Cheating Tracking Active</p>
+              <p className="text-[8px] text-red-500 uppercase tracking-tighter mt-0.5">Accountability: Anti-Cheating Active</p>
             </div>
           </div>
           {partnerExactLoc ? (
@@ -252,7 +272,7 @@ export default function ChatPage() {
               </Button>
             </div>
           ) : (
-            <p className="text-[8px] text-red-400 font-bold uppercase">Partner is fetching location...</p>
+            <p className="text-[8px] text-red-400 font-bold uppercase">Location Loading...</p>
           )}
         </div>
       )}
@@ -273,8 +293,8 @@ export default function ChatPage() {
           messages?.map((msg: any, i) => {
             const isMe = msg.senderId === user?.uid;
             const isSensitive = msg.isSensitive;
-            const blockedBySettings = isSensitive && !myProfile?.settings?.allowSensitiveContent;
-            const textToShow = msg.encryptedText ? (decryptedMessages[msg.id] || "Decrypting Secure Data...") : msg.text;
+            const blurContent = isSensitive && !myProfile?.settings?.allowSensitiveContent;
+            const textToShow = msg.encryptedText ? (decryptedMessages[msg.id] || "Decrypting...") : msg.text;
 
             return (
               <div key={i} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
@@ -284,20 +304,25 @@ export default function ChatPage() {
                     : 'bg-white text-foreground rounded-tl-none border shadow-sm'
                 }`}>
                   {msg.imageUrl ? (
-                    <div className="relative w-48 h-64 overflow-hidden rounded-xl">
-                      {blockedBySettings ? (
+                    <div className="relative w-48 h-64 overflow-hidden rounded-xl bg-muted group">
+                      {blurContent ? (
                         <div className="w-full h-full bg-slate-900/90 flex flex-col items-center justify-center text-center p-4 gap-2">
                           <EyeOff className="w-8 h-8 text-white/50" />
-                          <p className="text-[10px] font-bold text-white/70 uppercase">Sensitive Content</p>
-                          <p className="text-[8px] text-white/40">Hidden by your safety settings</p>
+                          <p className="text-[10px] font-bold text-white/70 uppercase">Protected Content</p>
+                          <p className="text-[8px] text-white/40">Enable "Safety Guard" in profile to view</p>
                         </div>
                       ) : (
                         <Image 
                           src={msg.imageUrl} 
-                          alt="Secure Attachment" 
+                          alt="Shared moment" 
                           fill 
-                          className={`object-cover ${isSensitive ? 'blur-xl' : ''}`}
+                          className={cn("object-cover transition-all", isSensitive && "blur-xl hover:blur-none")}
                         />
+                      )}
+                      {isSensitive && !blurContent && (
+                        <div className="absolute top-2 right-2">
+                           <Badge className="bg-amber-500/80 backdrop-blur-sm text-[8px] border-none">Sensitive</Badge>
+                        </div>
                       )}
                     </div>
                   ) : (
@@ -315,7 +340,7 @@ export default function ChatPage() {
         )}
       </main>
 
-      <footer className="p-4 border-t pb-8">
+      <footer className="p-4 border-t pb-8 bg-white">
         <div className="flex items-center gap-2 mb-2">
           <input 
             type="file" 
@@ -327,17 +352,17 @@ export default function ChatPage() {
           <Button 
             variant="outline" 
             size="icon" 
-            className="rounded-full shrink-0 border-muted"
+            className="rounded-full shrink-0 border-muted h-12 w-12"
             onClick={() => fileInputRef.current?.click()}
             disabled={isUploading}
           >
-            {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Camera className="w-4 h-4 text-muted-foreground" />}
+            {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Camera className="w-5 h-5 text-muted-foreground" />}
           </Button>
           <form onSubmit={handleSendMessage} className="flex-grow flex gap-2">
             <Input 
               value={newMessage} 
               onChange={e => setNewMessage(e.target.value)}
-              placeholder="Send an immutable message..."
+              placeholder="Immutable encrypted message..."
               className="rounded-full bg-muted/30 border-none focus-visible:ring-primary h-12 px-6"
               disabled={isSending}
             />
@@ -352,9 +377,9 @@ export default function ChatPage() {
           </form>
         </div>
         <div className="flex items-center justify-center gap-1.5 mt-2">
-          <Lock className="w-3 h-3 text-green-500" />
+          <ShieldCheck className="w-3 h-3 text-green-500" />
           <p className="text-[8px] text-center text-muted-foreground uppercase font-bold tracking-widest">
-            Identity Protection: Private keys never leave your phone
+            Privacy Guaranteed: Messages are permanent and encrypted on-device
           </p>
         </div>
       </footer>
