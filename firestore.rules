@@ -30,10 +30,16 @@ service cloud.firestore {
       allow read: if isAuthenticated() && request.auth.uid in resource.data.userIds;
       allow create: if isAuthenticated() && request.auth.uid in request.resource.data.userIds;
       allow update: if isAuthenticated() && request.auth.uid in resource.data.userIds;
+      // Participants can only end a match (update status), but cannot delete the match record itself manually
+      allow delete: if false; 
 
       match /messages/{messageId} {
+        // Only participants can read the message sub-collection
         allow read: if isAuthenticated() && request.auth.uid in get(/databases/$(database)/documents/matches/$(matchId)).data.userIds;
+        // Messages are immutable: allow creation but strictly forbid updates or individual deletions
         allow create: if isAuthenticated() && request.auth.uid in get(/databases/$(database)/documents/matches/$(matchId)).data.userIds;
+        allow update: if false;
+        allow delete: if false;
       }
     }
   }
