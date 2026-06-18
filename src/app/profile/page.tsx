@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -38,33 +37,23 @@ import {
   ShieldAlert, 
   Lock, 
   Trash2,
-  Star,
-  FileText,
-  Shield,
   Globe2,
-  Languages,
-  Soup,
-  HeartOff,
-  Key,
   MapPin,
   Navigation,
-  EyeOff,
-  Building2,
   Coins,
-  Store,
   Briefcase
 } from 'lucide-react';
 import { generateBio } from '@/ai/flows/generate-bio-flow';
 import { moderateText } from '@/ai/flows/moderate-text-flow';
 import { useToast } from '@/hooks/use-toast';
 import { useUser, useFirestore, useAuth, useDoc } from '@/firebase';
-import { doc, setDoc, deleteDoc, updateDoc } from 'firebase/firestore';
+import { doc, setDoc, deleteDoc } from 'firebase/firestore';
 import { signOut, deleteUser } from 'firebase/auth';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { Badge } from '@/components/ui/badge';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { generateKeyPair } from '@/lib/crypto';
+import { DonationDialog } from '@/components/DonationDialog';
 
 const GENDERS = [{ value: 'male', label: 'Male' }, { value: 'female', label: 'Female' }];
 const RELIGIONS = ['Christianity', 'Islam', 'Hinduism', 'Buddhism', 'Judaism', 'Sikhism', 'Atheist', 'Agnostic', 'None'];
@@ -282,7 +271,7 @@ export default function ProfilePage() {
                 <Badge className="bg-primary text-white gap-1 animate-pulse"><Zap className="w-3 h-3 fill-white" />Currently Sparking</Badge>
               )}
               {hasKeys && (
-                <Badge className="bg-green-500 text-white gap-1"><Shield className="w-3 h-3" /> E2EE Active</Badge>
+                <Badge className="bg-green-500 text-white gap-1"><Lock className="w-3 h-3 mr-1" /> E2EE Active</Badge>
               )}
             </div>
           </div>
@@ -333,7 +322,7 @@ export default function ProfilePage() {
           <div className="p-6 bg-accent/20 rounded-[1.5rem] border border-accent flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="p-3 bg-white rounded-full text-primary">
-                {isDatingEnabled ? <Heart className="w-6 h-6 fill-primary" /> : <HeartOff className="w-6 h-6" />}
+                {isDatingEnabled ? <Heart className="w-6 h-6 fill-primary" /> : <ShieldAlert className="w-6 h-6" />}
               </div>
               <div>
                 <h3 className="font-bold">Dating Mode</h3>
@@ -414,11 +403,13 @@ export default function ProfilePage() {
 
           <div className="pt-8 border-t space-y-4">
               <div className="grid gap-2">
-                <Button variant="outline" className="w-full rounded-xl justify-between h-12" asChild>
-                  <Link href="/donate">
-                    <span className="flex items-center gap-2"><Heart className="w-4 h-4 text-primary fill-primary" /> Support the Community</span>
-                  </Link>
-                </Button>
+                <DonationDialog 
+                  trigger={
+                    <Button variant="outline" className="w-full rounded-xl justify-between h-12">
+                      <span className="flex items-center gap-2"><Heart className="w-4 h-4 text-primary fill-primary" /> Support the Community</span>
+                    </Button>
+                  }
+                />
                 <Button variant="outline" className="w-full rounded-xl justify-between h-12" asChild>
                   <Link href="/privacy">
                     <span className="flex items-center gap-2"><Lock className="w-4 h-4" /> Privacy Policy</span>
