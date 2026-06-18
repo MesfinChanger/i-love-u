@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Heart, Sparkles, MessageCircle, ShieldCheck, Zap, Globe, Smile } from 'lucide-react';
+import { Heart, Sparkles, MessageCircle, ShieldCheck, Zap, Globe, Smile, MapPin, HandHeart } from 'lucide-react';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
@@ -37,7 +37,7 @@ export default function Home() {
     "@type": "WebSite",
     "name": "I Love U Dating",
     "url": "https://spark-dating.web.app",
-    "description": "I Love U: AI-powered dating and cultural exchange with a mandatory respect policy.",
+    "description": "I Love U: AI-powered dating and cultural exchange. Helping poor people in rural and urban areas worldwide.",
     "potentialAction": {
       "@type": "SearchAction",
       "target": "https://spark-dating.web.app/discover?q={search_term_string}",
@@ -82,19 +82,19 @@ export default function Home() {
                 </span>
               </div>
               <h1 className="text-7xl lg:text-9xl font-black leading-tight tracking-tighter">
-                Find Your <br />
-                <span className="gradient-text">True Happiness</span>
+                Find Real <br />
+                <span className="gradient-text">Happiness</span>
               </h1>
               <p className="text-2xl text-muted-foreground max-w-lg mx-auto lg:mx-0 leading-relaxed font-medium">
-                Connect with hearts that beat like yours. I Love U is the community where every connection is rooted in joy.
-                <span className="block font-black text-primary mt-6 uppercase tracking-[0.3em] text-xs">Respect & Love is Mandatory ❤️</span>
+                I Love U is a global bridge reaching every community. Our mission is to connect hearts and use our resources to help poor people in rural and urban areas worldwide.
+                <span className="block font-black text-primary mt-6 uppercase tracking-[0.3em] text-xs">Helping Others is Mandatory ❤️</span>
               </p>
               <div className="flex flex-col sm:flex-row gap-6 justify-center lg:justify-start">
                 <Button size="lg" className="h-20 px-16 rounded-full text-xl font-black gradient-bg shadow-2xl shadow-primary/40 hover:scale-105 transition-transform" asChild>
                   <Link href="/login">Start Loving Free</Link>
                 </Button>
                 <Button variant="outline" size="lg" className="h-20 px-12 rounded-full text-xl font-bold border-2" asChild>
-                  <Link href="/login">Our Mission</Link>
+                  <Link href="/donate">Support Our Mission</Link>
                 </Button>
               </div>
             </div>
@@ -105,21 +105,21 @@ export default function Home() {
                 {heroImage && (
                   <Image 
                     src={heroImage.imageUrl} 
-                    alt="Happy People" 
+                    alt="Global Happiness" 
                     fill 
                     className="object-cover"
                     priority
-                    data-ai-hint="happy couple"
+                    data-ai-hint="happy diverse people"
                   />
                 )}
               </div>
               <div className="absolute -bottom-12 -left-12 bg-white p-8 rounded-[3rem] shadow-[0_20px_60px_-10px_rgba(0,0,0,0.15)] border flex items-center gap-6 animate-bounce">
                 <div className="w-20 h-20 rounded-[2rem] gradient-bg flex items-center justify-center text-white shadow-xl">
-                  <Heart className="w-12 h-12 fill-white animate-pulse" />
+                  <HandHeart className="w-12 h-12" />
                 </div>
                 <div>
-                  <p className="font-black text-2xl tracking-tighter">It's a Connection!</p>
-                  <p className="text-sm text-muted-foreground font-bold uppercase tracking-widest">Happiness found with Alex</p>
+                  <p className="font-black text-2xl tracking-tighter">Global Impact</p>
+                  <p className="text-sm text-muted-foreground font-bold uppercase tracking-widest">Helping Poor Communities</p>
                 </div>
               </div>
             </div>
@@ -131,20 +131,41 @@ export default function Home() {
             <h2 className="text-5xl font-black mb-16 tracking-tighter">Designed for Real Happiness</h2>
             <div className="grid md:grid-cols-3 gap-10">
               <FeatureCard 
+                icon={<Globe className="w-12 h-12" />}
+                title="Global Reach"
+                description="We strive to reach every community, from the busiest cities to the most remote rural areas."
+              />
+              <FeatureCard 
+                icon={<HandHeart className="w-12 h-12" />}
+                title="Mission Driven"
+                description="Proceeds go directly toward helping the poor and empowering communities worldwide."
+              />
+              <FeatureCard 
                 icon={<Heart className="w-12 h-12 fill-primary" />}
                 title="Respect is Mandatory"
-                description="We are built on kindness. Disrespect is never an option; love for all members is our first law."
+                description="In our community, helping others is our heartbeat. Love and respect are our foundation."
               />
-              <FeatureCard 
-                icon={<Sparkles className="w-12 h-12" />}
-                title="AI Happiness Bridge"
-                description="Smart icebreakers and cultural exchange tools to help you find meaning in every conversation."
-              />
-              <FeatureCard 
-                icon={<ShieldCheck className="w-12 h-12" />}
-                title="Verified Safe Space"
-                description="Strict 18+ verification and real-time AI moderation to ensure your joy is never interrupted."
-              />
+            </div>
+          </div>
+        </section>
+
+        <section className="py-24 bg-white border-y overflow-hidden">
+          <div className="container mx-auto px-4 text-center">
+            <div className="max-w-3xl mx-auto space-y-8">
+              <h2 className="text-4xl font-black tracking-tighter uppercase">Helping Rural & City Areas</h2>
+              <p className="text-xl text-muted-foreground leading-relaxed">
+                Whether you live in a high-rise apartment in a bustling metropolis or a quiet village in the countryside, **I Love U** is here for you. Our goal is to bridge the gap and ensure that happiness and support reach those who need it most.
+              </p>
+              <div className="grid grid-cols-2 gap-4">
+                 <div className="p-8 bg-muted/20 rounded-[2rem] text-center border border-dashed">
+                    <MapPin className="w-8 h-8 text-primary mx-auto mb-4" />
+                    <h4 className="font-black uppercase tracking-widest text-sm">Rural Support</h4>
+                 </div>
+                 <div className="p-8 bg-muted/20 rounded-[2rem] text-center border border-dashed">
+                    <Globe className="w-8 h-8 text-secondary mx-auto mb-4" />
+                    <h4 className="font-black uppercase tracking-widest text-sm">City Empowerment</h4>
+                 </div>
+              </div>
             </div>
           </div>
         </section>
@@ -159,11 +180,11 @@ export default function Home() {
               <span className="font-black text-base tracking-[0.4em] text-muted-foreground">YOU</span>
             </div>
           </div>
-          <p className="font-black text-lg text-foreground tracking-tight">© {new Date().getFullYear()} I Love U. A 100% free community for finding true happiness.</p>
+          <p className="font-black text-lg text-foreground tracking-tight">© {new Date().getFullYear()} I Love U. A global mission to reach every heart and help the poor.</p>
           <div className="flex justify-center gap-10 mt-8 text-xs font-black uppercase tracking-[0.3em]">
             <Link href="/privacy" className="hover:text-primary transition-colors">Privacy</Link>
             <Link href="/terms" className="hover:text-primary transition-colors">Terms</Link>
-            <Link href="/donate" className="hover:text-primary transition-colors">Support Us</Link>
+            <Link href="/donate" className="hover:text-primary transition-colors">Our Mission</Link>
           </div>
         </div>
       </footer>

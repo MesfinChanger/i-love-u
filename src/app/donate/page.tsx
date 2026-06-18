@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Heart, Loader2, Sparkles, Coins, ShieldCheck, CheckCircle } from 'lucide-react';
+import { Heart, Loader2, Sparkles, Coins, ShieldCheck, CheckCircle, HandHeart, Globe } from 'lucide-react';
 import { useUser, useFirestore, useDoc } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
@@ -46,14 +46,7 @@ export default function DonatePage() {
     if (searchParams.get('success')) {
       toast({
         title: "Donation Successful!",
-        description: "Thank you for supporting the Spark community! ❤️",
-      });
-    }
-    if (searchParams.get('canceled')) {
-      toast({
-        variant: "destructive",
-        title: "Payment Canceled",
-        description: "Your donation was not completed.",
+        description: "Thank you for supporting our mission to help rural and urban communities! ❤️",
       });
     }
   }, [searchParams, toast]);
@@ -69,7 +62,7 @@ export default function DonatePage() {
       toast({
         variant: "destructive",
         title: "Invalid Amount",
-        description: `Minimum donation is 1 ${userCurrency}. ✨`
+        description: `Minimum contribution is 1 ${userCurrency}. ✨`
       });
       return;
     }
@@ -90,10 +83,12 @@ export default function DonatePage() {
       <main className="container mx-auto px-4 py-8 max-w-lg">
         <div className="text-center space-y-4 mb-8">
           <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
-            <Heart className="w-10 h-10 text-primary fill-primary" />
+            <HandHeart className="w-10 h-10 text-primary" />
           </div>
-          <h1 className="text-4xl font-black tracking-tighter text-foreground">Support Spark</h1>
-          <p className="text-muted-foreground">We are a 100% free community. Your voluntary donations keep the sparks flying! ❤️</p>
+          <h1 className="text-4xl font-black tracking-tighter text-foreground">Global Mission</h1>
+          <p className="text-muted-foreground font-medium">
+            Your contributions help us reach communities worldwide, supporting the poor in rural and city areas. Together, we can make happiness mandatory for everyone.
+          </p>
         </div>
 
         {searchParams.get('success') ? (
@@ -101,19 +96,19 @@ export default function DonatePage() {
              <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto">
                 <CheckCircle className="w-8 h-8" />
              </div>
-             <h2 className="text-2xl font-black">Payment Confirmed</h2>
-             <p className="text-muted-foreground">Your contribution has been received. You are a true spark in this community!</p>
+             <h2 className="text-2xl font-black">Mission Supported</h2>
+             <p className="text-muted-foreground">Your contribution has been received. You are helping reach rural and city hearts globally!</p>
              <Button className="w-full rounded-xl gradient-bg" onClick={() => window.location.href = '/discover'}>Return to Discover</Button>
           </Card>
         ) : (
           <Card className="rounded-[2.5rem] border-none shadow-xl bg-white overflow-hidden">
             <CardHeader className="bg-primary/5 text-center py-10">
               <CardTitle className="text-primary text-3xl flex items-center justify-center gap-2">
-                <Coins className="w-8 h-8" />
-                Make a Gift
+                <Globe className="w-8 h-8" />
+                Global Gifting
               </CardTitle>
               <CardDescription className="text-primary/60 font-bold uppercase tracking-widest text-xs mt-2">
-                Starts from 1+ in your currency
+                Direct Aid for Rural & Urban Communities
               </CardDescription>
             </CardHeader>
             <CardContent className="p-8 space-y-6">
@@ -148,10 +143,15 @@ export default function DonatePage() {
                 </div>
               </div>
 
-              <div className="bg-slate-50 p-4 rounded-2xl border border-dashed border-slate-200 flex items-center gap-3">
-                <ShieldCheck className="w-5 h-5 text-green-500" />
-                <p className="text-[10px] text-slate-600 font-bold uppercase tracking-tighter">
-                  Secure Checkout via Stripe • Global Payments
+              <div className="bg-slate-50 p-6 rounded-3xl border border-dashed border-slate-200 space-y-3">
+                <div className="flex items-center gap-3">
+                  <ShieldCheck className="w-5 h-5 text-green-500" />
+                  <p className="text-[10px] text-slate-600 font-bold uppercase tracking-tighter">
+                    Secure Global Mission Fund
+                  </p>
+                </div>
+                <p className="text-[9px] text-muted-foreground leading-relaxed italic">
+                  100% of voluntary mission gifts are allocated to aid programs for impoverished families and community development projects.
                 </p>
               </div>
 
@@ -161,11 +161,11 @@ export default function DonatePage() {
                 disabled={isDonating || !amount}
               >
                 {isDonating ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : <Sparkles className="w-5 h-5 mr-2" />}
-                Donate {currencySymbol}{amount}
+                Contribute {currencySymbol}{amount}
               </Button>
               
               <p className="text-[10px] text-center text-muted-foreground uppercase font-black tracking-widest opacity-50">
-                Respect & Love Community • Encrypted Transaction
+                Helping Rural & City Areas • Worldwide Reach
               </p>
             </CardContent>
           </Card>

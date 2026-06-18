@@ -14,23 +14,23 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <title>I Love U - Respect & Love is Mandatory ❤️</title>
-        <meta name="description" content="I Love U: AI-powered dating and cultural exchange. Find your perfect match in a community where love and respect are mandatory." />
-        <meta name="keywords" content="dating, cultural exchange, AI dating, safe dating, I Love U, respect and love" />
+        <title>I Love U - Global Mission ❤️ Reach & Help</title>
+        <meta name="description" content="I Love U: AI-powered dating and global cultural exchange. Helping poor communities in rural and urban areas worldwide through happiness and connection." />
+        <meta name="keywords" content="dating, cultural exchange, charity, help poor, rural aid, city empowerment, I Love U, mission" />
         
         {/* Open Graph / Facebook / Instagram */}
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://spark-dating.web.app/" />
-        <meta property="og:title" content="I Love U - Find Real Happiness" />
-        <meta property="og:description" content="Join the 100% free community where Respect & Love is Mandatory. AI-powered matching for real connections." />
-        <meta property="og:image" content="https://picsum.photos/seed/iloveu-social/1200/630" />
+        <meta property="og:title" content="I Love U - Global Impact & Happiness" />
+        <meta property="og:description" content="Reach every community. Help poor people in rural and city areas. Join the mission where Love is Mandatory." />
+        <meta property="og:image" content="https://picsum.photos/seed/iloveu-mission/1200/630" />
 
         {/* Twitter */}
         <meta property="twitter:card" content="summary_large_image" />
         <meta property="twitter:url" content="https://spark-dating.web.app/" />
-        <meta property="twitter:title" content="I Love U - Respect & Love is Mandatory" />
-        <meta property="twitter:description" content="AI-powered dating and cultural exchange for a respectful global community." />
-        <meta property="twitter:image" content="https://picsum.photos/seed/iloveu-social/1200/630" />
+        <meta property="twitter:title" content="I Love U - Global Mission" />
+        <meta property="twitter:description" content="AI-powered dating with a mission to empower poor communities worldwide." />
+        <meta property="twitter:image" content="https://picsum.photos/seed/iloveu-mission/1200/630" />
 
         {/* Mobile & PWA */}
         <link rel="manifest" href="/manifest.json" />
