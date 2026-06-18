@@ -31,12 +31,14 @@
     },
     "AdCampaign": {
       "title": "Ad Campaign",
-      "description": "A paid advertisement shown in the discover feed.",
+      "description": "A paid advertisement shown in the discover feed, supporting text or video.",
       "type": "object",
       "properties": {
         "advertiserId": { "type": "string" },
         "title": { "type": "string" },
         "description": { "type": "string" },
+        "adType": { "type": "string", "enum": ["text", "video"], "default": "text" },
+        "videoUrl": { "type": "string" },
         "imageUrl": { "type": "string" },
         "targetUrl": { "type": "string" },
         "budget": { "type": "number" },

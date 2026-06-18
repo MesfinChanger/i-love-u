@@ -19,7 +19,10 @@ import {
   Sparkles, 
   ShieldCheck,
   CheckCircle2,
-  Globe2
+  Globe2,
+  Video,
+  Type,
+  Badge
 } from 'lucide-react';
 import { useUser, useFirestore, useDoc, useCollection } from '@/firebase';
 import { doc, setDoc, addDoc, collection, serverTimestamp, query, where } from 'firebase/firestore';
@@ -27,6 +30,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { createAdCampaignSession } from '@/lib/stripe-actions';
 import { useSearchParams } from 'next/navigation';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function AdvertiserManagePage() {
   const { user } = useUser();
@@ -46,9 +50,11 @@ export default function AdvertiserManagePage() {
   }, [db, user]);
   const { data: myAds, loading: adsLoading } = useCollection(adsQuery);
 
+  const [adType, setAdType] = useState<'text' | 'video'>('text');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [targetUrl, setTargetUrl] = useState('');
+  const [videoUrl, setVideoUrl] = useState('');
   const [budget, setBudget] = useState('50');
   const [isCreating, setIsCreating] = useState(false);
 
@@ -76,14 +82,25 @@ export default function AdvertiserManagePage() {
       return;
     }
 
+    if (adType === 'video' && !videoUrl) {
+      toast({
+        variant: "destructive",
+        title: "Video Required",
+        description: "Please provide a video URL for your campaign."
+      });
+      return;
+    }
+
     setIsCreating(true);
     try {
       // Create the record first (pending payment)
       await addDoc(collection(db, 'ads'), {
         advertiserId: user.uid,
+        adType,
         title,
         description,
         targetUrl,
+        videoUrl: adType === 'video' ? videoUrl : null,
         budget: amount,
         currency: userCurrency,
         status: 'pending',
@@ -129,50 +146,84 @@ export default function AdvertiserManagePage() {
                   <Plus className="w-5 h-5 text-primary" />
                   New Ad Campaign
                 </CardTitle>
-                <CardDescription>Ads are shown directly in the Discover Feed.</CardDescription>
+                <CardDescription>Choose your format and reach thousands.</CardDescription>
               </CardHeader>
               <CardContent className="p-8 space-y-6">
-                <div className="space-y-2">
-                  <Label htmlFor="ad-title">Campaign Title</Label>
-                  <Input 
-                    id="ad-title" 
-                    placeholder="e.g. Visit our local bakery!" 
-                    value={title}
-                    onChange={e => setTitle(e.target.value)}
-                    className="rounded-xl"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="ad-desc">Ad Description (Message)</Label>
-                  <Textarea 
-                    id="ad-desc" 
-                    placeholder="What do you want to tell our community?" 
-                    value={description}
-                    onChange={e => setDescription(e.target.value)}
-                    className="rounded-xl min-h-[100px]"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="ad-url">Target Website/Link</Label>
-                  <Input 
-                    id="ad-url" 
-                    type="url" 
-                    placeholder="https://yourwebsite.com" 
-                    value={targetUrl}
-                    onChange={e => setTargetUrl(e.target.value)}
-                    className="rounded-xl"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="ad-budget">Campaign Budget ({userCurrency})</Label>
-                  <Input 
-                    id="ad-budget" 
-                    type="number" 
-                    min="10"
-                    value={budget}
-                    onChange={e => setBudget(e.target.value)}
-                    className="rounded-xl font-bold"
-                  />
+                <Tabs value={adType} onValueChange={(v) => setAdType(v as 'text' | 'video')} className="w-full">
+                  <TabsList className="grid grid-cols-2 w-full h-12 rounded-xl mb-6">
+                    <TabsTrigger value="text" className="rounded-lg gap-2">
+                      <Type className="w-4 h-4" />
+                      Text Ad
+                    </TabsTrigger>
+                    <TabsTrigger value="video" className="rounded-lg gap-2">
+                      <Video className="w-4 h-4" />
+                      Video Ad
+                    </TabsTrigger>
+                  </TabsList>
+                </Tabs>
+
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="ad-title">Campaign Title</Label>
+                    <Input 
+                      id="ad-title" 
+                      placeholder="e.g. Visit our local bakery!" 
+                      value={title}
+                      onChange={e => setTitle(e.target.value)}
+                      className="rounded-xl h-12"
+                    />
+                  </div>
+                  
+                  {adType === 'video' && (
+                    <div className="space-y-2 animate-in fade-in slide-in-from-top-1 duration-300">
+                      <Label htmlFor="ad-video">Video URL (Direct link to MP4)</Label>
+                      <Input 
+                        id="ad-video" 
+                        type="url"
+                        placeholder="https://example.com/ad-video.mp4" 
+                        value={videoUrl}
+                        onChange={e => setVideoUrl(e.target.value)}
+                        className="rounded-xl h-12"
+                      />
+                      <p className="text-[10px] text-muted-foreground ml-1">Supports direct video links (MP4, WebM).</p>
+                    </div>
+                  )}
+
+                  <div className="space-y-2">
+                    <Label htmlFor="ad-desc">Ad Description (Message)</Label>
+                    <Textarea 
+                      id="ad-desc" 
+                      placeholder="What do you want to tell our community?" 
+                      value={description}
+                      onChange={e => setDescription(e.target.value)}
+                      className="rounded-xl min-h-[100px]"
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="ad-url">Website Link</Label>
+                      <Input 
+                        id="ad-url" 
+                        type="url" 
+                        placeholder="https://yourwebsite.com" 
+                        value={targetUrl}
+                        onChange={e => setTargetUrl(e.target.value)}
+                        className="rounded-xl"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="ad-budget">Budget ({userCurrency})</Label>
+                      <Input 
+                        id="ad-budget" 
+                        type="number" 
+                        min="10"
+                        value={budget}
+                        onChange={e => setBudget(e.target.value)}
+                        className="rounded-xl font-bold"
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 <div className="bg-slate-50 p-4 rounded-2xl border border-dashed flex items-start gap-3">
@@ -203,9 +254,10 @@ export default function AdvertiserManagePage() {
                 <Card key={ad.id} className="rounded-3xl border-none shadow-sm bg-white overflow-hidden">
                   <div className="p-4 bg-muted/30 border-b flex items-center justify-between">
                     <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{new Date(ad.timestamp?.toDate()).toLocaleDateString()}</span>
-                    <Badge variant={ad.status === 'active' ? 'default' : 'outline'} className={ad.status === 'active' ? 'bg-green-500' : ''}>
-                      {ad.status.toUpperCase()}
-                    </Badge>
+                    <div className="flex items-center gap-2">
+                      {ad.adType === 'video' && <Video className="w-3 h-3 text-blue-500" />}
+                      <span className="text-[10px] font-black uppercase text-blue-500">{ad.status}</span>
+                    </div>
                   </div>
                   <CardContent className="p-5 space-y-2">
                     <h3 className="font-bold">{ad.title}</h3>
@@ -229,7 +281,7 @@ export default function AdvertiserManagePage() {
               </div>
             )}
 
-            <Card className="rounded-3xl border-none bg-blue-500 text-white shadow-xl shadow-blue-500/20">
+            <Card className="rounded-3xl border-none bg-blue-600 text-white shadow-xl shadow-blue-500/20">
                <CardContent className="p-6 space-y-4">
                   <h3 className="text-xl font-black">Why Advertise Here?</h3>
                   <div className="space-y-3">

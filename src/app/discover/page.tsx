@@ -4,7 +4,29 @@
 import { useState, useMemo } from 'react';
 import { Header } from '@/components/Header';
 import { Button } from '@/components/ui/button';
-import { Heart, X, Sparkles, MapPin, Zap, UserPlus, ShieldAlert, Church, Globe2, Languages, Soup, Lock, HeartOff, Building2, Ban, Megaphone, ExternalLink } from 'lucide-react';
+import { 
+  Heart, 
+  X, 
+  Sparkles, 
+  MapPin, 
+  Zap, 
+  UserPlus, 
+  ShieldAlert, 
+  Church, 
+  Globe2, 
+  Languages, 
+  Soup, 
+  Lock, 
+  HeartOff, 
+  Building2, 
+  Ban, 
+  Megaphone, 
+  ExternalLink,
+  Video,
+  Play,
+  Volume2,
+  VolumeX
+} from 'lucide-react';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Card, CardContent } from '@/components/ui/card';
@@ -41,6 +63,8 @@ export default function DiscoverPage() {
 
   const isAlreadyDating = myProfile?.relationshipStatus === 'dating';
   const isDatingDisabled = myProfile?.isDatingEnabled === false;
+
+  const [isMuted, setIsMuted] = useState(true);
 
   const profiles = useMemo(() => {
     // Merge real DB users with placeholders
@@ -84,6 +108,8 @@ export default function DiscoverPage() {
       title: ad.title,
       description: ad.description,
       targetUrl: ad.targetUrl,
+      adType: ad.adType || 'text',
+      videoUrl: ad.videoUrl,
       type: 'ad'
     }));
 
@@ -174,21 +200,56 @@ export default function DiscoverPage() {
   );
 
   if (currentItem.type === 'ad') {
+    const isVideo = currentItem.adType === 'video';
+    
     return (
       <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
         <Header />
         <main className="flex-grow flex items-center justify-center p-4">
           <div className="w-full max-w-md relative aspect-[3/4]">
-            <Card className="absolute inset-0 overflow-hidden border-none shadow-2xl rounded-[2.5rem] bg-gradient-to-br from-blue-600 to-indigo-900 text-white">
-              <div className="p-10 flex flex-col h-full">
+            <Card className={cn(
+              "absolute inset-0 overflow-hidden border-none shadow-2xl rounded-[2.5rem] text-white",
+              isVideo ? "bg-black" : "bg-gradient-to-br from-blue-600 to-indigo-900"
+            )}>
+              {isVideo && currentItem.videoUrl && (
+                <div className="absolute inset-0 z-0">
+                  <video 
+                    src={currentItem.videoUrl} 
+                    autoPlay 
+                    loop 
+                    muted={isMuted}
+                    playsInline
+                    className="w-full h-full object-cover opacity-60"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="absolute top-6 right-6 z-20 text-white/50 hover:text-white"
+                    onClick={(e) => { e.stopPropagation(); setIsMuted(!isMuted); }}
+                  >
+                    {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+                  </Button>
+                </div>
+              )}
+              
+              <div className="relative z-10 p-10 flex flex-col h-full">
                  <div className="flex items-center gap-2 mb-4">
                     <Megaphone className="w-8 h-8 text-blue-200" />
-                    <Badge variant="outline" className="border-blue-300 text-blue-100 uppercase font-black text-[10px] tracking-widest">Sponsored Spark</Badge>
+                    <Badge variant="outline" className="border-blue-300 text-blue-100 uppercase font-black text-[10px] tracking-widest">
+                      {isVideo ? "Exclusive Video Ad" : "Sponsored Spark"}
+                    </Badge>
                  </div>
                  
                  <div className="flex-grow flex flex-col justify-center gap-4">
                     <h2 className="text-4xl font-black tracking-tighter leading-tight">{currentItem.title}</h2>
                     <p className="text-lg text-blue-100/90 leading-relaxed font-medium">{currentItem.description}</p>
+                    {isVideo && (
+                      <div className="flex items-center gap-2 text-blue-300">
+                        <Play className="w-4 h-4 fill-blue-300" />
+                        <span className="text-xs font-black uppercase tracking-widest">Playing Now</span>
+                      </div>
+                    )}
                  </div>
 
                  <div className="mt-8 space-y-4">
