@@ -1,47 +1,40 @@
 
-# Spark - Match with Respect & Love
+# Spark - Respect & Love is Mandatory ❤️
 
 Welcome to Spark, the AI-powered dating and cultural exchange platform where "Respect & Love is Mandatory."
 
-## 🚀 Free Testing & Deployment
+## 🚀 One-Click Global Publishing
 
-Firebase provides **two free domains** for every project, allowing you to test your app globally before purchasing a custom domain:
+Spark is configured for free, high-performance hosting on Firebase.
 
-1.  **Free URLs**: 
-    - `https://<your-project-id>.web.app`
-    - `https://<your-project-id>.firebaseapp.com`
-2.  **How to get them**: These are automatically created for you. 
-3.  **Finding your ID**: Your project ID is located in `src/firebase/config.ts`.
+### Steps to Publish:
 
-### How to Publish (3 Steps)
-
-To see your app live on your `.web.app` domain, run these commands in your terminal:
-
-1.  **Install Firebase CLI**:
-    ```bash
-    npm install -g firebase-tools
-    ```
-2.  **Login and Initialize**:
-    ```bash
-    firebase login
-    ```
-3.  **Deploy**:
+1.  **Deploy to Free Domain**: 
     ```bash
     npm run deploy
     ```
+    Your app will be live at: `https://<your-project-id>.web.app`
 
-*Note: For Next.js apps, we recommend using **Firebase App Hosting** by connecting your GitHub repository in the Firebase Console for automatic "push-to-deploy" functionality.*
+2.  **Test Locally**:
+    ```bash
+    npm run dev
+    ```
 
-## 🛠 Key Features
+3.  **Mobile Support**:
+    Build your native binaries for Android/iOS by running:
+    ```bash
+    npm run build
+    npx cap sync
+    ```
 
-- **Mandatory Respect & Love**: AI-moderated chat and community pledge.
-- **E2EE Privacy**: End-to-end encryption for all private messages.
-- **Localized Economy**: Global currency support for donations and shop management.
-- **GPS Accountability**: Precise location sharing restricted to exclusive partners.
-- **Global Compliance**: Geo-fenced advertising system protecting users and the platform.
+## 🛠 Features for Global Growth
 
-## 📁 Documentation
+- **E2EE Privacy**: End-to-end encrypted private messaging.
+- **Global Compliance**: Geo-fenced text/video ads based on local laws.
+- **Witness System**: Community-vouched relationship success.
+- **Respect Moderation**: AI enforcements for community kindness.
+- **Localized Marketplace**: Support for global currencies via Stripe.
 
-- [Testing Guide](./docs/TESTING_GUIDE.md) - How to verify features before launch.
-- [Store Submission Guide](./docs/STORE_SUBMISSION_GUIDE.md) - Preparing for App Store & Play Store.
-- [Upgrade Guide](./docs/UPGRADE_GUIDE.md) - How to scale and add features.
+## 📁 Essential Guides
+- [Testing Guide](./docs/TESTING_GUIDE.md) - Security and legal verification.
+- [Store Submission Guide](./docs/STORE_SUBMISSION_GUIDE.md) - Mobile publishing.

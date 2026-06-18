@@ -6,13 +6,6 @@ import './globals.css';
 import { FirebaseClientProvider } from '@/firebase';
 import { Toaster } from '@/components/ui/toaster';
 
-/**
- * Root Layout for Spark.
- * Note: Next.js 15 Metadata is typically handled in a Server Component.
- * Since this is a Client Component (due to Providers), we use a fallback 
- * or the user can define a separate layout.metadata.ts.
- * Here we include the head tags directly for compatibility.
- */
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -21,9 +14,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* Core SEO */}
         <title>Spark - Respect & Love is Mandatory ❤️</title>
-        <meta name="description" content="AI-powered dating and cultural exchange. Find your perfect match in a community where respect is the foundation." />
+        <meta name="description" content="AI-powered dating and cultural exchange. Find your perfect match in a community where respect is mandatory." />
         <meta name="keywords" content="dating, cultural exchange, AI dating, safe dating, spark, respect and love" />
         
         {/* Open Graph / Facebook / Instagram */}
