@@ -187,6 +187,36 @@ export default function ProfilePage() {
     try {
       const partnerId = profileData.partnerId;
       
+      // 1. Find the match document
+      const matchesRef = collection(db, 'matches');
+      const q = query(
+        matchesRef, 
+        where('userIds', 'array-contains', user.uid),
+        where('type', '==', 'date'),
+        where('status', '==', 'active')
+      );
+      const snapshot = await getDocs(q);
+      
+      // 2. Process each active date match and purge messages
+      for (const docSnap of snapshot.docs) {
+        if (docSnap.data().userIds.includes(partnerId)) {
+          // Delete all messages in the subcollection for privacy
+          const messagesRef = collection(db, 'matches', docSnap.id, 'messages');
+          const messagesSnapshot = await getDocs(messagesRef);
+          
+          // Execute all deletions in parallel
+          const deletePromises = messagesSnapshot.docs.map(msgDoc => deleteDoc(msgDoc.ref));
+          await Promise.all(deletePromises);
+
+          // Update match status
+          await updateDoc(docSnap.ref, { 
+            status: 'unmatched',
+            lastMessage: "Relationship ended. History cleared for privacy. 🔒"
+          });
+        }
+      }
+
+      // 3. Update both profile relationship statuses back to single
       await updateDoc(doc(db, 'users', user.uid), {
         relationshipStatus: 'single',
         partnerId: null
@@ -196,23 +226,12 @@ export default function ProfilePage() {
         partnerId: null
       });
 
-      const matchesRef = collection(db, 'matches');
-      const q = query(
-        matchesRef, 
-        where('userIds', 'array-contains', user.uid),
-        where('type', '==', 'date'),
-        where('status', '==', 'active')
-      );
-      const snapshot = await getDocs(q);
-      snapshot.docs.forEach(async (docSnap) => {
-        if (docSnap.data().userIds.includes(partnerId)) {
-          await updateDoc(docSnap.ref, { status: 'unmatched' });
-        }
+      toast({ 
+        title: "Spark Ended & Purged", 
+        description: "All messages have been permanently removed from both sides. 🔒" 
       });
-
-      toast({ title: "Spark Ended", description: "You are now single and can explore new connections." });
     } catch (error) {
-      toast({ variant: "destructive", title: "Error", description: "Could not end Spark." });
+      toast({ variant: "destructive", title: "Error", description: "Could not end Spark and clear history." });
     } finally {
       setIsUnmatching(false);
     }
@@ -339,27 +358,27 @@ export default function ProfilePage() {
                 </div>
                 <div>
                   <h3 className="font-bold text-lg">Relationship Exclusive</h3>
-                  <p className="text-sm text-muted-foreground">You are currently exclusive with one person. To Spark with someone else, you must end your current relationship.</p>
+                  <p className="text-sm text-muted-foreground">You are currently exclusive with one person. Ending this Spark will <strong>permanently delete</strong> all chat history for both parties.</p>
                 </div>
               </div>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button variant="outline" className="w-full rounded-xl gap-2 border-primary/30 text-primary hover:bg-primary/5">
                     <HeartOff className="w-4 h-4" />
-                    End Current Spark
+                    End Spark & Purge History
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent className="rounded-[2rem]">
                   <AlertDialogHeader>
                     <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      Ending this Spark will clear your partner status and return you to "Single". This action will be visible to your partner.
+                      This will end your connection and <strong>permanently delete all messages</strong> from both side's chat screens. This action is final.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel className="rounded-xl">Keep Sparking</AlertDialogCancel>
                     <AlertDialogAction onClick={handleUnmatch} className="rounded-xl bg-primary">
-                      {isUnmatching ? <Loader2 className="w-4 h-4 animate-spin" /> : "End Spark"}
+                      {isUnmatching ? <Loader2 className="w-4 h-4 animate-spin" /> : "End & Purge"}
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
