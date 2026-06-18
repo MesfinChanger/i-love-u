@@ -4,7 +4,7 @@
 import { useState, useMemo } from 'react';
 import { Header } from '@/components/Header';
 import { Button } from '@/components/ui/button';
-import { Heart, X, Sparkles, MapPin, Zap, UserPlus, ShieldAlert, Church } from 'lucide-react';
+import { Heart, X, Sparkles, MapPin, Zap, UserPlus, ShieldAlert, Church, Globe2, Languages, Soup } from 'lucide-react';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Card } from '@/components/ui/card';
@@ -33,10 +33,12 @@ export default function DiscoverPage() {
       age: 22 + i,
       gender: i % 2 === 0 ? 'female' : 'male',
       religion: ['Christianity', 'Islam', 'None', 'Buddhism', 'Atheist'][i % 5],
-      location: 'New York, NY',
-      bio: 'Exploring the beauty of life, one coffee shop at a time. Looking for a genuine spark.',
+      location: ['Tokyo, JP', 'Paris, FR', 'New York, NY', 'Berlin, DE', 'Seoul, KR', 'Madrid, ES'][i % 6],
+      bio: 'Exploring the beauty of life, one coffee shop at a time. Looking for a genuine spark or a global friend to share cultures with!',
       image: img.imageUrl,
-      interests: ['Art', 'Cooking', 'Music', 'Fitness']
+      interests: ['Art', 'Cooking', 'Music', 'Fitness'],
+      culturalInterests: ['Japanese Calligraphy', 'French Pastries', 'Korean Cinema'][i % 3],
+      isGlobalFriend: i % 2 === 0
     }));
   }, []);
 
@@ -69,7 +71,7 @@ export default function DiscoverPage() {
     const matchData = {
       userIds: [user.uid, currentProfile.id],
       timestamp: serverTimestamp(),
-      lastMessage: type === 'date' ? "We sparked! ✨" : "Added as friend 🤝",
+      lastMessage: type === 'date' ? "We sparked! ✨" : "Global friendship initiated 🤝",
       status: "active",
       type: type
     };
@@ -84,8 +86,8 @@ export default function DiscoverPage() {
     }
 
     toast({
-      title: type === 'date' ? "It's a Spark!" : "Friend Request Sent",
-      description: `Connection made with ${currentProfile.name}.`
+      title: type === 'date' ? "It's a Spark!" : "Global Connection Made",
+      description: type === 'date' ? `Connection made with ${currentProfile.name}.` : `You are now global friends with ${currentProfile.name}.`
     });
 
     handleNext();
@@ -116,19 +118,33 @@ export default function DiscoverPage() {
             <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
               <div className="flex items-center gap-2 mb-2">
                 <h2 className="text-3xl font-black">{currentProfile.name}, {currentProfile.age}</h2>
-                <Badge variant="secondary" className="bg-primary/20 text-white border-primary/30 backdrop-blur-md">
-                  <Sparkles className="w-3 h-3 mr-1 fill-white" />
-                  AI Match
-                </Badge>
+                {currentProfile.isGlobalFriend ? (
+                  <Badge variant="secondary" className="bg-blue-500/30 text-white border-blue-400/30 backdrop-blur-md">
+                    <Globe2 className="w-3 h-3 mr-1" />
+                    Global Friend
+                  </Badge>
+                ) : (
+                  <Badge variant="secondary" className="bg-primary/20 text-white border-primary/30 backdrop-blur-md">
+                    <Sparkles className="w-3 h-3 mr-1 fill-white" />
+                    AI Match
+                  </Badge>
+                )}
               </div>
               
               <div className="flex flex-wrap items-center gap-4 text-xs text-white/80 mb-4">
                 <div className="flex items-center gap-1"><MapPin className="w-3 h-3" />{currentProfile.location}</div>
-                <div className="flex items-center gap-1 uppercase font-bold tracking-tighter"><ShieldAlert className="w-3 h-3" />{currentProfile.gender}</div>
                 <div className="flex items-center gap-1"><Church className="w-3 h-3" />{currentProfile.religion}</div>
               </div>
 
-              <p className="text-white/90 line-clamp-2 mb-6 text-lg">{currentProfile.bio}</p>
+              <div className="space-y-3 mb-6">
+                <p className="text-white/90 line-clamp-2 text-lg">{currentProfile.bio}</p>
+                {currentProfile.isGlobalFriend && (
+                  <div className="flex items-center gap-2 text-blue-300 text-sm font-bold">
+                    <Soup className="w-4 h-4" />
+                    Interested in: {currentProfile.culturalInterests}
+                  </div>
+                )}
+              </div>
 
               <div className="flex flex-wrap gap-2">
                 {currentProfile.interests.map(interest => (
@@ -153,11 +169,11 @@ export default function DiscoverPage() {
             <Button 
               variant="outline" 
               size="icon" 
-              className="rounded-full border-2 bg-white text-primary shadow-lg flex flex-col gap-1 h-14 w-24"
+              className="rounded-full border-2 bg-white text-blue-500 shadow-lg flex flex-col gap-1 h-14 w-24 border-blue-100"
               onClick={() => handleAction('friend')}
             >
-              <UserPlus className="w-5 h-5" />
-              <span className="text-[10px] font-bold uppercase tracking-tighter text-muted-foreground">Friend</span>
+              <Globe2 className="w-5 h-5" />
+              <span className="text-[10px] font-bold uppercase tracking-tighter text-muted-foreground">Friendship</span>
             </Button>
 
             <Button 

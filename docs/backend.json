@@ -3,7 +3,7 @@
   "entities": {
     "UserProfile": {
       "title": "User Profile",
-      "description": "Dating app profile restricted to 18+. Includes relationship constraints and preferences.",
+      "description": "Dating app profile restricted to 18+. Includes relationship constraints and cultural/language preferences.",
       "type": "object",
       "properties": {
         "uid": { "type": "string" },
@@ -13,6 +13,8 @@
         "religion": { "type": "string" },
         "bio": { "type": "string" },
         "interests": { "type": "array", "items": { "type": "string" } },
+        "culturalInterests": { "type": "array", "items": { "type": "string" }, "description": "Traditions, foods, or regions the user is interested in." },
+        "languagesLearning": { "type": "array", "items": { "type": "string" }, "description": "Languages the user is currently learning." },
         "photoUrl": { "type": "string" },
         "location": { "type": "string" },
         "preferredLanguage": { "type": "string", "default": "English" },

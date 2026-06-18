@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -53,7 +54,10 @@ import {
   CheckCircle,
   AlertTriangle,
   FileText,
-  Shield
+  Shield,
+  Globe2,
+  Languages,
+  Soup
 } from 'lucide-react';
 import { generateBio } from '@/ai/flows/generate-bio-flow';
 import { moderateText } from '@/ai/flows/moderate-text-flow';
@@ -102,6 +106,8 @@ export default function ProfilePage() {
   const [religion, setReligion] = useState('');
   const [bio, setBio] = useState('');
   const [interests, setInterests] = useState('');
+  const [culturalInterests, setCulturalInterests] = useState('');
+  const [languagesLearning, setLanguagesLearning] = useState('');
   const [preferredLanguage, setPreferredLanguage] = useState('English');
   const [allowSensitiveContent, setAllowSensitiveContent] = useState(false);
   const [preferredAgeRanges, setPreferredAgeRanges] = useState<string[]>([]);
@@ -118,6 +124,8 @@ export default function ProfilePage() {
       setReligion(profileData.religion || '');
       setBio(profileData.bio || '');
       setInterests(profileData.interests?.join(', ') || '');
+      setCulturalInterests(profileData.culturalInterests?.join(', ') || '');
+      setLanguagesLearning(profileData.languagesLearning?.join(', ') || '');
       setPreferredLanguage(profileData.preferredLanguage || 'English');
       setAllowSensitiveContent(profileData.settings?.allowSensitiveContent || false);
       setPreferredAgeRanges(profileData.preferences?.preferredAgeRanges || []);
@@ -144,7 +152,7 @@ export default function ProfilePage() {
         toast({ 
           variant: "destructive", 
           title: "Profile Flagged", 
-          description: "Your name or bio contains disrespectful content or appears to be spam. Please adjust it! ✨" 
+          description: "Your name or bio contains disrespectful content. Let's keep things friendly! ✨" 
         });
         setIsSaving(false);
         return;
@@ -153,6 +161,8 @@ export default function ProfilePage() {
       await setDoc(doc(db, 'users', user.uid), {
         displayName, age: userAge, gender, religion, bio,
         interests: interests.split(',').map(s => s.trim()).filter(i => i),
+        culturalInterests: culturalInterests.split(',').map(s => s.trim()).filter(i => i),
+        languagesLearning: languagesLearning.split(',').map(s => s.trim()).filter(i => i),
         preferredLanguage,
         settings: { allowSensitiveContent },
         preferences: { preferredAgeRanges },
@@ -209,7 +219,7 @@ export default function ProfilePage() {
       toast({ 
         variant: "destructive", 
         title: "Error", 
-        description: "Please re-login to verify your identity before deleting your account." 
+        description: "Please re-login to verify identity before account deletion." 
       });
       setIsDeleting(false);
     }
@@ -222,7 +232,7 @@ export default function ProfilePage() {
       <Header />
       <main className="container mx-auto px-4 max-w-2xl py-8">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-4xl font-black tracking-tighter">Profile</h1>
+          <h1 className="text-4xl font-black tracking-tighter text-foreground">Profile</h1>
           <div className="flex gap-2">
             <Button variant="outline" size="icon" onClick={() => signOut(auth)} className="rounded-full"><LogOut className="w-4 h-4" /></Button>
             <Button onClick={handleSave} disabled={isSaving} className="gradient-bg rounded-full gap-2 px-6">
@@ -230,59 +240,6 @@ export default function ProfilePage() {
               Save
             </Button>
           </div>
-        </div>
-
-        <div className="mb-6 overflow-hidden rounded-[2rem] bg-gradient-to-r from-primary/20 to-secondary/20 border border-primary/10 p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shadow-sm">
-              <Gift className="w-6 h-6 text-primary" />
-            </div>
-            <div>
-              <h3 className="font-bold text-lg">Support the Community</h3>
-              <p className="text-xs text-muted-foreground italic">Keep Spark free and AI-powered for everyone.</p>
-            </div>
-          </div>
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button className="rounded-full px-6 gradient-bg shadow-lg shadow-primary/20">Donate</Button>
-            </DialogTrigger>
-            <DialogContent className="rounded-[2.5rem] sm:max-w-md">
-              <DialogHeader>
-                <DialogTitle className="text-2xl font-black tracking-tight flex items-center gap-2">
-                  <Heart className="w-6 h-6 fill-primary text-primary" />
-                  Support Spark
-                </DialogTitle>
-                <DialogDescription className="text-base">
-                  Choose a donation tier to help us cover server costs and AI development. Supporters get a special badge on their profile!
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                {DONATION_TIERS.map((tier) => (
-                  <Button 
-                    key={tier.id} 
-                    variant="outline" 
-                    className="h-20 rounded-2xl flex justify-between px-6 hover:bg-primary/5 hover:border-primary transition-all group"
-                    onClick={() => handleDonate(tier.name)}
-                    disabled={isDonating}
-                  >
-                    <div className="flex items-center gap-4">
-                      <span className="text-3xl group-hover:scale-110 transition-transform">{tier.icon}</span>
-                      <div className="text-left">
-                        <p className="font-bold text-lg leading-none mb-1">{tier.name}</p>
-                        <p className="text-xs text-muted-foreground">One-time donation</p>
-                      </div>
-                    </div>
-                    <span className="text-xl font-black text-primary">{tier.price}</span>
-                  </Button>
-                ))}
-              </div>
-              <DialogFooter className="text-center sm:justify-center">
-                <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">
-                  100% of proceeds go to app maintenance
-                </p>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
         </div>
 
         <div className="bg-white p-8 rounded-[2rem] shadow-sm space-y-8 border">
@@ -302,6 +259,7 @@ export default function ProfilePage() {
             </div>
           </div>
 
+          {/* Core Info */}
           <div className="grid sm:grid-cols-2 gap-6">
             <div className="space-y-2">
               <Label htmlFor="name">Display Name</Label>
@@ -330,7 +288,44 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          <div className="space-y-4">
+          {/* Friendship & Culture Room Features */}
+          <div className="space-y-6 pt-4 border-t">
+            <Label className="font-black text-lg flex items-center gap-2 text-blue-600">
+              <Globe2 className="w-5 h-5" />
+              Culture & Language Exchange
+            </Label>
+            
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <Soup className="w-4 h-4 text-orange-500" />
+                  Cultural Interests / Food
+                </Label>
+                <Input 
+                  placeholder="e.g. Japanese Cuisine, Indian Traditions" 
+                  value={culturalInterests} 
+                  onChange={e => setCulturalInterests(e.target.value)}
+                  className="rounded-xl" 
+                />
+                <p className="text-[10px] text-muted-foreground">List cultures or foods you'd like to talk about with global friends.</p>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <Languages className="w-4 h-4 text-blue-500" />
+                  Languages You are Learning
+                </Label>
+                <Input 
+                  placeholder="e.g. Spanish, French, Korean" 
+                  value={languagesLearning} 
+                  onChange={e => setLanguagesLearning(e.target.value)}
+                  className="rounded-xl" 
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-4 pt-4 border-t">
             <Label className="font-black text-lg flex items-center gap-2"><Filter className="w-5 h-5 text-primary" />Dating Preferences</Label>
             <div className="grid grid-cols-2 gap-3">
               {AGE_RANGES.map(range => (
@@ -346,20 +341,7 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          <div className="flex items-center justify-between p-4 bg-muted/50 rounded-2xl border">
-            <div className="space-y-1">
-              <Label className="flex items-center gap-2"><Lock className="w-4 h-4 text-primary" />Sensitive Content</Label>
-              <p className="text-[10px] text-muted-foreground">Toggle image moderation filters.</p>
-            </div>
-            <Switch checked={allowSensitiveContent} onCheckedChange={setAllowSensitiveContent} />
-          </div>
-
-          <div className="space-y-2">
-            <Label>Interests (comma separated)</Label>
-            <Input value={interests} onChange={e => setInterests(e.target.value)} className="rounded-xl" />
-          </div>
-
-          <div className="space-y-2">
+          <div className="space-y-2 pt-4 border-t">
             <div className="flex items-center justify-between">
               <Label>Bio</Label>
               <Button variant="ghost" size="sm" onClick={handleGenerateBio} disabled={isGenerating} className="text-primary gap-2">
@@ -369,9 +351,9 @@ export default function ProfilePage() {
             <Textarea value={bio} onChange={e => setBio(e.target.value)} className="min-h-[120px] rounded-2xl" />
           </div>
 
-          <div className="pt-8 border-t space-y-8">
-            <div className="space-y-4">
-              <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
+          {/* Legal and Safety */}
+          <div className="pt-8 border-t space-y-4">
+             <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
                 <Shield className="w-4 h-4" /> Legal & Safety
               </h3>
               <div className="grid gap-2">
@@ -388,40 +370,6 @@ export default function ProfilePage() {
                   </Link>
                 </Button>
               </div>
-            </div>
-
-            <div className="space-y-4 pt-4">
-              <h3 className="text-red-500 font-bold flex items-center gap-2 uppercase tracking-tighter text-xs">
-                <Trash2 className="w-4 h-4" /> Danger Zone
-              </h3>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="destructive" className="w-full rounded-xl gap-2 h-12">
-                    Delete Account & Data
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent className="rounded-[2rem]">
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete your account
-                      and remove all your profile data, matches, and messages from our servers.
-                      This is required for compliance with App Store and Play Store policies.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel className="rounded-xl">Cancel</AlertDialogCancel>
-                    <AlertDialogAction 
-                      onClick={handleDeleteAccount}
-                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-xl"
-                      disabled={isDeleting}
-                    >
-                      {isDeleting ? "Deleting..." : "Permanently Delete Account"}
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </div>
           </div>
         </div>
       </main>

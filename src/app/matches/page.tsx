@@ -4,7 +4,7 @@
 import { useMemo } from 'react';
 import { Header } from '@/components/Header';
 import { BottomNav } from '@/components/BottomNav';
-import { useCollection, useUser } from '@/firebase';
+import { useCollection, useUser, useFirestore } from '@/firebase';
 import { collection, query, where, orderBy } from 'firebase/firestore';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Link from 'next/link';
@@ -12,19 +12,20 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Badge } from '@/components/ui/badge';
-import { Heart, Zap, Users } from 'lucide-react';
+import { Heart, Zap, Globe2 } from 'lucide-react';
 
 export default function MatchesPage() {
   const { user } = useUser();
+  const db = useFirestore();
   
   const matchesQuery = useMemoFirebase(() => {
-    if (!user) return null;
+    if (!user || !db) return null;
     return query(
-      collection(useFirestore(), 'matches'),
+      collection(db, 'matches'),
       where('userIds', 'array-contains', user.uid),
       orderBy('timestamp', 'desc')
     );
-  }, [user]);
+  }, [user, db]);
 
   const { data: dbMatches, loading } = useCollection(matchesQuery);
 
@@ -36,7 +37,7 @@ export default function MatchesPage() {
       id: `match-${i}`,
       userIds: [user?.uid || 'me', `user-${i}`],
       name: ['Alex', 'Jordan', 'Taylor', 'Casey'][i % 4],
-      lastMessage: i === 0 ? "That sounds amazing! Let's do it." : "Hey! How was your weekend?",
+      lastMessage: i === 0 ? "That sounds amazing! Let's do it." : "Hey! I'd love to learn more about your culture.",
       timestamp: new Date(Date.now() - i * 3600000).toISOString(),
       photoUrl: img.imageUrl,
       unread: i === 0,
@@ -52,7 +53,7 @@ export default function MatchesPage() {
       <Header />
       
       <main className="container mx-auto px-4 pt-8">
-        <h1 className="text-4xl font-black mb-8 tracking-tighter">Matches</h1>
+        <h1 className="text-4xl font-black mb-8 tracking-tighter">Connections</h1>
 
         {/* The One - Current Date */}
         {dateMatch && (
@@ -94,11 +95,11 @@ export default function MatchesPage() {
           </section>
         )}
 
-        {/* Friends */}
+        {/* Culture & Friendship */}
         <section>
-          <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2 mb-4">
-            <Users className="w-4 h-4" />
-            Connections & Friends
+          <h2 className="text-sm font-bold uppercase tracking-widest text-blue-500 flex items-center gap-2 mb-4">
+            <Globe2 className="w-4 h-4" />
+            Culture & Language Exchange
           </h2>
           <div className="grid gap-3">
             {friendMatches.map((match: any) => (
@@ -113,9 +114,9 @@ export default function MatchesPage() {
                     <div className="flex-grow min-w-0">
                       <div className="flex justify-between items-baseline mb-0.5">
                         <h3 className="font-bold text-base">{match.name}</h3>
-                        <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-tighter">
-                          Friend
-                        </span>
+                        <Badge variant="outline" className="text-[8px] h-4 border-blue-200 text-blue-500 bg-blue-50">
+                          GLOBAL FRIEND
+                        </Badge>
                       </div>
                       <p className="text-sm text-muted-foreground line-clamp-1">
                         {match.lastMessage}
