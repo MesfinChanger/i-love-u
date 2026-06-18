@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -19,9 +18,8 @@ import {
   Loader2, 
   TrendingUp, 
   Handshake,
-  MessageSquare,
-  Briefcase,
-  Users
+  Percent,
+  Check
 } from 'lucide-react';
 import { useUser, useFirestore, useDoc } from '@/firebase';
 import { doc, setDoc, updateDoc } from 'firebase/firestore';
@@ -47,14 +45,12 @@ export default function SellerManagePage() {
   const { toast } = useToast();
   const searchParams = useSearchParams();
 
-  // Fetch Admin-Managed Pricing Configuration
   const adminConfigRef = useMemoFirebase(() => {
     if (!db) return null;
     return doc(db, 'config', 'pricing');
   }, [db]);
   const { data: adminPricing } = useDoc(adminConfigRef);
 
-  // Default prices if admin hasn't set them yet
   const basicPrice = adminPricing?.basic_seller_fee || 29;
   const proPrice = adminPricing?.pro_seller_fee || 79;
 
@@ -79,7 +75,6 @@ export default function SellerManagePage() {
   }, [searchParams, toast]);
 
   const isSeller = profile?.isSeller || false;
-  const isEntrepreneur = profile?.isNewEntrepreneur || profile?.isLocalProducer;
   const negotiationRequested = profile?.negotiationRequested || false;
   const userCurrency = profile?.currency || 'USD';
   const currencySymbol = useMemo(() => CURRENCIES.find(c => c.code === userCurrency)?.symbol || '$', [userCurrency]);
@@ -98,29 +93,27 @@ export default function SellerManagePage() {
     }
   };
 
-  const handleRequestNegotiation = async () => {
+  const handleRequestCommissionPlan = () => {
     if (!user || !db) return;
     setIsRequestingNegotiation(true);
-    try {
-      await updateDoc(doc(db, 'users', user.uid), {
-        negotiationRequested: true,
-        negotiationTimestamp: new Date().toISOString()
-      });
-      toast({
-        title: "Request Received",
-        description: "An administrator will review your profile to negotiate a supportive fee. ✨"
-      });
-    } catch (e) {
-      toast({ variant: "destructive", title: "Error", description: "Request failed." });
-    } finally {
-      setIsRequestingNegotiation(false);
-    }
+    
+    updateDoc(doc(db, 'users', user.uid), {
+      negotiationRequested: true,
+      requestedPlan: 'commission_free',
+      negotiationTimestamp: new Date().toISOString()
+    });
+
+    toast({
+      title: "Agreement Request Filed",
+      description: "Administrators will contact you to sign your custom commission agreement based on your entrepreneur status. ✨"
+    });
+    setIsRequestingNegotiation(false);
   };
 
-  const handleSaveShop = async () => {
+  const handleSaveShop = () => {
     if (!user || !db) return;
     const shopId = `shop-${user.uid}`;
-    await setDoc(doc(db, 'shops', shopId), {
+    setDoc(doc(db, 'shops', shopId), {
       ownerId: user.uid,
       name: shopName,
       description: shopDesc,
@@ -132,61 +125,83 @@ export default function SellerManagePage() {
   return (
     <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
       <Header />
-      <main className="container mx-auto px-4 py-8 max-w-2xl">
+      <main className="container mx-auto px-4 py-8 max-w-4xl" role="main">
         {!isSeller ? (
           <div className="space-y-8 text-center py-12">
             <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-              <Store className="w-12 h-12 text-primary" />
+              <Store className="w-12 h-12 text-primary" aria-hidden="true" />
             </div>
             <h1 className="text-5xl font-black tracking-tighter">Become a Seller</h1>
-            <p className="text-xl text-muted-foreground">Start your own gifting business on Spark. Reach local sparks with localized pricing.</p>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Start your own gifting business on Spark. Reach local sparks with custom pricing structures built for real growth.
+            </p>
             
             <div className="flex flex-col items-center gap-4 mt-6">
               <div className="flex items-center justify-center gap-2 bg-blue-50 text-blue-700 py-3 px-6 rounded-2xl border border-blue-100 w-full max-w-md">
-                 <TrendingUp className="w-5 h-5" />
-                 <span className="text-sm font-bold uppercase tracking-wider">Demand-Based Pricing Active</span>
+                 <TrendingUp className="w-5 h-5" aria-hidden="true" />
+                 <span className="text-sm font-bold uppercase tracking-wider">Demand-Based Pricing Enabled</span>
               </div>
               
-              <div className="p-6 bg-green-50 text-green-800 rounded-3xl border border-green-200 w-full max-w-md space-y-3">
-                <div className="flex items-center justify-center gap-2">
-                  <Handshake className="w-6 h-6 text-green-600" />
-                  <h3 className="font-black text-lg uppercase tracking-tight">Supportive & Negotiable</h3>
+              <div className="p-6 bg-green-50 text-green-800 rounded-3xl border border-green-200 w-full max-w-xl space-y-3 mx-auto text-left">
+                <div className="flex items-center gap-2 justify-center text-center">
+                  <Handshake className="w-6 h-6 text-green-600" aria-hidden="true" />
+                  <h3 className="font-black text-lg uppercase tracking-tight">100% Negotiable and Supportive</h3>
                 </div>
-                <p className="text-xs font-medium leading-relaxed">
-                  Are you a **Local Producer** or a **New Entrepreneur**? 
-                  <br />We believe in supporting new dreams. Standard fees are negotiable to help you start your journey.
+                <p className="text-xs font-medium leading-relaxed text-center">
+                  Are you a <strong>Local Producer</strong> or a <strong>New Entrepreneur</strong>? We support your dreams. 
+                  Choose standard sub plans or start absolutely free with a tailored commission model.
                 </p>
-                {negotiationRequested ? (
-                  <div className="bg-white/80 py-2 px-4 rounded-xl text-[10px] font-bold uppercase tracking-widest text-green-600 border border-green-100">
-                    Negotiation Request Sent ✨
-                  </div>
-                ) : (
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={handleRequestNegotiation}
-                    disabled={isRequestingNegotiation}
-                    className="w-full rounded-xl bg-white border-green-200 text-green-700 hover:bg-green-100"
-                  >
-                    {isRequestingNegotiation ? <Loader2 className="w-4 h-4 animate-spin" /> : "Request Negotiated Fee"}
-                  </Button>
-                )}
               </div>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-6 mt-12">
-              <Card className="border-2 border-primary/20 bg-white">
+            <div className="grid md:grid-cols-3 gap-6 mt-12 items-stretch text-left">
+              {/* Card 1: Free Subscription + Commission by Agreement */}
+              <Card className="border-2 border-dashed border-green-300 bg-green-50/30 flex flex-col justify-between">
                 <CardHeader>
-                  <CardTitle>Basic Seller</CardTitle>
-                  <CardDescription>Perfect for local artisans</CardDescription>
-                  <div className="text-3xl font-black mt-4">
-                    {currencySymbol}{basicPrice}/mo
-                    <span className="block text-[10px] text-muted-foreground uppercase font-normal mt-1">*Negotiable for local producers</span>
+                  <CardTitle className="flex items-center gap-1.5 text-green-700">
+                    <Percent className="w-5 h-5 text-green-600" aria-hidden="true" />
+                    Growth Plan
+                  </CardTitle>
+                  <CardDescription>Free setup for local artisans</CardDescription>
+                  <div className="text-2xl font-black mt-4 text-green-800">
+                    {currencySymbol}0/mo
+                    <span className="block text-[10px] text-green-600 uppercase font-normal mt-1">Custom Commission Rate</span>
                   </div>
                 </CardHeader>
-                <CardContent className="space-y-4 text-left">
-                  <div className="flex items-center gap-2 text-sm"><CheckCircle2 className="w-4 h-4 text-green-500" /> List up to 10 products</div>
-                  <div className="flex items-center gap-2 text-sm"><CheckCircle2 className="w-4 h-4 text-green-500" /> Basic sales analytics</div>
+                <CardContent className="space-y-4 text-sm flex-grow">
+                  <p className="text-xs text-muted-foreground">Pay zero monthly membership fees. Instead, operate via a fair commission percentage determined entirely by your signed agreement.</p>
+                  <div className="flex items-center gap-2 text-xs font-medium text-slate-700"><Check className="w-3.5 h-3.5 text-green-600" aria-hidden="true" /> Complete storefront setup</div>
+                  <div className="flex items-center gap-2 text-xs font-medium text-slate-700"><Check className="w-3.5 h-3.5 text-green-600" aria-hidden="true" /> Mutually agreed sales cut</div>
+                </CardContent>
+                <CardFooter>
+                  {negotiationRequested ? (
+                    <Button disabled className="w-full rounded-xl bg-green-200 text-green-700">Awaiting Admin Signoff</Button>
+                  ) : (
+                    <Button 
+                      onClick={handleRequestCommissionPlan}
+                      disabled={isRequestingNegotiation}
+                      className="w-full rounded-xl bg-green-600 hover:bg-green-700 text-white font-bold"
+                    >
+                      Request Agreement
+                    </Button>
+                  )}
+                </CardFooter>
+              </Card>
+
+              {/* Card 2: Basic Seller Plan */}
+              <Card className="border border-neutral-200 bg-white flex flex-col justify-between">
+                <CardHeader>
+                  <CardTitle>Basic Seller</CardTitle>
+                  <CardDescription>Perfect for expanding operations</CardDescription>
+                  <div className="text-2xl font-black mt-4">
+                    {currencySymbol}{basicPrice}/mo
+                    <span className="block text-[10px] text-muted-foreground uppercase font-normal mt-1">Flat Monthly Rate</span>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4 text-sm flex-grow">
+                  <p className="text-xs text-muted-foreground">Keep 100% of your earnings minus standard credit card processor rates. Standard monthly entry plan.</p>
+                  <div className="flex items-center gap-2 text-xs"><CheckCircle2 className="w-3.5 h-3.5 text-green-500" aria-hidden="true" /> List up to 10 products</div>
+                  <div className="flex items-center gap-2 text-xs"><CheckCircle2 className="w-3.5 h-3.5 text-green-500" aria-hidden="true" /> Core metrics & sales tracking</div>
                 </CardContent>
                 <CardFooter>
                   <Button className="w-full rounded-xl gradient-bg" onClick={() => handleSubscribe('basic_seller')} disabled={isSubscribing}>
@@ -195,21 +210,23 @@ export default function SellerManagePage() {
                 </CardFooter>
               </Card>
 
-              <Card className="border-4 border-primary bg-primary/5 relative overflow-hidden">
+              {/* Card 3: Pro Plan */}
+              <Card className="border-2 border-primary bg-primary/5 relative overflow-hidden flex flex-col justify-between">
                 <CardHeader>
                   <CardTitle className="text-primary flex items-center gap-2">
-                    <Sparkles className="w-4 h-4" />
+                    <Sparkles className="w-4 h-4" aria-hidden="true" />
                     Pro Seller
                   </CardTitle>
-                  <CardDescription>For growing businesses</CardDescription>
-                  <div className="text-3xl font-black mt-4">
+                  <CardDescription>For prominent established brands</CardDescription>
+                  <div className="text-2xl font-black mt-4 text-primary">
                     {currencySymbol}{proPrice}/mo
-                    <span className="block text-[10px] text-primary/60 uppercase font-normal mt-1">*Enterprise grants available</span>
+                    <span className="block text-[10px] text-primary/60 uppercase font-normal mt-1">Priority Store Placement</span>
                   </div>
                 </CardHeader>
-                <CardContent className="space-y-4 text-left">
-                  <div className="flex items-center gap-2 text-sm font-bold"><CheckCircle2 className="w-4 h-4 text-primary" /> Unlimited products</div>
-                  <div className="flex items-center gap-2 text-sm font-bold"><CheckCircle2 className="w-4 h-4 text-primary" /> Priority Placement</div>
+                <CardContent className="space-y-4 text-sm flex-grow">
+                  <p className="text-xs text-muted-foreground">Gain premium visibility indicators in the gift marketplace to attract maximum matching gift purchases.</p>
+                  <div className="flex items-center gap-2 text-xs font-bold text-primary"><CheckCircle2 className="w-3.5 h-3.5 text-primary" aria-hidden="true" /> Unlimited inventory space</div>
+                  <div className="flex items-center gap-2 text-xs font-bold text-primary"><CheckCircle2 className="w-3.5 h-3.5 text-primary" aria-hidden="true" /> Featured store listing</div>
                 </CardContent>
                 <CardFooter>
                   <Button className="w-full rounded-xl gradient-bg" onClick={() => handleSubscribe('pro_seller')} disabled={isSubscribing}>
@@ -218,8 +235,8 @@ export default function SellerManagePage() {
                 </CardFooter>
               </Card>
             </div>
-            <p className="text-xs text-muted-foreground uppercase tracking-widest font-bold">
-              Fees are set by administration based on current platform demand.
+            <p className="text-xs text-muted-foreground uppercase tracking-widest font-bold mt-6">
+              All subscription tiers and terms are backed by community security guarantees.
             </p>
           </div>
         ) : (
@@ -229,18 +246,18 @@ export default function SellerManagePage() {
             <Card className="rounded-[2rem] border-none shadow-xl overflow-hidden bg-white">
               <CardHeader className="bg-primary/5 border-b">
                 <CardTitle className="flex items-center gap-2">
-                  <Store className="w-6 h-6" />
+                  <Store className="w-6 h-6" aria-hidden="true" />
                   Store Identity
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-8 space-y-6">
                 <div className="space-y-2">
-                  <Label>Shop Name</Label>
-                  <Input placeholder="e.g. Blossom Luxury Gifts" value={shopName} onChange={e => setShopName(e.target.value)} className="rounded-xl" />
+                  <Label htmlFor="shop-name">Shop Name</Label>
+                  <Input id="shop-name" placeholder="e.g. Blossom Luxury Gifts" value={shopName} onChange={e => setShopName(e.target.value)} className="rounded-xl" />
                 </div>
                 <div className="space-y-2">
-                  <Label>Store Description</Label>
-                  <Textarea placeholder="Describe what you sell..." value={shopDesc} onChange={e => setShopDesc(e.target.value)} className="rounded-xl min-h-[100px]" />
+                  <Label htmlFor="shop-desc">Store Description</Label>
+                  <Textarea id="shop-desc" placeholder="Describe what you sell..." value={shopDesc} onChange={e => setShopDesc(e.target.value)} className="rounded-xl min-h-[100px]" />
                 </div>
                 <Button className="w-full rounded-xl gradient-bg h-12" onClick={handleSaveShop}>Update Storefront</Button>
               </CardContent>
@@ -248,19 +265,19 @@ export default function SellerManagePage() {
 
             <div className="grid grid-cols-2 gap-4">
               <Card className="p-6 text-center space-y-2 rounded-[1.5rem] border-none shadow-sm bg-white">
-                <Package className="w-8 h-8 text-primary mx-auto" />
+                <Package className="w-8 h-8 text-primary mx-auto" aria-hidden="true" />
                 <div className="text-2xl font-black">12</div>
                 <div className="text-xs text-muted-foreground uppercase font-bold tracking-widest">Products</div>
               </Card>
               <Card className="p-6 text-center space-y-2 rounded-[1.5rem] border-none shadow-sm bg-white">
-                <CreditCard className="w-8 h-8 text-green-500 mx-auto" />
+                <CreditCard className="w-8 h-8 text-green-500 mx-auto" aria-hidden="true" />
                 <div className="text-2xl font-black">{currencySymbol}4,250</div>
                 <div className="text-xs text-muted-foreground uppercase font-bold tracking-widest">Monthly Sales</div>
               </Card>
             </div>
 
             <Button variant="outline" className="w-full rounded-xl gap-2 h-14 border-2">
-              <Plus className="w-5 h-5" />
+              <Plus className="w-5 h-5" aria-hidden="true" />
               Add New Product
             </Button>
           </div>
