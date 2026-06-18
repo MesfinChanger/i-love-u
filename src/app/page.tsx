@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Heart, Sparkles, MessageCircle, ShieldCheck, Zap, Globe, Smile, MapPin, HandHeart } from 'lucide-react';
+import { Heart, Sparkles, MessageCircle, ShieldCheck, Zap, Globe, Smile, MapPin, HandHeart, Briefcase } from 'lucide-react';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
@@ -35,9 +35,9 @@ export default function Home() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "name": "I Love U Dating",
+    "name": "I Love U",
     "url": "https://spark-dating.web.app",
-    "description": "I Love U: AI-powered dating and cultural exchange. Helping poor people in rural and urban areas worldwide.",
+    "description": "I Love U: AI-powered dating and cultural exchange dedicated to global job creation in rural and urban areas.",
     "potentialAction": {
       "@type": "SearchAction",
       "target": "https://spark-dating.web.app/discover?q={search_term_string}",
@@ -82,19 +82,19 @@ export default function Home() {
                 </span>
               </div>
               <h1 className="text-7xl lg:text-9xl font-black leading-tight tracking-tighter">
-                Find Real <br />
-                <span className="gradient-text">Happiness</span>
+                Connect for <br />
+                <span className="gradient-text">Purpose</span>
               </h1>
               <p className="text-2xl text-muted-foreground max-w-lg mx-auto lg:mx-0 leading-relaxed font-medium">
-                I Love U is a global bridge reaching every community. Our mission is to connect hearts and use our resources to help poor people in rural and urban areas worldwide.
-                <span className="block font-black text-primary mt-6 uppercase tracking-[0.3em] text-xs">Helping Others is Mandatory ❤️</span>
+                I Love U is a global bridge reaching every heart. Our mission is to connect communities and use our resources for **job creation**, empowering workers in rural and urban areas worldwide.
+                <span className="block font-black text-primary mt-6 uppercase tracking-[0.3em] text-xs">Economic Empowerment is Mandatory ❤️</span>
               </p>
               <div className="flex flex-col sm:flex-row gap-6 justify-center lg:justify-start">
                 <Button size="lg" className="h-20 px-16 rounded-full text-xl font-black gradient-bg shadow-2xl shadow-primary/40 hover:scale-105 transition-transform" asChild>
                   <Link href="/login">Start Loving Free</Link>
                 </Button>
                 <Button variant="outline" size="lg" className="h-20 px-12 rounded-full text-xl font-bold border-2" asChild>
-                  <Link href="/donate">Support Our Mission</Link>
+                  <Link href="/donate">Support Job Creation</Link>
                 </Button>
               </div>
             </div>
@@ -105,21 +105,21 @@ export default function Home() {
                 {heroImage && (
                   <Image 
                     src={heroImage.imageUrl} 
-                    alt="Global Happiness" 
+                    alt="Global Job Creation" 
                     fill 
                     className="object-cover"
                     priority
-                    data-ai-hint="happy diverse people"
+                    data-ai-hint="happy diverse people working"
                   />
                 )}
               </div>
               <div className="absolute -bottom-12 -left-12 bg-white p-8 rounded-[3rem] shadow-[0_20px_60px_-10px_rgba(0,0,0,0.15)] border flex items-center gap-6 animate-bounce">
                 <div className="w-20 h-20 rounded-[2rem] gradient-bg flex items-center justify-center text-white shadow-xl">
-                  <HandHeart className="w-12 h-12" />
+                  <Briefcase className="w-12 h-12" />
                 </div>
                 <div>
-                  <p className="font-black text-2xl tracking-tighter">Global Impact</p>
-                  <p className="text-sm text-muted-foreground font-bold uppercase tracking-widest">Helping Poor Communities</p>
+                  <p className="font-black text-2xl tracking-tighter">Jobs Created</p>
+                  <p className="text-sm text-muted-foreground font-bold uppercase tracking-widest">Global Economic Reach</p>
                 </div>
               </div>
             </div>
@@ -128,22 +128,22 @@ export default function Home() {
 
         <section className="py-24 bg-accent/30">
           <div className="container mx-auto px-4 text-center">
-            <h2 className="text-5xl font-black mb-16 tracking-tighter">Designed for Real Happiness</h2>
+            <h2 className="text-5xl font-black mb-16 tracking-tighter">Beyond a Dating App</h2>
             <div className="grid md:grid-cols-3 gap-10">
               <FeatureCard 
                 icon={<Globe className="w-12 h-12" />}
                 title="Global Reach"
-                description="We strive to reach every community, from the busiest cities to the most remote rural areas."
+                description="We strive to reach every community, from the busiest cities to the most remote rural areas, to foster economic growth."
               />
               <FeatureCard 
-                icon={<HandHeart className="w-12 h-12" />}
-                title="Mission Driven"
-                description="Proceeds go directly toward helping the poor and empowering communities worldwide."
+                icon={<Briefcase className="w-12 h-12" />}
+                title="Job Creation"
+                description="Contributions are directed toward vocational training and job placement for those in underserved regions."
               />
               <FeatureCard 
                 icon={<Heart className="w-12 h-12 fill-primary" />}
                 title="Respect is Mandatory"
-                description="In our community, helping others is our heartbeat. Love and respect are our foundation."
+                description="In our community, empowering others is our heartbeat. Love and respect drive every opportunity we create."
               />
             </div>
           </div>
@@ -152,18 +152,18 @@ export default function Home() {
         <section className="py-24 bg-white border-y overflow-hidden">
           <div className="container mx-auto px-4 text-center">
             <div className="max-w-3xl mx-auto space-y-8">
-              <h2 className="text-4xl font-black tracking-tighter uppercase">Helping Rural & City Areas</h2>
+              <h2 className="text-4xl font-black tracking-tighter uppercase">Empowering Rural & City Workers</h2>
               <p className="text-xl text-muted-foreground leading-relaxed">
-                Whether you live in a high-rise apartment in a bustling metropolis or a quiet village in the countryside, **I Love U** is here for you. Our goal is to bridge the gap and ensure that happiness and support reach those who need it most.
+                Whether you are a creator in a village or a service provider in a city, **I Love U** is here to bridge the gap. Our goal is to ensure that financial resources are translated into sustainable livelihoods for everyone.
               </p>
               <div className="grid grid-cols-2 gap-4">
                  <div className="p-8 bg-muted/20 rounded-[2rem] text-center border border-dashed">
                     <MapPin className="w-8 h-8 text-primary mx-auto mb-4" />
-                    <h4 className="font-black uppercase tracking-widest text-sm">Rural Support</h4>
+                    <h4 className="font-black uppercase tracking-widest text-sm">Rural Job Sites</h4>
                  </div>
                  <div className="p-8 bg-muted/20 rounded-[2rem] text-center border border-dashed">
                     <Globe className="w-8 h-8 text-secondary mx-auto mb-4" />
-                    <h4 className="font-black uppercase tracking-widest text-sm">City Empowerment</h4>
+                    <h4 className="font-black uppercase tracking-widest text-sm">City Skill Centers</h4>
                  </div>
               </div>
             </div>
@@ -180,11 +180,11 @@ export default function Home() {
               <span className="font-black text-base tracking-[0.4em] text-muted-foreground">YOU</span>
             </div>
           </div>
-          <p className="font-black text-lg text-foreground tracking-tight">© {new Date().getFullYear()} I Love U. A global mission to reach every heart and help the poor.</p>
+          <p className="font-black text-lg text-foreground tracking-tight">© {new Date().getFullYear()} I Love U. A global mission dedicated to job creation and poverty reduction.</p>
           <div className="flex justify-center gap-10 mt-8 text-xs font-black uppercase tracking-[0.3em]">
             <Link href="/privacy" className="hover:text-primary transition-colors">Privacy</Link>
             <Link href="/terms" className="hover:text-primary transition-colors">Terms</Link>
-            <Link href="/donate" className="hover:text-primary transition-colors">Our Mission</Link>
+            <Link href="/donate" className="hover:text-primary transition-colors">Job Creation Mission</Link>
           </div>
         </div>
       </footer>

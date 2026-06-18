@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Heart, Loader2, Sparkles, Coins, ShieldCheck, CheckCircle, HandHeart, Globe } from 'lucide-react';
+import { Heart, Loader2, Sparkles, Coins, ShieldCheck, CheckCircle, HandHeart, Globe, Briefcase } from 'lucide-react';
 import { useUser, useFirestore, useDoc } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
@@ -45,8 +45,8 @@ export default function DonatePage() {
   useEffect(() => {
     if (searchParams.get('success')) {
       toast({
-        title: "Donation Successful!",
-        description: "Thank you for supporting our mission to help rural and urban communities! ❤️",
+        title: "Investment Received!",
+        description: "Thank you for funding global job creation and economic growth! ❤️",
       });
     }
   }, [searchParams, toast]);
@@ -62,7 +62,7 @@ export default function DonatePage() {
       toast({
         variant: "destructive",
         title: "Invalid Amount",
-        description: `Minimum contribution is 1 ${userCurrency}. ✨`
+        description: `Minimum mission contribution is 1 ${userCurrency}. ✨`
       });
       return;
     }
@@ -83,11 +83,11 @@ export default function DonatePage() {
       <main className="container mx-auto px-4 py-8 max-w-lg">
         <div className="text-center space-y-4 mb-8">
           <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
-            <HandHeart className="w-10 h-10 text-primary" />
+            <Briefcase className="w-10 h-10 text-primary" />
           </div>
-          <h1 className="text-4xl font-black tracking-tighter text-foreground">Global Mission</h1>
+          <h1 className="text-4xl font-black tracking-tighter text-foreground">Job Creation Mission</h1>
           <p className="text-muted-foreground font-medium">
-            Your contributions help us reach communities worldwide, supporting the poor in rural and city areas. Together, we can make happiness mandatory for everyone.
+            We do not distribute charity. We create **jobs**. Your contributions fund training, resources, and placement for workers in rural and urban areas worldwide.
           </p>
         </div>
 
@@ -96,8 +96,8 @@ export default function DonatePage() {
              <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto">
                 <CheckCircle className="w-8 h-8" />
              </div>
-             <h2 className="text-2xl font-black">Mission Supported</h2>
-             <p className="text-muted-foreground">Your contribution has been received. You are helping reach rural and city hearts globally!</p>
+             <h2 className="text-2xl font-black">Mission Funded</h2>
+             <p className="text-muted-foreground">Your contribution has been received. You are actively building livelihoods in rural and city areas globally!</p>
              <Button className="w-full rounded-xl gradient-bg" onClick={() => window.location.href = '/discover'}>Return to Discover</Button>
           </Card>
         ) : (
@@ -105,10 +105,10 @@ export default function DonatePage() {
             <CardHeader className="bg-primary/5 text-center py-10">
               <CardTitle className="text-primary text-3xl flex items-center justify-center gap-2">
                 <Globe className="w-8 h-8" />
-                Global Gifting
+                Empowerment Fund
               </CardTitle>
               <CardDescription className="text-primary/60 font-bold uppercase tracking-widest text-xs mt-2">
-                Direct Aid for Rural & Urban Communities
+                Direct Funding for Rural & Urban Jobs
               </CardDescription>
             </CardHeader>
             <CardContent className="p-8 space-y-6">
@@ -127,7 +127,7 @@ export default function DonatePage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="custom-amount">Custom Amount ({userCurrency})</Label>
+                  <Label htmlFor="custom-amount">Investment Amount ({userCurrency})</Label>
                   <div className="relative">
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-muted-foreground">{currencySymbol}</span>
                     <Input 
@@ -147,11 +147,11 @@ export default function DonatePage() {
                 <div className="flex items-center gap-3">
                   <ShieldCheck className="w-5 h-5 text-green-500" />
                   <p className="text-[10px] text-slate-600 font-bold uppercase tracking-tighter">
-                    Secure Global Mission Fund
+                    Secure Empowerment Fund
                   </p>
                 </div>
                 <p className="text-[9px] text-muted-foreground leading-relaxed italic">
-                  100% of voluntary mission gifts are allocated to aid programs for impoverished families and community development projects.
+                  100% of mission funds are allocated to vocational training, equipment for new entrepreneurs, and local infrastructure projects that generate employment.
                 </p>
               </div>
 
@@ -165,7 +165,7 @@ export default function DonatePage() {
               </Button>
               
               <p className="text-[10px] text-center text-muted-foreground uppercase font-black tracking-widest opacity-50">
-                Helping Rural & City Areas • Worldwide Reach
+                Building Livelihoods • Rural & City • Worldwide
               </p>
             </CardContent>
           </Card>
