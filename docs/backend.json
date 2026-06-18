@@ -19,6 +19,7 @@
         "location": { "type": "string" },
         "preferredLanguage": { "type": "string", "default": "English" },
         "relationshipStatus": { "type": "string", "enum": ["single", "dating"], "default": "single" },
+        "isDatingEnabled": { "type": "boolean", "default": true, "description": "Whether the user is capable or eligible for dating matches." },
         "partnerId": { "type": "string", "description": "UID of current dating partner." },
         "publicKey": { "type": "string", "description": "Base64 encoded public key for E2EE." },
         "isSupporter": { "type": "boolean", "default": false, "description": "Whether the user has donated to support the app." },

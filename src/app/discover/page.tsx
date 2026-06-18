@@ -1,9 +1,10 @@
+
 'use client';
 
 import { useState, useMemo } from 'react';
 import { Header } from '@/components/Header';
 import { Button } from '@/components/ui/button';
-import { Heart, X, Sparkles, MapPin, Zap, UserPlus, ShieldAlert, Church, Globe2, Languages, Soup, Lock } from 'lucide-react';
+import { Heart, X, Sparkles, MapPin, Zap, UserPlus, ShieldAlert, Church, Globe2, Languages, Soup, Lock, HeartOff } from 'lucide-react';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Card } from '@/components/ui/card';
@@ -27,6 +28,7 @@ export default function DiscoverPage() {
   const { data: myProfile } = useDoc(userRef);
 
   const isAlreadyDating = myProfile?.relationshipStatus === 'dating';
+  const isDatingDisabled = myProfile?.isDatingEnabled === false;
 
   const profiles = useMemo(() => {
     return PlaceHolderImages.filter(img => img.id.startsWith('user-')).map((img, i) => ({
@@ -51,11 +53,20 @@ export default function DiscoverPage() {
     if (!user || !db || !currentProfile) return;
 
     if (type === 'date') {
+      if (isDatingDisabled) {
+        toast({
+          variant: "destructive",
+          title: "Incapable for Dating",
+          description: "Your profile is currently restricted from dating matches. You can still make unlimited friends! ✨"
+        });
+        return;
+      }
+
       if (isAlreadyDating) {
         toast({
           variant: "destructive",
           title: "Relationship Exclusive",
-          description: "You are currently sparking with someone. Go to Profile to end your current Spark before dating others."
+          description: "You are currently sparking with someone. One spark at a time! 🔒"
         });
         return;
       }
@@ -63,8 +74,8 @@ export default function DiscoverPage() {
       if (myProfile?.gender === currentProfile.gender) {
         toast({
           variant: "destructive",
-          title: "Restriction",
-          description: "Spark dating is currently limited to opposite-sex connections. Add as a friend instead!"
+          title: "Spark Restriction",
+          description: "Dating sparks are limited to opposite-sex connections. Add as a friend instead!"
         });
         return;
       }
@@ -85,14 +96,11 @@ export default function DiscoverPage() {
         relationshipStatus: 'dating',
         partnerId: currentProfile.id
       }, { merge: true });
-      
-      // Also update the partner if we had real user accounts
-      // In this demo, we're just updating our own status
     }
 
     toast({
       title: type === 'date' ? "It's a Spark!" : "Global Connection Made",
-      description: type === 'date' ? `Connection made with ${currentProfile.name}.` : `You are now global friends with ${currentProfile.name}.`
+      description: type === 'date' ? `Exclusive connection made with ${currentProfile.name}.` : `You are now global friends with ${currentProfile.name}.`
     });
 
     handleNext();
@@ -103,6 +111,8 @@ export default function DiscoverPage() {
   };
 
   if (!currentProfile) return null;
+
+  const datingIncapable = isAlreadyDating || isDatingDisabled || (myProfile?.gender === currentProfile.gender);
 
   return (
     <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
@@ -174,7 +184,7 @@ export default function DiscoverPage() {
             <Button 
               variant="outline" 
               size="icon" 
-              className="rounded-full border-2 bg-white text-blue-500 shadow-lg flex flex-col gap-1 h-14 w-24 border-blue-100"
+              className="rounded-full border-2 bg-white text-blue-500 shadow-lg flex flex-col gap-1 h-14 w-24 border-blue-100 hover:bg-blue-50"
               onClick={() => handleAction('friend')}
             >
               <Globe2 className="w-5 h-5" />
@@ -184,12 +194,17 @@ export default function DiscoverPage() {
             <Button 
               size="icon" 
               className={cn(
-                "rounded-full shadow-xl flex flex-col gap-1 h-14 w-24",
-                isAlreadyDating ? "bg-muted text-muted-foreground border-2 border-dashed" : "gradient-bg text-white"
+                "rounded-full shadow-xl flex flex-col gap-1 h-14 w-24 transition-all",
+                datingIncapable ? "bg-muted text-muted-foreground border-2 border-dashed grayscale cursor-not-allowed" : "gradient-bg text-white"
               )}
               onClick={() => handleAction('date')}
             >
-              {isAlreadyDating ? (
+              {isDatingDisabled ? (
+                <>
+                  <HeartOff className="w-5 h-5" />
+                  <span className="text-[10px] font-bold uppercase tracking-tighter">Limited</span>
+                </>
+              ) : isAlreadyDating ? (
                 <>
                   <Lock className="w-5 h-5" />
                   <span className="text-[10px] font-bold uppercase tracking-tighter">Exclusive</span>

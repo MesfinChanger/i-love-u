@@ -47,7 +47,8 @@ import {
   Languages,
   Soup,
   HeartOff,
-  Key
+  Key,
+  UserCheck
 } from 'lucide-react';
 import { generateBio } from '@/ai/flows/generate-bio-flow';
 import { moderateText } from '@/ai/flows/moderate-text-flow';
@@ -94,6 +95,7 @@ export default function ProfilePage() {
   const [languagesLearning, setLanguagesLearning] = useState('');
   const [preferredLanguage, setPreferredLanguage] = useState('English');
   const [allowSensitiveContent, setAllowSensitiveContent] = useState(false);
+  const [isDatingEnabled, setIsDatingEnabled] = useState(true);
   const [preferredAgeRanges, setPreferredAgeRanges] = useState<string[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -113,6 +115,7 @@ export default function ProfilePage() {
       setLanguagesLearning(profileData.languagesLearning?.join(', ') || '');
       setPreferredLanguage(profileData.preferredLanguage || 'English');
       setAllowSensitiveContent(profileData.settings?.allowSensitiveContent || false);
+      setIsDatingEnabled(profileData.isDatingEnabled !== false);
       setPreferredAgeRanges(profileData.preferences?.preferredAgeRanges || []);
       setHasKeys(!!profileData.publicKey && !!localStorage.getItem(`spark_priv_${user?.uid}`));
     }
@@ -168,6 +171,7 @@ export default function ProfilePage() {
         culturalInterests: culturalInterests.split(',').map(s => s.trim()).filter(i => i),
         languagesLearning: languagesLearning.split(',').map(s => s.trim()).filter(i => i),
         preferredLanguage,
+        isDatingEnabled,
         settings: { allowSensitiveContent },
         preferences: { preferredAgeRanges },
         updatedAt: new Date().toISOString()
@@ -186,8 +190,6 @@ export default function ProfilePage() {
     setIsUnmatching(true);
     try {
       const partnerId = profileData.partnerId;
-      
-      // 1. Find the match document
       const matchesRef = collection(db, 'matches');
       const q = query(
         matchesRef, 
@@ -197,18 +199,13 @@ export default function ProfilePage() {
       );
       const snapshot = await getDocs(q);
       
-      // 2. Process each active date match and purge messages
       for (const docSnap of snapshot.docs) {
         if (docSnap.data().userIds.includes(partnerId)) {
-          // Delete all messages in the subcollection for privacy
           const messagesRef = collection(db, 'matches', docSnap.id, 'messages');
           const messagesSnapshot = await getDocs(messagesRef);
-          
-          // Execute all deletions in parallel
           const deletePromises = messagesSnapshot.docs.map(msgDoc => deleteDoc(msgDoc.ref));
           await Promise.all(deletePromises);
 
-          // Update match status
           await updateDoc(docSnap.ref, { 
             status: 'unmatched',
             lastMessage: "Relationship ended. History cleared for privacy. 🔒"
@@ -216,7 +213,6 @@ export default function ProfilePage() {
         }
       }
 
-      // 3. Update both profile relationship statuses back to single
       await updateDoc(doc(db, 'users', user.uid), {
         relationshipStatus: 'single',
         partnerId: null
@@ -307,6 +303,19 @@ export default function ProfilePage() {
             </div>
           </div>
 
+          <div className="p-6 bg-accent/20 rounded-[1.5rem] border border-accent flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-white rounded-full text-primary">
+                {isDatingEnabled ? <Heart className="w-6 h-6 fill-primary" /> : <HeartOff className="w-6 h-6" />}
+              </div>
+              <div>
+                <h3 className="font-bold">Dating Mode</h3>
+                <p className="text-xs text-muted-foreground">{isDatingEnabled ? "Eligible for exclusive Sparks" : "Restricted to Friendship mode"}</p>
+              </div>
+            </div>
+            <Switch checked={isDatingEnabled} onCheckedChange={setIsDatingEnabled} />
+          </div>
+
           {!hasKeys && (
             <div className="p-6 bg-green-50 border border-green-200 rounded-[1.5rem] flex flex-col gap-4">
               <div className="flex items-start gap-3">
@@ -389,7 +398,7 @@ export default function ProfilePage() {
           <div className="space-y-6 pt-4 border-t">
             <Label className="font-black text-lg flex items-center gap-2 text-blue-600">
               <Globe2 className="w-5 h-5" />
-              Culture & Language Exchange
+              Culture & Language Exchange (Unlimited Friends)
             </Label>
             
             <div className="space-y-4">
@@ -404,7 +413,6 @@ export default function ProfilePage() {
                   onChange={e => setCulturalInterests(e.target.value)}
                   className="rounded-xl" 
                 />
-                <p className="text-[10px] text-muted-foreground">List cultures or foods you'd like to talk about with global friends.</p>
               </div>
 
               <div className="space-y-2">
