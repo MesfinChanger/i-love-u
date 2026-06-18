@@ -194,16 +194,16 @@ export default function LoginPage() {
       </Link>
 
       <div className="w-full max-w-md space-y-8">
-        <div className="text-center space-y-2">
-          <div className="flex items-center justify-center gap-1 group">
-            <Heart className="w-12 h-12 fill-primary text-primary group-hover:scale-110 transition-transform" />
+        <div className="text-center space-y-4">
+          <div className="flex items-center justify-center gap-3 group">
+            <Heart className="w-24 h-24 fill-primary text-primary group-hover:scale-110 transition-transform animate-pulse" />
             <div className="flex flex-col text-left leading-none">
-              <span className="font-black text-2xl tracking-tighter text-primary">I LOVE</span>
-              <span className="font-black text-xs tracking-[0.4em] text-muted-foreground">YOU</span>
+              <span className="font-black text-4xl tracking-tighter text-primary">I LOVE</span>
+              <span className="font-black text-base tracking-[0.4em] text-muted-foreground">YOU</span>
             </div>
           </div>
-          <h1 className="text-xl font-bold tracking-tight">Community Access</h1>
-          <p className="text-muted-foreground text-xs font-medium">Happiness is Mandatory ❤️</p>
+          <h1 className="text-2xl font-black tracking-tight uppercase">Community Access</h1>
+          <p className="text-muted-foreground text-sm font-bold uppercase tracking-widest">Happiness is Mandatory ❤️</p>
         </div>
 
         <Card className="border-none shadow-2xl rounded-[3rem] overflow-hidden bg-white">
