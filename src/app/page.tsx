@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -31,8 +32,26 @@ export default function Home() {
     return () => clearInterval(interval);
   }, []);
 
+  // Structured Data for Google (JSON-LD)
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Spark Dating",
+    "url": "https://spark-dating.web.app",
+    "description": "AI-powered dating and cultural exchange with a mandatory respect policy.",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://spark-dating.web.app/discover?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <header className="fixed top-0 z-50 w-full border-b bg-background/80 backdrop-blur-md">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2 font-black text-2xl tracking-tighter text-primary">
