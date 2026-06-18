@@ -3,23 +3,23 @@
 
 To publish Spark to the Google Play Store and Apple App Store, follow these professional steps.
 
-## 1. Pre-Submission Checklist (TESTING)
+## 1. Deployment (The Backend)
+Spark uses Server Actions and Genkit AI, which require a live environment.
+
+### Step 1: Deploy to Firebase Domain
+This provides your app with a global URL (e.g., `https://spark-dating.web.app`) for the mobile app to communicate with.
+1. Build: `npm run build`
+2. Deploy: `npm run deploy`
+
+### Step 2: Set up Firebase App Hosting (Recommended)
+For automatic updates, connect your GitHub repository to **Firebase App Hosting** in the Firebase Console. This handles Next.js SSR and Server Actions perfectly.
+
+## 2. Pre-Submission Checklist (TESTING)
 Before building the final binaries, ensure you have completed the [Testing Guide](./TESTING_GUIDE.md).
 - [ ] AI Moderation is flagging disrespect.
 - [ ] E2EE Keys are generating and storing locally.
 - [ ] Account deletion is functional.
 - [ ] GPS permissions are requested correctly on mobile.
-
-## 2. Hosting Setup
-Spark uses Server Actions (Genkit) and requires a live backend.
-
-### Option A: Firebase App Hosting (Recommended)
-1. **Enable API**: Go to the Google Cloud Console and enable the "Firebase App Hosting" API.
-2. **Link GitHub**: Connect your repository to App Hosting for automatic builds.
-
-### Option B: Manual Deployment
-1. Build: `npm run build`
-2. Deploy: `firebase deploy`
 
 ## 3. Capacitor Setup
 Run these commands locally to prepare your mobile projects:
@@ -36,7 +36,7 @@ Update `capacitor.config.ts`:
 
 ### Apple App Store (iOS)
 - **Safety**: Provide a "Demo Account" for the reviewer.
-- **Human Verification**: Mention the "Bot-Check" during login to prove you prevent spam.
+- **Account Deletion**: The "Delete Account" button in Profile is mandatory.
 - **Moderation**: Explain that Spark uses AI (Genkit) to enforce a mandatory "Respect & Love" policy.
 
 ### Google Play Store (Android)
@@ -44,4 +44,4 @@ Update `capacitor.config.ts`:
 - **Encryption**: Highlight that private chats are End-to-End Encrypted.
 
 ## 6. Post-Launch
-Once live, you can adjust the `config/pricing` document in Firestore to change seller fees globally based on the demand you see in your analytics.
+Once live, you can adjust the `config/pricing` document in Firestore to change seller fees globally based on demand.

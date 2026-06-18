@@ -9,8 +9,27 @@ Firebase provides **two free domains** for every project, allowing you to test y
 1.  **Free URLs**: 
     - `https://<your-project-id>.web.app`
     - `https://<your-project-id>.firebaseapp.com`
-2.  **How to get them**: These are automatically created for you. You simply need to deploy your code to Firebase Hosting or use **Firebase App Hosting** for Next.js.
-3.  **Finding your ID**: Your project ID is located in `src/firebase/config.ts`. You can also find it in the Firebase Console URL.
+2.  **How to get them**: These are automatically created for you. 
+3.  **Finding your ID**: Your project ID is located in `src/firebase/config.ts`.
+
+### How to Publish (3 Steps)
+
+To see your app live on your `.web.app` domain, run these commands in your terminal:
+
+1.  **Install Firebase CLI** (if you haven't):
+    ```bash
+    npm install -g firebase-tools
+    ```
+2.  **Login and Initialize**:
+    ```bash
+    firebase login
+    ```
+3.  **Deploy**:
+    ```bash
+    npm run deploy
+    ```
+
+*Note: For Next.js apps, we recommend using **Firebase App Hosting** by connecting your GitHub repository in the Firebase Console for automatic "push-to-deploy" functionality.*
 
 ## 🛠 Key Features
 
