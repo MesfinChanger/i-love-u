@@ -173,6 +173,11 @@ export default function ProfilePage() {
       return;
     }
 
+    if (!gender) {
+      toast({ variant: "destructive", title: "Incomplete Profile", description: "Please select your gender." });
+      return;
+    }
+
     setIsSaving(true);
     try {
       const [nameModeration, bioModeration, locationModeration] = await Promise.all([
@@ -365,10 +370,12 @@ export default function ProfilePage() {
 
           <div className="grid sm:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label>Gender</Label>
+              <Label>Gender (Mandatory Selection)</Label>
               <Select value={gender} onValueChange={setGender}>
-                <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
-                <SelectContent>{GENDERS.map(g => <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>)}</SelectContent>
+                <SelectTrigger className="rounded-xl"><SelectValue placeholder="Select Gender" /></SelectTrigger>
+                <SelectContent>
+                  {GENDERS.map(g => <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>)}
+                </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
