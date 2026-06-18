@@ -1,8 +1,9 @@
+
 {
   "entities": {
     "UserProfile": {
       "title": "User Profile",
-      "description": "Dating app profile restricted to 18+. Includes relationship constraints, cultural preferences, and verified location tracking.",
+      "description": "Dating app profile restricted to 18+. Includes relationship constraints and verified location tracking.",
       "type": "object",
       "properties": {
         "uid": { "type": "string" },
@@ -15,39 +16,50 @@
         "culturalInterests": { "type": "array", "items": { "type": "string" } },
         "languagesLearning": { "type": "array", "items": { "type": "string" } },
         "photoUrl": { "type": "string" },
-        "location": { "type": "string", "description": "Display location (e.g., City, Country)" },
-        "exactLocation": {
-          "type": "object",
-          "properties": {
-            "latitude": { "type": "number" },
-            "longitude": { "type": "number" },
-            "lastUpdated": { "type": "string", "format": "date-time" }
-          }
-        },
-        "preferredLanguage": { "type": "string", "default": "English" },
-        "relationshipStatus": { "type": "string", "enum": ["single", "dating"], "default": "single" },
-        "isDatingEnabled": { "type": "boolean", "default": true },
-        "partnerId": { "type": "string" },
-        "publicKey": { "type": "string" },
-        "isSupporter": { "type": "boolean", "default": false },
-        "settings": {
-          "type": "object",
-          "properties": {
-            "allowSensitiveContent": { "type": "boolean", "default": false },
-            "shareExactLocation": { "type": "boolean", "default": true, "description": "Requirement for exclusive partners." }
-          }
-        },
-        "preferences": {
-          "type": "object",
-          "properties": {
-            "preferredAgeRanges": { 
-              "type": "array", 
-              "items": { "type": "string", "enum": ["18-33", "34-49", "50-65", "66+"] }
-            }
-          }
-        }
+        "location": { "type": "string" },
+        "relationshipStatus": { "type": "string", "enum": ["single", "dating"] },
+        "isSeller": { "type": "boolean", "default": false },
+        "subscriptionType": { "type": "string", "enum": ["free", "basic_seller", "pro_seller"], "default": "free" },
+        "publicKey": { "type": "string" }
       },
       "required": ["uid", "displayName", "age", "gender"]
+    },
+    "Shop": {
+      "title": "Shop",
+      "description": "A seller's virtual store for gifting items.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "logoUrl": { "type": "string" },
+        "category": { "type": "string", "enum": ["Flowers", "Jewelry", "Electronics", "Apparel", "Home"] }
+      }
+    },
+    "Product": {
+      "title": "Product",
+      "description": "Items available for purchase as gifts.",
+      "type": "object",
+      "properties": {
+        "shopId": { "type": "string" },
+        "name": { "type": "string" },
+        "price": { "type": "number" },
+        "category": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "description": { "type": "string" }
+      }
+    },
+    "Gift": {
+      "title": "Gift",
+      "description": "A purchased item sent to a match.",
+      "type": "object",
+      "properties": {
+        "senderId": { "type": "string" },
+        "receiverId": { "type": "string" },
+        "productId": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "delivered"] },
+        "timestamp": { "type": "string", "format": "date-time" }
+      }
     },
     "Match": {
       "title": "Match",
@@ -63,14 +75,13 @@
     },
     "Message": {
       "title": "Message",
-      "description": "Chat message. Subject to AI moderation for insults and prohibited financial/sexual solicitation.",
+      "description": "Chat message with gift attachment support.",
       "type": "object",
       "properties": {
         "senderId": { "type": "string" },
         "text": { "type": "string" },
         "encryptedText": { "type": "string" },
-        "imageUrl": { "type": "string" },
-        "isSensitive": { "type": "boolean", "default": false },
+        "giftId": { "type": "string" },
         "timestamp": { "type": "string", "format": "date-time" }
       }
     }
@@ -79,17 +90,11 @@
     "providers": ["google.com", "password", "phone"]
   },
   "firestore": {
-    "/users/{userId}": {
-      "schema": "UserProfile",
-      "description": "User profiles with strict 18+ enforcement and verified GPS location."
-    },
-    "/matches/{matchId}": {
-      "schema": "Match",
-      "description": "Active connections."
-    },
-    "/matches/{matchId}/messages/{messageId}": {
-      "schema": "Message",
-      "description": "Moderated chat history. Prohibits solicitation."
-    }
+    "/users/{userId}": { "schema": "UserProfile", "description": "User profiles" },
+    "/shops/{shopId}": { "schema": "Shop", "description": "Seller shops" },
+    "/shops/{shopId}/products/{productId}": { "schema": "Product", "description": "Shop inventory" },
+    "/matches/{matchId}": { "schema": "Match", "description": "Active connections" },
+    "/matches/{matchId}/messages/{messageId}": { "schema": "Message", "description": "Moderated chat history" },
+    "/users/{userId}/receivedGifts/{giftId}": { "schema": "Gift", "description": "User gift history" }
   }
 }

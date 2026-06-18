@@ -1,8 +1,9 @@
+
 'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Sparkles, Heart, User, MessageCircle } from 'lucide-react';
+import { Sparkles, Heart, User, ShoppingBag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -12,13 +13,14 @@ export function BottomNav() {
   const navItems = [
     { href: '/discover', icon: Sparkles, label: 'Discover' },
     { href: '/matches', icon: Heart, label: 'Matches' },
+    { href: '/shop', icon: ShoppingBag, label: 'Shop' },
     { href: '/profile', icon: User, label: 'Profile' },
   ];
 
   return (
     <nav className="fixed bottom-0 w-full bg-white/80 backdrop-blur-xl border-t py-2 px-6 flex justify-around items-center z-50">
       {navItems.map((item) => {
-        const isActive = pathname === item.href || (item.href === '/matches' && pathname?.startsWith('/matches'));
+        const isActive = pathname === item.href || (item.href === '/matches' && pathname?.startsWith('/matches')) || (item.href === '/shop' && pathname?.startsWith('/shop'));
         return (
           <Button
             key={item.href}
