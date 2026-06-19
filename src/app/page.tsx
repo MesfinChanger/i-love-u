@@ -90,8 +90,8 @@ export default function Home() {
                     <Sparkles className="w-6 h-6 text-white animate-pulse" />
                   </div>
                   <div className="text-left">
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white">Spark Match Active</span>
-                    <p className="text-[8px] font-bold text-white/60 uppercase tracking-widest">Global Community Verified</p>
+                    <Badge variant="secondary" className="bg-white/20 text-white border-none font-black text-[10px] uppercase tracking-[0.2em] px-3 h-6">Spark Match Active</Badge>
+                    <p className="text-[8px] font-bold text-white/60 uppercase tracking-widest mt-1 ml-1">Global Community Verified</p>
                   </div>
                 </div>
               </div>
