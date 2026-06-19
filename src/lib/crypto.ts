@@ -1,4 +1,3 @@
-
 'use client';
 
 /**
@@ -8,6 +7,7 @@
 
 // Helper to convert ArrayBuffer to Base64 string in browser
 function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  if (typeof window === 'undefined') return '';
   let binary = '';
   const bytes = new Uint8Array(buffer);
   const len = bytes.byteLength;
@@ -19,6 +19,7 @@ function arrayBufferToBase64(buffer: ArrayBuffer): string {
 
 // Helper to convert Base64 string to ArrayBuffer in browser
 function base64ToArrayBuffer(base64: string): ArrayBuffer {
+  if (typeof window === 'undefined') return new ArrayBuffer(0);
   const binaryString = window.atob(base64);
   const len = binaryString.length;
   const bytes = new Uint8Array(len);
@@ -29,6 +30,8 @@ function base64ToArrayBuffer(base64: string): ArrayBuffer {
 }
 
 export async function generateKeyPair() {
+  if (typeof window === 'undefined') return { publicKey: '', privateKey: '' };
+  
   const keyPair = await window.crypto.subtle.generateKey(
     {
       name: "RSA-OAEP",
@@ -50,6 +53,8 @@ export async function generateKeyPair() {
 }
 
 export async function encryptText(text: string, publicKeyBase64: string) {
+  if (typeof window === 'undefined') return null;
+  
   try {
     const publicKeyBuffer = base64ToArrayBuffer(publicKeyBase64);
     const publicKey = await window.crypto.subtle.importKey(
@@ -78,6 +83,8 @@ export async function encryptText(text: string, publicKeyBase64: string) {
 }
 
 export async function decryptText(encryptedBase64: string, privateKeyBase64: string) {
+  if (typeof window === 'undefined') return "[Encrypted Message]";
+  
   try {
     const privateKeyBuffer = base64ToArrayBuffer(privateKeyBase64);
     const privateKey = await window.crypto.subtle.importKey(
