@@ -223,12 +223,10 @@ function LoginContent() {
         Home
       </Link>
 
-      {/* Decorative "N" Icon */}
       <div className="absolute left-8 top-1/2 -translate-y-1/2 w-10 h-10 bg-slate-800 text-white rounded-full flex items-center justify-center font-black text-xs shadow-lg hidden md:flex">
         N
       </div>
 
-      {/* Floating Assistant Bubble */}
       <div className="absolute right-8 top-1/2 -translate-y-1/2 group cursor-pointer hidden md:block">
         <div className="w-14 h-14 rounded-full gradient-bg flex items-center justify-center shadow-2xl relative">
           <Heart className="w-6 h-6 fill-white text-white" />
@@ -257,7 +255,6 @@ function LoginContent() {
             </TabsList>
             
             <CardContent className="p-10 space-y-8">
-              {/* SHARED MANDATORY SECURITY BOX */}
               <div className="bg-primary/5 p-6 rounded-[2.5rem] border border-primary/10 space-y-4">
                  <p className="text-[9px] font-black uppercase tracking-[0.3em] text-primary mb-2 text-center opacity-60">Mandatory Verification</p>
                  <div className="flex flex-col gap-3">

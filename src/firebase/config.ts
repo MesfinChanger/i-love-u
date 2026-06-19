@@ -5,8 +5,9 @@
 
 // Hardened check for environment variables to help debug "api-key-not-valid"
 const getEnv = (key: string) => {
+  if (typeof process === 'undefined' || !process.env) return "";
   const value = process.env[key];
-  if (!value && typeof window !== 'undefined') {
+  if (!value && typeof window !== 'undefined' && !window.location.hostname.includes('localhost')) {
     console.warn(`Firebase Config: ${key} is missing. Please set it in your environment variables.`);
   }
   return value || "";
