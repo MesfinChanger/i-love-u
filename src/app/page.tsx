@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Heart, Sparkles, Globe, Briefcase, TrendingDown, ArrowRight, Star, HeartHandshake, HandHelping, Zap } from 'lucide-react';
+import { Heart, Sparkles, Globe, Briefcase, TrendingDown, ArrowRight, Star, HeartHandshake, Zap } from 'lucide-react';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
@@ -28,8 +28,10 @@ const LOVE_TRANSLATIONS = [
 export default function Home() {
   const heroImage = PlaceHolderImages.find(img => img.id === 'landing-hero');
   const [langIndex, setLangIndex] = useState(0);
+  const [currentYear, setCurrentYear] = useState<number | null>(null);
 
   useEffect(() => {
+    setCurrentYear(new Date().getFullYear());
     const interval = setInterval(() => {
       setLangIndex((prev) => (prev + 1) % LOVE_TRANSLATIONS.length);
     }, 2500);
@@ -203,7 +205,7 @@ export default function Home() {
               <span className="font-black text-2xl tracking-[0.5em] text-muted-foreground">YOU</span>
             </div>
           </div>
-          <p className="font-black text-xl text-foreground tracking-tight mb-4">© {new Date().getFullYear()} I Love U. The Global Dating & Prosperity Revolution.</p>
+          <p className="font-black text-xl text-foreground tracking-tight mb-4">© {currentYear || '...'} I Love U. The Global Dating & Prosperity Revolution.</p>
           <p className="text-sm font-medium italic mb-10">Respect and Love is Mandatory ❤️ Ending World Poverty Together.</p>
           <div className="flex flex-wrap justify-center gap-8 sm:gap-12 text-[11px] font-black uppercase tracking-[0.4em]">
             <Link href="/privacy" className="hover:text-primary transition-colors">Privacy Shield</Link>

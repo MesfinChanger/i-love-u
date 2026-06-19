@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { Header } from '@/components/Header';
 import { BottomNav } from '@/components/BottomNav';
 import { useCollection, useUser, useFirestore, useDoc } from '@/firebase';
@@ -181,6 +181,21 @@ function FriendMatchCard({ match, currentUserId }: { match: any, currentUserId: 
   const partnerId = match.userIds.find((id: string) => id !== currentUserId);
   const partnerRef = useMemoFirebase(() => partnerId ? doc(db, 'users', partnerId) : null, [db, partnerId]);
   const { data: partnerProfile } = useDoc(partnerRef);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const dateString = useMemo(() => {
+    if (!mounted || !match.timestamp) return '';
+    try {
+      const d = match.timestamp.toDate ? match.timestamp.toDate() : new Date(match.timestamp);
+      return d.toLocaleDateString();
+    } catch (e) {
+      return '';
+    }
+  }, [mounted, match.timestamp]);
 
   return (
     <Link href={`/matches/${match.id}`}>
@@ -195,7 +210,7 @@ function FriendMatchCard({ match, currentUserId }: { match: any, currentUserId: 
             <div className="flex justify-between items-baseline">
               <h3 className="font-black text-xl tracking-tight group-hover:text-blue-500 transition-colors">{partnerProfile?.displayName || "Friend"}</h3>
               <span className="text-[9px] text-muted-foreground uppercase font-black tracking-widest">
-                {match.timestamp ? new Date(match.timestamp).toLocaleDateString() : 'Just now'}
+                {dateString || 'Just now'}
               </span>
             </div>
             <p className="text-base text-muted-foreground line-clamp-1 italic font-medium">
