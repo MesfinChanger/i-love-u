@@ -29,7 +29,8 @@ import {
   Eye,
   EyeOff,
   CheckCircle2,
-  Sparkles
+  Sparkles,
+  ShieldAlert
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
@@ -63,6 +64,22 @@ function LoginContent() {
     }
   }, [user, authLoading, router]);
 
+  const validatePassword = (pass: string) => {
+    const minLength = pass.length >= 8;
+    const hasUpper = /[A-Z]/.test(pass);
+    const hasLower = /[a-z]/.test(pass);
+    const hasNumber = /[0-9]/.test(pass);
+    const hasSpecial = /[@$!%*?&]/.test(pass);
+
+    if (!minLength || !hasUpper || !hasLower || !hasNumber || !hasSpecial) {
+      return {
+        isValid: false,
+        message: "Password must be at least 8 characters and include uppercase, lowercase, numbers, and special characters (@$!%*?&)."
+      };
+    }
+    return { isValid: true };
+  };
+
   const validateAccess = () => {
     if (!isAdult) {
       toast({ variant: "destructive", title: "Age Verification Required", description: "You must be 18+ to join." });
@@ -94,6 +111,19 @@ function LoginContent() {
 
   const handleEmailAuth = async () => {
     if (!validateAccess() || !email || !password) return;
+
+    if (mode === 'signup') {
+      const validation = validatePassword(password);
+      if (!validation.isValid) {
+        toast({
+          variant: "destructive",
+          title: "Weak Password",
+          description: validation.message
+        });
+        return;
+      }
+    }
+
     setIsLoading(true);
     try {
       if (mode === 'signup') {
@@ -355,6 +385,11 @@ function LoginContent() {
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </Button>
                   </div>
+                  {mode === 'signup' && (
+                    <p className="text-[8px] text-muted-foreground/60 font-bold uppercase tracking-widest leading-tight ml-2">
+                      Min 8 chars, mix of A, a, 1, and @
+                    </p>
+                  )}
                 </div>
 
                 <div className="space-y-4">
