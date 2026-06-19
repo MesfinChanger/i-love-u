@@ -91,17 +91,6 @@ export default function Home() {
                   <p className="text-[10px] font-black tracking-[0.4em] text-muted-foreground uppercase opacity-40">
                     U + Love = Prosperity
                   </p>
-                  
-                  {/* Minimized Spark Match Badge under I LOVE U */}
-                  <div className="inline-flex items-center gap-3 bg-white/80 backdrop-blur-sm p-3 pr-6 rounded-2xl border border-primary/10 shadow-lg mt-6 w-fit animate-in fade-in slide-in-from-left-4 duration-1000">
-                    <div className="w-10 h-10 rounded-xl gradient-bg flex items-center justify-center text-white shadow-xl shadow-primary/20">
-                      <Heart className="w-5 h-5 fill-white" />
-                    </div>
-                    <div className="text-left leading-none">
-                      <p className="font-black text-sm tracking-tighter">Spark Match</p>
-                      <p className="text-[8px] text-muted-foreground font-black uppercase tracking-widest opacity-60 mt-1">Connect with Purpose</p>
-                    </div>
-                  </div>
                 </div>
               </div>
 
@@ -131,6 +120,18 @@ export default function Home() {
 
             <div className="relative">
               <div className="absolute -inset-10 bg-primary/20 rounded-full blur-[150px] -z-10 animate-pulse" />
+              
+              {/* Minimized Spark Match Badge - Now moving with the pic */}
+              <div className="absolute -top-12 -left-12 z-20 inline-flex items-center gap-4 bg-white/95 backdrop-blur-3xl p-5 pr-10 rounded-[2.5rem] border-4 border-white shadow-2xl animate-in zoom-in-50 duration-1000">
+                <div className="w-16 h-16 rounded-3xl gradient-bg flex items-center justify-center text-white shadow-2xl shadow-primary/30">
+                  <Heart className="w-10 h-10 fill-white animate-heartbeat" />
+                </div>
+                <div className="text-left leading-none">
+                  <p className="font-black text-2xl tracking-tighter">Spark Match</p>
+                  <p className="text-[10px] text-muted-foreground font-black uppercase tracking-[0.2em] opacity-60 mt-2">Connect with Purpose</p>
+                </div>
+              </div>
+              
               <div className="relative aspect-square rounded-[6rem] overflow-hidden shadow-[0_60px_120px_-15px_rgba(0,0,0,0.3)] rotate-3 hover:rotate-0 transition-transform duration-1000 border-[25px] border-white">
                 {heroImage && (
                   <Image 
