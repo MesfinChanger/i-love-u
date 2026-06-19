@@ -152,6 +152,36 @@ function LoginContent() {
         </div>
 
         <Card className="border-none shadow-[0_30px_100px_-10px_rgba(0,0,0,0.08)] rounded-[3.5rem] overflow-hidden bg-white">
+          {/* MANDATORY SECURITY PROTOCOL GATE - ALWAYS VISIBLE */}
+          <div className="bg-primary/5 p-8 border-b border-primary/10">
+             <div className="flex items-center justify-center gap-2 mb-6">
+                <ShieldCheck className="w-5 h-5 text-primary" />
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Global Security Protocol</p>
+             </div>
+             <div className="flex flex-col gap-4 max-w-[280px] mx-auto">
+                <div className="flex items-center space-x-3 cursor-pointer group" onClick={() => setIsAgeVerified(!isAgeVerified)}>
+                   <div className={cn("w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all", isAgeVerified ? "border-primary bg-primary" : "border-slate-200")}>
+                     {isAgeVerified && <CheckCircle2 className="w-4 h-4 text-white" />}
+                   </div>
+                   <span className={cn("text-[10px] font-black uppercase tracking-widest transition-colors", isAgeVerified ? "text-primary" : "text-slate-400")}>I am 18+ years old</span>
+                </div>
+                
+                <div className="flex items-center space-x-3 cursor-pointer group" onClick={() => setIsRespectful(!isRespectful)}>
+                   <div className={cn("w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all", isRespectful ? "border-primary bg-primary" : "border-slate-200")}>
+                     {isRespectful && <CheckCircle2 className="w-4 h-4 text-white" />}
+                   </div>
+                   <span className={cn("text-[10px] font-black uppercase tracking-widest transition-colors", isRespectful ? "text-primary" : "text-slate-400")}>Respect is Mandatory</span>
+                </div>
+                
+                <div className="flex items-center space-x-3 cursor-pointer group" onClick={() => setIsHuman(!isHuman)}>
+                   <div className={cn("w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all", isHuman ? "border-primary bg-primary" : "border-slate-200")}>
+                     {isHuman && <CheckCircle2 className="w-4 h-4 text-white" />}
+                   </div>
+                   <span className={cn("text-[10px] font-black uppercase tracking-widest transition-colors", isHuman ? "text-primary" : "text-slate-400")}>Verify Human Status</span>
+                </div>
+             </div>
+          </div>
+
           <Tabs value={mode} onValueChange={(v) => setMode(v as 'signin' | 'signup')} className="w-full">
             <TabsList className="w-full grid grid-cols-2 h-16 bg-white p-1 border-b">
               <TabsTrigger value="signin" className="rounded-t-[1.5rem] text-[11px] font-black uppercase tracking-[0.2em]">Sign In</TabsTrigger>
@@ -159,36 +189,6 @@ function LoginContent() {
             </TabsList>
             
             <CardContent className="p-10 space-y-8">
-              {/* MANDATORY SECURITY PROTOCOL - SHARED FOR BOTH MODES */}
-              <div className="bg-primary/5 p-6 rounded-[2.5rem] border border-primary/10 space-y-4">
-                 <div className="flex items-center justify-center gap-2 mb-2">
-                    <ShieldCheck className="w-4 h-4 text-primary" />
-                    <p className="text-[9px] font-black uppercase tracking-[0.3em] text-primary opacity-60 text-center">Security Protocol</p>
-                 </div>
-                 <div className="flex flex-col gap-3">
-                    <div className="flex items-center space-x-3 cursor-pointer group" onClick={() => setIsAgeVerified(!isAgeVerified)}>
-                       <div className={cn("w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all", isAgeVerified ? "border-primary bg-primary" : "border-slate-200")}>
-                         {isAgeVerified && <CheckCircle2 className="w-3 h-3 text-white" />}
-                       </div>
-                       <span className={cn("text-[9px] font-black uppercase tracking-widest transition-colors", isAgeVerified ? "text-primary" : "text-slate-400")}>I am 18+ years old</span>
-                    </div>
-                    
-                    <div className="flex items-center space-x-3 cursor-pointer group" onClick={() => setIsRespectful(!isRespectful)}>
-                       <div className={cn("w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all", isRespectful ? "border-primary bg-primary" : "border-slate-200")}>
-                         {isRespectful && <CheckCircle2 className="w-3 h-3 text-white" />}
-                       </div>
-                       <span className={cn("text-[9px] font-black uppercase tracking-widest transition-colors", isRespectful ? "text-primary" : "text-slate-400")}>Respect & Love is Mandatory</span>
-                    </div>
-                    
-                    <div className="flex items-center space-x-3 cursor-pointer group" onClick={() => setIsHuman(!isHuman)}>
-                       <div className={cn("w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all", isHuman ? "border-primary bg-primary" : "border-slate-200")}>
-                         {isHuman && <CheckCircle2 className="w-3 h-3 text-white" />}
-                       </div>
-                       <span className={cn("text-[9px] font-black uppercase tracking-widest transition-colors", isHuman ? "text-primary" : "text-slate-400")}>Verify Human Status</span>
-                    </div>
-                 </div>
-              </div>
-
               <div className="space-y-6">
                 {mode === 'signup' && (
                   <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">

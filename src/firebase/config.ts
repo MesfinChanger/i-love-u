@@ -8,6 +8,7 @@ const getEnv = (key: string) => {
   return process.env[key] || "";
 };
 
+// Defensive check to avoid crashing if env vars are missing
 export const firebaseConfig = {
   apiKey: getEnv('NEXT_PUBLIC_FIREBASE_API_KEY'),
   authDomain: getEnv('NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN'),
