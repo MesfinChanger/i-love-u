@@ -6,19 +6,23 @@
       "type": "object",
       "properties": {
         "uid": { "type": "string" },
+        "firstName": { "type": "string" },
+        "lastName": { "type": "string" },
         "displayName": { "type": "string" },
+        "birthdate": { "type": "string", "format": "date" },
         "age": { "type": "number", "minimum": 18 },
         "gender": { "type": "string", "enum": ["male", "female"] },
         "religion": { "type": "string" },
         "bio": { "type": "string" },
         "interests": { "type": "array", "items": { "type": "string" } },
         "culturalInterests": { "type": "array", "items": { "type": "string" } },
-        "languagesLearning": { "type": "array", "items": { "type": "string" } },
         "photoUrl": { "type": "string" },
-        "location": { "type": "string" },
-        "address": { "type": "string", "description": "Full physical address for commercial compliance." },
-        "taxId": { "type": "string", "description": "SSN or TIN. Strictly protected and used for payment verification." },
+        "address1": { "type": "string" },
+        "address2": { "type": "string" },
+        "city": { "type": "string" },
+        "state": { "type": "string" },
         "country": { "type": "string", "description": "ISO 3166-1 alpha-2 country code" },
+        "taxId": { "type": "string", "description": "SSN or TIN. Strictly protected and used for payment verification." },
         "relationshipStatus": { "type": "string", "enum": ["single", "dating"] },
         "isSeller": { "type": "boolean", "default": false },
         "isAdvertiser": { "type": "boolean", "default": false },
@@ -26,14 +30,11 @@
         "currency": { "type": "string", "default": "USD" },
         "publicNickname": { "type": "string" },
         "isPhotoPublic": { "type": "boolean", "default": false },
-        "settings": {
-          "type": "object",
-          "properties": {
-            "allowSensitiveContent": { "type": "boolean", "default": false }
-          }
-        }
+        "isAgeVerified": { "type": "boolean", "default": false },
+        "isRespectful": { "type": "boolean", "default": false },
+        "isHuman": { "type": "boolean", "default": false }
       },
-      "required": ["uid", "displayName", "age", "gender"]
+      "required": ["uid", "firstName", "lastName", "birthdate"]
     },
     "PublicProfile": {
       "title": "Public Profile",
@@ -43,11 +44,11 @@
         "uid": { "type": "string" },
         "bio": { "type": "string" },
         "interests": { "type": "array", "items": { "type": "string" } },
-        "culturalInterests": { "type": "array", "items": { "type": "string" } },
         "locationHint": { "type": "string" },
         "publicNickname": { "type": "string" },
         "publicPhotoUrl": { "type": "string" },
-        "country": { "type": "string" }
+        "country": { "type": "string" },
+        "birthMonthDay": { "type": "string", "description": "Month and Day of birth only for privacy." }
       }
     },
     "Match": {

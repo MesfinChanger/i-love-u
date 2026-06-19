@@ -26,7 +26,9 @@ import {
   ShieldCheck,
   Camera,
   Globe,
-  UserCheck
+  UserCheck,
+  MapPin,
+  Briefcase
 } from 'lucide-react';
 import { generateBio } from '@/ai/flows/generate-bio-flow';
 import { moderateText } from '@/ai/flows/moderate-text-flow';
@@ -72,37 +74,65 @@ function ProfileContent() {
 
   const { data: profileData, loading: profileLoading } = useDoc(userRef);
 
+  // Identity Fields
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [displayName, setDisplayName] = useState('');
-  const [age, setAge] = useState('');
+  const [birthdate, setBirthdate] = useState(''); // YYYY-MM-DD
   const [gender, setGender] = useState('');
   const [country, setCountry] = useState('GLOBAL');
   const [bio, setBio] = useState('');
   const [publicNickname, setPublicNickname] = useState('');
   const [isPhotoPublic, setIsPhotoPublic] = useState(false);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
+
+  // Address Fields
+  const [address1, setAddress1] = useState('');
+  const [address2, setAddress2] = useState('');
+  const [city, setCity] = useState('');
+  const [state, setState] = useState('');
 
   // Mandatory Security Protocol
   const [isAgeVerified, setIsAgeVerified] = useState(false);
   const [isRespectful, setIsRespectful] = useState(false);
   const [isHuman, setIsHuman] = useState(false);
 
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
   useEffect(() => {
     if (profileData) {
+      setFirstName(profileData.firstName || '');
+      setLastName(profileData.lastName || '');
       setDisplayName(profileData.displayName || '');
-      setAge(profileData.age?.toString() || '18');
+      setBirthdate(profileData.birthdate || '');
       setGender(profileData.gender || '');
       setCountry(profileData.country || 'GLOBAL');
       setBio(profileData.bio || '');
       setPublicNickname(profileData.publicNickname || '');
       setIsPhotoPublic(profileData.isPhotoPublic || false);
       
-      // Load protocol status if already synced
+      setAddress1(profileData.address1 || '');
+      setAddress2(profileData.address2 || '');
+      setCity(profileData.city || '');
+      setState(profileData.state || '');
+
       setIsAgeVerified(profileData.isAgeVerified || false);
       setIsRespectful(profileData.isRespectful || false);
       setIsHuman(profileData.isHuman || false);
     }
   }, [profileData]);
+
+  const calculateAge = (bday: string) => {
+    if (!bday) return 0;
+    const today = new Date();
+    const birthDate = new Date(bday);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
+  };
 
   const validateAccess = () => {
     if (!isAgeVerified) {
@@ -125,8 +155,8 @@ function ProfileContent() {
 
     if (!validateAccess()) return;
 
-    const userAge = parseInt(age);
-    if (isNaN(userAge) || userAge < 18) {
+    const userAge = calculateAge(birthdate);
+    if (userAge < 18) {
       toast({ variant: "destructive", title: "Wait!", description: "You must be 18+ to join the movement." });
       return;
     }
@@ -142,10 +172,17 @@ function ProfileContent() {
       
       const updateData = {
         uid: user.uid,
+        firstName,
+        lastName,
         displayName, 
+        birthdate,
         age: userAge, 
         gender, 
         bio, 
+        address1,
+        address2,
+        city,
+        state,
         country, 
         publicNickname,
         isPhotoPublic,
@@ -157,12 +194,17 @@ function ProfileContent() {
 
       await setDoc(doc(db, 'users', user.uid), updateData, { merge: true });
 
+      // Create birth month/day string for privacy
+      const bDate = new Date(birthdate);
+      const monthDay = bDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+
       await setDoc(doc(db, 'publicProfiles', user.uid), {
         uid: user.uid,
         bio,
         publicNickname: publicNickname || null,
         publicPhotoUrl: isPhotoPublic ? profileData?.photoUrl || null : null,
         country: country,
+        birthMonthDay: monthDay,
         updatedAt: serverTimestamp()
       }, { merge: true });
 
@@ -189,7 +231,7 @@ function ProfileContent() {
   return (
     <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
       <Header />
-      <main className="container mx-auto px-6 max-w-2xl py-10">
+      <main className="container mx-auto px-6 max-w-3xl py-10">
         <div className="flex flex-col md:flex-row items-center justify-between mb-12 gap-6">
           <div>
             <h1 className="text-5xl font-black tracking-tighter text-slate-900">Identity</h1>
@@ -206,6 +248,7 @@ function ProfileContent() {
         <Tabs defaultValue="personal" className="w-full">
           <TabsList className="w-full h-14 bg-white/50 rounded-xl p-1 mb-10 border shadow-sm backdrop-blur-md">
             <TabsTrigger value="personal" className="flex-1 rounded-lg gap-2 font-black text-[9px] uppercase tracking-widest"><User className="w-3 h-3" />Personal</TabsTrigger>
+            <TabsTrigger value="address" className="flex-1 rounded-lg gap-2 font-black text-[9px] uppercase tracking-widest"><MapPin className="w-3 h-3" />Address</TabsTrigger>
             <TabsTrigger value="public" className="flex-1 rounded-lg gap-2 font-black text-[9px] uppercase tracking-widest"><Globe2 className="w-3 h-3" />Public</TabsTrigger>
             <TabsTrigger value="security" className="flex-1 rounded-lg gap-2 font-black text-[9px] uppercase tracking-widest"><ShieldCheck className="w-3 h-3" />Security</TabsTrigger>
           </TabsList>
@@ -214,38 +257,73 @@ function ProfileContent() {
             <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-8 space-y-10">
               <div className="grid sm:grid-cols-2 gap-8">
                 <div className="space-y-3">
+                  <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-2">First Name</Label>
+                  <Input value={firstName} onChange={e => setFirstName(e.target.value)} className="rounded-xl h-14 bg-muted/20 border-none px-6 font-bold shadow-inner" />
+                </div>
+                <div className="space-y-3">
+                  <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-2">Last Name</Label>
+                  <Input value={lastName} onChange={e => setLastName(e.target.value)} className="rounded-xl h-14 bg-muted/20 border-none px-6 font-bold shadow-inner" />
+                </div>
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-8">
+                <div className="space-y-3">
                   <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-2">Display Name</Label>
                   <Input value={displayName} onChange={e => setDisplayName(e.target.value)} className="rounded-xl h-14 bg-muted/20 border-none px-6 font-bold shadow-inner" />
                 </div>
                 <div className="space-y-3">
-                  <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-2">Age (18+)</Label>
-                  <Input type="number" min="18" value={age} onChange={e => setAge(e.target.value)} className="rounded-xl h-14 bg-muted/20 border-none px-6 font-bold shadow-inner" />
+                  <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-2">Birthdate</Label>
+                  <Input type="date" value={birthdate} onChange={e => setBirthdate(e.target.value)} className="rounded-xl h-14 bg-muted/20 border-none px-6 font-bold shadow-inner" />
+                  <p className="text-[8px] text-muted-foreground ml-2 uppercase font-black tracking-widest">* Year is hidden from public view for privacy.</p>
                 </div>
               </div>
 
-              <div className="space-y-4 pt-6 border-t">
-                <div className="flex items-center gap-2 mb-4">
-                  <Globe className="w-4 h-4 text-primary" />
-                  <h3 className="text-xs font-black uppercase tracking-widest">Global Origin</h3>
-                </div>
-                <div className="grid sm:grid-cols-2 gap-8">
-                  <div className="space-y-3">
-                    <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-2">Country Selection</Label>
-                    <Select value={country} onValueChange={setCountry}>
-                      <SelectTrigger className="rounded-xl h-14 bg-muted/20 border-none px-6 font-bold shadow-inner"><SelectValue /></SelectTrigger>
-                      <SelectContent>{COUNTRIES.map(c => <SelectItem key={c.code} value={c.code}>{c.name}</SelectItem>)}</SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-3">
-                    <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-2">Gender Identity</Label>
-                    <Select value={gender} onValueChange={setGender}>
-                      <SelectTrigger className="rounded-xl h-14 bg-muted/20 border-none px-6 font-bold shadow-inner"><SelectValue /></SelectTrigger>
-                      <SelectContent>{GENDERS.map(g => <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>)}</SelectContent>
-                    </Select>
-                  </div>
-                </div>
+              <div className="space-y-3">
+                <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-2">Gender Identity</Label>
+                <Select value={gender} onValueChange={setGender}>
+                  <SelectTrigger className="rounded-xl h-14 bg-muted/20 border-none px-6 font-bold shadow-inner"><SelectValue placeholder="Select Gender" /></SelectTrigger>
+                  <SelectContent>{GENDERS.map(g => <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>)}</SelectContent>
+                </Select>
               </div>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="address">
+             <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-8 space-y-8">
+                <div className="flex items-center gap-2 mb-4">
+                  <MapPin className="w-5 h-5 text-primary" />
+                  <h3 className="text-xs font-black uppercase tracking-widest">Commercial Location</h3>
+                </div>
+                
+                <div className="space-y-3">
+                  <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-2">Address Line 1</Label>
+                  <Input value={address1} onChange={e => setAddress1(e.target.value)} className="rounded-xl h-14 bg-muted/20 border-none px-6 font-bold shadow-inner" />
+                </div>
+                
+                <div className="space-y-3">
+                  <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-2">Address Line 2 (Optional)</Label>
+                  <Input value={address2} onChange={e => setAddress2(e.target.value)} className="rounded-xl h-14 bg-muted/20 border-none px-6 font-bold shadow-inner" />
+                </div>
+
+                <div className="grid sm:grid-cols-2 gap-8">
+                  <div className="space-y-3">
+                    <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-2">City</Label>
+                    <Input value={city} onChange={e => setCity(e.target.value)} className="rounded-xl h-14 bg-muted/20 border-none px-6 font-bold shadow-inner" />
+                  </div>
+                  <div className="space-y-3">
+                    <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-2">State / Province</Label>
+                    <Input value={state} onChange={e => setState(e.target.value)} className="rounded-xl h-14 bg-muted/20 border-none px-6 font-bold shadow-inner" />
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-2">Country Origin</Label>
+                  <Select value={country} onValueChange={setCountry}>
+                    <SelectTrigger className="rounded-xl h-14 bg-muted/20 border-none px-6 font-bold shadow-inner"><SelectValue /></SelectTrigger>
+                    <SelectContent>{COUNTRIES.map(c => <SelectItem key={c.code} value={c.code}>{c.name}</SelectItem>)}</SelectContent>
+                  </Select>
+                </div>
+             </Card>
           </TabsContent>
 
           <TabsContent value="public">

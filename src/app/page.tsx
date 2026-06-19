@@ -43,7 +43,6 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen bg-white overflow-x-hidden">
-      {/* Minimized Branding Header */}
       <header className="fixed top-0 z-50 w-full bg-white/5 backdrop-blur-xl">
         <div className="container mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-1.5">
@@ -60,7 +59,6 @@ export default function Home() {
       </header>
 
       <main className="flex-grow">
-        {/* Maximized Hero Section with Full-Bleed Gallery */}
         <section className="relative h-[100vh] w-full flex items-center overflow-hidden">
           <div className="absolute inset-0 z-0">
             {mounted && dynamicImages.map((img, i) => (
@@ -86,7 +84,6 @@ export default function Home() {
 
           <div className="container mx-auto px-6 relative z-10 pt-20">
             <div className="max-w-4xl space-y-12">
-              {/* Spark Match Badge - Integrated & Floating */}
               <div className="bg-white/10 backdrop-blur-2xl px-6 py-4 rounded-[2rem] border border-white/20 shadow-2xl inline-flex animate-bounce duration-3000 group hover:bg-white/20 transition-all">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-2xl gradient-bg flex items-center justify-center shadow-lg group-hover:rotate-6 transition-transform">
@@ -137,7 +134,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Global Mission Section */}
         <section className="py-40 bg-white relative z-10">
           <div className="container mx-auto px-6">
             <div className="flex flex-col items-center text-center mb-32">
