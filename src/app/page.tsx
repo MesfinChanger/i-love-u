@@ -23,9 +23,11 @@ export default function Home() {
   const [langIndex, setLangIndex] = useState(0);
   const [imageIndex, setImageIndex] = useState(0);
   const [mounted, setMounted] = useState(false);
+  const [currentYear, setCurrentYear] = useState('');
 
   useEffect(() => {
     setMounted(true);
+    setCurrentYear(new Date().getFullYear().toString());
     
     const langInterval = setInterval(() => {
       setLangIndex((prev) => (prev + 1) % LOVE_TRANSLATIONS.length);
@@ -168,7 +170,7 @@ export default function Home() {
             <Heart className="w-4 h-4 fill-primary text-primary" />
             <span className="font-black text-[10px] tracking-[0.4em] text-primary uppercase">I LOVE U</span>
           </div>
-          <p className="font-black text-[10px] tracking-[0.3em] mb-4 uppercase text-slate-400">© 2025 Prosperity Revolution • Reaching Every Heart</p>
+          <p className="font-black text-[10px] tracking-[0.3em] mb-4 uppercase text-slate-400">© {currentYear || 'Prosperity Revolution'} • Reaching Every Heart</p>
           <p className="text-[9px] font-bold italic uppercase tracking-widest opacity-40 text-slate-400">Respect & Love is Mandatory ❤️ Eliminating Poverty Globally</p>
         </div>
       </footer>

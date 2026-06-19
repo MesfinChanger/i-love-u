@@ -225,7 +225,7 @@ function LoginContent() {
         </div>
       </div>
       
-      <div className="w-full max-w-md space-y-10 z-10">
+      <div className="w-full max-md:max-w-md space-y-10 z-10">
         <div className="text-center space-y-6">
           <div className="flex flex-col items-center justify-center gap-6">
             <Heart className="w-16 h-16 fill-primary text-primary" />
@@ -236,7 +236,7 @@ function LoginContent() {
           </div>
         </div>
 
-        <Card className="border-none shadow-[0_30px_100px_-10px_rgba(0,0,0,0.08)] rounded-[3.5rem] overflow-hidden bg-white">
+        <Card className="border-none shadow-[0_30px_100px_-10px_rgba(0,0,0,0.08)] rounded-[3.5rem] overflow-hidden bg-white max-w-md mx-auto">
           <Tabs value={mode} onValueChange={(v) => setMode(v as 'signin' | 'signup')} className="w-full">
             <TabsList className="w-full grid grid-cols-2 h-16 bg-white p-1 border-b">
               <TabsTrigger value="signin" className="rounded-t-[1.5rem] text-[11px] font-black uppercase tracking-[0.2em] transition-all">Sign In</TabsTrigger>
