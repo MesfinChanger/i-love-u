@@ -367,15 +367,15 @@ function ProfileContent() {
               <div className="space-y-4">
                 <div className="flex flex-col gap-4 bg-primary/5 p-6 rounded-3xl border border-primary/10">
                     <div className="flex items-start space-x-3">
-                      <Checkbox id="age-check-prof" checked={isAgeVerified} onCheckedChange={(c) => setIsAgeVerified(c as boolean)} className="mt-1" />
+                      <Checkbox id="age-check-prof" checked={isAgeVerified} onValueChange={(c) => setIsAgeVerified(c as boolean)} className="mt-1" />
                       <label htmlFor="age-check-prof" className="text-[9px] font-black leading-tight text-primary uppercase tracking-widest cursor-pointer">I AM 18+ YEARS OLD</label>
                     </div>
                     <div className="flex items-start space-x-3 pt-3 border-t border-primary/10">
-                      <Checkbox id="respect-check-prof" checked={isRespectful} onCheckedChange={(c) => setIsRespectful(c as boolean)} className="mt-1" />
+                      <Checkbox id="respect-check-prof" checked={isRespectful} onValueChange={(c) => setIsRespectful(c as boolean)} className="mt-1" />
                       <label htmlFor="respect-check-prof" className="text-[9px] font-black leading-tight text-primary uppercase tracking-widest cursor-pointer">RESPECT & LOVE IS MANDATORY</label>
                     </div>
                     <div className="flex items-start space-x-3 pt-3 border-t border-primary/10">
-                      <Checkbox id="human-check-prof" checked={isHuman} onCheckedChange={(c) => setIsHuman(c as boolean)} className="mt-1" />
+                      <Checkbox id="human-check-prof" checked={isHuman} onValueChange={(c) => setIsHuman(c as boolean)} className="mt-1" />
                       <label htmlFor="human-check-prof" className="text-[9px] font-black leading-tight text-primary uppercase tracking-widest cursor-pointer flex items-center gap-2">
                         <UserCheck className="w-3 h-3" /> VERIFY HUMAN
                       </label>
