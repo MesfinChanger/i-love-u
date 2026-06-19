@@ -6,25 +6,39 @@ import { getAuth, Auth } from 'firebase/auth';
 import { firebaseConfig } from './config';
 
 /**
- * @fileOverview Initializes Firebase services with defensive validation to prevent boot-time crashes.
+ * @fileOverview Initializes Firebase services with high resilience to missing configuration.
+ * This prevents the entire application from crashing (e.g. auth/invalid-api-key)
+ * during the provisioning phase of environment variables.
  */
 export function initializeFirebase(): { app: FirebaseApp; db: Firestore; auth: Auth } {
-  // Defensive bootstrapping: Only initialize if we have a plausible API key string.
-  // This prevents auth/invalid-api-key from crashing the root layout during SSR or hydration
-  // if environment variables are not yet injected.
+  // Defensive check: If API Key is missing or too short, we are in a non-configured state.
   const isConfigValid = typeof firebaseConfig.apiKey === 'string' && firebaseConfig.apiKey.length > 5;
   
   if (!isConfigValid) {
-    // Return a proxy or empty object if config is missing to prevent root crash.
-    // In a real scenario, initializeApp would throw, so we catch it or return dummies.
-    console.warn("Firebase API key is missing or invalid. Please check your environment variables.");
+    console.warn("Firebase configuration is incomplete. Authentication and database features will be limited until API keys are provided.");
+    // Return dummy objects cast to their types to prevent immediate hook crashes.
+    // Hooks like useUser or useCollection handle loading/null states already.
+    return { 
+      app: {} as FirebaseApp, 
+      db: {} as Firestore, 
+      auth: {} as Auth 
+    };
   }
 
-  const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  const auth = getAuth(app);
-  
-  return { app, db, auth };
+  try {
+    const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+    
+    return { app, db, auth };
+  } catch (error) {
+    console.error("Firebase initialization failed:", error);
+    return { 
+      app: {} as FirebaseApp, 
+      db: {} as Firestore, 
+      auth: {} as Auth 
+    };
+  }
 }
 
 export * from './provider';
