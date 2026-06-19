@@ -1,9 +1,8 @@
-
 'use client';
 
 /**
  * Utility for End-to-End Encryption (E2EE) using Web Crypto API.
- * Optimized for SSR safety and maximum compatibility.
+ * Optimized for SSR safety and maximum compatibility with Next.js 15.
  */
 
 const isBrowser = typeof window !== 'undefined' && typeof window.crypto !== 'undefined';
@@ -39,24 +38,29 @@ function base64ToArrayBuffer(base64: string): ArrayBuffer {
 export async function generateKeyPair() {
   if (!isBrowser) return { publicKey: '', privateKey: '' };
   
-  const keyPair = await window.crypto.subtle.generateKey(
-    {
-      name: "RSA-OAEP",
-      modulusLength: 2048,
-      publicExponent: new Uint8Array([1, 0, 1]),
-      hash: "SHA-256",
-    },
-    true,
-    ["encrypt", "decrypt"]
-  );
+  try {
+    const keyPair = await window.crypto.subtle.generateKey(
+      {
+        name: "RSA-OAEP",
+        modulusLength: 2048,
+        publicExponent: new Uint8Array([1, 0, 1]),
+        hash: "SHA-256",
+      },
+      true,
+      ["encrypt", "decrypt"]
+    );
 
-  const publicKey = await window.crypto.subtle.exportKey("spki", keyPair.publicKey);
-  const privateKey = await window.crypto.subtle.exportKey("pkcs8", keyPair.privateKey);
+    const publicKey = await window.crypto.subtle.exportKey("spki", keyPair.publicKey);
+    const privateKey = await window.crypto.subtle.exportKey("pkcs8", keyPair.privateKey);
 
-  return {
-    publicKey: arrayBufferToBase64(publicKey),
-    privateKey: arrayBufferToBase64(privateKey)
-  };
+    return {
+      publicKey: arrayBufferToBase64(publicKey),
+      privateKey: arrayBufferToBase64(privateKey)
+    };
+  } catch (e) {
+    console.error("Key generation failed", e);
+    return { publicKey: '', privateKey: '' };
+  }
 }
 
 export async function encryptText(text: string, publicKeyBase64: string) {

@@ -8,25 +8,25 @@
     },
     {
       "id": "user-1",
-      "description": "Smiling person profile",
+      "description": "Happiness profile user 1",
       "imageUrl": "https://picsum.photos/seed/user1/400/600",
       "imageHint": "smiling person"
     },
     {
       "id": "user-2",
-      "description": "Portrait man profile",
+      "description": "Happiness profile user 2",
       "imageUrl": "https://picsum.photos/seed/user2/400/600",
       "imageHint": "portrait man"
     },
     {
       "id": "user-3",
-      "description": "Fashion person profile",
+      "description": "Happiness profile user 3",
       "imageUrl": "https://picsum.photos/seed/user3/400/600",
       "imageHint": "fashion person"
     },
     {
       "id": "user-4",
-      "description": "Confident person profile",
+      "description": "Happiness profile user 4",
       "imageUrl": "https://picsum.photos/seed/user4/400/600",
       "imageHint": "confident person"
     },

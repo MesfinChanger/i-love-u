@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect, useRef } from 'react';
@@ -11,7 +10,6 @@ import {
   Sparkles, 
   Loader2, 
   Camera, 
-  ShieldAlert, 
   EyeOff, 
   Lock, 
   MapPin, 
@@ -20,8 +18,6 @@ import {
   Cake, 
   TreePine, 
   BookOpen,
-  Flag,
-  Info,
   Users,
   HeartOff,
   Heart,
@@ -73,7 +69,6 @@ export default function ChatPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [isSending, setIsSending] = useState(false);
-  const [isReporting, setIsReporting] = useState(false);
   const [isUnconnecting, setIsUnconnecting] = useState(false);
   const [isInvitingWitness, setIsInvitingWitness] = useState(false);
   const [witnessUid, setWitnessUid] = useState('');
@@ -102,8 +97,11 @@ export default function ChatPage() {
   const { data: partnerProfile } = useDoc(partnerRef);
 
   const matchInfo = useMemo(() => {
-    const idNum = parseInt(String(matchId).split('-')[1]) || 0;
-    const img = PlaceHolderImages.filter(img => img.id.startsWith('user-'))[idNum % 4];
+    const idParts = String(matchId).split('_');
+    const idNum = idParts.length > 1 ? parseInt(idParts[1].substring(0, 5), 36) || 0 : 0;
+    const userImages = PlaceHolderImages.filter(img => img.id.startsWith('user-'));
+    const img = userImages[idNum % userImages.length] || userImages[0];
+    
     return {
       name: partnerProfile?.displayName || "Mystery Heart",
       photoUrl: partnerProfile?.photoUrl || img?.imageUrl,
@@ -221,28 +219,6 @@ export default function ChatPage() {
       });
     } finally {
       setIsUploading(false);
-    }
-  };
-
-  const handleReport = async () => {
-    if (!user || !db || !partnerId) return;
-    setIsReporting(true);
-    try {
-      await addDoc(collection(db, 'reports'), {
-        reporterId: user.uid,
-        reportedId: partnerId,
-        matchId: matchId,
-        timestamp: serverTimestamp(),
-        reason: "Violation of Mandatory Respect & Love"
-      });
-      toast({
-        title: "Report Received",
-        description: "Admin reviews are based on immutable logs. Thank you for keeping the community safe. ✨"
-      });
-    } catch (e) {
-      toast({ variant: "destructive", title: "Error", description: "Could not file report." });
-    } finally {
-      setIsReporting(false);
     }
   };
 
@@ -380,7 +356,7 @@ export default function ChatPage() {
                 </AlertDialogHeader>
                 <div className="py-6 space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="witness-id" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Witness User ID</Label>
+                    <label htmlFor="witness-id" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Witness User ID</label>
                     <Input 
                       id="witness-id"
                       placeholder="e.g. gHZ9n7s..." 
