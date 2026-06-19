@@ -1,3 +1,4 @@
+
 {
   "placeholderImages": [
     {
@@ -8,33 +9,33 @@
     },
     {
       "id": "user-1",
-      "description": "Woman from Asia",
-      "imageUrl": "https://picsum.photos/seed/female-asia/600/800",
-      "imageHint": "woman asia"
+      "description": "Young woman from Asia (18-25)",
+      "imageUrl": "https://picsum.photos/seed/female-asia-young/600/800",
+      "imageHint": "young woman"
     },
     {
       "id": "user-2",
-      "description": "Woman from Africa",
-      "imageUrl": "https://picsum.photos/seed/female-africa/600/800",
-      "imageHint": "woman africa"
+      "description": "Mature woman from Africa (40-50)",
+      "imageUrl": "https://picsum.photos/seed/female-africa-mature/600/800",
+      "imageHint": "mature woman"
     },
     {
       "id": "user-3",
-      "description": "Woman from Europe",
-      "imageUrl": "https://picsum.photos/seed/female-europe/600/800",
-      "imageHint": "woman europe"
+      "description": "Senior woman from Europe (60-65)",
+      "imageUrl": "https://picsum.photos/seed/female-europe-senior/600/800",
+      "imageHint": "senior woman"
     },
     {
       "id": "user-4",
-      "description": "Woman from Americas",
-      "imageUrl": "https://picsum.photos/seed/female-americas/600/800",
-      "imageHint": "woman americas"
+      "description": "Woman professional from Americas (30-40)",
+      "imageUrl": "https://picsum.photos/seed/female-americas-pro/600/800",
+      "imageHint": "professional woman"
     },
     {
       "id": "landing-hero",
-      "description": "Diverse women from around the world",
-      "imageUrl": "https://picsum.photos/seed/women-world/1200/800",
-      "imageHint": "diverse women"
+      "description": "Diverse women of all ages from around the world",
+      "imageUrl": "https://picsum.photos/seed/women-world-ages/1200/800",
+      "imageHint": "diverse ages"
     }
   ]
 }
