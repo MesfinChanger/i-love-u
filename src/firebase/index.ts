@@ -6,32 +6,37 @@ import { getAuth, Auth } from 'firebase/auth';
 import { firebaseConfig } from './config';
 
 /**
- * @fileOverview Initializes Firebase services with extreme resilience.
- * Prevents root-level crashes (e.g. auth/invalid-api-key) during the 
- * environment variable provisioning phase.
+ * @fileOverview Initializes Firebase services with resilience.
+ * Returns null for services if initialization fails or config is missing,
+ * allowing the UI to render in a limited state rather than crashing.
  */
 export function initializeFirebase(): { app: FirebaseApp | null; db: Firestore | null; auth: Auth | null } {
-  // Defensive check: Validate API key before initialization
-  // Most Firebase errors are triggered by placeholder strings or empty keys.
-  const isConfigValid = 
-    typeof firebaseConfig.apiKey === 'string' && 
-    firebaseConfig.apiKey.length > 10 && 
-    !firebaseConfig.apiKey.includes('YOUR_') &&
-    !firebaseConfig.apiKey.includes('undefined');
+  // Validate basic config existence
+  const hasApiKey = typeof firebaseConfig.apiKey === 'string' && firebaseConfig.apiKey.length > 0;
   
-  if (!isConfigValid) {
-    console.warn("I Love U: Firebase configuration is incomplete. UI is in safe-mode.");
-    return { 
-      app: null, 
-      db: null, 
-      auth: null 
-    };
+  if (!hasApiKey || firebaseConfig.apiKey === 'undefined' || firebaseConfig.apiKey.includes('YOUR_')) {
+    console.warn("I Love U: Firebase API Key is missing or invalid. Check your environment variables.");
+    return { app: null, db: null, auth: null };
   }
 
   try {
     const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
+    
+    // Initialize services individually to prevent one failure from killing all
+    let db: Firestore | null = null;
+    let auth: Auth | null = null;
+
+    try {
+      db = getFirestore(app);
+    } catch (e) {
+      console.error("Firestore initialization failed:", e);
+    }
+
+    try {
+      auth = getAuth(app);
+    } catch (e) {
+      console.error("Auth initialization failed:", e);
+    }
     
     return { app, db, auth };
   } catch (error) {

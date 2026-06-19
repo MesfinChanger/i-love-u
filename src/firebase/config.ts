@@ -6,8 +6,8 @@
 const getEnv = (key: string) => {
   if (typeof process === 'undefined' || !process.env) return "";
   const val = process.env[key];
-  // Defensive check for common placeholder strings that cause crashes
-  if (!val || val === "YOUR_API_KEY" || val === "undefined") return "";
+  // Defensive check for common placeholder strings or literal "undefined"
+  if (!val || val === "YOUR_API_KEY" || val === "undefined" || val === "") return "";
   return val;
 };
 

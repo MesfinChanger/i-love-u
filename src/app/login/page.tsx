@@ -22,7 +22,8 @@ import {
   EyeOff,
   Globe,
   ShieldCheck,
-  CheckCircle2
+  CheckCircle2,
+  AlertTriangle
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
@@ -91,7 +92,11 @@ function LoginContent() {
   const handleAuth = async () => {
     if (!email || !password || !isProtocolComplete) return;
     if (!auth) {
-      toast({ variant: "destructive", title: "System Offline", description: "Firebase is not configured correctly." });
+      toast({ 
+        variant: "destructive", 
+        title: "Connection Error", 
+        description: "The prosperity network is currently initializing. Please check your internet connection or try again in a few seconds. ❤️" 
+      });
       return;
     }
     
@@ -120,7 +125,7 @@ function LoginContent() {
   const handleGoogleLogin = async () => {
     if (!isProtocolComplete) return;
     if (!auth) {
-      toast({ variant: "destructive", title: "System Offline", description: "Firebase is not configured correctly." });
+      toast({ variant: "destructive", title: "Connection Error", description: "Firebase services are unavailable." });
       return;
     }
 
@@ -197,6 +202,15 @@ function LoginContent() {
             </TabsList>
             
             <CardContent className="p-10 space-y-8">
+              {!auth && (
+                <div className="bg-amber-50 border border-amber-200 p-4 rounded-2xl flex items-start gap-3 mb-4 animate-pulse">
+                  <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+                  <p className="text-[10px] text-amber-700 font-bold uppercase tracking-wider leading-relaxed">
+                    System Initialization: The community connection is still booting up. Please wait...
+                  </p>
+                </div>
+              )}
+
               <div className="space-y-6">
                 {mode === 'signup' && (
                   <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
@@ -242,10 +256,10 @@ function LoginContent() {
               <div className="pt-4 space-y-6">
                 <Button 
                   onClick={handleAuth} 
-                  disabled={isLoading || !isProtocolComplete || !email || !password} 
+                  disabled={isLoading || !isProtocolComplete || !email || !password || !auth} 
                   className={cn(
                     "w-full h-20 rounded-[2rem] font-black uppercase tracking-[0.3em] text-sm shadow-[0_20px_40px_-10px_rgba(255,51,102,0.4)] active:scale-95 transition-all",
-                    !isProtocolComplete ? "bg-slate-200 text-slate-400" : "gradient-bg"
+                    (!isProtocolComplete || !auth) ? "bg-slate-200 text-slate-400" : "gradient-bg"
                   )}
                 >
                   {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : mode === 'signin' ? 'Launch' : 'Join Revolution'}
@@ -254,11 +268,11 @@ function LoginContent() {
                 <Button 
                   variant="outline" 
                   onClick={handleGoogleLogin} 
-                  disabled={isLoading || !isProtocolComplete} 
+                  disabled={isLoading || !isProtocolComplete || !auth} 
                   className="w-full h-16 rounded-[1.5rem] gap-4 font-black uppercase tracking-[0.2em] text-[11px] border-2 border-slate-100 hover:border-primary/20 hover:bg-primary/5 transition-all"
                 >
                   <div className="w-5 h-5 rounded-full border border-primary/20 flex items-center justify-center">
-                    <Heart className="w-3 h-3 fill-primary text-primary" />
+                    <Heart className="w-3 x-3 fill-primary text-primary" />
                   </div>
                   Quick Access
                 </Button>
