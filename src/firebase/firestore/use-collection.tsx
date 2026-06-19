@@ -10,6 +10,10 @@ import {
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 
+/**
+ * @fileOverview Safe Collection Hook.
+ * Hardened to handle missing queries or uninitialized Firestore.
+ */
 export function useCollection<T = DocumentData>(query: Query<T> | null) {
   const [data, setData] = useState<T[] | null>(null);
   const [loading, setLoading] = useState(true);
@@ -29,11 +33,14 @@ export function useCollection<T = DocumentData>(query: Query<T> | null) {
           setLoading(false);
         },
         async (err) => {
-          const permissionError = new FirestorePermissionError({
-            path: 'query',
-            operation: 'list',
-          });
-          errorEmitter.emit('permission-error', permissionError);
+          // Check if this looks like a permission error
+          if (err.message?.toLowerCase().includes('permission')) {
+            const permissionError = new FirestorePermissionError({
+              path: 'query',
+              operation: 'list',
+            });
+            errorEmitter.emit('permission-error', permissionError);
+          }
           setError(err);
           setLoading(false);
         }
@@ -41,7 +48,7 @@ export function useCollection<T = DocumentData>(query: Query<T> | null) {
 
       return () => unsubscribe();
     } catch (err: any) {
-      console.error("useCollection failed:", err);
+      console.warn("I Love U: useCollection safety bypass:", err);
       setLoading(false);
       return;
     }

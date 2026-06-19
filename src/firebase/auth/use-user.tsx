@@ -6,7 +6,7 @@ import { useAuth } from '../provider';
 
 /**
  * @fileOverview Resilient User Hook.
- * Hardened to handle modular Firebase instances safely without throwing TypeErrors.
+ * Hardened to handle missing Auth instances without throwing TypeErrors.
  */
 export function useUser() {
   const auth = useAuth();
@@ -21,7 +21,7 @@ export function useUser() {
     }
 
     try {
-      // The auth object must be a valid instance for onAuthStateChanged
+      // Defensive check to ensure auth instance is valid for modular SDK
       const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
         setUser(firebaseUser);
         setLoading(false);

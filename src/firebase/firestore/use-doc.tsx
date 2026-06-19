@@ -10,6 +10,10 @@ import {
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 
+/**
+ * @fileOverview Safe Document Hook.
+ * Hardened to handle missing refs or uninitialized Firestore.
+ */
 export function useDoc<T = DocumentData>(ref: DocumentReference<T> | null) {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(true);
@@ -29,11 +33,14 @@ export function useDoc<T = DocumentData>(ref: DocumentReference<T> | null) {
           setLoading(false);
         },
         async (err) => {
-          const permissionError = new FirestorePermissionError({
-            path: ref.path,
-            operation: 'get',
-          });
-          errorEmitter.emit('permission-error', permissionError);
+          // Check if this looks like a permission error
+          if (err.message?.toLowerCase().includes('permission')) {
+            const permissionError = new FirestorePermissionError({
+              path: ref.path,
+              operation: 'get',
+            });
+            errorEmitter.emit('permission-error', permissionError);
+          }
           setError(err);
           setLoading(false);
         }
@@ -41,7 +48,7 @@ export function useDoc<T = DocumentData>(ref: DocumentReference<T> | null) {
 
       return () => unsubscribe();
     } catch (err: any) {
-      console.error("useDoc failed:", err);
+      console.warn("I Love U: useDoc safety bypass:", err);
       setLoading(false);
       return;
     }
