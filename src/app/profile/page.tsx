@@ -132,9 +132,9 @@ function ProfileContent() {
         updatedAt: serverTimestamp()
       }, { merge: true });
 
-      toast({ title: "Profile Synced", description: "Identity updated globally. ❤️" });
+      toast({ title: "Profile Synced", description: "Global Identity updated. ❤️" });
     } catch (e) {
-      toast({ variant: "destructive", title: "Error", description: "Could not save profile." });
+      toast({ variant: "destructive", title: "Error", description: "Could not sync profile." });
     } finally {
       setIsSaving(false);
     }
@@ -153,13 +153,13 @@ function ProfileContent() {
   if (profileLoading) return <div className="flex items-center justify-center min-h-screen"><Loader2 className="animate-spin text-primary" /></div>;
 
   return (
-    <div className="flex flex-col min-h-screen bg-white pb-24">
+    <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
       <Header />
       <main className="container mx-auto px-6 max-w-2xl py-10">
         <div className="flex flex-col md:flex-row items-center justify-between mb-12 gap-6">
           <div>
             <h1 className="text-5xl font-black tracking-tighter text-slate-900">Identity</h1>
-            <p className="text-muted-foreground mt-1 font-medium italic">Record your global origin and presence.</p>
+            <p className="text-muted-foreground mt-1 font-medium italic">Record your global origin and community presence.</p>
           </div>
           <div className="flex items-center gap-3">
             <Button variant="outline" size="sm" onClick={() => signOut(auth)} className="rounded-xl h-12 px-6 font-black uppercase text-[9px] tracking-widest transition-all">Sign Out</Button>
@@ -170,62 +170,62 @@ function ProfileContent() {
         </div>
 
         <Tabs defaultValue="personal" className="w-full">
-          <TabsList className="w-full h-14 bg-slate-50 rounded-xl p-1 mb-10 border">
+          <TabsList className="w-full h-14 bg-white/50 rounded-xl p-1 mb-10 border shadow-sm backdrop-blur-md">
             <TabsTrigger value="personal" className="flex-1 rounded-lg gap-2 font-black text-[9px] uppercase tracking-widest"><User className="w-3 h-3" />Personal</TabsTrigger>
             <TabsTrigger value="public" className="flex-1 rounded-lg gap-2 font-black text-[9px] uppercase tracking-widest"><Globe2 className="w-3 h-3" />Public</TabsTrigger>
           </TabsList>
 
           <TabsContent value="personal">
-            <Card className="rounded-[2.5rem] border-none shadow-xl bg-slate-50/50 p-8 space-y-8">
-              <div className="grid sm:grid-cols-2 gap-6">
+            <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-8 space-y-10">
+              <div className="grid sm:grid-cols-2 gap-8">
                 <div className="space-y-3">
                   <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-2">Display Name</Label>
-                  <Input value={displayName} onChange={e => setDisplayName(e.target.value)} className="rounded-xl h-14 bg-white border-none px-6 font-bold shadow-sm" />
+                  <Input value={displayName} onChange={e => setDisplayName(e.target.value)} className="rounded-xl h-14 bg-muted/20 border-none px-6 font-bold shadow-inner" />
                 </div>
                 <div className="space-y-3">
                   <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-2">Age (18+)</Label>
-                  <Input type="number" min="18" value={age} onChange={e => setAge(e.target.value)} className="rounded-xl h-14 bg-white border-none px-6 font-bold shadow-sm" />
+                  <Input type="number" min="18" value={age} onChange={e => setAge(e.target.value)} className="rounded-xl h-14 bg-muted/20 border-none px-6 font-bold shadow-inner" />
                 </div>
               </div>
-              <div className="grid sm:grid-cols-2 gap-6">
-                <div className="space-y-3">
-                  <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-2">Gender Identity</Label>
-                  <Select value={gender} onValueChange={setGender}>
-                    <SelectTrigger className="rounded-xl h-14 bg-white border-none px-6 font-bold shadow-sm"><SelectValue /></SelectTrigger>
-                    <SelectContent>{GENDERS.map(g => <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>)}</SelectContent>
-                  </Select>
+
+              <div className="space-y-4 pt-6 border-t">
+                <div className="flex items-center gap-2 mb-4">
+                  <Globe className="w-4 h-4 text-primary" />
+                  <h3 className="text-xs font-black uppercase tracking-widest">Global Origin</h3>
                 </div>
-                <div className="space-y-3">
-                  <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-2">Global Country Code</Label>
-                  <Select value={country} onValueChange={setCountry}>
-                    <SelectTrigger className="rounded-xl h-14 bg-white border-none px-6 font-bold shadow-sm">
-                      <div className="flex items-center gap-2">
-                        <Globe className="w-4 h-4 text-primary" />
-                        <SelectValue />
-                      </div>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {COUNTRIES.map(c => <SelectItem key={c.code} value={c.code}>{c.name}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
+                <div className="grid sm:grid-cols-2 gap-8">
+                  <div className="space-y-3">
+                    <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-2">Country Selection</Label>
+                    <Select value={country} onValueChange={setCountry}>
+                      <SelectTrigger className="rounded-xl h-14 bg-muted/20 border-none px-6 font-bold shadow-inner"><SelectValue /></SelectTrigger>
+                      <SelectContent>{COUNTRIES.map(c => <SelectItem key={c.code} value={c.code}>{c.name}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-3">
+                    <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-2">Gender Identity</Label>
+                    <Select value={gender} onValueChange={setGender}>
+                      <SelectTrigger className="rounded-xl h-14 bg-muted/20 border-none px-6 font-bold shadow-inner"><SelectValue /></SelectTrigger>
+                      <SelectContent>{GENDERS.map(g => <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </div>
                 </div>
               </div>
             </Card>
           </TabsContent>
 
           <TabsContent value="public">
-             <Card className="rounded-[2.5rem] border-none shadow-xl bg-slate-50/50 p-8 space-y-10">
+             <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-8 space-y-10">
                 <div className="space-y-8">
                   <div className="space-y-3">
                     <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-2">Unique Public Nickname</Label>
-                    <Input value={publicNickname} onChange={e => setPublicNickname(e.target.value)} placeholder="e.g. HeartExplorer" className="rounded-xl h-14 bg-white border-2 border-primary/10 px-6 font-black text-primary shadow-inner" />
+                    <Input value={publicNickname} onChange={e => setPublicNickname(e.target.value)} placeholder="e.g. GlobalHeart" className="rounded-xl h-14 bg-muted/10 border-2 border-primary/5 px-6 font-black text-primary shadow-inner" />
                   </div>
-                  <div className="flex items-center justify-between p-6 bg-white rounded-2xl border border-primary/5 shadow-sm">
+                  <div className="flex items-center justify-between p-6 bg-primary/5 rounded-2xl border border-primary/10 shadow-sm">
                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-xl bg-primary/5 flex items-center justify-center text-primary"><Camera className="w-5 h-5" /></div>
+                        <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-primary shadow-sm"><Camera className="w-5 h-5" /></div>
                         <div>
-                          <h4 className="font-black text-xs uppercase tracking-tight">Post Pic Publicly</h4>
-                          <p className="text-[9px] opacity-60 font-medium italic mt-0.5">Visible to everyone in Discovery Feed.</p>
+                          <h4 className="font-black text-xs uppercase tracking-tight">Public Photo Toggle</h4>
+                          <p className="text-[9px] opacity-60 font-medium italic mt-0.5">Show your portrait in the global discovery feed.</p>
                         </div>
                      </div>
                      <Switch checked={isPhotoPublic} onCheckedChange={setIsPhotoPublic} />
@@ -233,11 +233,11 @@ function ProfileContent() {
                   <div className="space-y-4">
                     <div className="flex items-center justify-between ml-2">
                       <Label className="text-[9px] font-black uppercase tracking-widest opacity-60">Personal Bio</Label>
-                      <Button variant="ghost" size="sm" onClick={handleGenerateBio} disabled={isGenerating} className="text-primary gap-2 font-black text-[9px] uppercase h-9 px-4 bg-white rounded-full border border-primary/10">
+                      <Button variant="ghost" size="sm" onClick={handleGenerateBio} disabled={isGenerating} className="text-primary gap-2 font-black text-[9px] uppercase h-9 px-4 bg-muted/20 rounded-full">
                         {isGenerating ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}AI Spark
                       </Button>
                     </div>
-                    <Textarea value={bio} onChange={e => setBio(e.target.value)} className="min-h-[180px] rounded-2xl bg-white border-none p-6 italic font-medium leading-relaxed shadow-sm" placeholder="Share your joyful moments with the world..." />
+                    <Textarea value={bio} onChange={e => setBio(e.target.value)} className="min-h-[160px] rounded-2xl bg-muted/10 border-none p-6 italic font-medium leading-relaxed shadow-inner" placeholder="Share your global mission and interests..." />
                   </div>
                 </div>
              </Card>

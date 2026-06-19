@@ -13,5 +13,6 @@ export const firebaseConfig = {
 };
 
 if (!firebaseConfig.apiKey && typeof window !== 'undefined') {
-  console.warn("Firebase API Key is missing. Ensure NEXT_PUBLIC_FIREBASE_API_KEY is set in your Firebase Console or environment.");
+  // Silent fail to avoid immediate crash, allowing user to see verification requirements
+  console.warn("Global Security Key missing. Ensure NEXT_PUBLIC_FIREBASE_API_KEY is set in your environment.");
 }

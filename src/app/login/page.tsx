@@ -71,7 +71,7 @@ function LoginContent() {
 
   const validateAccess = () => {
     if (!isAgeVerified) {
-      toast({ variant: "destructive", title: "Age Verification", description: "You must be 18+ to join." });
+      toast({ variant: "destructive", title: "Age Requirement", description: "You must be 18+ to join." });
       return false;
     }
     if (!isRespectful) {
@@ -79,11 +79,11 @@ function LoginContent() {
       return false;
     }
     if (!isHuman) {
-      toast({ variant: "destructive", title: "Security Protocol", description: "Human verification is mandatory. ✨" });
+      toast({ variant: "destructive", title: "Security Protocol", description: "Verify human status to proceed. ✨" });
       return false;
     }
     if (mode === 'signup' && !country) {
-      toast({ variant: "destructive", title: "Country Required", description: "Select your global origin." });
+      toast({ variant: "destructive", title: "Global Origin", description: "Select your country of origin." });
       return false;
     }
     return true;
@@ -99,6 +99,15 @@ function LoginContent() {
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     }, { merge: true });
+
+    // Ensure discovery profile is initialized
+    await setDoc(doc(db, 'publicProfiles', uid), {
+      uid,
+      country: country || 'GLOBAL',
+      publicNickname: "Mystery Heart",
+      bio: "Joining the movement...",
+      updatedAt: serverTimestamp()
+    }, { merge: true });
   };
 
   const handleEmailAuth = async () => {
@@ -109,13 +118,13 @@ function LoginContent() {
       if (mode === 'signup') {
         const res = await createUserWithEmailAndPassword(auth, email, password);
         await syncUserProfile(res.user.uid, email);
-        toast({ title: "Welcome!", description: "Identity created. Find your Spark. ❤️" });
+        toast({ title: "Welcome!", description: "Account created. Set your origin in Profile. ❤️" });
       } else {
         await signInWithEmailAndPassword(auth, email, password);
       }
       router.push('/discover');
     } catch (error: any) {
-      toast({ variant: "destructive", title: "Access Denied", description: error.message });
+      toast({ variant: "destructive", title: "Access Denied", description: "Global Security Protocol failed: " + error.message });
     } finally {
       setIsLoading(false);
     }
@@ -142,76 +151,83 @@ function LoginContent() {
 
   return (
     <div className="flex flex-col min-h-screen bg-muted/30 items-center justify-center p-6">
-      <Link href="/" className="absolute top-8 left-8 flex items-center gap-3 text-muted-foreground hover:text-primary transition-colors font-black text-[10px] uppercase tracking-widest"><ArrowLeft className="w-4 h-4" />Home</Link>
+      <Link href="/" className="absolute top-8 left-8 flex items-center gap-3 text-muted-foreground hover:text-primary transition-colors font-black text-[9px] uppercase tracking-widest"><ArrowLeft className="w-4 h-4" />Home</Link>
       
       <div className="w-full max-w-md space-y-12">
         <div className="text-center space-y-4">
           <div className="flex flex-col items-center justify-center gap-6">
-            <Heart className="w-14 h-14 fill-primary text-primary animate-heartbeat" />
-            <span className="font-black text-2xl tracking-[0.5em] text-primary uppercase">I LOVE U</span>
+            <Heart className="w-12 h-12 fill-primary text-primary animate-heartbeat" />
+            <span className="font-black text-xl tracking-[0.5em] text-primary uppercase">I LOVE U</span>
           </div>
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] opacity-40">Global Prosperity Revolution ❤️ 18+</p>
+          <p className="text-[9px] font-black uppercase tracking-[0.4em] opacity-40">Prosperity Revolution • 18+</p>
         </div>
 
-        <Card className="border-none shadow-2xl rounded-[3.5rem] overflow-hidden bg-white">
-          <Tabs defaultValue="email" className="w-full">
-            <TabsList className="w-full grid grid-cols-2 h-16 bg-muted/30 p-1">
-              <TabsTrigger value="email" className="rounded-[1.8rem] gap-2 text-[10px] font-black uppercase tracking-widest">Email</TabsTrigger>
-              <TabsTrigger value="social" className="rounded-[1.8rem] gap-2 text-[10px] font-black uppercase tracking-widest">Social</TabsTrigger>
+        <Card className="border-none shadow-2xl rounded-[3rem] overflow-hidden bg-white">
+          <Tabs value={mode} onValueChange={(v) => setMode(v as 'signin' | 'signup')} className="w-full">
+            <TabsList className="w-full grid grid-cols-2 h-14 bg-muted/30 p-1">
+              <TabsTrigger value="signin" className="rounded-[1.5rem] text-[9px] font-black uppercase tracking-widest">Sign In</TabsTrigger>
+              <TabsTrigger value="signup" className="rounded-[1.5rem] text-[9px] font-black uppercase tracking-widest">Join</TabsTrigger>
             </TabsList>
-            <CardContent className="p-10">
+            <CardContent className="p-8">
               <div className="space-y-4 mb-8">
-                <div className="flex flex-col gap-4 bg-primary/5 p-8 rounded-[2.5rem] border border-primary/10">
-                    <div className="flex items-start space-x-4">
-                      <Checkbox id="age-check" checked={isAgeVerified} onCheckedChange={(c) => setIsAgeVerified(c as boolean)} className="mt-1 w-5 h-5 rounded-md border-2 border-primary" />
-                      <label htmlFor="age-check" className="text-[10px] font-black leading-tight text-primary uppercase tracking-widest cursor-pointer">I AM 18+ YEARS OLD</label>
+                <div className="flex flex-col gap-4 bg-primary/5 p-6 rounded-3xl border border-primary/10">
+                    <div className="flex items-start space-x-3">
+                      <Checkbox id="age-check" checked={isAgeVerified} onCheckedChange={(c) => setIsAgeVerified(c as boolean)} className="mt-1" />
+                      <label htmlFor="age-check" className="text-[9px] font-black leading-tight text-primary uppercase tracking-widest cursor-pointer">I AM 18+ YEARS OLD</label>
                     </div>
-                    <div className="flex items-start space-x-4 pt-4 border-t border-primary/10">
-                      <Checkbox id="respect-check" checked={isRespectful} onCheckedChange={(c) => setIsRespectful(c as boolean)} className="mt-1 w-5 h-5 rounded-md border-2 border-primary" />
-                      <label htmlFor="respect-check" className="text-[10px] font-black leading-tight text-primary uppercase tracking-widest cursor-pointer">RESPECT & LOVE IS MANDATORY</label>
+                    <div className="flex items-start space-x-3 pt-3 border-t border-primary/10">
+                      <Checkbox id="respect-check" checked={isRespectful} onCheckedChange={(c) => setIsRespectful(c as boolean)} className="mt-1" />
+                      <label htmlFor="respect-check" className="text-[9px] font-black leading-tight text-primary uppercase tracking-widest cursor-pointer">RESPECT & LOVE IS MANDATORY</label>
                     </div>
-                    <div className="flex items-start space-x-4 pt-4 border-t border-primary/10">
-                      <Checkbox id="human-check" checked={isHuman} onCheckedChange={(c) => setIsHuman(c as boolean)} className="mt-1 w-5 h-5 rounded-md border-2 border-primary" />
-                      <label htmlFor="human-check" className="text-[10px] font-black leading-tight text-primary uppercase tracking-widest cursor-pointer flex items-center gap-2">
+                    <div className="flex items-start space-x-3 pt-3 border-t border-primary/10">
+                      <Checkbox id="human-check" checked={isHuman} onCheckedChange={(c) => setIsHuman(c as boolean)} className="mt-1" />
+                      <label htmlFor="human-check" className="text-[9px] font-black leading-tight text-primary uppercase tracking-widest cursor-pointer flex items-center gap-2">
                         <UserCheck className="w-3 h-3" /> VERIFY HUMAN
                       </label>
                     </div>
                 </div>
               </div>
 
-              <TabsContent value="email" className="space-y-6">
-                <div className="space-y-4">
-                  {mode === 'signup' && (
-                    <div className="space-y-2">
-                       <Select value={country} onValueChange={setCountry}>
-                          <SelectTrigger className="rounded-2xl h-16 bg-muted/20 border-none px-8 font-bold text-lg">
-                            <div className="flex items-center gap-3">
-                              <Globe className="w-5 h-5 text-primary" />
-                              <SelectValue placeholder="YOUR COUNTRY" />
-                            </div>
-                          </SelectTrigger>
-                          <SelectContent>
-                            {COUNTRIES.map(c => <SelectItem key={c.code} value={c.code}>{c.name}</SelectItem>)}
-                          </SelectContent>
-                       </Select>
-                    </div>
-                  )}
-                  <Input type="email" placeholder="YOUR EMAIL" value={email} onChange={(e) => setEmail(e.target.value)} className="rounded-2xl h-16 bg-muted/20 border-none px-8 font-bold text-lg" />
-                  <div className="relative">
-                    <Input type={showPassword ? "text" : "password"} placeholder="SECURE PHRASE" value={password} onChange={(e) => setPassword(e.target.value)} className="rounded-2xl h-16 bg-muted/20 border-none pl-8 pr-16 font-bold text-lg" />
-                    <Button variant="ghost" size="icon" className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground" onClick={() => setShowPassword(!showPassword)}>{showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}</Button>
-                  </div>
+              {mode === 'signup' && (
+                <div className="space-y-4 mb-6 animate-in fade-in slide-in-from-top-2 duration-300">
+                  <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-2">Your Global Origin</Label>
+                  <Select value={country} onValueChange={setCountry}>
+                    <SelectTrigger className="rounded-2xl h-14 bg-muted/20 border-none px-6 font-bold text-base">
+                      <div className="flex items-center gap-3">
+                        <Globe className="w-4 h-4 text-primary" />
+                        <SelectValue placeholder="SELECT COUNTRY" />
+                      </div>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {COUNTRIES.map(c => <SelectItem key={c.code} value={c.code}>{c.name}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
                 </div>
-                <Button onClick={handleEmailAuth} disabled={isLoading} className="w-full h-20 rounded-[2rem] gradient-bg font-black uppercase tracking-widest text-lg shadow-2xl shadow-primary/30 active:scale-95 transition-all">
-                  {isLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : mode === 'signin' ? 'Launch' : 'Join'}
-                </Button>
-                <Button variant="ghost" onClick={() => setMode(mode === 'signin' ? 'signup' : 'signin')} className="w-full text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors">{mode === 'signin' ? "Create an account" : "Back to sign in"}</Button>
-              </TabsContent>
+              )}
 
-              <TabsContent value="social" className="space-y-6">
-                <Button variant="outline" onClick={handleGoogleLogin} disabled={isLoading} className="w-full h-20 rounded-[2rem] gap-4 font-black uppercase tracking-widest text-sm border-2 active:scale-95 transition-all"><Chrome className="w-6 h-6 text-primary" />Continue with Google</Button>
-                <p className="text-[9px] text-center text-muted-foreground uppercase font-black tracking-widest pt-4">Global Security Protocol Active</p>
-              </TabsContent>
+              <div className="space-y-4">
+                <Input type="email" placeholder="EMAIL" value={email} onChange={(e) => setEmail(e.target.value)} className="rounded-2xl h-14 bg-muted/20 border-none px-6 font-bold text-base" />
+                <div className="relative">
+                  <Input type={showPassword ? "text" : "password"} placeholder="SECURE PHRASE" value={password} onChange={(e) => setPassword(e.target.value)} className="rounded-2xl h-14 bg-muted/20 border-none pl-6 pr-14 font-bold text-base" />
+                  <Button variant="ghost" size="icon" className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" onClick={() => setShowPassword(!showPassword)}>{showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}</Button>
+                </div>
+              </div>
+
+              <div className="mt-8 space-y-4">
+                <Button onClick={handleEmailAuth} disabled={isLoading} className="w-full h-16 rounded-2xl gradient-bg font-black uppercase tracking-widest text-sm shadow-xl shadow-primary/20 active:scale-95 transition-all">
+                  {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : mode === 'signin' ? 'Launch' : 'Join the Spark'}
+                </Button>
+                <div className="relative flex items-center py-2">
+                  <div className="flex-grow border-t border-muted"></div>
+                  <span className="flex-shrink mx-4 text-[9px] font-black uppercase tracking-widest text-muted-foreground">Or</span>
+                  <div className="flex-grow border-t border-muted"></div>
+                </div>
+                <Button variant="outline" onClick={handleGoogleLogin} disabled={isLoading} className="w-full h-16 rounded-2xl gap-3 font-black uppercase tracking-widest text-[10px] border-2 active:scale-95 transition-all">
+                  <Chrome className="w-5 h-5 text-primary" /> Google Login
+                </Button>
+              </div>
+
+              <p className="text-[8px] text-center text-muted-foreground uppercase font-black tracking-widest pt-8">Global Security Protocol Active</p>
             </CardContent>
           </Tabs>
         </Card>
