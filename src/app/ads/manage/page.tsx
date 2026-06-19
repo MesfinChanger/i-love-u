@@ -26,7 +26,8 @@ import {
   AlertTriangle,
   MapPin,
   Scale,
-  ShieldAlert
+  ShieldAlert,
+  IdCard
 } from 'lucide-react';
 import { useUser, useFirestore, useDoc, useCollection } from '@/firebase';
 import { doc, setDoc, addDoc, collection, serverTimestamp, query, where } from 'firebase/firestore';
