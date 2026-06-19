@@ -6,18 +6,20 @@ import { getAuth, Auth } from 'firebase/auth';
 import { firebaseConfig } from './config';
 
 /**
- * @fileOverview Initializes Firebase services with high resilience to missing configuration.
- * This prevents the entire application from crashing (e.g. auth/invalid-api-key)
- * during the provisioning phase of environment variables.
+ * @fileOverview Initializes Firebase services with extreme resilience.
+ * Prevents root-level crashes (e.g. auth/invalid-api-key) during the 
+ * environment variable provisioning phase.
  */
 export function initializeFirebase(): { app: FirebaseApp; db: Firestore; auth: Auth } {
-  // Defensive check: If API Key is missing or too short, we are in a non-configured state.
-  const isConfigValid = typeof firebaseConfig.apiKey === 'string' && firebaseConfig.apiKey.length > 5;
+  // Defensive check: Validate API key before initialization
+  // Most Firebase errors are triggered by placeholder strings or empty keys.
+  const isConfigValid = 
+    typeof firebaseConfig.apiKey === 'string' && 
+    firebaseConfig.apiKey.length > 10 && 
+    !firebaseConfig.apiKey.includes('YOUR_');
   
   if (!isConfigValid) {
-    console.warn("Firebase configuration is incomplete. Authentication and database features will be limited until API keys are provided.");
-    // Return dummy objects cast to their types to prevent immediate hook crashes.
-    // Hooks like useUser or useCollection handle loading/null states already.
+    console.warn("I Love U: Firebase configuration is incomplete. UI is in safe-mode.");
     return { 
       app: {} as FirebaseApp, 
       db: {} as Firestore, 
@@ -28,11 +30,19 @@ export function initializeFirebase(): { app: FirebaseApp; db: Firestore; auth: A
   try {
     const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    const auth = getAuth(app);
+    
+    // Auth initialization is often where the 'invalid-api-key' error is thrown
+    let auth: Auth;
+    try {
+      auth = getAuth(app);
+    } catch (authError) {
+      console.error("Firebase Auth failed to initialize:", authError);
+      auth = {} as Auth;
+    }
     
     return { app, db, auth };
   } catch (error) {
-    console.error("Firebase initialization failed:", error);
+    console.error("Firebase root initialization failed:", error);
     return { 
       app: {} as FirebaseApp, 
       db: {} as Firestore, 

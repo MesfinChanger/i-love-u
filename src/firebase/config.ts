@@ -1,14 +1,16 @@
 /**
  * @fileOverview Firebase configuration object.
- * Strictly prioritizes environment variables for production and automatic publishing.
+ * Strictly prioritizes environment variables and validates them to prevent boot crashes.
  */
 
 const getEnv = (key: string) => {
   if (typeof process === 'undefined' || !process.env) return "";
-  return process.env[key] || "";
+  const val = process.env[key];
+  // Defensive check for common placeholder strings that cause crashes
+  if (!val || val === "YOUR_API_KEY" || val === "undefined") return "";
+  return val;
 };
 
-// Defensive check to avoid using placeholder strings that trigger 'invalid-api-key'
 export const firebaseConfig = {
   apiKey: getEnv('NEXT_PUBLIC_FIREBASE_API_KEY'),
   authDomain: getEnv('NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN'),

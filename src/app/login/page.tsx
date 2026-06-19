@@ -59,7 +59,7 @@ function LoginContent() {
 
   useEffect(() => {
     setCurrentYear(new Date().getFullYear().toString());
-    if (user && !authLoading) {
+    if (user && !authLoading && user.uid) {
       router.push('/discover');
     }
   }, [user, authLoading, router]);
@@ -67,6 +67,7 @@ function LoginContent() {
   const isProtocolComplete = isAgeVerified && isRespectful && isHuman;
 
   const syncUserProfile = async (uid: string, email: string) => {
+    if (!db || !uid) return;
     const defaultData = {
       uid,
       email,
@@ -90,6 +91,10 @@ function LoginContent() {
 
   const handleAuth = async () => {
     if (!email || !password || !isProtocolComplete) return;
+    if (!auth || !auth.app) {
+      toast({ variant: "destructive", title: "System Offline", description: "Firebase is not configured correctly." });
+      return;
+    }
     
     setIsLoading(true);
     try {
@@ -115,6 +120,10 @@ function LoginContent() {
 
   const handleGoogleLogin = async () => {
     if (!isProtocolComplete) return;
+    if (!auth || !auth.app) {
+      toast({ variant: "destructive", title: "System Offline", description: "Firebase is not configured correctly." });
+      return;
+    }
 
     setIsLoading(true);
     const provider = new GoogleAuthProvider();
