@@ -6,7 +6,14 @@ import { getAuth, Auth } from 'firebase/auth';
 import { firebaseConfig } from './config';
 
 export function initializeFirebase(): { app: FirebaseApp; db: Firestore; auth: Auth } {
-  const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+  // Defensive bootstrapping: If API Key is missing, use a dummy one to prevent crash
+  // This allows the UI to render while environment variables are being provisioned
+  const validatedConfig = {
+    ...firebaseConfig,
+    apiKey: firebaseConfig.apiKey || "BOOTSTRAP_PLACEHOLDER_KEY"
+  };
+
+  const app = getApps().length > 0 ? getApp() : initializeApp(validatedConfig);
   const db = getFirestore(app);
   const auth = getAuth(app);
   return { app, db, auth };
