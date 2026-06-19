@@ -21,7 +21,6 @@ import {
   Eye,
   EyeOff,
   Globe,
-  Sparkles,
   ShieldCheck,
   CheckCircle2
 } from 'lucide-react';
@@ -91,7 +90,7 @@ function LoginContent() {
 
   const handleAuth = async () => {
     if (!email || !password || !isProtocolComplete) return;
-    if (!auth || !auth.app) {
+    if (!auth) {
       toast({ variant: "destructive", title: "System Offline", description: "Firebase is not configured correctly." });
       return;
     }
@@ -120,7 +119,7 @@ function LoginContent() {
 
   const handleGoogleLogin = async () => {
     if (!isProtocolComplete) return;
-    if (!auth || !auth.app) {
+    if (!auth) {
       toast({ variant: "destructive", title: "System Offline", description: "Firebase is not configured correctly." });
       return;
     }

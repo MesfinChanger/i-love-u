@@ -10,43 +10,36 @@ import { firebaseConfig } from './config';
  * Prevents root-level crashes (e.g. auth/invalid-api-key) during the 
  * environment variable provisioning phase.
  */
-export function initializeFirebase(): { app: FirebaseApp; db: Firestore; auth: Auth } {
+export function initializeFirebase(): { app: FirebaseApp | null; db: Firestore | null; auth: Auth | null } {
   // Defensive check: Validate API key before initialization
   // Most Firebase errors are triggered by placeholder strings or empty keys.
   const isConfigValid = 
     typeof firebaseConfig.apiKey === 'string' && 
     firebaseConfig.apiKey.length > 10 && 
-    !firebaseConfig.apiKey.includes('YOUR_');
+    !firebaseConfig.apiKey.includes('YOUR_') &&
+    !firebaseConfig.apiKey.includes('undefined');
   
   if (!isConfigValid) {
     console.warn("I Love U: Firebase configuration is incomplete. UI is in safe-mode.");
     return { 
-      app: {} as FirebaseApp, 
-      db: {} as Firestore, 
-      auth: {} as Auth 
+      app: null, 
+      db: null, 
+      auth: null 
     };
   }
 
   try {
     const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    
-    // Auth initialization is often where the 'invalid-api-key' error is thrown
-    let auth: Auth;
-    try {
-      auth = getAuth(app);
-    } catch (authError) {
-      console.error("Firebase Auth failed to initialize:", authError);
-      auth = {} as Auth;
-    }
+    const auth = getAuth(app);
     
     return { app, db, auth };
   } catch (error) {
     console.error("Firebase root initialization failed:", error);
     return { 
-      app: {} as FirebaseApp, 
-      db: {} as Firestore, 
-      auth: {} as Auth 
+      app: null, 
+      db: null, 
+      auth: null 
     };
   }
 }

@@ -21,24 +21,30 @@ export function useDoc<T = DocumentData>(ref: DocumentReference<T> | null) {
       return;
     }
 
-    const unsubscribe = onSnapshot(
-      ref,
-      (snapshot: DocumentSnapshot<T>) => {
-        setData(snapshot.exists() ? { ...snapshot.data(), id: snapshot.id } as T : null);
-        setLoading(false);
-      },
-      async (err) => {
-        const permissionError = new FirestorePermissionError({
-          path: ref.path,
-          operation: 'get',
-        });
-        errorEmitter.emit('permission-error', permissionError);
-        setError(err);
-        setLoading(false);
-      }
-    );
+    try {
+      const unsubscribe = onSnapshot(
+        ref,
+        (snapshot: DocumentSnapshot<T>) => {
+          setData(snapshot.exists() ? { ...snapshot.data(), id: snapshot.id } as T : null);
+          setLoading(false);
+        },
+        async (err) => {
+          const permissionError = new FirestorePermissionError({
+            path: ref.path,
+            operation: 'get',
+          });
+          errorEmitter.emit('permission-error', permissionError);
+          setError(err);
+          setLoading(false);
+        }
+      );
 
-    return () => unsubscribe();
+      return () => unsubscribe();
+    } catch (err: any) {
+      console.error("useDoc failed:", err);
+      setLoading(false);
+      return;
+    }
   }, [ref]);
 
   return { data, loading, error };
