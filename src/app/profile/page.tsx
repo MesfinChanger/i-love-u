@@ -145,24 +145,26 @@ function ProfileContent() {
 
   const { data: profileData, loading: profileLoading } = useDoc(userRef);
 
-  // New Fields
+  // Identity Fields
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [birthdate, setBirthdate] = useState('');
+  
+  // Address Fields
   const [address1, setAddress1] = useState('');
   const [address2, setAddress2] = useState('');
   const [city, setCity] = useState('');
   const [state, setState] = useState('');
   const [country, setCountry] = useState('US');
 
-  // Existing Fields
+  // Vibe Fields
   const [displayName, setDisplayName] = useState('');
   const [gender, setGender] = useState('');
   const [bio, setBio] = useState('');
   const [publicNickname, setPublicNickname] = useState('');
   const [isPhotoPublic, setIsPhotoPublic] = useState(false);
 
-  // Security Protocol (Mandatory for saving)
+  // Security Protocol (Mandatory for Syncing)
   const [isAgeVerified, setIsAgeVerified] = useState(false);
   const [isRespectful, setIsRespectful] = useState(false);
   const [isHuman, setIsHuman] = useState(false);
@@ -208,27 +210,27 @@ function ProfileContent() {
   const handleSave = async () => {
     if (!user || !db || isSaving) return;
 
-    // Mandatory Security check
+    // MANDATORY Security check
     if (!isAgeVerified || !isRespectful || !isHuman) {
       toast({ 
         variant: "destructive", 
         title: "Security Protocol Required", 
-        description: "Please complete the mandatory security protocol confirmations before syncing your identity." 
+        description: "Please complete all mandatory confirmations in the Security tab before syncing." 
       });
       return;
     }
 
     const userAge = calculateAge(birthdate);
     if (birthdate && userAge < 18) {
-      toast({ variant: "destructive", title: "Age Requirement", description: "You must be 18+ to join the Prosperity Revolution." });
+      toast({ variant: "destructive", title: "Age Requirement", description: "You must be 18+ to join the community." });
       return;
     }
 
     setIsSaving(true);
     try {
-      const moderation = await moderateText({ text: `${displayName} ${bio} ${publicNickname}` });
+      const moderation = await moderateText({ text: `${firstName} ${lastName} ${displayName} ${bio} ${publicNickname}` });
       if (moderation.isFlagged) {
-        toast({ variant: "destructive", title: "Respect Policy Violation", description: moderation.reason });
+        toast({ variant: "destructive", title: "Policy Violation", description: moderation.reason });
         setIsSaving(false);
         return;
       }
@@ -257,7 +259,7 @@ function ProfileContent() {
 
       await setDoc(doc(db, 'users', user.uid), updateData, { merge: true });
 
-      // Privacy logic: birthMonthDay only
+      // Privacy logic: Extract birthMonthDay only for public discovery
       let monthDayStr = "Secret";
       if (birthdate) {
         const d = new Date(birthdate);
@@ -274,7 +276,7 @@ function ProfileContent() {
         updatedAt: serverTimestamp()
       }, { merge: true });
 
-      toast({ title: "Identity Synced", description: "Global presence updated successfully. ❤️" });
+      toast({ title: "Identity Synced", description: "Your global origin has been updated! ❤️" });
     } catch (e) {
       toast({ variant: "destructive", title: "Error", description: "Could not sync profile." });
     } finally {
@@ -294,6 +296,8 @@ function ProfileContent() {
 
   if (profileLoading) return <div className="flex items-center justify-center min-h-screen"><Loader2 className="animate-spin text-primary" /></div>;
 
+  const isProtocolComplete = isAgeVerified && isRespectful && isHuman;
+
   return (
     <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
       <Header />
@@ -301,12 +305,17 @@ function ProfileContent() {
         <div className="flex flex-col md:flex-row items-center justify-between mb-12 gap-6">
           <div>
             <h1 className="text-5xl font-black tracking-tighter text-slate-900">Identity</h1>
-            <p className="text-muted-foreground mt-1 font-medium italic">Your community presence and global origin.</p>
+            <p className="text-muted-foreground mt-1 font-medium italic">Sync your global origin and verify security.</p>
           </div>
           <div className="flex items-center gap-3">
             <Button variant="outline" size="sm" onClick={() => signOut(auth)} className="rounded-xl h-12 px-6 font-black uppercase text-[9px] tracking-widest transition-all">Sign Out</Button>
-            <Button onClick={handleSave} disabled={isSaving} className="gradient-bg rounded-xl h-12 px-8 font-black uppercase text-[9px] tracking-widest shadow-xl transition-all">
-              {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}Sync
+            <Button 
+              onClick={handleSave} 
+              disabled={isSaving || !isProtocolComplete} 
+              className={cn("rounded-xl h-12 px-8 font-black uppercase text-[9px] tracking-widest shadow-xl transition-all", isProtocolComplete ? "gradient-bg" : "bg-slate-200 text-slate-400")}
+            >
+              {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
+              {isProtocolComplete ? 'Sync Identity' : 'Protocol Needed'}
             </Button>
           </div>
         </div>
@@ -316,7 +325,10 @@ function ProfileContent() {
             <TabsTrigger value="personal" className="flex-1 rounded-lg gap-2 font-black text-[9px] uppercase tracking-widest"><User className="w-3 h-3" />Personal</TabsTrigger>
             <TabsTrigger value="address" className="flex-1 rounded-lg gap-2 font-black text-[9px] uppercase tracking-widest"><MapPin className="w-3 h-3" />Address</TabsTrigger>
             <TabsTrigger value="public" className="flex-1 rounded-lg gap-2 font-black text-[9px] uppercase tracking-widest"><Globe2 className="w-3 h-3" />Public</TabsTrigger>
-            <TabsTrigger value="security" className="flex-1 rounded-lg gap-2 font-black text-[9px] uppercase tracking-widest"><ShieldCheck className="w-3 h-3" />Security</TabsTrigger>
+            <TabsTrigger value="security" className="flex-1 rounded-lg gap-2 font-black text-[9px] uppercase tracking-widest relative">
+              <ShieldCheck className="w-3 h-3" />Security
+              {!isProtocolComplete && <div className="absolute top-1 right-1 w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />}
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="personal">
@@ -324,23 +336,23 @@ function ProfileContent() {
               <div className="grid sm:grid-cols-2 gap-8">
                 <div className="space-y-3">
                   <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-2">First Name</Label>
-                  <Input value={firstName} onChange={e => setFirstName(e.target.value)} className="rounded-xl h-14 bg-muted/20 border-none px-6 font-bold shadow-inner" placeholder="Enter first name" />
+                  <Input value={firstName} onChange={e => setFirstName(e.target.value)} className="rounded-xl h-14 bg-muted/20 border-none px-6 font-bold shadow-inner" placeholder="Legal first name" />
                 </div>
                 <div className="space-y-3">
                   <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-2">Last Name</Label>
-                  <Input value={lastName} onChange={e => setLastName(e.target.value)} className="rounded-xl h-14 bg-muted/20 border-none px-6 font-bold shadow-inner" placeholder="Enter last name" />
+                  <Input value={lastName} onChange={e => setLastName(e.target.value)} className="rounded-xl h-14 bg-muted/20 border-none px-6 font-bold shadow-inner" placeholder="Legal last name" />
                 </div>
               </div>
 
               <div className="grid sm:grid-cols-2 gap-8">
                 <div className="space-y-3">
                   <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-2">Display Name</Label>
-                  <Input value={displayName} onChange={e => setDisplayName(e.target.value)} className="rounded-xl h-14 bg-muted/20 border-none px-6 font-bold shadow-inner" placeholder="How you appear to matches" />
+                  <Input value={displayName} onChange={e => setDisplayName(e.target.value)} className="rounded-xl h-14 bg-muted/20 border-none px-6 font-bold shadow-inner" placeholder="How friends see you" />
                 </div>
                 <div className="space-y-3">
                   <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-2">Birthdate</Label>
                   <Input type="date" value={birthdate} onChange={e => setBirthdate(e.target.value)} className="rounded-xl h-14 bg-muted/20 border-none px-6 font-bold shadow-inner" />
-                  <p className="text-[8px] text-muted-foreground ml-2 uppercase font-black tracking-widest">* Birth year is strictly hidden from public profiles.</p>
+                  <p className="text-[8px] text-muted-foreground ml-2 uppercase font-black tracking-widest italic">* Year is hidden from public discovery profiles.</p>
                 </div>
               </div>
 
@@ -379,7 +391,7 @@ function ProfileContent() {
                   <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-2">Country of Origin</Label>
                   <Select value={country} onValueChange={setCountry}>
                     <SelectTrigger className="rounded-xl h-14 bg-muted/20 border-none px-6 font-bold shadow-inner"><SelectValue placeholder="Select Country" /></SelectTrigger>
-                    <SelectContent className="max-h-80">
+                    <SelectContent className="max-h-80 overflow-y-auto">
                       {COUNTRIES.map(c => <SelectItem key={c.code} value={c.code}>{c.name}</SelectItem>)}
                     </SelectContent>
                   </Select>
@@ -421,35 +433,40 @@ function ProfileContent() {
           <TabsContent value="security">
             <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-8 space-y-8">
               <div className="text-center space-y-2">
-                <ShieldCheck className="w-12 h-12 text-primary mx-auto animate-pulse" />
+                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-2 animate-pulse">
+                  <ShieldCheck className="w-8 h-8 text-primary" />
+                </div>
                 <h3 className="text-xl font-black uppercase tracking-tighter">Security Protocol</h3>
-                <p className="text-xs text-muted-foreground font-medium italic">Mandatory confirmations for every global identity.</p>
+                <p className="text-xs text-muted-foreground font-medium italic">Mandatory confirmations to Sync Identity.</p>
               </div>
 
               <div className="space-y-4">
                 <div className="flex flex-col gap-4 bg-primary/5 p-6 rounded-3xl border border-primary/10">
-                    <div className="flex items-center space-x-3 cursor-pointer" onClick={() => setIsAgeVerified(!isAgeVerified)}>
-                      <div className={cn("w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all", isAgeVerified ? "border-primary bg-primary" : "border-slate-200")}>
-                        {isAgeVerified && <div className="w-2 h-2 rounded-full bg-white" />}
+                    <div className="flex items-center space-x-3 cursor-pointer group" onClick={() => setIsAgeVerified(!isAgeVerified)}>
+                      <div className={cn("w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all", isAgeVerified ? "border-primary bg-primary" : "border-slate-200 group-hover:border-primary/40")}>
+                        {isAgeVerified && <div className="w-2.5 h-2.5 rounded-full bg-white" />}
                       </div>
-                      <span className="text-[9px] font-black uppercase tracking-widest text-primary">I AM 18+ YEARS OLD</span>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-primary">I AM 18+ YEARS OLD</span>
                     </div>
-                    <div className="flex items-center space-x-3 pt-3 border-t border-primary/10 cursor-pointer" onClick={() => setIsRespectful(!isRespectful)}>
-                      <div className={cn("w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all", isRespectful ? "border-primary bg-primary" : "border-slate-200")}>
-                        {isRespectful && <div className="w-2 h-2 rounded-full bg-white" />}
+                    <div className="flex items-center space-x-3 pt-4 border-t border-primary/10 cursor-pointer group" onClick={() => setIsRespectful(!isRespectful)}>
+                      <div className={cn("w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all", isRespectful ? "border-primary bg-primary" : "border-slate-200 group-hover:border-primary/40")}>
+                        {isRespectful && <div className="w-2.5 h-2.5 rounded-full bg-white" />}
                       </div>
-                      <span className="text-[9px] font-black uppercase tracking-widest text-primary">RESPECT & LOVE IS MANDATORY</span>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-primary">RESPECT & LOVE IS MANDATORY</span>
                     </div>
-                    <div className="flex items-center space-x-3 pt-3 border-t border-primary/10 cursor-pointer" onClick={() => setIsHuman(!isHuman)}>
-                      <div className={cn("w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all", isHuman ? "border-primary bg-primary" : "border-slate-200")}>
-                        {isHuman && <div className="w-2 h-2 rounded-full bg-white" />}
+                    <div className="flex items-center space-x-3 pt-4 border-t border-primary/10 cursor-pointer group" onClick={() => setIsHuman(!isHuman)}>
+                      <div className={cn("w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all", isHuman ? "border-primary bg-primary" : "border-slate-200 group-hover:border-primary/40")}>
+                        {isHuman && <div className="w-2.5 h-2.5 rounded-full bg-white" />}
                       </div>
-                      <span className="text-[9px] font-black uppercase tracking-widest text-primary">VERIFY HUMAN STATUS</span>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-primary">VERIFY HUMAN STATUS</span>
                     </div>
                 </div>
-                <p className="text-[8px] text-muted-foreground italic text-center uppercase tracking-widest">
-                  * All boxes must be checked and mandatory to Sync your Identity.
-                </p>
+                <div className="p-4 bg-slate-900 rounded-2xl flex items-center gap-3">
+                  <Lock className="w-4 h-4 text-primary shrink-0" />
+                  <p className="text-[8px] text-white/70 italic uppercase tracking-widest font-bold">
+                    All protocol requirements are mandatory to access community syncing.
+                  </p>
+                </div>
               </div>
             </Card>
           </TabsContent>
