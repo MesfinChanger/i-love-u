@@ -241,9 +241,6 @@ function LoginContent() {
   
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
   const [isLoading, setIsLoading] = useState(false);
-  const [isAgeVerified, setIsAgeVerified] = useState(false);
-  const [isRespectful, setIsRespectful] = useState(false);
-  const [isHuman, setIsHuman] = useState(false);
 
   useEffect(() => {
     if (user && !authLoading) {
@@ -251,36 +248,11 @@ function LoginContent() {
     }
   }, [user, authLoading, router]);
 
-  const validateAccess = () => {
-    if (!isAgeVerified) {
-      toast({ variant: "destructive", title: "Age Requirement", description: "You must be 18+ to join." });
-      return false;
-    }
-    if (!isRespectful) {
-      toast({ variant: "destructive", title: "Respect Policy", description: "Respect and Love is Mandatory." });
-      return false;
-    }
-    if (!isHuman) {
-      toast({ variant: "destructive", title: "Security Protocol", description: "Verify human status to proceed. ✨" });
-      return false;
-    }
-    if (mode === 'signup' && !country) {
-      toast({ variant: "destructive", title: "Global Origin", description: "Select your country of origin." });
-      return false;
-    }
-    return true;
-  };
-
   const syncUserProfile = async (uid: string, email: string) => {
     const defaultData = {
       uid,
       email,
       country: country || 'GLOBAL',
-      age: 18,
-      isDatingEnabled: true,
-      isAgeVerified,
-      isRespectful,
-      isHuman,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     };
@@ -297,14 +269,18 @@ function LoginContent() {
   };
 
   const handleEmailAuth = async () => {
-    if (!validateAccess() || !email || !password) return;
+    if (!email || !password) return;
+    if (mode === 'signup' && !country) {
+      toast({ variant: "destructive", title: "Global Origin", description: "Select your country of origin to join." });
+      return;
+    }
 
     setIsLoading(true);
     try {
       if (mode === 'signup') {
         const res = await createUserWithEmailAndPassword(auth, email, password);
         await syncUserProfile(res.user.uid, email);
-        toast({ title: "Welcome!", description: "Account created. ❤️" });
+        toast({ title: "Welcome!", description: "Account created successfully. ❤️" });
       } else {
         await signInWithEmailAndPassword(auth, email, password);
       }
@@ -321,7 +297,6 @@ function LoginContent() {
   };
 
   const handleGoogleLogin = async () => {
-    if (!validateAccess()) return;
     setIsLoading(true);
     const provider = new GoogleAuthProvider();
     try {
@@ -377,39 +352,14 @@ function LoginContent() {
               <TabsTrigger value="signup" className="rounded-t-[1.5rem] text-[11px] font-black uppercase tracking-[0.2em] transition-all">Join</TabsTrigger>
             </TabsList>
             <CardContent className="p-10 space-y-10">
-              <div className="bg-primary/5 p-8 rounded-[2.5rem] space-y-4">
-                  <div className="flex items-center space-x-4 cursor-pointer" onClick={() => setIsAgeVerified(!isAgeVerified)}>
-                    <div className={cn("w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all", isAgeVerified ? "border-primary bg-primary" : "border-slate-200")}>
-                      {isAgeVerified && <div className="w-2 h-2 rounded-full bg-white" />}
-                    </div>
-                    <span className="text-[10px] font-black uppercase tracking-widest text-primary/80">I AM 18+ YEARS OLD</span>
-                  </div>
-                  <div className="h-px bg-primary/10 w-full" />
-                  <div className="flex items-center space-x-4 cursor-pointer" onClick={() => setIsRespectful(!isRespectful)}>
-                    <div className={cn("w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all", isRespectful ? "border-primary bg-primary" : "border-slate-200")}>
-                      {isRespectful && <div className="w-2 h-2 rounded-full bg-white" />}
-                    </div>
-                    <span className="text-[10px] font-black uppercase tracking-widest text-primary/80">RESPECT & LOVE IS MANDATORY</span>
-                  </div>
-                  <div className="h-px bg-primary/10 w-full" />
-                  <div className="flex items-center space-x-4 cursor-pointer" onClick={() => setIsHuman(!isHuman)}>
-                    <div className={cn("w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all", isHuman ? "border-primary bg-primary" : "border-slate-200")}>
-                      {isHuman && <div className="w-2 h-2 rounded-full bg-white" />}
-                    </div>
-                    <div className="flex items-center gap-2">
-                       <Sparkles className="w-3.5 h-3.5 text-primary/40" />
-                       <span className="text-[10px] font-black uppercase tracking-widest text-primary/80">VERIFY HUMAN</span>
-                    </div>
-                  </div>
-              </div>
-
               {mode === 'signup' && (
                 <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                  <p className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-800 ml-1">Global Origin</p>
                   <Select value={country} onValueChange={setCountry}>
                     <SelectTrigger className="h-12 border-none border-b-2 border-slate-100 rounded-none px-0 font-bold text-base focus:ring-0 focus:border-primary transition-all">
                       <div className="flex items-center gap-3">
                         <Globe className="w-4 h-4 text-slate-300" />
-                        <SelectValue placeholder="SELECT GLOBAL ORIGIN" />
+                        <SelectValue placeholder="SELECT YOUR REGION" />
                       </div>
                     </SelectTrigger>
                     <SelectContent className="max-h-80">
