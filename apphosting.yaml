@@ -1,16 +1,17 @@
 runConfig:
   maxInstances: 2
   memoryMiB: 512
-  cpu: 1
-
-scripts:
-  build: npm run build
-  run: npm run start
 
 env:
   - variable: NEXT_PUBLIC_FIREBASE_API_KEY
-    availability: [RUNTIME, BUILD]
+    availability:
+      - RUNTIME
+      - BUILD
   - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
-    availability: [RUNTIME, BUILD]
+    availability:
+      - RUNTIME
+      - BUILD
   - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
-    availability: [RUNTIME, BUILD]
+    availability:
+      - RUNTIME
+      - BUILD
