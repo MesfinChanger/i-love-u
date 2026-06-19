@@ -1,4 +1,3 @@
-
 'use client';
 
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
@@ -10,14 +9,13 @@ import { firebaseConfig } from './config';
  * @fileOverview Initializes Firebase services with defensive validation to prevent boot-time crashes.
  */
 export function initializeFirebase(): { app: FirebaseApp; db: Firestore; auth: Auth } {
-  // Defensive bootstrapping: Ensure we have a string for apiKey to avoid immediate SDK crashes.
-  // If the API key is missing or invalid, Auth operations will fail later with a caught error 
-  // rather than crashing the entire Next.js root layout during hydration.
-  const hasValidConfig = !!firebaseConfig.apiKey && firebaseConfig.apiKey.length > 5;
+  // Defensive bootstrapping: Use a non-empty string for apiKey if missing to prevent initialization crash.
+  // The SDK will still fail gracefully on auth operations rather than crashing the whole app during hydration.
+  const hasValidKey = !!firebaseConfig.apiKey && firebaseConfig.apiKey.length > 5;
   
   const validatedConfig = {
     ...firebaseConfig,
-    apiKey: hasValidConfig ? firebaseConfig.apiKey : "REVOLUTION_NON_BLOCKING_PLACEHOLDER"
+    apiKey: hasValidKey ? firebaseConfig.apiKey : "REVOLUTION_STAGING_KEY_MISSING"
   };
 
   const app = getApps().length > 0 ? getApp() : initializeApp(validatedConfig);
