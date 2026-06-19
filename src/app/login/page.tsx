@@ -71,8 +71,8 @@ function LoginContent() {
     if (!auth) {
       toast({ 
         variant: "destructive", 
-        title: "Connection Initializing", 
-        description: "The regional bridge is still securing your region. Please refresh in a moment. ❤️" 
+        title: "Connection Error", 
+        description: "The regional bridge is still finalizing your connection. Please reload the page. ❤️" 
       });
       return;
     }
@@ -108,8 +108,8 @@ function LoginContent() {
       console.error("Auth Error:", error);
       let message = "Check your phrase or join the revolution. ❤️";
       
-      if (error.code === 'auth/invalid-api-key' || error.message?.includes('api-key-not-valid')) {
-        message = "Regional configuration is pending. Please refresh the page in a few seconds. ✨";
+      if (error.code === 'auth/invalid-api-key' || error.code === 'auth/api-key-not-valid') {
+        message = "Regional configuration ripple detected. Please reload to pick up latest credentials. ✨";
       } else if (error.code === 'auth/email-already-in-use') {
         message = "This email is already part of the revolution. Please sign in.";
       } else if (error.code === 'auth/weak-password') {
@@ -241,10 +241,10 @@ function LoginContent() {
               <div className="pt-4">
                 <Button 
                   onClick={handleAuth} 
-                  disabled={isLoading || !isProtocolComplete || !email || !password || !auth} 
+                  disabled={isLoading || !isProtocolComplete || !email || !password} 
                   className={cn(
                     "w-full h-20 rounded-[2rem] font-black uppercase tracking-[0.3em] text-sm shadow-[0_20px_40px_-10px_rgba(255,51,102,0.4)] active:scale-95 transition-all",
-                    (!isProtocolComplete || !auth) ? "bg-slate-200 text-slate-400" : "gradient-bg"
+                    (!isProtocolComplete) ? "bg-slate-200 text-slate-400" : "gradient-bg"
                   )}
                 >
                   {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : mode === 'signin' ? 'Launch' : 'Join Revolution'}

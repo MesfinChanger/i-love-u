@@ -22,15 +22,15 @@ export function initializeFirebase(): {
   }
 
   // Basic check to prevent early initialization crashes
-  if (!firebaseConfig.apiKey) {
-    console.warn("I Love U: Firebase credentials not detected. Waiting for provisioning...");
+  if (!firebaseConfig.apiKey || firebaseConfig.apiKey.includes('YOUR_')) {
+    console.warn("I Love U: Firebase credentials not detected or are placeholders. Waiting for provisioning...");
     return { app: null, db: null, auth: null, storage: null };
   }
 
   try {
     const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
     
-    // Initialize services
+    // Initialize services with safety checks
     const db = getFirestore(app);
     const auth = getAuth(app);
     const storage = getStorage(app);
