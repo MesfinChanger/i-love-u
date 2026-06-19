@@ -7,8 +7,8 @@ import { getStorage, FirebaseStorage } from 'firebase/storage';
 import { firebaseConfig } from './config';
 
 /**
- * @fileOverview Standard Firebase Initializer with Safety Guards.
- * Hardened to prevent root-level crashes while allowing services to boot when ready.
+ * @fileOverview Resilient Firebase Initializer.
+ * Hardened to prevent crashes while allowing services to boot when ready.
  */
 export function initializeFirebase(): { 
   app: FirebaseApp | null; 
@@ -21,16 +21,10 @@ export function initializeFirebase(): {
     return { app: null, db: null, auth: null, storage: null };
   }
 
-  // If no API Key is provided, we return null to allow the UI to show a "Safe Mode" or setup guide
-  if (!firebaseConfig.apiKey) {
-    console.warn("I Love U: Firebase API Key is missing. Check your environment variables.");
-    return { app: null, db: null, auth: null, storage: null };
-  }
-
   try {
     const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
     
-    // Initialize services with individual safety wrappers
+    // Initialize services
     const db = getFirestore(app);
     const auth = getAuth(app);
     const storage = getStorage(app);

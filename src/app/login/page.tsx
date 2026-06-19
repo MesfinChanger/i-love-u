@@ -21,8 +21,8 @@ import {
   Globe,
   ShieldCheck,
   CheckCircle2,
-  ShieldAlert,
-  Zap
+  Zap,
+  RefreshCw
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
@@ -71,8 +71,8 @@ function LoginContent() {
     if (!auth) {
       toast({ 
         variant: "destructive", 
-        title: "Connection Error", 
-        description: "The prosperity network is finalizing its regional bridge. Please wait a moment. ❤️" 
+        title: "Connection Initializing", 
+        description: "The prosperity network is finalizing its regional bridge. Please wait a heartbeat. ❤️" 
       });
       return;
     }
@@ -106,7 +106,7 @@ function LoginContent() {
       router.push('/discover');
     } catch (error: any) {
       console.error(error);
-      toast({ variant: "destructive", title: "Access Denied", description: "Check your phrase or try joining us first." });
+      toast({ variant: "destructive", title: "Access Denied", description: "Check your phrase or join the revolution. ❤️" });
     } finally {
       setIsLoading(false);
     }
@@ -127,21 +127,24 @@ function LoginContent() {
             <Heart className="w-16 h-16 fill-primary text-primary" />
             <div className="space-y-2">
               <h1 className="font-black text-3xl tracking-[0.6em] text-primary uppercase ml-[0.6em]">I LOVE U</h1>
-              <p className="text-[10px] font-bold uppercase tracking-[0.5em] text-slate-300">PROSPERITY REVOLUTION - 18+</p>
+              <p className="text-[10px] font-bold uppercase tracking-[0.5em] text-slate-300">PROSPERITY REVOLUTION</p>
             </div>
           </div>
         </div>
 
         {!auth && (
-          <div className="bg-primary/5 border border-primary/20 p-6 rounded-[2.5rem] flex items-start gap-4 mb-6 animate-in slide-in-from-top-4">
+          <div className="bg-amber-50 border border-amber-200 p-6 rounded-[2.5rem] flex items-start gap-4 mb-6 animate-in slide-in-from-top-4">
              <div className="w-10 h-10 rounded-2xl bg-white flex items-center justify-center shadow-sm">
-                <Zap className="w-5 h-5 text-primary animate-pulse" />
+                <Zap className="w-5 h-5 text-amber-500 animate-pulse" />
              </div>
              <div className="space-y-1">
-                <p className="text-[10px] font-black uppercase tracking-widest text-primary">Regional Bridge Initializing</p>
-                <p className="text-[9px] text-muted-foreground font-bold leading-relaxed uppercase opacity-80">
-                  The network is securing your region. If this takes more than a minute, ensure your environment variables are correctly set in the console.
+                <p className="text-[10px] font-black uppercase tracking-widest text-amber-700">Regional Bridge Initializing</p>
+                <p className="text-[9px] text-amber-600/80 font-bold leading-relaxed uppercase">
+                  The network is securing your region. If this takes more than a minute, ensure your credentials are provisioned.
                 </p>
+                <Button variant="link" className="p-0 h-auto text-[9px] font-black uppercase text-amber-700 underline" onClick={() => window.location.reload()}>
+                  <RefreshCw className="w-2.5 h-2.5 mr-1" /> Reload Connection
+                </Button>
              </div>
           </div>
         )}
