@@ -9,6 +9,7 @@ import { firebaseConfig } from './config';
 /**
  * @fileOverview Resilient Firebase Initializer.
  * Standardized boot sequence for the Prosperity Revolution.
+ * Hardened to prevent crashes if environment variables are not yet ready.
  */
 export function initializeFirebase(): { 
   app: FirebaseApp | null; 
@@ -21,9 +22,11 @@ export function initializeFirebase(): {
     return { app: null, db: null, auth: null, storage: null };
   }
 
-  // Basic check to prevent early initialization crashes
-  if (!firebaseConfig.apiKey || firebaseConfig.apiKey.includes('YOUR_')) {
-    console.warn("I Love U: Firebase credentials not detected or are placeholders. Waiting for provisioning...");
+  // Basic check to prevent early initialization crashes with invalid keys
+  const hasValidKey = firebaseConfig.apiKey && firebaseConfig.apiKey.length > 10;
+  
+  if (!hasValidKey) {
+    console.warn("I Love U: Firebase API key is missing or invalid. Waiting for platform provisioning...");
     return { app: null, db: null, auth: null, storage: null };
   }
 
@@ -31,9 +34,14 @@ export function initializeFirebase(): {
     const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
     
     // Initialize services with safety checks
-    const db = getFirestore(app);
-    const auth = getAuth(app);
-    const storage = getStorage(app);
+    // We wrap each in a try-catch to prevent a single service failure from breaking the app
+    let db: Firestore | null = null;
+    let auth: Auth | null = null;
+    let storage: FirebaseStorage | null = null;
+
+    try { db = getFirestore(app); } catch (e) { console.error("Firestore init failed:", e); }
+    try { auth = getAuth(app); } catch (e) { console.error("Auth init failed:", e); }
+    try { storage = getStorage(app); } catch (e) { console.error("Storage init failed:", e); }
     
     return { app, db, auth, storage };
   } catch (error) {

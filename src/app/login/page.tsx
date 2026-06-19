@@ -71,8 +71,8 @@ function LoginContent() {
     if (!auth) {
       toast({ 
         variant: "destructive", 
-        title: "Connection Error", 
-        description: "The regional bridge is still finalizing your connection. Please reload the page. ❤️" 
+        title: "Regional Bridge Pending", 
+        description: "The secure connection is still initializing. Please reload to pick up latest credentials. ❤️" 
       });
       return;
     }
@@ -108,8 +108,9 @@ function LoginContent() {
       console.error("Auth Error:", error);
       let message = "Check your phrase or join the revolution. ❤️";
       
-      if (error.code === 'auth/invalid-api-key' || error.code === 'auth/api-key-not-valid') {
-        message = "Regional configuration ripple detected. Please reload to pick up latest credentials. ✨";
+      const errString = error?.message?.toLowerCase() || "";
+      if (errString.includes('api-key-not-valid') || errString.includes('invalid-api-key')) {
+        message = "Regional configuration ripple detected. Please reload the page to refresh your secure bridge. ✨";
       } else if (error.code === 'auth/email-already-in-use') {
         message = "This email is already part of the revolution. Please sign in.";
       } else if (error.code === 'auth/weak-password') {
