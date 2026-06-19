@@ -1,6 +1,7 @@
 /**
  * Firebase configuration object.
  * Strictly using environment variables for production security.
+ * Ensure NEXT_PUBLIC_FIREBASE_API_KEY is set in your environment.
  */
 export const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "",

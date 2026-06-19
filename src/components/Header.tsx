@@ -11,11 +11,11 @@ export function Header() {
       <div className="container mx-auto px-4 h-20 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 group" aria-label="I Love U Home">
           <div className="relative shiny-icon p-1.5 rounded-lg bg-primary/5">
-            <Heart className="w-10 h-10 fill-primary text-primary transition-transform group-hover:scale-110 animate-pulse" aria-hidden="true" />
+            <Heart className="w-8 h-8 fill-primary text-primary transition-transform group-hover:scale-110 animate-pulse" aria-hidden="true" />
           </div>
           <div className="flex flex-col leading-none">
-            <span className="font-black text-xl tracking-tighter text-primary">I LOVE</span>
-            <span className="font-black text-[6px] tracking-[0.4em] text-muted-foreground ml-0.5">YOU</span>
+            <span className="font-black text-sm tracking-tighter text-primary uppercase">I LOVE</span>
+            <span className="font-black text-[4px] tracking-[0.4em] text-muted-foreground ml-0.5 uppercase">YOU</span>
           </div>
         </Link>
         

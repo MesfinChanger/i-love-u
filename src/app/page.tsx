@@ -57,10 +57,10 @@ export default function Home() {
         <div className="container mx-auto px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="relative shiny-icon p-1 rounded-lg bg-primary/5">
-              <Heart className="w-4 h-4 fill-primary text-primary animate-heartbeat" />
+              <Heart className="w-3.5 h-3.5 fill-primary text-primary animate-heartbeat" />
             </div>
             <div className="flex flex-col leading-none">
-              <span className="font-black text-[10px] tracking-tighter text-primary">I LOVE</span>
+              <span className="font-black text-[9px] tracking-tighter text-primary uppercase">I LOVE</span>
               <span className="font-black text-[3px] tracking-[0.4em] text-muted-foreground ml-0.5 uppercase">YOU</span>
             </div>
           </div>
@@ -76,25 +76,25 @@ export default function Home() {
       </header>
 
       <main className="flex-grow pt-14">
-        <section className="relative py-12 lg:py-20 overflow-hidden bg-gradient-to-b from-primary/5 to-white">
-          <div className="container mx-auto px-4 grid lg:grid-cols-2 gap-12 items-center text-center lg:text-left">
-            <div className="space-y-8 z-10">
+        <section className="relative py-12 lg:py-24 overflow-hidden bg-gradient-to-b from-primary/5 to-white">
+          <div className="container mx-auto px-4 grid lg:grid-cols-2 gap-16 items-center text-center lg:text-left">
+            <div className="space-y-10 z-10">
               <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white/95 backdrop-blur-3xl text-primary border border-primary/10 shadow-md">
                 <Globe className="w-4 h-4 animate-spin-slow text-secondary" />
                 <div className="flex flex-col items-start leading-tight">
                    <p className="text-[7px] font-black uppercase tracking-[0.4em] text-muted-foreground/60">Global Mission</p>
-                   <span className="text-xs font-black transition-all duration-700 uppercase tracking-tighter shiny-text">
+                   <span className="text-[10px] font-black transition-all duration-700 uppercase tracking-tighter shiny-text">
                     {mounted ? LOVE_TRANSLATIONS[langIndex].text : "I Love U"} {mounted ? LOVE_TRANSLATIONS[langIndex].icon : "❤️"}
                   </span>
                 </div>
               </div>
               
-              <div className="space-y-2">
-                <h1 className="text-4xl lg:text-6xl font-black leading-none tracking-tighter animate-in zoom-in duration-1000">
-                  <span className="shiny-text">I LOVE U</span>
+              <div className="space-y-3">
+                <h1 className="text-3xl lg:text-5xl font-black leading-none tracking-tighter animate-in zoom-in duration-1000">
+                  <span className="shiny-text uppercase">I Love U</span>
                 </h1>
-                <p className="text-[8px] lg:text-[10px] font-black tracking-[0.5em] text-primary uppercase opacity-80">
-                  The AI Dating Revolution
+                <p className="text-[7px] lg:text-[9px] font-black tracking-[0.6em] text-primary uppercase opacity-60">
+                  The AI Dating & Prosperity Revolution
                 </p>
               </div>
 
@@ -103,24 +103,24 @@ export default function Home() {
                 Your happiness ends poverty through <span className="text-primary font-black underline decoration-secondary/30 underline-offset-8">Global Job Creation</span>.
               </p>
               
-              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                <Button size="lg" className="h-14 px-10 rounded-full text-base font-black gradient-bg shadow-xl shadow-primary/30 hover:scale-105 transition-transform group" asChild>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
+                <Button size="lg" className="h-16 px-12 rounded-full text-base font-black gradient-bg shadow-2xl shadow-primary/30 hover:scale-105 transition-transform group" asChild>
                   <Link href="/login" className="flex items-center gap-3">
                     Launch Spark
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </Link>
                 </Button>
-                <Button variant="outline" size="lg" className="h-14 px-8 rounded-full text-base font-bold border-2 hover:bg-muted/50 transition-colors" asChild>
+                <Button variant="outline" size="lg" className="h-16 px-10 rounded-full text-base font-bold border-2 hover:bg-muted/50 transition-colors" asChild>
                   <Link href="/donate">Support Mission</Link>
                 </Button>
               </div>
             </div>
 
             <div className="flex justify-center lg:justify-end">
-              <div className="relative w-full max-w-xl lg:max-w-2xl">
-                <div className="absolute -inset-10 bg-primary/20 rounded-full blur-[120px] -z-10 animate-pulse" />
+              <div className="relative w-full max-w-2xl lg:max-w-3xl">
+                <div className="absolute -inset-16 bg-primary/10 rounded-full blur-[140px] -z-10 animate-pulse" />
                 
-                <div className="relative aspect-[4/5] rounded-[5rem] overflow-hidden shadow-2xl transition-all duration-1000 border-[20px] border-white group bg-muted">
+                <div className="relative aspect-[4/5] rounded-[6rem] overflow-hidden shadow-2xl transition-all duration-1000 border-[16px] border-white group bg-muted">
                   {mounted && dynamicImages.map((img, i) => (
                     <div 
                       key={img.id}
@@ -133,7 +133,7 @@ export default function Home() {
                         src={img.imageUrl} 
                         alt="Dynamic Community Spark" 
                         fill 
-                        className="object-cover transform group-hover:scale-110 transition-transform duration-10000"
+                        className="object-cover transform group-hover:scale-110 transition-transform duration-[10000ms]"
                         priority={i === 0}
                         data-ai-hint={img.imageHint}
                       />
@@ -141,12 +141,12 @@ export default function Home() {
                   ))}
 
                   {/* Spark Match Badge overlays the Dynamic Pic */}
-                  <div className="absolute top-12 left-12 z-20 bg-white/90 backdrop-blur-md px-8 py-5 rounded-[2.5rem] border border-primary/10 shadow-2xl flex flex-col gap-0.5 animate-in slide-in-from-left-4 duration-700">
+                  <div className="absolute top-12 left-12 z-20 bg-white/95 backdrop-blur-md px-10 py-6 rounded-[3rem] border border-primary/10 shadow-2xl flex flex-col gap-0.5 animate-in slide-in-from-left-4 duration-700">
                     <div className="flex items-center gap-3">
-                       <Heart className="w-6 h-6 text-primary fill-primary animate-heartbeat" />
-                       <span className="text-xs font-black uppercase tracking-widest text-primary">Spark Match</span>
+                       <Heart className="w-8 h-8 text-primary fill-primary animate-heartbeat" />
+                       <span className="text-sm font-black uppercase tracking-widest text-primary">Spark Match</span>
                     </div>
-                    <p className="text-[9px] text-muted-foreground font-black uppercase tracking-widest leading-none">Connect with Purpose</p>
+                    <p className="text-[10px] text-muted-foreground font-black uppercase tracking-widest leading-none">Connect with Purpose</p>
                   </div>
 
                   <div className="absolute bottom-12 right-12 z-20 flex gap-2">
@@ -155,7 +155,7 @@ export default function Home() {
                         key={i} 
                         className={cn(
                           "h-2 rounded-full transition-all duration-500",
-                          imageIndex === i ? "w-10 bg-white shadow-lg" : "w-2 bg-white/40"
+                          imageIndex === i ? "w-12 bg-white shadow-lg" : "w-2 bg-white/40"
                         )} 
                       />
                     ))}
@@ -166,24 +166,24 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="py-20 bg-white">
+        <section className="py-24 bg-white">
           <div className="container mx-auto px-4 text-center">
-            <h2 className="text-xl lg:text-2xl font-black mb-12 tracking-tighter uppercase leading-none">
+            <h2 className="text-xl lg:text-3xl font-black mb-16 tracking-tighter uppercase leading-none">
               Dating with a <span className="text-primary">Human Pulse</span>
             </h2>
-            <div className="grid md:grid-cols-3 gap-8">
+            <div className="grid md:grid-cols-3 gap-10">
               <FeatureCard 
-                icon={<Zap className="w-6 h-6" />}
+                icon={<Zap className="w-8 h-8" />}
                 title="AI Powered Matching"
                 description="Our neural engine finds mysterious connections based on shared cultural interests and your 'vibe' for real happiness."
               />
               <FeatureCard 
-                icon={<HeartHandshake className="w-6 h-6" />}
+                icon={<HeartHandshake className="w-8 h-8" />}
                 title="Respect is Mandatory"
                 description="We are a dating community built on pure love. Disrespect is filtered by AI, ensuring a joyful space for every heart."
               />
               <FeatureCard 
-                icon={<Briefcase className="w-6 h-6" />}
+                icon={<Briefcase className="w-8 h-8" />}
                 title="Love Creates Jobs"
                 description="Your sparks fund vocational tools for entrepreneurs. Every successful date is a win for global prosperity."
               />
@@ -192,19 +192,19 @@ export default function Home() {
         </section>
       </main>
 
-      <footer className="py-16 border-t bg-white">
+      <footer className="py-20 border-t bg-white">
         <div className="container mx-auto px-4 text-center text-muted-foreground">
-          <div className="flex items-center justify-center gap-3 mb-6">
+          <div className="flex items-center justify-center gap-3 mb-8">
             <div className="p-1 rounded-lg bg-primary/5">
-              <Heart className="w-6 h-6 fill-primary text-primary animate-heartbeat" />
+              <Heart className="w-8 h-8 fill-primary text-primary animate-heartbeat" />
             </div>
             <div className="flex flex-col text-left leading-none">
-              <span className="font-black text-xl tracking-tighter text-primary">I LOVE</span>
-              <span className="font-black text-[6px] tracking-[0.4em] text-muted-foreground uppercase">YOU</span>
+              <span className="font-black text-2xl tracking-tighter text-primary">I LOVE</span>
+              <span className="font-black text-[7px] tracking-[0.4em] text-muted-foreground uppercase">YOU</span>
             </div>
           </div>
-          <p className="font-black text-sm text-foreground tracking-tight mb-2">© {mounted ? currentYear : "..."} I Love U. The Global Dating & Prosperity Revolution.</p>
-          <p className="text-[9px] font-medium italic">Respect and Love is Mandatory ❤️ Ending World Poverty Together.</p>
+          <p className="font-black text-base text-foreground tracking-tight mb-3">© {mounted ? currentYear : "..."} I Love U. The Global Dating & Prosperity Revolution.</p>
+          <p className="text-[10px] font-medium italic uppercase tracking-widest opacity-60">Respect and Love is Mandatory ❤️ Ending World Poverty Together.</p>
         </div>
       </footer>
     </div>
@@ -213,12 +213,12 @@ export default function Home() {
 
 function FeatureCard({ icon, title, description }: { icon: React.ReactNode, title: string, description: string }) {
   return (
-    <div className="bg-white p-8 rounded-[2.5rem] shadow-sm hover:shadow-lg transition-all border border-transparent hover:border-primary/10 group text-left relative overflow-hidden">
-      <div className="w-12 h-12 rounded-xl bg-accent flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform shadow-inner">
+    <div className="bg-white p-10 rounded-[3rem] shadow-sm hover:shadow-2xl transition-all border border-transparent hover:border-primary/10 group text-left relative overflow-hidden">
+      <div className="w-16 h-16 rounded-2xl bg-accent flex items-center justify-center text-primary mb-8 group-hover:scale-110 transition-transform shadow-inner">
         {icon}
       </div>
-      <h3 className="text-xl font-black mb-3 tracking-tighter uppercase">{title}</h3>
-      <p className="text-sm text-muted-foreground leading-relaxed font-medium">{description}</p>
+      <h3 className="text-2xl font-black mb-4 tracking-tighter uppercase">{title}</h3>
+      <p className="text-base text-muted-foreground leading-relaxed font-medium">{description}</p>
     </div>
   );
 }
