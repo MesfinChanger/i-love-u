@@ -16,7 +16,7 @@ export default function RootLayout({
       <head>
         <title>I Love U - The AI Dating Revolution. Spark Love. End Poverty. ❤️</title>
         <meta name="description" content="I Love U: The world's most respectful AI dating platform. Join the connection revolution. Ending world poverty through global job creation. Respect & Love is Mandatory." />
-        <meta name="keywords" content="dating, dating app, ai dating, find love, end poverty, prosperity, job creation, eliminate poverty, global mission, I Love U, respect mandatory" />
+        <meta name="keywords" content="dating, dating app, ai dating, find love, end poverty, prosperity, job creation, eliminate poverty, global mission, I Love U, respect mandatory, matchmaking" />
         
         {/* Open Graph / Facebook / Instagram */}
         <meta property="og:type" content="website" />

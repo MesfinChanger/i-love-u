@@ -1,27 +1,27 @@
 
-# I Love U - Respect & Love is Mandatory ❤️
+# I Love U - The AI Dating & Prosperity Revolution ❤️
 
-Welcome to **I Love U**, the AI-powered dating and cultural exchange platform where happiness is the only metric. In this community, "Respect & Love is Mandatory."
+Welcome to **I Love U**, a mission-driven dating and cultural exchange platform where happiness is the only metric and love creates prosperity. In this community, "Respect & Love is Mandatory."
 
 ## 🚀 One-Click Global Publishing
 
-I Love U is configured for free, high-performance hosting on Firebase.
+I Love U is optimized for high-performance hosting on Firebase and mobile support via Capacitor.
 
 ### Steps to Publish:
 
-1.  **Deploy to Free Domain**: 
+1.  **Production Credentials**: 
+    - Set `STRIPE_SECRET_KEY` in your environment.
+    - Update `src/firebase/config.ts` with your actual Firebase Project keys.
+
+2.  **Deploy to Web**: 
     ```bash
+    npm run build
     npm run deploy
     ```
-    Your app will be live at: `https://<your-project-id>.web.app` (e.g., `https://iloveu.web.app`)
+    Your app will be live at: `https://<your-project-id>.web.app`
 
-2.  **Test Locally**:
-    ```bash
-    npm run dev
-    ```
-
-3.  **Mobile Support**:
-    Build your native binaries for Android/iOS by running:
+3.  **Mobile Support (Android/iOS)**:
+    Build your native binaries by running:
     ```bash
     npm run build
     npx cap sync
@@ -29,12 +29,17 @@ I Love U is configured for free, high-performance hosting on Firebase.
 
 ## 🛠 Features for Global Growth
 
-- **E2EE Privacy**: End-to-end encrypted private messaging.
-- **Global Compliance**: Geo-fenced text/video ads based on local laws.
-- **Happiness Witness**: Community-vouched relationship success.
-- **Respect Moderation**: AI enforcements for community kindness.
-- **Localized Marketplace**: Support for global currencies via Stripe.
+- **Spark Rooms**: Sacred dating spaces with "Relationship Witnessing" to vouch for success.
+- **E2EE Privacy**: End-to-end encrypted private messaging for all community members.
+- **Eliminate Poverty**: A core mission where connections fund global job creation.
+- **Mystery Discovery**: Identity (photos/age/name) revealed only after mutual connection.
+- **Respect Moderation**: Genkit AI-powered enforcement for community kindness.
+- **Localized Marketplace**: Global currency support for gifts that empower local sellers.
 
 ## 📁 Essential Guides
-- [Testing Guide](./docs/TESTING_GUIDE.md) - Security and legal verification.
-- [Store Submission Guide](./docs/STORE_SUBMISSION_GUIDE.md) - Mobile publishing.
+- [Testing Guide](./docs/TESTING_GUIDE.md) - Security, E2EE, and legal verification.
+- [Store Submission Guide](./docs/STORE_SUBMISSION_GUIDE.md) - Mobile publishing instructions.
+- [Upgrade Guide](./docs/UPGRADE_GUIDE.md) - How to scale the mission.
+
+---
+*Created with Love for the Global Community. Poverty Elimination is Mandatory.* ❤️
