@@ -91,6 +91,17 @@ export default function Home() {
                   <p className="text-[10px] font-black tracking-[0.4em] text-muted-foreground uppercase opacity-40">
                     U + Love = Prosperity
                   </p>
+                  
+                  {/* Minimized Spark Match Badge under I LOVE U */}
+                  <div className="inline-flex items-center gap-3 bg-white/80 backdrop-blur-sm p-3 pr-6 rounded-2xl border border-primary/10 shadow-lg mt-6 w-fit animate-in fade-in slide-in-from-left-4 duration-1000">
+                    <div className="w-10 h-10 rounded-xl gradient-bg flex items-center justify-center text-white shadow-xl shadow-primary/20">
+                      <Heart className="w-5 h-5 fill-white" />
+                    </div>
+                    <div className="text-left leading-none">
+                      <p className="font-black text-sm tracking-tighter">Spark Match</p>
+                      <p className="text-[8px] text-muted-foreground font-black uppercase tracking-widest opacity-60 mt-1">Connect with Purpose</p>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -131,15 +142,6 @@ export default function Home() {
                     data-ai-hint="happy couple"
                   />
                 )}
-              </div>
-              <div className="absolute -bottom-16 -left-16 bg-white p-10 rounded-[4rem] shadow-[0_30px_80px_-10px_rgba(0,0,0,0.2)] border flex items-center gap-8 animate-bounce">
-                <div className="w-24 h-24 rounded-[2.5rem] gradient-bg flex items-center justify-center text-white shadow-2xl shadow-primary/30 shiny-icon">
-                  <Heart className="w-14 h-14 fill-white" />
-                </div>
-                <div>
-                  <p className="font-black text-3xl tracking-tighter">Spark Match</p>
-                  <p className="text-xs text-muted-foreground font-black uppercase tracking-widest opacity-60">Connect with Purpose</p>
-                </div>
               </div>
             </div>
           </div>
