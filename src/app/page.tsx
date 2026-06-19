@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Heart, Sparkles, Globe, Briefcase, TrendingDown, ArrowRight, Star, HeartHandshake, Zap } from 'lucide-react';
+import { Heart, Sparkles, Globe, ArrowRight, HeartHandshake, Zap, Briefcase } from 'lucide-react';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { cn } from '@/lib/utils';
@@ -26,7 +26,8 @@ const LOVE_TRANSLATIONS = [
 ];
 
 export default function Home() {
-  const dynamicImages = useMemo(() => PlaceHolderImages.filter(img => img.id.startsWith('user-') || img.id === 'landing-hero'), []);
+  // Use only female portraits from around the world for the hero
+  const dynamicImages = useMemo(() => PlaceHolderImages.filter(img => img.id.startsWith('user-')), []);
   
   const [langIndex, setLangIndex] = useState(0);
   const [imageIndex, setImageIndex] = useState(0);
@@ -56,12 +57,12 @@ export default function Home() {
       <header className="fixed top-0 z-50 w-full border-b bg-background/80 backdrop-blur-md">
         <div className="container mx-auto px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="relative shiny-icon p-1 rounded-lg bg-primary/5">
-              <Heart className="w-3.5 h-3.5 fill-primary text-primary animate-heartbeat" />
+            <div className="relative p-1.5 rounded-lg bg-primary/5">
+              <Heart className="w-4 h-4 fill-primary text-primary animate-heartbeat" />
             </div>
             <div className="flex flex-col leading-none">
-              <span className="font-black text-[9px] tracking-tighter text-primary uppercase">I LOVE</span>
-              <span className="font-black text-[3px] tracking-[0.4em] text-muted-foreground ml-0.5 uppercase">YOU</span>
+              <span className="font-black text-[10px] tracking-tighter text-primary uppercase">I LOVE</span>
+              <span className="font-black text-[4px] tracking-[0.4em] text-muted-foreground ml-0.5 uppercase">YOU</span>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -76,13 +77,13 @@ export default function Home() {
       </header>
 
       <main className="flex-grow pt-14">
-        <section className="relative py-12 lg:py-24 overflow-hidden bg-gradient-to-b from-primary/5 to-white">
-          <div className="container mx-auto px-4 grid lg:grid-cols-2 gap-16 items-center text-center lg:text-left">
-            <div className="space-y-10 z-10">
+        <section className="relative min-h-[90vh] flex items-center overflow-hidden bg-gradient-to-b from-primary/5 to-white py-12 lg:py-0">
+          <div className="container mx-auto px-4 grid lg:grid-cols-2 gap-12 items-center">
+            <div className="space-y-10 z-10 text-center lg:text-left">
               <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white/95 backdrop-blur-3xl text-primary border border-primary/10 shadow-md">
                 <Globe className="w-4 h-4 animate-spin-slow text-secondary" />
                 <div className="flex flex-col items-start leading-tight">
-                   <p className="text-[7px] font-black uppercase tracking-[0.4em] text-muted-foreground/60">Global Mission</p>
+                   <p className="text-[7px] font-black uppercase tracking-[0.4em] text-muted-foreground/60">Global Community</p>
                    <span className="text-[10px] font-black transition-all duration-700 uppercase tracking-tighter shiny-text">
                     {mounted ? LOVE_TRANSLATIONS[langIndex].text : "I Love U"} {mounted ? LOVE_TRANSLATIONS[langIndex].icon : "❤️"}
                   </span>
@@ -90,17 +91,17 @@ export default function Home() {
               </div>
               
               <div className="space-y-3">
-                <h1 className="text-3xl lg:text-5xl font-black leading-none tracking-tighter animate-in zoom-in duration-1000">
+                <h1 className="text-4xl lg:text-6xl font-black leading-none tracking-tighter animate-in zoom-in duration-1000">
                   <span className="shiny-text uppercase">I Love U</span>
                 </h1>
-                <p className="text-[7px] lg:text-[9px] font-black tracking-[0.6em] text-primary uppercase opacity-60">
+                <p className="text-[8px] lg:text-[10px] font-black tracking-[0.6em] text-primary uppercase opacity-60">
                   The AI Dating & Prosperity Revolution
                 </p>
               </div>
 
-              <p className="text-base lg:text-lg text-muted-foreground max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
-                Find Your Heart. Uplifting Worlds. <br/>
-                Your happiness ends poverty through <span className="text-primary font-black underline decoration-secondary/30 underline-offset-8">Global Job Creation</span>.
+              <p className="text-lg lg:text-xl text-muted-foreground max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
+                Find your heart while uplifting worlds. <br/>
+                Every connection helps us <span className="text-primary font-black underline decoration-secondary/30 underline-offset-8">eliminate world poverty</span>.
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
@@ -116,11 +117,11 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="flex justify-center lg:justify-end">
-              <div className="relative w-full max-w-2xl lg:max-w-3xl">
-                <div className="absolute -inset-16 bg-primary/10 rounded-full blur-[140px] -z-10 animate-pulse" />
+            <div className="flex justify-center lg:justify-end h-full">
+              <div className="relative w-full max-w-lg lg:max-w-xl aspect-[4/5] lg:aspect-[3/4]">
+                <div className="absolute -inset-10 bg-primary/10 rounded-full blur-[100px] -z-10 animate-pulse" />
                 
-                <div className="relative aspect-[4/5] rounded-[6rem] overflow-hidden shadow-2xl transition-all duration-1000 border-[16px] border-white group bg-muted">
+                <div className="relative w-full h-full rounded-[4rem] lg:rounded-[6rem] overflow-hidden shadow-2xl transition-all duration-1000 border-[12px] lg:border-[20px] border-white group bg-muted">
                   {mounted && dynamicImages.map((img, i) => (
                     <div 
                       key={img.id}
@@ -131,31 +132,30 @@ export default function Home() {
                     >
                       <Image 
                         src={img.imageUrl} 
-                        alt="Dynamic Community Spark" 
+                        alt="Global community member" 
                         fill 
                         className="object-cover transform group-hover:scale-110 transition-transform duration-[10000ms]"
                         priority={i === 0}
-                        data-ai-hint={img.imageHint}
+                        data-ai-hint="woman portrait"
                       />
                     </div>
                   ))}
 
-                  {/* Spark Match Badge overlays the Dynamic Pic */}
-                  <div className="absolute top-12 left-12 z-20 bg-white/95 backdrop-blur-md px-10 py-6 rounded-[3rem] border border-primary/10 shadow-2xl flex flex-col gap-0.5 animate-in slide-in-from-left-4 duration-700">
+                  <div className="absolute top-8 left-8 z-20 bg-white/95 backdrop-blur-md px-8 py-5 rounded-[2.5rem] border border-primary/10 shadow-2xl flex flex-col gap-0.5 animate-in slide-in-from-left-4 duration-700">
                     <div className="flex items-center gap-3">
-                       <Heart className="w-8 h-8 text-primary fill-primary animate-heartbeat" />
-                       <span className="text-sm font-black uppercase tracking-widest text-primary">Spark Match</span>
+                       <Heart className="w-6 h-6 text-primary fill-primary animate-heartbeat" />
+                       <span className="text-xs font-black uppercase tracking-widest text-primary">Spark Match</span>
                     </div>
-                    <p className="text-[10px] text-muted-foreground font-black uppercase tracking-widest leading-none">Connect with Purpose</p>
+                    <p className="text-[9px] text-muted-foreground font-black uppercase tracking-widest leading-none">Connect with Purpose</p>
                   </div>
 
-                  <div className="absolute bottom-12 right-12 z-20 flex gap-2">
+                  <div className="absolute bottom-8 right-8 z-20 flex gap-2">
                     {dynamicImages.map((_, i) => (
                       <div 
                         key={i} 
                         className={cn(
-                          "h-2 rounded-full transition-all duration-500",
-                          imageIndex === i ? "w-12 bg-white shadow-lg" : "w-2 bg-white/40"
+                          "h-1.5 rounded-full transition-all duration-500",
+                          imageIndex === i ? "w-10 bg-white shadow-lg" : "w-1.5 bg-white/40"
                         )} 
                       />
                     ))}
