@@ -8,7 +8,7 @@ import { firebaseConfig } from './config';
 
 /**
  * @fileOverview Resilient Firebase Initializer.
- * Hardened to prevent crashes while allowing services to boot when ready.
+ * Standardized boot sequence for the Prosperity Revolution.
  */
 export function initializeFirebase(): { 
   app: FirebaseApp | null; 
@@ -16,42 +16,24 @@ export function initializeFirebase(): {
   auth: Auth | null;
   storage: FirebaseStorage | null;
 } {
-  // SSR Safety: Do not initialize on the server
+  // SSR Safety
   if (typeof window === 'undefined') {
     return { app: null, db: null, auth: null, storage: null };
   }
 
-  // Configuration Gate: Ensure we have at least a plausible API key
-  if (!firebaseConfig.apiKey || firebaseConfig.apiKey.length < 10) {
-    console.warn("I Love U: Firebase is not yet provisioned. Regional bridge is initializing...");
+  // Basic check to prevent early initialization crashes
+  if (!firebaseConfig.apiKey) {
+    console.warn("I Love U: Firebase credentials not detected. Waiting for provisioning...");
     return { app: null, db: null, auth: null, storage: null };
   }
 
   try {
     const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
     
-    // Initialize services with individual safety guards
-    let db: Firestore | null = null;
-    let auth: Auth | null = null;
-    let storage: FirebaseStorage | null = null;
-
-    try {
-      db = getFirestore(app);
-    } catch (e) {
-      console.error("Firestore Init Error:", e);
-    }
-
-    try {
-      auth = getAuth(app);
-    } catch (e) {
-      console.error("Auth Init Error:", e);
-    }
-
-    try {
-      storage = getStorage(app);
-    } catch (e) {
-      console.error("Storage Init Error:", e);
-    }
+    // Initialize services
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+    const storage = getStorage(app);
     
     return { app, db, auth, storage };
   } catch (error) {

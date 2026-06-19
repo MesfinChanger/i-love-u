@@ -1,13 +1,12 @@
 /**
  * @fileOverview Firebase configuration object.
  * Maps environment variables to the Firebase Client SDK configuration.
- * Includes aggressive cleaning to prevent "invalid-api-key" runtime errors.
+ * Hardened to handle platform-injected variables gracefully.
  */
 
 const getSafeEnv = (key: string) => {
-  const val = process.env[key] || "";
-  // Filter out common placeholders or invalid strings
-  if (!val || val === "undefined" || val.includes("YOUR_")) return "";
+  const val = process.env[key];
+  if (!val || val === "undefined" || val === "null" || val.includes("YOUR_")) return "";
   return val.trim();
 };
 

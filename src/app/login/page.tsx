@@ -22,8 +22,7 @@ import {
   ShieldCheck,
   CheckCircle2,
   Zap,
-  RefreshCw,
-  AlertCircle
+  RefreshCw
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
@@ -73,7 +72,7 @@ function LoginContent() {
       toast({ 
         variant: "destructive", 
         title: "Connection Initializing", 
-        description: "The prosperity network is finalizing its regional bridge. Please wait a heartbeat. ❤️" 
+        description: "The regional bridge is still securing your region. Please refresh in a moment. ❤️" 
       });
       return;
     }
@@ -110,7 +109,7 @@ function LoginContent() {
       let message = "Check your phrase or join the revolution. ❤️";
       
       if (error.code === 'auth/invalid-api-key' || error.message?.includes('api-key-not-valid')) {
-        message = "The regional bridge is still finalizing. Please refresh in a moment. ✨";
+        message = "Regional configuration is pending. Please refresh the page in a few seconds. ✨";
       } else if (error.code === 'auth/email-already-in-use') {
         message = "This email is already part of the revolution. Please sign in.";
       } else if (error.code === 'auth/weak-password') {
@@ -151,7 +150,7 @@ function LoginContent() {
              <div className="space-y-1">
                 <p className="text-[10px] font-black uppercase tracking-widest text-amber-700">Regional Bridge Initializing</p>
                 <p className="text-[9px] text-amber-600/80 font-bold leading-relaxed uppercase">
-                  The network is securing your region. If this takes more than a minute, ensure your environment variables are correctly set.
+                  The network is securing your region. If this takes more than a minute, please reload the page to pick up latest credentials.
                 </p>
                 <Button variant="link" className="p-0 h-auto text-[9px] font-black uppercase text-amber-700 underline" onClick={() => window.location.reload()}>
                   <RefreshCw className="w-2.5 h-2.5 mr-1" /> Reload Connection
