@@ -10,14 +10,15 @@ import {
   signInWithPopup, 
   GoogleAuthProvider,
   signInWithPhoneNumber,
-  RecaptchaVerifier
+  RecaptchaVerifier,
+  signInAnonymously
 } from 'firebase/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Heart, Mail, Phone, Chrome, Loader2, ArrowLeft, ShieldCheck, UserCheck, BotOff, HeartHandshake, Sparkles } from 'lucide-react';
+import { Heart, Mail, Phone, Chrome, Loader2, ArrowLeft, ShieldCheck, UserCheck, BotOff, HeartHandshake, Sparkles, UserCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -130,6 +131,23 @@ export default function LoginPage() {
     }
   };
 
+  const handleGuestLogin = async () => {
+    if (!validateAccess()) return;
+    setIsLoading(true);
+    try {
+      await signInAnonymously(auth);
+      router.push('/discover');
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Guest Access Failed",
+        description: error.message
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const setupRecaptcha = () => {
     if (!(window as any).recaptchaVerifier) {
       (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
@@ -193,7 +211,7 @@ export default function LoginPage() {
         Home
       </Link>
 
-      <div className="w-full max-w-md space-y-12">
+      <div className="w-full max-w-md space-y-12 py-10">
         <div className="text-center space-y-6">
           <div className="flex flex-col items-center justify-center gap-8 group">
             <div className="shiny-icon p-6 rounded-[3.5rem] bg-primary/5 shadow-inner">
@@ -224,7 +242,7 @@ export default function LoginPage() {
               </TabsTrigger>
               <TabsTrigger value="social" className="rounded-3xl gap-2 text-xs font-black uppercase tracking-widest">
                 <Chrome className="w-4 h-4" />
-                Google
+                Social
               </TabsTrigger>
             </TabsList>
 
@@ -330,9 +348,19 @@ export default function LoginPage() {
               </TabsContent>
 
               <TabsContent value="social" className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
-                <Button variant="outline" onClick={handleGoogleLogin} disabled={isLoading || isBotChecking} className="w-full h-20 rounded-[2rem] gap-5 text-xl border-4 font-black hover:bg-primary/5 transition-all shadow-lg active:scale-95">
-                  <Chrome className="w-8 h-8 text-primary" />
-                  Continue with Google
+                <Button variant="outline" onClick={handleGoogleLogin} disabled={isLoading || isBotChecking} className="w-full h-16 rounded-[1.5rem] gap-4 font-black uppercase tracking-widest text-xs border-2">
+                  <Chrome className="w-5 h-5 text-primary" />
+                  Sign in with Google
+                </Button>
+                
+                <div className="relative py-4">
+                  <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
+                  <div className="relative flex justify-center text-[10px] uppercase font-black"><span className="bg-white px-4 text-muted-foreground">Or Start Instantly</span></div>
+                </div>
+
+                <Button variant="outline" onClick={handleGuestLogin} disabled={isLoading || isBotChecking} className="w-full h-20 rounded-[2rem] gap-5 text-xl border-4 font-black hover:bg-primary/5 transition-all shadow-lg active:scale-95 group">
+                  <UserCircle className="w-8 h-8 text-primary group-hover:scale-110 transition-transform" />
+                  Continue as Guest
                 </Button>
                 <p className="text-center text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Fast Access for Spark Lovers</p>
               </TabsContent>
@@ -341,7 +369,7 @@ export default function LoginPage() {
           <CardFooter className="bg-muted/30 p-10 flex flex-col items-center gap-6">
              <Link href="/discover" className="text-sm text-primary font-black uppercase tracking-[0.3em] hover:underline flex items-center gap-2 group">
                <Sparkles className="w-4 h-4 group-hover:animate-pulse" />
-               Guest Experience
+               Explore the Mission
              </Link>
              <div className="flex gap-6 text-[10px] text-muted-foreground/60 font-black uppercase tracking-widest">
                <Link href="/privacy" className="hover:text-primary transition-colors">Privacy Shield</Link>
