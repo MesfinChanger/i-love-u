@@ -4,9 +4,12 @@
 import Stripe from 'stripe';
 import { redirect } from 'next/navigation';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_51P...REPLACE_ME', {
+// Use a fallback to prevent build-time crashes if environment variables are missing
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_51PLACEHOLDER_KEY_DO_NOT_USE_IN_PRODUCTION', {
   apiVersion: '2025-01-27.acacia',
 });
+
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:9002';
 
 /**
  * Creates a Stripe Checkout Session for a one-time donation.
@@ -20,29 +23,24 @@ export async function createDonationSession(amount: number, currency: string, us
           currency: currency.toLowerCase(),
           product_data: {
             name: 'Spark Community Donation',
-            description: 'Voluntary support for the Spark free dating community.',
+            description: 'Voluntary support for the Spark free dating community mission.',
           },
-          unit_amount: Math.round(amount * 100), // Stripe expects cents
+          unit_amount: Math.round(amount * 100),
         },
         quantity: 1,
       },
     ],
     mode: 'payment',
-    success_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:9002'}/donate?success=true`,
-    cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:9002'}/donate?canceled=true`,
-    metadata: {
-      userId,
-      type: 'donation',
-    },
+    success_url: `${BASE_URL}/donate?success=true`,
+    cancel_url: `${BASE_URL}/donate?canceled=true`,
+    metadata: { userId, type: 'donation' },
   });
 
-  if (session.url) {
-    redirect(session.url);
-  }
+  if (session.url) redirect(session.url);
 }
 
 /**
- * Creates a Stripe Checkout Session for an advertiser to pay for a campaign.
+ * Creates a Stripe Checkout Session for an advertiser campaign.
  */
 export async function createAdCampaignSession(amount: number, currency: string, userId: string, campaignTitle: string) {
   const session = await stripe.checkout.sessions.create({
@@ -61,18 +59,12 @@ export async function createAdCampaignSession(amount: number, currency: string, 
       },
     ],
     mode: 'payment',
-    success_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:9002'}/ads/manage?success=true`,
-    cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:9002'}/ads/manage?canceled=true`,
-    metadata: {
-      userId,
-      campaignTitle,
-      type: 'advertisement',
-    },
+    success_url: `${BASE_URL}/ads/manage?success=true`,
+    cancel_url: `${BASE_URL}/ads/manage?canceled=true`,
+    metadata: { userId, campaignTitle, type: 'advertisement' },
   });
 
-  if (session.url) {
-    redirect(session.url);
-  }
+  if (session.url) redirect(session.url);
 }
 
 /**
@@ -87,28 +79,21 @@ export async function createSubscriptionSession(planType: 'basic_seller' | 'pro_
           currency: currency.toLowerCase(),
           product_data: {
             name: planType === 'pro_seller' ? 'Spark Pro Seller Plan' : 'Spark Basic Seller Plan',
-            description: `Monthly subscription for Spark ${planType.replace('_', ' ')} status. Pricing determined by Admin demand.`,
+            description: `Monthly subscription for Spark ${planType.replace('_', ' ')} status.`,
           },
           unit_amount: Math.round(adminSetPrice * 100),
-          recurring: {
-            interval: 'month',
-          },
+          recurring: { interval: 'month' },
         },
         quantity: 1,
       },
     ],
     mode: 'subscription',
-    success_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:9002'}/shop/manage?success=true`,
-    cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:9002'}/shop/manage?canceled=true`,
-    metadata: {
-      userId,
-      planType,
-    },
+    success_url: `${BASE_URL}/shop/manage?success=true`,
+    cancel_url: `${BASE_URL}/shop/manage?canceled=true`,
+    metadata: { userId, planType },
   });
 
-  if (session.url) {
-    redirect(session.url);
-  }
+  if (session.url) redirect(session.url);
 }
 
 /**
@@ -131,16 +116,10 @@ export async function createGiftPurchaseSession(productName: string, amount: num
       },
     ],
     mode: 'payment',
-    success_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:9002'}/shop?success=true`,
-    cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:9002'}/shop?canceled=true`,
-    metadata: {
-      userId,
-      type: 'gift_purchase',
-      productName
-    },
+    success_url: `${BASE_URL}/shop?success=true`,
+    cancel_url: `${BASE_URL}/shop?canceled=true`,
+    metadata: { userId, type: 'gift_purchase', productName },
   });
 
-  if (session.url) {
-    redirect(session.url);
-  }
+  if (session.url) redirect(session.url);
 }
