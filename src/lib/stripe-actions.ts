@@ -110,3 +110,37 @@ export async function createSubscriptionSession(planType: 'basic_seller' | 'pro_
     redirect(session.url);
   }
 }
+
+/**
+ * Creates a Stripe Checkout Session for a product/gift purchase.
+ */
+export async function createGiftPurchaseSession(productName: string, amount: number, currency: string, userId: string) {
+  const session = await stripe.checkout.sessions.create({
+    payment_method_types: ['card'],
+    line_items: [
+      {
+        price_data: {
+          currency: currency.toLowerCase(),
+          product_data: {
+            name: productName,
+            description: 'Gift for a mysterious heart connection.',
+          },
+          unit_amount: Math.round(amount * 100),
+        },
+        quantity: 1,
+      },
+    ],
+    mode: 'payment',
+    success_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:9002'}/shop?success=true`,
+    cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:9002'}/shop?canceled=true`,
+    metadata: {
+      userId,
+      type: 'gift_purchase',
+      productName
+    },
+  });
+
+  if (session.url) {
+    redirect(session.url);
+  }
+}

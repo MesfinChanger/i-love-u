@@ -10,8 +10,9 @@ I Love U is optimized for high-performance hosting on Firebase and mobile suppor
 ### Steps to Publish:
 
 1.  **Production Credentials**: 
-    - Set `STRIPE_SECRET_KEY` in your environment.
+    - Set `STRIPE_SECRET_KEY` in your environment (see `.env`).
     - Update `src/firebase/config.ts` with your actual Firebase Project keys.
+    - Set `NEXT_PUBLIC_BASE_URL` to your production domain (e.g., `https://spark-dating.web.app`).
 
 2.  **Deploy to Web**: 
     ```bash
@@ -29,6 +30,7 @@ I Love U is optimized for high-performance hosting on Firebase and mobile suppor
 
 ## 🛠 Features for Global Growth
 
+- **Stripe Integration**: Securely processing donations, ad budgets, and gift purchases to fund our mission.
 - **Spark Rooms**: Sacred dating spaces with "Relationship Witnessing" to vouch for success.
 - **E2EE Privacy**: End-to-end encrypted private messaging for all community members.
 - **Eliminate Poverty**: A core mission where connections fund global job creation.

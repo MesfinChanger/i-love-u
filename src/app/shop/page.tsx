@@ -1,18 +1,21 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Header } from '@/components/Header';
 import { BottomNav } from '@/components/BottomNav';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Gift, ShoppingBag, Star, Zap, ShoppingCart, Search } from 'lucide-react';
+import { Gift, ShoppingBag, Star, Zap, ShoppingCart, Search, Loader2, Heart } from 'lucide-react';
 import Image from 'next/image';
-import { useFirestore, useCollection, useUser } from '@/firebase';
-import { collection, query, addDoc, serverTimestamp } from 'firebase/firestore';
+import { useFirestore, useCollection, useUser, useDoc } from '@/firebase';
+import { collection, query, addDoc, serverTimestamp, doc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
+import { createGiftPurchaseSession } from '@/lib/stripe-actions';
+import { useSearchParams } from 'next/navigation';
+import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 
 const GIFT_CATEGORIES = ["Flowers", "Jewelry", "Electronics", "Apparel", "Home", "Ornamental"];
 
@@ -20,9 +23,25 @@ export default function ShopPage() {
   const { user } = useUser();
   const db = useFirestore();
   const { toast } = useToast();
+  const searchParams = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
+  const [isPurchasing, setIsPurchasing] = useState<string | null>(null);
 
-  // In a real app, we'd fetch from shops collection. For MVP, we show mock items if DB empty.
+  const userRef = useMemoFirebase(() => {
+    if (!db || !user) return null;
+    return doc(db, 'users', user.uid);
+  }, [db, user]);
+  const { data: profile } = useDoc(userRef);
+
+  useEffect(() => {
+    if (searchParams.get('success')) {
+      toast({
+        title: "Gift Secured!",
+        description: "Your gift has been added to your inventory. Spark joy now! ❤️",
+      });
+    }
+  }, [searchParams, toast]);
+
   const { data: dbProducts } = useCollection(query(collection(db, 'global_products')));
 
   const mockProducts = [
@@ -37,12 +56,22 @@ export default function ShopPage() {
   const displayProducts = (dbProducts && dbProducts.length > 0) ? dbProducts : mockProducts;
   const filteredProducts = displayProducts.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
-  const handlePurchase = (product: any) => {
-    toast({
-      title: "Confirm Purchase",
-      description: `Proceed with purchasing ${product.name} for $${product.price}?`,
-      action: <Button onClick={() => toast({ title: "Purchase Successful", description: "Item added to your gift inventory!" })}>Confirm</Button>
-    });
+  const userCurrency = profile?.currency || 'USD';
+
+  const handlePurchase = async (product: any) => {
+    if (!user) {
+      toast({ variant: "destructive", title: "Login Required", description: "Please join the revolution to buy gifts." });
+      return;
+    }
+    
+    setIsPurchasing(product.id);
+    try {
+      await createGiftPurchaseSession(product.name, product.price, userCurrency, user.uid);
+    } catch (e) {
+      console.error(e);
+      toast({ variant: "destructive", title: "Error", description: "Payment redirect failed." });
+      setIsPurchasing(null);
+    }
   };
 
   return (
@@ -73,7 +102,7 @@ export default function ShopPage() {
           </div>
         </div>
 
-        <div className="flex gap-2 overflow-x-auto pb-4 mb-8">
+        <div className="flex gap-2 overflow-x-auto pb-4 mb-8 no-scrollbar">
           {GIFT_CATEGORIES.map(cat => (
             <Badge key={cat} variant="secondary" className="px-4 py-2 cursor-pointer hover:bg-primary hover:text-white transition-colors">
               {cat}
@@ -81,20 +110,36 @@ export default function ShopPage() {
           ))}
         </div>
 
+        {searchParams.get('success') && (
+          <Card className="mb-8 rounded-3xl border-none shadow-xl bg-green-50 p-6 flex items-center gap-4 animate-in zoom-in-95 duration-500">
+             <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-green-600 shadow-sm">
+                <Heart className="w-6 h-6 fill-current" />
+             </div>
+             <div>
+                <h3 className="font-black text-green-800 uppercase tracking-tight">Purchase Successful</h3>
+                <p className="text-xs text-green-700 font-medium">Thank you for spreading happiness and ending poverty! ✨</p>
+             </div>
+          </Card>
+        )}
+
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {filteredProducts.map((product: any) => (
-            <Card key={product.id} className="overflow-hidden border-none shadow-lg hover:shadow-xl transition-all group">
+            <Card key={product.id} className="overflow-hidden border-none shadow-lg hover:shadow-xl transition-all group rounded-[2rem] bg-white">
               <div className="relative aspect-square">
                 <Image src={product.imageUrl} alt={product.name} fill className="object-cover group-hover:scale-110 transition-transform duration-500" />
-                <Badge className="absolute top-2 right-2 bg-black/50 backdrop-blur-md border-none">{product.category}</Badge>
+                <Badge className="absolute top-4 right-4 bg-black/50 backdrop-blur-md border-none text-[9px] font-black uppercase tracking-widest">{product.category}</Badge>
               </div>
-              <CardHeader className="p-4 pb-0">
-                <CardTitle className="text-lg font-bold truncate">{product.name}</CardTitle>
-                <p className="text-primary font-black text-xl">${product.price}</p>
+              <CardHeader className="p-5 pb-0">
+                <CardTitle className="text-base font-black truncate tracking-tight">{product.name}</CardTitle>
+                <p className="text-primary font-black text-xl">{userCurrency === 'USD' ? '$' : ''}{product.price}</p>
               </CardHeader>
-              <CardFooter className="p-4 pt-2">
-                <Button className="w-full rounded-xl gradient-bg gap-2" onClick={() => handlePurchase(product)}>
-                  <ShoppingCart className="w-4 h-4" />
+              <CardFooter className="p-5 pt-3">
+                <Button 
+                  className="w-full rounded-2xl h-12 gradient-bg gap-2 font-bold shadow-lg shadow-primary/10 active:scale-95 transition-all" 
+                  onClick={() => handlePurchase(product)}
+                  disabled={isPurchasing === product.id}
+                >
+                  {isPurchasing === product.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShoppingCart className="w-4 h-4" />}
                   Buy Gift
                 </Button>
               </CardFooter>
