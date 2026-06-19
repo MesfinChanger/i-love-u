@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -195,14 +194,16 @@ export default function LoginPage() {
 
       <div className="w-full max-w-md space-y-8">
         <div className="text-center space-y-4">
-          <div className="flex items-center justify-center gap-3 group">
-            <Heart className="w-24 h-24 fill-primary text-primary group-hover:scale-110 transition-transform animate-pulse" />
-            <div className="flex flex-col text-left leading-none">
-              <span className="font-black text-4xl tracking-tighter text-primary">I LOVE</span>
-              <span className="font-black text-base tracking-[0.4em] text-muted-foreground">YOU</span>
+          <div className="flex flex-col items-center justify-center gap-6 group">
+            <div className="shiny-icon p-4 rounded-[2.5rem] bg-primary/5">
+              <Heart className="w-32 h-32 fill-primary text-primary group-hover:scale-110 transition-transform animate-pulse" />
+            </div>
+            <div className="flex flex-col text-center leading-none">
+              <span className="font-black text-6xl tracking-tighter text-primary shiny-text">I LOVE</span>
+              <span className="font-black text-2xl tracking-[0.5em] text-muted-foreground">YOU</span>
             </div>
           </div>
-          <h1 className="text-2xl font-black tracking-tight uppercase">Community Access</h1>
+          <h1 className="text-2xl font-black tracking-tight uppercase pt-4">Community Access</h1>
           <p className="text-muted-foreground text-sm font-bold uppercase tracking-widest">Happiness is Mandatory ❤️</p>
         </div>
 

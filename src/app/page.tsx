@@ -34,12 +34,14 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
       <header className="fixed top-0 z-50 w-full border-b bg-background/80 backdrop-blur-md">
-        <div className="container mx-auto px-4 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Heart className="w-12 h-12 fill-primary text-primary animate-pulse" />
+        <div className="container mx-auto px-4 h-24 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="relative shiny-icon p-2 rounded-2xl bg-primary/5">
+              <Heart className="w-16 h-16 fill-primary text-primary animate-pulse" />
+            </div>
             <div className="flex flex-col leading-none">
-              <span className="font-black text-3xl tracking-tighter text-primary">I LOVE</span>
-              <span className="font-black text-sm tracking-[0.4em] text-muted-foreground">YOU</span>
+              <span className="font-black text-4xl tracking-tighter text-primary">I LOVE</span>
+              <span className="font-black text-base tracking-[0.4em] text-muted-foreground">YOU</span>
             </div>
           </div>
           <div className="flex items-center gap-4">
@@ -65,11 +67,11 @@ export default function Home() {
               </div>
               
               <div className="space-y-2">
-                <h1 className="text-[15vw] lg:text-[12rem] font-black leading-none tracking-tighter animate-in zoom-in duration-1000">
-                  <span className="shiny-text drop-shadow-[0_15px_30px_rgba(255,51,102,0.35)]">I LOVE U</span>
+                <h1 className="text-[18vw] lg:text-[14rem] font-black leading-none tracking-tighter animate-in zoom-in duration-1000">
+                  <span className="shiny-text drop-shadow-[0_20px_40px_rgba(255,51,102,0.4)]">I LOVE U</span>
                 </h1>
-                <p className="text-2xl lg:text-3xl font-black tracking-[0.3em] text-muted-foreground uppercase opacity-80">
-                  U + Love = <span className="text-primary">Prosperity</span>
+                <p className="text-lg lg:text-xl font-black tracking-[0.4em] text-muted-foreground uppercase opacity-60">
+                  U + Love = <span className="text-primary/70">Prosperity</span>
                 </p>
               </div>
 
@@ -109,7 +111,7 @@ export default function Home() {
                 )}
               </div>
               <div className="absolute -bottom-12 -left-12 bg-white p-8 rounded-[3rem] shadow-[0_20px_60px_-10px_rgba(0,0,0,0.15)] border flex items-center gap-6 animate-bounce">
-                <div className="w-20 h-20 rounded-[2rem] gradient-bg flex items-center justify-center text-white shadow-xl">
+                <div className="w-20 h-20 rounded-[2rem] gradient-bg flex items-center justify-center text-white shadow-xl shiny-icon">
                   <TrendingDown className="w-12 h-12" />
                 </div>
                 <div>
@@ -150,13 +152,13 @@ export default function Home() {
             <div className="max-w-4xl mx-auto space-y-12">
               <h2 className="text-6xl lg:text-8xl font-black tracking-tighter uppercase leading-none">
                 Love is the <br/>
-                <span className="text-primary">Ultimate Cure</span>
+                <span className="shiny-text">Ultimate Cure</span>
               </h2>
               <p className="text-2xl text-white/70 leading-relaxed font-medium max-w-2xl mx-auto">
                 By connecting the world's hearts, we unlock the resources to build sustainable livelihoods in every village and city. Join the platform where your happiness ends world poverty.
               </p>
               <div className="pt-8">
-                <Button size="lg" className="h-20 px-16 rounded-full text-xl font-black gradient-bg shadow-2xl shadow-primary/40 hover:scale-105 transition-transform" asChild>
+                <Button size="lg" className="h-20 px-16 rounded-full text-xl font-black gradient-bg shadow-2xl shadow-primary/40 hover:scale-105 transition-transform group" asChild>
                   <Link href="/login">Launch Your Spark</Link>
                 </Button>
               </div>
@@ -168,10 +170,10 @@ export default function Home() {
       <footer className="py-24 border-t bg-white">
         <div className="container mx-auto px-4 text-center text-muted-foreground">
           <div className="flex items-center justify-center gap-3 mb-8">
-            <Heart className="w-16 h-16 fill-primary text-primary" />
+            <Heart className="w-20 h-20 fill-primary text-primary" />
             <div className="flex flex-col text-left leading-none">
-              <span className="font-black text-4xl tracking-tighter text-primary">I LOVE</span>
-              <span className="font-black text-base tracking-[0.4em] text-muted-foreground">YOU</span>
+              <span className="font-black text-5xl tracking-tighter text-primary">I LOVE</span>
+              <span className="font-black text-xl tracking-[0.4em] text-muted-foreground">YOU</span>
             </div>
           </div>
           <p className="font-black text-lg text-foreground tracking-tight">© {new Date().getFullYear()} I Love U. Ending world poverty through the power of connection.</p>
