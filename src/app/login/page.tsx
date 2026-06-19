@@ -95,7 +95,7 @@ function LoginContent() {
       toast({ 
         variant: "destructive", 
         title: "Connection Error", 
-        description: "The prosperity network is currently in Safe-Mode. Try Demo Access below. ❤️" 
+        description: "The prosperity network is currently initializing. Please try again in a moment. ❤️" 
       });
       return;
     }
@@ -120,15 +120,6 @@ function LoginContent() {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleDemoAccess = () => {
-    if (!isProtocolComplete) return;
-    toast({
-      title: "Demo Mode Active",
-      description: "Opening the system for exploration. No data will be saved. ✨"
-    });
-    router.push('/discover');
   };
 
   if (authLoading) return <div className="flex items-center justify-center min-h-screen"><Loader2 className="animate-spin text-primary" /></div>;
@@ -188,15 +179,6 @@ function LoginContent() {
             </TabsList>
             
             <CardContent className="p-10 space-y-8">
-              {!auth && (
-                <div className="bg-amber-50 border border-amber-200 p-4 rounded-2xl flex items-start gap-3 mb-4">
-                  <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-                  <p className="text-[10px] text-amber-700 font-bold uppercase tracking-wider leading-relaxed">
-                    The community connection is in Safe-Mode. Use "Demo Access" to explore.
-                  </p>
-                </div>
-              )}
-
               <div className="space-y-6">
                 {mode === 'signup' && (
                   <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
@@ -249,16 +231,6 @@ function LoginContent() {
                   )}
                 >
                   {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : mode === 'signin' ? 'Launch' : 'Join Revolution'}
-                </Button>
-                
-                <Button 
-                  variant="outline" 
-                  onClick={handleDemoAccess} 
-                  disabled={!isProtocolComplete} 
-                  className="w-full h-16 rounded-[1.5rem] gap-4 font-black uppercase tracking-[0.2em] text-[11px] border-2 border-primary/20 text-primary hover:bg-primary/5 transition-all"
-                >
-                  <Zap className="w-4 h-4" />
-                  Demo Access (Explore Only)
                 </Button>
               </div>
 
