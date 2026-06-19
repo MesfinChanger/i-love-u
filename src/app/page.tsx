@@ -60,7 +60,7 @@ export default function Home() {
           <div className="container mx-auto px-4 grid lg:grid-cols-2 gap-16 items-center">
             <div className="space-y-8 text-center lg:text-left z-10">
               <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white/80 backdrop-blur-sm text-primary text-xs font-black border border-primary/10 shadow-sm">
-                <Globe className="w-4 h-4 animate-spin-slow" />
+                <Globe className="w-4 h-4 animate-spin-slow text-secondary" />
                 <span className="transition-all duration-500 ease-in-out uppercase tracking-[0.2em]">
                   {LOVE_TRANSLATIONS[langIndex].text} {LOVE_TRANSLATIONS[langIndex].icon}
                 </span>
@@ -68,16 +68,16 @@ export default function Home() {
               
               <div className="space-y-2">
                 <h1 className="text-[18vw] lg:text-[14rem] font-black leading-none tracking-tighter animate-in zoom-in duration-1000">
-                  <span className="shiny-text drop-shadow-[0_20px_40px_rgba(255,51,102,0.4)]">I LOVE U</span>
+                  <span className="shiny-text drop-shadow-[0_20px_40px_rgba(255,51,102,0.3)]">I LOVE U</span>
                 </h1>
-                <p className="text-lg lg:text-xl font-black tracking-[0.4em] text-muted-foreground uppercase opacity-60">
-                  U + Love = <span className="text-primary/70">Prosperity</span>
+                <p className="text-sm lg:text-base font-black tracking-[0.4em] text-muted-foreground uppercase opacity-80">
+                  U + Love = <span className="text-secondary font-black drop-shadow-sm">Prosperity</span>
                 </p>
               </div>
 
               <p className="text-2xl text-muted-foreground max-w-lg mx-auto lg:mx-0 leading-relaxed font-medium">
                 Connect Hearts. Uplifting Worlds. <br/>
-                We are on a mandatory mission to <span className="text-primary font-black underline decoration-primary/20">Eliminate Poverty</span> through global job creation. 
+                We are on a mandatory mission to <span className="text-primary font-black underline decoration-secondary/30">Eliminate Poverty</span> through global job creation. 
               </p>
               <div className="flex flex-col sm:flex-row gap-6 justify-center lg:justify-start">
                 <Button size="lg" className="h-20 px-16 rounded-full text-xl font-black gradient-bg shadow-2xl shadow-primary/40 hover:scale-105 transition-transform group" asChild>
@@ -91,9 +91,9 @@ export default function Home() {
                 </Button>
               </div>
               <div className="flex items-center justify-center lg:justify-start gap-4 text-xs font-black uppercase tracking-[0.2em] text-muted-foreground/60">
-                <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                <Star className="w-4 h-4 fill-secondary text-secondary" />
                 Ending Hardship Worldwide
-                <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                <Star className="w-4 h-4 fill-secondary text-secondary" />
               </div>
             </div>
 
@@ -191,7 +191,7 @@ export default function Home() {
 function FeatureCard({ icon, title, description }: { icon: React.ReactNode, title: string, description: string }) {
   return (
     <div className="bg-white p-12 rounded-[4rem] shadow-sm hover:shadow-2xl transition-all border border-transparent hover:border-primary/10 group text-left">
-      <div className="w-24 h-24 rounded-[2rem] bg-muted/30 flex items-center justify-center text-primary mb-10 group-hover:scale-110 transition-transform shadow-inner">
+      <div className="w-24 h-24 rounded-[2rem] bg-accent flex items-center justify-center text-primary mb-10 group-hover:scale-110 transition-transform shadow-inner">
         {icon}
       </div>
       <h3 className="text-3xl font-black mb-6 tracking-tighter">{title}</h3>
