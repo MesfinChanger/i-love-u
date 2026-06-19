@@ -3,8 +3,10 @@
  * Strictly prioritizes environment variables for production and automatic publishing.
  */
 
+const isProd = process.env.NODE_ENV === 'production';
+
 export const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "",
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || (isProd ? "" : "AIzaSy_DEV_PLACEHOLDER"),
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || "",
   projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "",
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || "",
@@ -13,6 +15,5 @@ export const firebaseConfig = {
 };
 
 if (!firebaseConfig.apiKey && typeof window !== 'undefined') {
-  // Silent fail to avoid immediate crash, allowing user to see verification requirements
-  console.warn("Global Security Key missing. Ensure NEXT_PUBLIC_FIREBASE_API_KEY is set in your environment.");
+  console.warn("Firebase API Key is missing. Ensure NEXT_PUBLIC_FIREBASE_API_KEY is set in your environment.");
 }

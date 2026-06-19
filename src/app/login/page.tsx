@@ -90,7 +90,7 @@ function LoginContent() {
   };
 
   const syncUserProfile = async (uid: string, email: string) => {
-    await setDoc(doc(db, 'users', uid), {
+    const defaultData = {
       uid,
       email,
       country: country || 'GLOBAL',
@@ -98,9 +98,10 @@ function LoginContent() {
       isDatingEnabled: true,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
-    }, { merge: true });
+    };
 
-    // Ensure discovery profile is initialized
+    await setDoc(doc(db, 'users', uid), defaultData, { merge: true });
+
     await setDoc(doc(db, 'publicProfiles', uid), {
       uid,
       country: country || 'GLOBAL',
@@ -118,7 +119,7 @@ function LoginContent() {
       if (mode === 'signup') {
         const res = await createUserWithEmailAndPassword(auth, email, password);
         await syncUserProfile(res.user.uid, email);
-        toast({ title: "Welcome!", description: "Account created. Set your origin in Profile. ❤️" });
+        toast({ title: "Welcome!", description: "Account created. Sync your identity in Profile. ❤️" });
       } else {
         await signInWithEmailAndPassword(auth, email, password);
       }
@@ -190,7 +191,7 @@ function LoginContent() {
 
               {mode === 'signup' && (
                 <div className="space-y-4 mb-6 animate-in fade-in slide-in-from-top-2 duration-300">
-                  <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-2">Your Global Origin</Label>
+                  <p className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-2">Your Global Origin</p>
                   <Select value={country} onValueChange={setCountry}>
                     <SelectTrigger className="rounded-2xl h-14 bg-muted/20 border-none px-6 font-bold text-base">
                       <div className="flex items-center gap-3">
