@@ -6,21 +6,9 @@ runConfig:
 env:
   - variable: NEXT_PUBLIC_FIREBASE_API_KEY
     value: "AIzaSy-REPLACE-IN-CONSOLE"
-    availability:
-      - BUILD
-      - RUNTIME
   - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
     value: "spark-dating.firebaseapp.com"
-    availability:
-      - BUILD
-      - RUNTIME
   - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
     value: "spark-dating"
-    availability:
-      - BUILD
-      - RUNTIME
   - variable: NEXT_PUBLIC_BASE_URL
     value: "https://spark-dating.web.app"
-    availability:
-      - BUILD
-      - RUNTIME
