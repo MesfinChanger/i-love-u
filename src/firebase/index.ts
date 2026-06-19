@@ -21,17 +21,41 @@ export function initializeFirebase(): {
     return { app: null, db: null, auth: null, storage: null };
   }
 
+  // Configuration Gate: Ensure we have at least a plausible API key
+  if (!firebaseConfig.apiKey || firebaseConfig.apiKey.length < 10) {
+    console.warn("I Love U: Firebase is not yet provisioned. Regional bridge is initializing...");
+    return { app: null, db: null, auth: null, storage: null };
+  }
+
   try {
     const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
     
-    // Initialize services
-    const db = getFirestore(app);
-    const auth = getAuth(app);
-    const storage = getStorage(app);
+    // Initialize services with individual safety guards
+    let db: Firestore | null = null;
+    let auth: Auth | null = null;
+    let storage: FirebaseStorage | null = null;
+
+    try {
+      db = getFirestore(app);
+    } catch (e) {
+      console.error("Firestore Init Error:", e);
+    }
+
+    try {
+      auth = getAuth(app);
+    } catch (e) {
+      console.error("Auth Init Error:", e);
+    }
+
+    try {
+      storage = getStorage(app);
+    } catch (e) {
+      console.error("Storage Init Error:", e);
+    }
     
     return { app, db, auth, storage };
   } catch (error) {
-    console.error("I Love U: Platform initialization failure:", error);
+    console.error("I Love U: Core Platform initialization failure:", error);
     return { app: null, db: null, auth: null, storage: null };
   }
 }

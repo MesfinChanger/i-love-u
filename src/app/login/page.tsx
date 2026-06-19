@@ -22,7 +22,8 @@ import {
   ShieldCheck,
   CheckCircle2,
   Zap,
-  RefreshCw
+  RefreshCw,
+  AlertCircle
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
@@ -105,8 +106,18 @@ function LoginContent() {
       }
       router.push('/discover');
     } catch (error: any) {
-      console.error(error);
-      toast({ variant: "destructive", title: "Access Denied", description: "Check your phrase or join the revolution. ❤️" });
+      console.error("Auth Error:", error);
+      let message = "Check your phrase or join the revolution. ❤️";
+      
+      if (error.code === 'auth/invalid-api-key' || error.message?.includes('api-key-not-valid')) {
+        message = "The regional bridge is still finalizing. Please refresh in a moment. ✨";
+      } else if (error.code === 'auth/email-already-in-use') {
+        message = "This email is already part of the revolution. Please sign in.";
+      } else if (error.code === 'auth/weak-password') {
+        message = "Your secure phrase is too short. Help us keep you safe.";
+      }
+
+      toast({ variant: "destructive", title: "Access Denied", description: message });
     } finally {
       setIsLoading(false);
     }
@@ -140,7 +151,7 @@ function LoginContent() {
              <div className="space-y-1">
                 <p className="text-[10px] font-black uppercase tracking-widest text-amber-700">Regional Bridge Initializing</p>
                 <p className="text-[9px] text-amber-600/80 font-bold leading-relaxed uppercase">
-                  The network is securing your region. If this takes more than a minute, ensure your credentials are provisioned.
+                  The network is securing your region. If this takes more than a minute, ensure your environment variables are correctly set.
                 </p>
                 <Button variant="link" className="p-0 h-auto text-[9px] font-black uppercase text-amber-700 underline" onClick={() => window.location.reload()}>
                   <RefreshCw className="w-2.5 h-2.5 mr-1" /> Reload Connection
