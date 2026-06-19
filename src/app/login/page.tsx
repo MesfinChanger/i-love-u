@@ -125,7 +125,13 @@ function LoginContent() {
       }
       router.push('/discover');
     } catch (error: any) {
-      toast({ variant: "destructive", title: "Access Denied", description: "Global Security Protocol failed: " + error.message });
+      toast({ 
+        variant: "destructive", 
+        title: "Access Denied", 
+        description: error.code === 'auth/api-key-not-valid' 
+          ? "System Configuration Pending. Please ensure Firebase environment variables are set." 
+          : "Global Security Protocol failed: " + error.message 
+      });
     } finally {
       setIsLoading(false);
     }
