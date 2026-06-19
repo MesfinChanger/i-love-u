@@ -35,11 +35,8 @@ import {
   Navigation,
   Globe2,
   Lock,
-  EyeOff,
   User,
   ShieldCheck,
-  Megaphone,
-  Briefcase,
   IdCard,
   Home,
   Camera,
@@ -53,13 +50,13 @@ import { doc, setDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
 import { signOut, deleteUser } from 'firebase/auth';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 
 const GENDERS = [{ value: 'male', label: 'Male' }, { value: 'female', label: 'Female' }];
 
 const COUNTRIES = [
+  { code: 'GLOBAL', name: 'Global Community' },
   { code: 'US', name: 'United States' },
   { code: 'GB', name: 'United Kingdom' },
   { code: 'NG', name: 'Nigeria' },
@@ -69,7 +66,9 @@ const COUNTRIES = [
   { code: 'FR', name: 'France' },
   { code: 'IN', name: 'India' },
   { code: 'BR', name: 'Brazil' },
-  { code: 'ZA', name: 'South Africa' }
+  { code: 'ZA', name: 'South Africa' },
+  { code: 'ID', name: 'Indonesia' },
+  { code: 'KR', name: 'South Korea' }
 ];
 
 function ProfileContent() {
@@ -92,14 +91,13 @@ function ProfileContent() {
   const [location, setLocation] = useState('');
   const [address, setAddress] = useState('');
   const [taxId, setTaxId] = useState('');
-  const [country, setCountry] = useState('US');
+  const [country, setCountry] = useState('GLOBAL');
   const [bio, setBio] = useState('');
   const [interests, setInterests] = useState('');
   const [culturalInterests, setCulturalInterests] = useState('');
   const [currency, setCurrency] = useState('USD');
   const [allowSensitiveContent, setAllowSensitiveContent] = useState(false);
   const [isDatingEnabled, setIsDatingEnabled] = useState(true);
-  const [isAdvertiser, setIsAdvertiser] = useState(false);
   const [publicNickname, setPublicNickname] = useState('');
   const [isPhotoPublic, setIsPhotoPublic] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -115,7 +113,7 @@ function ProfileContent() {
       setLocation(profileData.location || '');
       setAddress(profileData.address || '');
       setTaxId(profileData.taxId || '');
-      setCountry(profileData.country || 'US');
+      setCountry(profileData.country || 'GLOBAL');
       setBio(profileData.bio || '');
       setInterests(profileData.interests?.join(', ') || '');
       setCulturalInterests(profileData.culturalInterests?.join(', ') || '');
@@ -124,7 +122,6 @@ function ProfileContent() {
       setIsPhotoPublic(profileData.isPhotoPublic || false);
       setAllowSensitiveContent(profileData.settings?.allowSensitiveContent || false);
       setIsDatingEnabled(profileData.isDatingEnabled !== false);
-      setIsAdvertiser(profileData.isAdvertiser || false);
       if (profileData.exactLocation) {
         setExactLocation({ lat: profileData.exactLocation.latitude, lng: profileData.exactLocation.longitude });
       }
@@ -138,7 +135,7 @@ function ProfileContent() {
       (pos) => {
         setExactLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
         setIsFetchingLocation(false);
-        toast({ title: "Location Updated" });
+        toast({ title: "GPS Verified", description: "Location recorded for accountability." });
       },
       () => setIsFetchingLocation(false)
     );
@@ -148,7 +145,7 @@ function ProfileContent() {
     if (!user || !db || isSaving) return;
     const userAge = parseInt(age);
     if (isNaN(userAge) || userAge < 18) {
-      toast({ variant: "destructive", title: "Wait!", description: "You must be 18+ to join." });
+      toast({ variant: "destructive", title: "Wait!", description: "You must be 18+ to join the movement." });
       return;
     }
 
@@ -164,7 +161,7 @@ function ProfileContent() {
       const interestList = interests.split(',').map(s => s.trim()).filter(i => i);
       const culturalList = culturalInterests.split(',').map(s => s.trim()).filter(i => i);
 
-      await setDoc(doc(db, 'users', user.uid), {
+      const updateData = {
         uid: user.uid,
         displayName, 
         age: userAge, 
@@ -178,13 +175,14 @@ function ProfileContent() {
         interests: interestList,
         culturalInterests: culturalList,
         isDatingEnabled, 
-        isAdvertiser,
         publicNickname,
         isPhotoPublic,
         settings: { allowSensitiveContent },
         exactLocation: exactLocation ? { latitude: exactLocation.lat, longitude: exactLocation.lng } : null,
         updatedAt: serverTimestamp()
-      }, { merge: true });
+      };
+
+      await setDoc(doc(db, 'users', user.uid), updateData, { merge: true });
 
       await setDoc(doc(db, 'publicProfiles', user.uid), {
         uid: user.uid,
@@ -198,7 +196,7 @@ function ProfileContent() {
         updatedAt: serverTimestamp()
       }, { merge: true });
 
-      toast({ title: "Profile Ready", description: "Identity synced for discovery. ❤️" });
+      toast({ title: "Profile Synced", description: "Identity updated across the community. ❤️" });
     } catch (e) {
       toast({ variant: "destructive", title: "Error", description: "Could not save profile." });
     } finally {
@@ -208,7 +206,7 @@ function ProfileContent() {
 
   const handleGenerateBio = async () => {
     if (!interests) {
-      toast({ title: "Tell us more", description: "Add interests first! ✨" });
+      toast({ title: "More info needed", description: "Add a few interests first! ✨" });
       return;
     }
     setIsGenerating(true);
@@ -220,153 +218,131 @@ function ProfileContent() {
     }
   };
 
-  const handleDeleteAccount = async () => {
-    if (!user || !db) return;
-    try {
-      await deleteDoc(doc(db, 'users', user.uid));
-      await deleteDoc(doc(db, 'publicProfiles', user.uid));
-      await deleteUser(user);
-      router.push('/');
-    } catch (e) {
-      toast({ variant: "destructive", title: "Action Failed", description: "Re-login to delete account." });
-    }
-  };
-
   if (profileLoading) return <div className="flex items-center justify-center min-h-screen"><Loader2 className="animate-spin text-primary" /></div>;
 
   return (
-    <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
+    <div className="flex flex-col min-h-screen bg-white pb-24">
       <Header />
-      <main className="container mx-auto px-4 max-w-3xl py-10">
-        <div className="flex flex-col sm:flex-row items-center justify-between mb-10 gap-6">
-          <div className="text-center sm:text-left">
-            <h1 className="text-5xl font-black tracking-tighter text-foreground">My Spark</h1>
-            <p className="text-muted-foreground mt-1">Design your global presence.</p>
+      <main className="container mx-auto px-6 max-w-3xl py-12">
+        <div className="flex flex-col md:flex-row items-center justify-between mb-16 gap-8">
+          <div className="text-center md:text-left">
+            <h1 className="text-6xl font-black tracking-tighter text-slate-900">Identity</h1>
+            <p className="text-muted-foreground mt-2 font-medium">Design your global presence.</p>
           </div>
-          <div className="flex items-center gap-3">
-            <Button variant="outline" onClick={() => signOut(auth)} className="rounded-2xl h-12 px-6">Sign Out</Button>
-            <Button onClick={handleSave} disabled={isSaving} className="gradient-bg rounded-2xl h-12 px-8 font-bold shadow-xl shadow-primary/20">
-              {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}Save
+          <div className="flex items-center gap-4">
+            <Button variant="outline" onClick={() => signOut(auth)} className="rounded-2xl h-14 px-8 font-black uppercase text-[10px] tracking-widest transition-all">Sign Out</Button>
+            <Button onClick={handleSave} disabled={isSaving} className="gradient-bg rounded-2xl h-14 px-10 font-black uppercase text-[10px] tracking-widest shadow-2xl shadow-primary/20 transition-all">
+              {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}Sync Profile
             </Button>
           </div>
         </div>
 
-        <Tabs defaultValue="public" className="w-full">
-          <TabsList className="w-full h-14 bg-white rounded-2xl shadow-sm border p-1 mb-8">
-            <TabsTrigger value="public" className="flex-1 rounded-xl gap-2 font-bold text-[10px] uppercase tracking-widest"><User className="w-3.5 h-3.5" />Personal</TabsTrigger>
-            <TabsTrigger value="identity" className="flex-1 rounded-xl gap-2 font-bold text-[10px] uppercase tracking-widest"><Globe2 className="w-3.5 h-3.5" />Public</TabsTrigger>
-            <TabsTrigger value="commercial" className="flex-1 rounded-xl gap-2 font-bold text-[10px] uppercase tracking-widest"><IdCard className="w-3.5 h-3.5" />Commercial</TabsTrigger>
-            <TabsTrigger value="security" className="flex-1 rounded-xl gap-2 font-bold text-[10px] uppercase tracking-widest"><ShieldCheck className="w-3.5 h-3.5" />Safety</TabsTrigger>
+        <Tabs defaultValue="personal" className="w-full">
+          <TabsList className="w-full h-16 bg-slate-50 rounded-[1.5rem] p-1.5 mb-12 border">
+            <TabsTrigger value="personal" className="flex-1 rounded-xl gap-2 font-black text-[10px] uppercase tracking-widest"><User className="w-3.5 h-3.5" />Personal</TabsTrigger>
+            <TabsTrigger value="public" className="flex-1 rounded-xl gap-2 font-black text-[10px] uppercase tracking-widest"><Globe2 className="w-3.5 h-3.5" />Public</TabsTrigger>
+            <TabsTrigger value="safety" className="flex-1 rounded-xl gap-2 font-black text-[10px] uppercase tracking-widest"><ShieldCheck className="w-3.5 h-3.5" />Safety</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="public">
-            <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-8 space-y-10">
-              <div className="grid sm:grid-cols-2 gap-8">
-                <div className="space-y-3">
-                  <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Full Name</Label>
-                  <Input value={displayName} onChange={e => setDisplayName(e.target.value)} className="rounded-2xl h-14 bg-muted/30 border-none px-6 font-bold" />
+          <TabsContent value="personal">
+            <Card className="rounded-[3rem] border-none shadow-xl bg-slate-50/50 p-10 space-y-12">
+              <div className="grid sm:grid-cols-2 gap-10">
+                <div className="space-y-4">
+                  <Label className="text-[10px] font-black uppercase tracking-widest opacity-60 ml-2">Display Name</Label>
+                  <Input value={displayName} onChange={e => setDisplayName(e.target.value)} className="rounded-[1.2rem] h-16 bg-white border-none px-8 font-bold text-lg shadow-sm" />
                 </div>
-                <div className="space-y-3">
-                  <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Age (18+)</Label>
-                  <Input type="number" min="18" value={age} onChange={e => setAge(e.target.value)} className="rounded-2xl h-14 bg-muted/30 border-none px-6 font-bold" />
+                <div className="space-y-4">
+                  <Label className="text-[10px] font-black uppercase tracking-widest opacity-60 ml-2">Age (18+)</Label>
+                  <Input type="number" min="18" value={age} onChange={e => setAge(e.target.value)} className="rounded-[1.2rem] h-16 bg-white border-none px-8 font-bold text-lg shadow-sm" />
                 </div>
               </div>
-              <div className="grid sm:grid-cols-2 gap-8">
-                <div className="space-y-3">
-                  <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Gender</Label>
+              <div className="grid sm:grid-cols-2 gap-10">
+                <div className="space-y-4">
+                  <Label className="text-[10px] font-black uppercase tracking-widest opacity-60 ml-2">Gender Identity</Label>
                   <Select value={gender} onValueChange={setGender}>
-                    <SelectTrigger className="rounded-2xl h-14 bg-muted/30 border-none px-6 font-bold"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="rounded-[1.2rem] h-16 bg-white border-none px-8 font-bold text-lg shadow-sm"><SelectValue /></SelectTrigger>
                     <SelectContent>{GENDERS.map(g => <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>)}</SelectContent>
                   </Select>
                 </div>
-                <div className="space-y-3">
-                  <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Location Hint</Label>
-                  <Input value={location} onChange={e => setLocation(e.target.value)} placeholder="e.g. London, UK" className="rounded-2xl h-14 bg-muted/30 border-none px-6 font-bold" />
+                <div className="space-y-4">
+                  <Label className="text-[10px] font-black uppercase tracking-widest opacity-60 ml-2">Country Code</Label>
+                  <Select value={country} onValueChange={setCountry}>
+                    <SelectTrigger className="rounded-[1.2rem] h-16 bg-white border-none px-8 font-bold text-lg shadow-sm">
+                      <div className="flex items-center gap-3">
+                        <Globe className="w-5 h-5 text-primary" />
+                        <SelectValue />
+                      </div>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {COUNTRIES.map(c => <SelectItem key={c.code} value={c.code}>{c.name}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
                 </div>
-              </div>
-              <div className="space-y-3">
-                <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Country Origin (Mandatory)</Label>
-                <Select value={country} onValueChange={setCountry}>
-                  <SelectTrigger className="rounded-2xl h-14 bg-primary/5 border-none px-6 font-bold"><Globe className="w-4 h-4 mr-2 text-primary" /><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {COUNTRIES.map(c => <SelectItem key={c.code} value={c.code}>{c.name}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Bio</Label>
-                  <Button variant="ghost" size="sm" onClick={handleGenerateBio} disabled={isGenerating} className="text-primary gap-2 font-black text-[10px] uppercase h-8 px-4 bg-primary/5 rounded-full">
-                    {isGenerating ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}AI Magic
-                  </Button>
-                </div>
-                <Textarea value={bio} onChange={e => setBio(e.target.value)} className="min-h-[160px] rounded-[2rem] bg-muted/30 border-none p-6 text-lg italic" placeholder="Joy moments..." />
               </div>
             </Card>
           </TabsContent>
 
-          <TabsContent value="identity">
-             <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-8 space-y-10">
-                <div className="space-y-8">
-                  <div className="space-y-3">
-                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Public Nickname</Label>
-                    <Input value={publicNickname} onChange={e => setPublicNickname(e.target.value)} placeholder="Unique Identity" className="rounded-2xl h-14 bg-primary/5 border-2 border-primary/10 px-6 font-black text-primary" />
+          <TabsContent value="public">
+             <Card className="rounded-[3rem] border-none shadow-xl bg-slate-50/50 p-10 space-y-12">
+                <div className="space-y-10">
+                  <div className="space-y-4">
+                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-60 ml-2">Unique Public Nickname</Label>
+                    <Input value={publicNickname} onChange={e => setPublicNickname(e.target.value)} placeholder="e.g. HeartExplorer" className="rounded-[1.2rem] h-16 bg-white border-2 border-primary/10 px-8 font-black text-xl text-primary shadow-inner" />
                   </div>
-                  <div className="flex items-center justify-between p-6 bg-primary/5 rounded-[2rem] border-2 border-primary/10">
-                     <div className="flex items-center gap-4">
-                        <Camera className="w-6 h-6 text-primary" />
-                        <div><h4 className="font-black text-sm uppercase">Post Pic Publicly</h4><p className="text-[10px] opacity-60">Visible in Discovery.</p></div>
+                  <div className="flex items-center justify-between p-8 bg-white rounded-[2rem] border border-primary/5 shadow-sm">
+                     <div className="flex items-center gap-5">
+                        <div className="w-12 h-12 rounded-2xl bg-primary/5 flex items-center justify-center text-primary"><Camera className="w-6 h-6" /></div>
+                        <div>
+                          <h4 className="font-black text-sm uppercase tracking-tight">Post Pic Publicly</h4>
+                          <p className="text-[10px] opacity-60 font-medium italic mt-0.5">Visible to everyone in Discovery.</p>
+                        </div>
                      </div>
                      <Switch checked={isPhotoPublic} onCheckedChange={setIsPhotoPublic} />
+                  </div>
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between ml-2">
+                      <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Personal Bio</Label>
+                      <Button variant="ghost" size="sm" onClick={handleGenerateBio} disabled={isGenerating} className="text-primary gap-2 font-black text-[10px] uppercase h-10 px-5 bg-white rounded-full border border-primary/10 shadow-sm">
+                        {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}AI Spark
+                      </Button>
+                    </div>
+                    <Textarea value={bio} onChange={e => setBio(e.target.value)} className="min-h-[220px] rounded-[2rem] bg-white border-none p-10 text-xl italic font-medium leading-relaxed shadow-sm" placeholder="Tell the world your joyful moments..." />
                   </div>
                 </div>
              </Card>
           </TabsContent>
 
-          <TabsContent value="commercial">
-            <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-8 space-y-8">
-              <div className="space-y-3">
-                <Label className="text-[10px] font-black uppercase tracking-widest opacity-60"><Home className="w-3 h-3 inline mr-2" />Business Address</Label>
-                <Textarea value={address} onChange={e => setAddress(e.target.value)} placeholder="Legal Address" className="rounded-2xl bg-muted/30 border-none p-4" />
-              </div>
-              <div className="space-y-3">
-                <Label className="text-[10px] font-black uppercase tracking-widest opacity-60"><IdCard className="w-3 h-3 inline mr-2" />Tax ID (SSN/TIN)</Label>
-                <Input value={taxId} onChange={e => setTaxId(e.target.value)} placeholder="Protected Info" className="rounded-2xl h-14 bg-muted/30 border-none px-6 font-mono" />
-              </div>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="security" className="space-y-6">
-            <Card className="p-8 rounded-[2.5rem] border-none shadow-xl bg-white space-y-6">
-               <div className="flex items-start gap-4 text-red-600">
-                  <MapPin className="w-8 h-8 shrink-0" />
-                  <div className="space-y-1"><h3 className="font-black uppercase tracking-tighter text-lg">GPS Pin</h3><p className="text-xs opacity-60">Ensures accountability in Sparks.</p></div>
-               </div>
-               <Button onClick={handleUpdateLocation} disabled={isFetchingLocation} className="w-full h-14 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-bold gap-3 shadow-xl">
-                 {isFetchingLocation ? <Loader2 className="w-4 h-4 animate-spin" /> : <Navigation className="w-5 h-5" />}Update GPS
-               </Button>
-            </Card>
-            <Card className="p-8 rounded-[2.5rem] border-none shadow-xl bg-white">
-              <div className="flex flex-col gap-4">
-                <div className="flex items-center justify-between p-4 bg-muted/20 rounded-2xl">
-                   <span className="text-sm font-bold">Dating Mode</span>
-                   <Button variant="ghost" onClick={() => setIsDatingEnabled(!isDatingEnabled)} className={isDatingEnabled ? 'text-green-600 font-black' : 'text-red-600 font-black'}>{isDatingEnabled ? 'ON' : 'OFF'}</Button>
-                </div>
-                <div className="flex items-center justify-between p-4 bg-muted/20 rounded-2xl">
-                   <span className="text-sm font-bold">Safety Guard</span>
-                   <Button variant="ghost" onClick={() => setAllowSensitiveContent(!allowSensitiveContent)} className={!allowSensitiveContent ? 'text-green-600 font-black' : 'text-amber-600 font-black'}>{!allowSensitiveContent ? 'ACTIVE' : 'OFF'}</Button>
-                </div>
-              </div>
-              <div className="pt-10 text-center">
+          <TabsContent value="safety">
+            <div className="space-y-8">
+              <Card className="p-10 rounded-[3rem] border-none shadow-xl bg-slate-50/50 space-y-8">
+                 <div className="flex items-start gap-6 text-red-600">
+                    <div className="w-16 h-16 rounded-[1.5rem] bg-red-50 flex items-center justify-center shrink-0"><MapPin className="w-8 h-8" /></div>
+                    <div className="space-y-1">
+                      <h3 className="font-black uppercase tracking-tighter text-2xl">GPS Verification</h3>
+                      <p className="text-sm opacity-60 font-medium italic">Mandatory for accountability in Spark Rooms.</p>
+                    </div>
+                 </div>
+                 <Button onClick={handleUpdateLocation} disabled={isFetchingLocation} className="w-full h-18 py-6 rounded-[1.5rem] bg-red-600 hover:bg-red-700 text-white font-black uppercase tracking-widest gap-4 shadow-xl">
+                   {isFetchingLocation ? <Loader2 className="w-6 h-6 animate-spin" /> : <Navigation className="w-6 h-6" />}Update GPS Coordinates
+                 </Button>
+              </Card>
+              
+              <div className="pt-12 text-center opacity-40 hover:opacity-100 transition-opacity">
                 <AlertDialog>
-                  <AlertDialogTrigger asChild><Button variant="ghost" className="text-destructive/40 hover:text-destructive font-black text-[9px] uppercase tracking-widest"><Trash2 className="w-4 h-4 mr-2" />Delete Account</Button></AlertDialogTrigger>
-                  <AlertDialogContent className="rounded-[3rem] p-10 border-none shadow-2xl">
-                    <AlertDialogHeader><AlertDialogTitle className="text-3xl font-black">Are you sure?</AlertDialogTitle><AlertDialogDescription className="text-lg italic">Erases all sparks and data forever.</AlertDialogDescription></AlertDialogHeader>
-                    <AlertDialogFooter className="mt-8"><AlertDialogCancel className="rounded-2xl h-14 font-bold">Cancel</AlertDialogCancel><AlertDialogAction onClick={handleDeleteAccount} className="bg-destructive text-white rounded-2xl h-14 font-bold">Delete</AlertDialogAction></AlertDialogFooter>
+                  <AlertDialogTrigger asChild><Button variant="ghost" className="text-destructive font-black text-[10px] uppercase tracking-[0.3em]"><Trash2 className="w-4 h-4 mr-3" />Delete My Identity Permanently</Button></AlertDialogTrigger>
+                  <AlertDialogContent className="rounded-[4rem] p-12 border-none shadow-2xl">
+                    <AlertDialogHeader><AlertDialogTitle className="text-4xl font-black tracking-tighter">End Journey?</AlertDialogTitle><AlertDialogDescription className="text-xl italic font-medium pt-4">This will erase all sparks, messages, and your presence forever. Happiness is final.</AlertDialogDescription></AlertDialogHeader>
+                    <AlertDialogFooter className="mt-10 gap-4"><AlertDialogCancel className="rounded-2xl h-16 font-bold flex-1 border-none bg-muted/50">Cancel</AlertDialogCancel><AlertDialogAction onClick={async () => {
+                      if (!user || !db) return;
+                      await deleteDoc(doc(db, 'users', user.uid));
+                      await deleteDoc(doc(db, 'publicProfiles', user.uid));
+                      await deleteUser(user);
+                      router.push('/');
+                    }} className="bg-destructive text-white rounded-2xl h-16 font-black uppercase text-[10px] tracking-widest flex-1">Erase Everything</AlertDialogAction></AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
               </div>
-            </Card>
+            </div>
           </TabsContent>
         </Tabs>
       </main>
