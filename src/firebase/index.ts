@@ -21,16 +21,17 @@ export function initializeFirebase(): {
     return { app: null, db: null, auth: null, storage: null };
   }
 
-  // Defensive Check: Validate basic config existence
-  if (!firebaseConfig.apiKey || firebaseConfig.apiKey.includes('YOUR_API_KEY') || firebaseConfig.apiKey === "") {
+  // Defensive Check: Validate basic config existence before any SDK calls
+  if (!firebaseConfig.apiKey || firebaseConfig.apiKey === "") {
     console.warn("I Love U: Firebase API Key is missing. System operating in limited mode.");
     return { app: null, db: null, auth: null, storage: null };
   }
 
   try {
+    // 1. Initialize App
     const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
     
-    // Initialize services individually with safety wrappers
+    // 2. Initialize individual services with extreme caution
     let db: Firestore | null = null;
     let auth: Auth | null = null;
     let storage: FirebaseStorage | null = null;
@@ -38,19 +39,20 @@ export function initializeFirebase(): {
     try {
       db = getFirestore(app);
     } catch (e) {
-      console.warn("I Love U: Firestore initialization deferred.", e);
+      console.warn("I Love U: Firestore initialization failed.", e);
     }
 
     try {
+      // Auth initialization is where invalid API keys usually trigger crashes
       auth = getAuth(app);
     } catch (e) {
-      console.warn("I Love U: Auth initialization deferred.", e);
+      console.warn("I Love U: Auth initialization failed (Invalid API Key).", e);
     }
 
     try {
       storage = getStorage(app);
     } catch (e) {
-      console.warn("I Love U: Storage initialization deferred.", e);
+      console.warn("I Love U: Storage initialization failed.", e);
     }
     
     return { app, db, auth, storage };

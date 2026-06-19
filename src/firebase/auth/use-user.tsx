@@ -14,14 +14,14 @@ export function useUser() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // If auth is null (Safe-Mode), we can't listen for state changes
+    // If auth is null (Config error), we can't listen for state changes
     if (!auth) {
       setLoading(false);
       return;
     }
 
     try {
-      // Defensive check to ensure auth instance is valid for modular SDK
+      // Standalone modular function call
       const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
         setUser(firebaseUser);
         setLoading(false);

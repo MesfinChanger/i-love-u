@@ -22,7 +22,8 @@ import {
   ShieldCheck,
   CheckCircle2,
   AlertTriangle,
-  Zap
+  Zap,
+  ShieldAlert
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
@@ -51,7 +52,7 @@ function LoginContent() {
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
   const [isLoading, setIsLoading] = useState(false);
 
-  // Mandatory Security Protocols (Required for EVERYTHING)
+  // Mandatory Security Protocols
   const [isAgeVerified, setIsAgeVerified] = useState(false);
   const [isRespectful, setIsRespectful] = useState(false);
   const [isHuman, setIsHuman] = useState(false);
@@ -64,29 +65,6 @@ function LoginContent() {
   }, [user, authLoading, router]);
 
   const isProtocolComplete = isAgeVerified && isRespectful && isHuman;
-
-  const syncUserProfile = async (uid: string, email: string) => {
-    if (!db || !uid) return;
-    const defaultData = {
-      uid,
-      email,
-      country: country || 'GLOBAL',
-      isAgeVerified,
-      isRespectful,
-      isHuman,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp()
-    };
-
-    await setDoc(doc(db, 'users', uid), defaultData, { merge: true });
-    await setDoc(doc(db, 'publicProfiles', uid), {
-      uid,
-      country: country || 'GLOBAL',
-      publicNickname: "Mystery Heart",
-      bio: "Joining the movement...",
-      updatedAt: serverTimestamp()
-    }, { merge: true });
-  };
 
   const handleAuth = async () => {
     if (!email || !password || !isProtocolComplete) return;
@@ -109,7 +87,20 @@ function LoginContent() {
           return;
         }
         const res = await createUserWithEmailAndPassword(auth, email, password);
-        await syncUserProfile(res.user.uid, email);
+        
+        // Sync Profile
+        if (db) {
+           await setDoc(doc(db, 'users', res.user.uid), {
+            uid: res.user.uid,
+            email,
+            country,
+            isAgeVerified,
+            isRespectful,
+            isHuman,
+            createdAt: serverTimestamp()
+          }, { merge: true });
+        }
+
         toast({ title: "Welcome!", description: "Account created successfully. ❤️" });
       } else {
         await signInWithEmailAndPassword(auth, email, password);
@@ -141,6 +132,18 @@ function LoginContent() {
             </div>
           </div>
         </div>
+
+        {!auth && (
+          <div className="bg-amber-50 border border-amber-200 p-4 rounded-3xl flex items-start gap-4 mb-6 animate-in slide-in-from-top-4">
+             <ShieldAlert className="w-6 h-6 text-amber-600 shrink-0 mt-0.5" />
+             <div className="space-y-1">
+                <p className="text-[10px] font-black uppercase tracking-widest text-amber-800">Connection Initializing</p>
+                <p className="text-[9px] text-amber-700 font-bold leading-relaxed uppercase opacity-80">
+                  The network is securing your region. Please ensure your credentials are provisioned in the console.
+                </p>
+             </div>
+          </div>
+        )}
 
         <Card className="border-none shadow-[0_30px_100px_-10px_rgba(0,0,0,0.08)] rounded-[3.5rem] overflow-hidden bg-white">
           <div className="bg-primary/5 p-8 border-b border-primary/10">
@@ -221,13 +224,13 @@ function LoginContent() {
                 </div>
               </div>
 
-              <div className="pt-4 space-y-4">
+              <div className="pt-4">
                 <Button 
                   onClick={handleAuth} 
-                  disabled={isLoading || !isProtocolComplete || !email || !password} 
+                  disabled={isLoading || !isProtocolComplete || !email || !password || !auth} 
                   className={cn(
                     "w-full h-20 rounded-[2rem] font-black uppercase tracking-[0.3em] text-sm shadow-[0_20px_40px_-10px_rgba(255,51,102,0.4)] active:scale-95 transition-all",
-                    (!isProtocolComplete) ? "bg-slate-200 text-slate-400" : "gradient-bg"
+                    (!isProtocolComplete || !auth) ? "bg-slate-200 text-slate-400" : "gradient-bg"
                   )}
                 >
                   {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : mode === 'signin' ? 'Launch' : 'Join Revolution'}
