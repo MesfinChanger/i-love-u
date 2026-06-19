@@ -4,6 +4,7 @@ import React from 'react';
 import { FirebaseClientProvider } from '@/firebase';
 import { Toaster } from '@/components/ui/toaster';
 import { SparkAssistant } from '@/components/SparkAssistant';
+import { RegistrationReminder } from '@/components/RegistrationReminder';
 
 /**
  * @fileOverview Wraps all client-side providers for the application.
@@ -13,6 +14,7 @@ export function ClientProviders({ children }: { children: React.ReactNode }) {
     <FirebaseClientProvider>
       {children}
       <SparkAssistant />
+      <RegistrationReminder />
       <Toaster />
     </FirebaseClientProvider>
   );
