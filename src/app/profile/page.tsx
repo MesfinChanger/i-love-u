@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
@@ -43,7 +42,8 @@ import {
   Briefcase,
   IdCard,
   Home,
-  Camera
+  Camera,
+  Globe
 } from 'lucide-react';
 import { generateBio } from '@/ai/flows/generate-bio-flow';
 import { moderateText } from '@/ai/flows/moderate-text-flow';
@@ -58,6 +58,19 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 
 const GENDERS = [{ value: 'male', label: 'Male' }, { value: 'female', label: 'Female' }];
+
+const COUNTRIES = [
+  { code: 'US', name: 'United States' },
+  { code: 'GB', name: 'United Kingdom' },
+  { code: 'NG', name: 'Nigeria' },
+  { code: 'KE', name: 'Kenya' },
+  { code: 'JP', name: 'Japan' },
+  { code: 'DE', name: 'Germany' },
+  { code: 'FR', name: 'France' },
+  { code: 'IN', name: 'India' },
+  { code: 'BR', name: 'Brazil' },
+  { code: 'ZA', name: 'South Africa' }
+];
 
 function ProfileContent() {
   const { user } = useUser();
@@ -226,7 +239,7 @@ function ProfileContent() {
       <main className="container mx-auto px-4 max-w-3xl py-10">
         <div className="flex flex-col sm:flex-row items-center justify-between mb-10 gap-6">
           <div className="text-center sm:text-left">
-            <h1 className="text-5xl font-black tracking-tighter">My Spark</h1>
+            <h1 className="text-5xl font-black tracking-tighter text-foreground">My Spark</h1>
             <p className="text-muted-foreground mt-1">Design your global presence.</p>
           </div>
           <div className="flex items-center gap-3">
@@ -266,9 +279,18 @@ function ProfileContent() {
                   </Select>
                 </div>
                 <div className="space-y-3">
-                  <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Location</Label>
+                  <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Location Hint</Label>
                   <Input value={location} onChange={e => setLocation(e.target.value)} placeholder="e.g. London, UK" className="rounded-2xl h-14 bg-muted/30 border-none px-6 font-bold" />
                 </div>
+              </div>
+              <div className="space-y-3">
+                <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Country Origin (Mandatory)</Label>
+                <Select value={country} onValueChange={setCountry}>
+                  <SelectTrigger className="rounded-2xl h-14 bg-primary/5 border-none px-6 font-bold"><Globe className="w-4 h-4 mr-2 text-primary" /><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {COUNTRIES.map(c => <SelectItem key={c.code} value={c.code}>{c.name}</SelectItem>)}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
