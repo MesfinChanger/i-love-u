@@ -1,7 +1,6 @@
-
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, Suspense } from 'react';
 import { Header } from '@/components/Header';
 import { BottomNav } from '@/components/BottomNav';
 import { Button } from '@/components/ui/button';
@@ -42,7 +41,7 @@ const CURRENCIES = [
   { code: 'IDR', symbol: 'Rp' }
 ];
 
-export default function SellerManagePage() {
+function SellerManageContent() {
   const { user } = useUser();
   const db = useFirestore();
   const { toast } = useToast();
@@ -307,7 +306,7 @@ export default function SellerManagePage() {
                 <CreditCard className="w-8 h-8 text-green-500 mx-auto" aria-hidden="true" />
                 <div className="text-2xl font-black">{currencySymbol}4,250</div>
                 <div className="text-xs text-muted-foreground uppercase font-bold tracking-widest">Monthly Sales</div>
-              </Card>
+              </div>
             </div>
 
             <Button variant="outline" className="w-full rounded-xl gap-2 h-14 border-2">
@@ -319,5 +318,13 @@ export default function SellerManagePage() {
       </main>
       <BottomNav />
     </div>
+  );
+}
+
+export default function SellerManagePage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><Loader2 className="animate-spin text-primary" /></div>}>
+      <SellerManageContent />
+    </Suspense>
   );
 }

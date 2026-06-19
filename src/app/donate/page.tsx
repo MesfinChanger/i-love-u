@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, Suspense } from 'react';
 import { Header } from '@/components/Header';
 import { BottomNav } from '@/components/BottomNav';
 import { Button } from '@/components/ui/button';
@@ -26,7 +26,7 @@ const CURRENCIES = [
   { code: 'IDR', symbol: 'Rp' }
 ];
 
-export default function DonatePage() {
+function DonateContent() {
   const { user } = useUser();
   const db = useFirestore();
   const { toast } = useToast();
@@ -176,5 +176,13 @@ export default function DonatePage() {
       </main>
       <BottomNav />
     </div>
+  );
+}
+
+export default function DonatePage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><Loader2 className="animate-spin text-primary" /></div>}>
+      <DonateContent />
+    </Suspense>
   );
 }

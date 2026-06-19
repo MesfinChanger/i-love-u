@@ -1,7 +1,6 @@
-
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { Header } from '@/components/Header';
 import { BottomNav } from '@/components/BottomNav';
 import { Button } from '@/components/ui/button';
@@ -19,7 +18,7 @@ import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 
 const GIFT_CATEGORIES = ["Flowers", "Jewelry", "Electronics", "Apparel", "Home", "Ornamental"];
 
-export default function ShopPage() {
+function ShopContent() {
   const { user } = useUser();
   const db = useFirestore();
   const { toast } = useToast();
@@ -149,5 +148,13 @@ export default function ShopPage() {
       </main>
       <BottomNav />
     </div>
+  );
+}
+
+export default function ShopPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><Loader2 className="animate-spin text-primary" /></div>}>
+      <ShopContent />
+    </Suspense>
   );
 }

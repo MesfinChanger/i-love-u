@@ -1,7 +1,6 @@
-
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { Header } from '@/components/Header';
 import { BottomNav } from '@/components/BottomNav';
 import { Button } from '@/components/ui/button';
@@ -51,7 +50,7 @@ const COUNTRIES = [
   { code: 'FR', name: 'France' }
 ];
 
-export default function AdvertiserManagePage() {
+function AdvertiserManageContent() {
   const { user } = useUser();
   const db = useFirestore();
   const { toast } = useToast();
@@ -346,5 +345,13 @@ export default function AdvertiserManagePage() {
       </main>
       <BottomNav />
     </div>
+  );
+}
+
+export default function AdvertiserManagePage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><Loader2 className="animate-spin text-primary" /></div>}>
+      <AdvertiserManageContent />
+    </Suspense>
   );
 }
