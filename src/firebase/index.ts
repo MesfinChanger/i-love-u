@@ -5,17 +5,23 @@ import { getFirestore, Firestore } from 'firebase/firestore';
 import { getAuth, Auth } from 'firebase/auth';
 import { firebaseConfig } from './config';
 
+/**
+ * @fileOverview Initializes Firebase services with defensive validation to prevent boot-time crashes.
+ */
 export function initializeFirebase(): { app: FirebaseApp; db: Firestore; auth: Auth } {
-  // Defensive bootstrapping: If API Key is missing, use a dummy one to prevent crash
-  // This allows the UI to render while environment variables are being provisioned
+  // Defensive bootstrapping: Only initialize if an API Key exists.
+  // This prevents 'auth/invalid-api-key' from crashing the root layout during provisioning.
+  const hasValidConfig = firebaseConfig.apiKey && firebaseConfig.apiKey !== "";
+  
   const validatedConfig = {
     ...firebaseConfig,
-    apiKey: firebaseConfig.apiKey || "BOOTSTRAP_PLACEHOLDER_KEY"
+    apiKey: hasValidConfig ? firebaseConfig.apiKey : "REVOLUTION_PLACEHOLDER"
   };
 
   const app = getApps().length > 0 ? getApp() : initializeApp(validatedConfig);
   const db = getFirestore(app);
   const auth = getAuth(app);
+  
   return { app, db, auth };
 }
 
