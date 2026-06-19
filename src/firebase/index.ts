@@ -65,10 +65,10 @@ export function initializeFirebase(): {
   }
 }
 
-// Direct imports to prevent circular dependency issues in Next.js 15
-export * from './provider';
-export * from './client-provider';
+// Barrel exports
 export * from './auth/use-user';
 export * from './firestore/use-collection';
 export * from './firestore/use-doc';
 export * from './storage/use-storage';
+export * from './provider';
+export * from './client-provider';

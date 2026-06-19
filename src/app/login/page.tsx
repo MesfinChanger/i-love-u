@@ -5,9 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth, useUser, useFirestore } from '@/firebase';
 import { 
   signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword,
-  signInWithPopup, 
-  GoogleAuthProvider
+  createUserWithEmailAndPassword
 } from 'firebase/auth';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
@@ -97,7 +95,7 @@ function LoginContent() {
       toast({ 
         variant: "destructive", 
         title: "Connection Error", 
-        description: "The prosperity network is currently in Safe-Mode. Try Demo Access below or verify your API keys. ❤️" 
+        description: "The prosperity network is currently in Safe-Mode. Try Demo Access below. ❤️" 
       });
       return;
     }
@@ -194,7 +192,7 @@ function LoginContent() {
                 <div className="bg-amber-50 border border-amber-200 p-4 rounded-2xl flex items-start gap-3 mb-4">
                   <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
                   <p className="text-[10px] text-amber-700 font-bold uppercase tracking-wider leading-relaxed">
-                    System Configuration: The community connection is in Safe-Mode. Use "Demo Access" to explore.
+                    The community connection is in Safe-Mode. Use "Demo Access" to explore.
                   </p>
                 </div>
               )}
@@ -253,17 +251,15 @@ function LoginContent() {
                   {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : mode === 'signin' ? 'Launch' : 'Join Revolution'}
                 </Button>
                 
-                {!auth && (
-                  <Button 
-                    variant="outline" 
-                    onClick={handleDemoAccess} 
-                    disabled={!isProtocolComplete} 
-                    className="w-full h-16 rounded-[1.5rem] gap-4 font-black uppercase tracking-[0.2em] text-[11px] border-2 border-primary/20 text-primary hover:bg-primary/5 transition-all"
-                  >
-                    <Zap className="w-4 h-4" />
-                    Demo Access (Explore Only)
-                  </Button>
-                )}
+                <Button 
+                  variant="outline" 
+                  onClick={handleDemoAccess} 
+                  disabled={!isProtocolComplete} 
+                  className="w-full h-16 rounded-[1.5rem] gap-4 font-black uppercase tracking-[0.2em] text-[11px] border-2 border-primary/20 text-primary hover:bg-primary/5 transition-all"
+                >
+                  <Zap className="w-4 h-4" />
+                  Demo Access (Explore Only)
+                </Button>
               </div>
 
               <p className="text-[9px] text-center text-slate-300 uppercase font-black tracking-[0.3em] pt-4">

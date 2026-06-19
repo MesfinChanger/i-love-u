@@ -14,23 +14,22 @@ export function useUser() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Modular check: Ensure auth is a valid instance before subscribing
-    if (!auth || typeof auth.onAuthStateChanged !== 'undefined') {
-      // In Modular SDK v9+, methods like onAuthStateChanged are standalone functions
-      // The presence of the auth object is the correct gate.
-    }
-
+    // If auth is null (Safe-Mode), we can't listen for state changes
     if (!auth) {
       setLoading(false);
       return;
     }
 
     try {
-      // We use the standalone method from firebase/auth
+      // The auth object must be a valid instance for onAuthStateChanged
       const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
         setUser(firebaseUser);
         setLoading(false);
+      }, (error) => {
+        console.warn("I Love U: Auth observer error handled.", error);
+        setLoading(false);
       });
+      
       return () => unsubscribe();
     } catch (e) {
       console.warn("I Love U: Auth state listener bypass:", e);

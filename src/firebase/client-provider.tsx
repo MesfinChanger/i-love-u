@@ -6,13 +6,19 @@ import { FirebaseProvider } from './provider';
 
 /**
  * @fileOverview Client-side wrapper for the Firebase Provider.
- * Direct imports used to prevent circular dependency with barrel file.
+ * Circular dependency resolved by refactoring barrel exports.
  */
 export function FirebaseClientProvider({ children }: { children: React.ReactNode }) {
-  const { app, db, auth, storage } = useMemo(() => initializeFirebase(), []);
+  // Use useMemo to ensure initialization only happens once on the client
+  const instances = useMemo(() => initializeFirebase(), []);
   
   return (
-    <FirebaseProvider app={app} db={db} auth={auth} storage={storage}>
+    <FirebaseProvider 
+      app={instances.app} 
+      db={instances.db} 
+      auth={instances.auth} 
+      storage={instances.storage}
+    >
       {children}
     </FirebaseProvider>
   );

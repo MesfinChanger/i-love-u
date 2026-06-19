@@ -8,6 +8,7 @@ import { RegistrationReminder } from '@/components/RegistrationReminder';
 
 /**
  * @fileOverview Wraps all client-side providers for the application.
+ * Ensures the Toast system, AI Assistant, and Firebase are correctly initialized.
  */
 export function ClientProviders({ children }: { children: React.ReactNode }) {
   return (
