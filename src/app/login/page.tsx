@@ -38,7 +38,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
 
 function LoginContent() {
-  const { auth } = useAuth();
+  const auth = useAuth(); // FIXED: useAuth returns the instance directly, do not destructure { auth }
   const { user, loading: authLoading } = useUser();
   const router = useRouter();
   const { toast } = useToast();
@@ -158,9 +158,10 @@ function LoginContent() {
 
   const setupRecaptcha = () => {
     if (typeof window !== 'undefined' && !(window as any).recaptchaVerifier) {
-      (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+      // FIXED: New RecaptchaVerifier signature is (container, parameters, auth)
+      (window as any).recaptchaVerifier = new RecaptchaVerifier('recaptcha-container', {
         size: 'invisible'
-      });
+      }, auth);
     }
   };
 
@@ -279,7 +280,7 @@ function LoginContent() {
             </div>
             <div className="flex flex-col text-center leading-none">
               <span className="font-black text-4xl tracking-tighter text-primary">I LOVE</span>
-              <span className="font-black text-lg tracking-[0.4em] text-muted-foreground ml-1">YOU</span>
+              <span className="font-black text-lg tracking-[0.4em] text-muted-foreground ml-1 uppercase">YOU</span>
             </div>
           </div>
           <p className="text-primary font-black text-[9px] uppercase tracking-[0.3em] opacity-60">Happiness is Mandatory ❤️</p>
