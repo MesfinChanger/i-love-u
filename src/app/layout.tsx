@@ -14,22 +14,22 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <title>I Love U - Spark Love. End Poverty. ❤️</title>
-        <meta name="description" content="I Love U: Join the connection revolution. Ending world poverty through global job creation. Respect & Love is Mandatory." />
-        <meta name="keywords" content="dating, end poverty, prosperity, job creation, eliminate poverty, global mission, I Love U, respect mandatory" />
+        <title>I Love U - The AI Dating Revolution. Spark Love. End Poverty. ❤️</title>
+        <meta name="description" content="I Love U: The world's most respectful AI dating platform. Join the connection revolution. Ending world poverty through global job creation. Respect & Love is Mandatory." />
+        <meta name="keywords" content="dating, dating app, ai dating, find love, end poverty, prosperity, job creation, eliminate poverty, global mission, I Love U, respect mandatory" />
         
         {/* Open Graph / Facebook / Instagram */}
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://spark-dating.web.app/" />
-        <meta property="og:title" content="I Love U - Prosperity through Connection" />
-        <meta property="og:description" content="Connect hearts, create jobs, and help us end world poverty forever. Spark change now." />
+        <meta property="og:title" content="I Love U - AI Dating & Prosperity" />
+        <meta property="og:description" content="Connect hearts on the world's first mission-driven dating app. Create jobs and help us end world poverty forever. Spark change now." />
         <meta property="og:image" content="https://picsum.photos/seed/iloveu-social/1200/630" />
 
         {/* Twitter */}
         <meta property="twitter:card" content="summary_large_image" />
         <meta property="twitter:url" content="https://spark-dating.web.app/" />
-        <meta property="twitter:title" content="I Love U - Spark Change" />
-        <meta property="twitter:description" content="A world without poverty starts with U. Join the Mandatory Respect & Love community." />
+        <meta property="twitter:title" content="I Love U - AI Dating Revolution" />
+        <meta property="twitter:description" content="A dating app where your happiness ends world poverty. Join the Mandatory Respect & Love community." />
         <meta property="twitter:image" content="https://picsum.photos/seed/iloveu-social/1200/630" />
 
         {/* Mobile & PWA */}

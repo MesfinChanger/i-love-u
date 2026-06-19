@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Heart, Sparkles, Globe, Briefcase, TrendingDown, ArrowRight, Star, HeartHandshake, HandHelping } from 'lucide-react';
+import { Heart, Sparkles, Globe, Briefcase, TrendingDown, ArrowRight, Star, HeartHandshake, HandHelping, Zap } from 'lucide-react';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
@@ -54,7 +54,7 @@ export default function Home() {
               <Link href="/login">Login</Link>
             </Button>
             <Button className="rounded-full px-8 h-12 gradient-bg hover:opacity-90 transition-opacity font-bold shadow-lg uppercase text-xs tracking-widest" asChild>
-              <Link href="/login">Join the Revolution</Link>
+              <Link href="/login">Join the Dating Revolution</Link>
             </Button>
           </div>
         </div>
@@ -64,16 +64,14 @@ export default function Home() {
         <section className="relative py-20 lg:py-32 overflow-hidden bg-gradient-to-b from-primary/5 to-white">
           <div className="container mx-auto px-4 grid lg:grid-cols-2 gap-16 items-center">
             <div className="space-y-8 text-center lg:text-left z-10">
-              {/* MAXIMIZED LANGUAGE BAR */}
               <div className="inline-flex items-center gap-6 px-10 py-5 rounded-[2.5rem] bg-white/90 backdrop-blur-xl text-primary border-2 border-primary/20 shadow-2xl shiny-icon relative overflow-hidden group">
                 <Globe className="w-8 h-8 animate-spin-slow text-secondary" />
                 <div className="flex flex-col items-start leading-tight">
-                   <p className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground opacity-60 mb-1">Global Mission Reach</p>
+                   <p className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground opacity-60 mb-1">AI Dating Reach</p>
                    <span className="text-2xl lg:text-3xl font-black transition-all duration-700 ease-in-out uppercase tracking-tighter shiny-text">
                     {LOVE_TRANSLATIONS[langIndex].text} {LOVE_TRANSLATIONS[langIndex].icon}
                   </span>
                 </div>
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
               </div>
               
               <div className="space-y-2">
@@ -81,28 +79,28 @@ export default function Home() {
                   <span className="shiny-text drop-shadow-[0_20px_40px_rgba(255,51,102,0.3)]">I LOVE U</span>
                 </h1>
                 <p className="text-xs lg:text-sm font-black tracking-[0.6em] text-muted-foreground uppercase opacity-60 ml-4">
-                  U + Love = Prosperity
+                  The AI Dating Revolution
                 </p>
               </div>
 
               <p className="text-2xl text-muted-foreground max-w-lg mx-auto lg:mx-0 leading-relaxed font-medium">
-                Connect Hearts. Uplifting Worlds. <br/>
-                We are on a mandatory mission to <span className="text-primary font-black underline decoration-secondary/30">Eliminate Poverty</span> through global job creation. 
+                Find Your Heart. Uplifting Worlds. <br/>
+                The world's most respectful dating platform with a mandatory mission to <span className="text-primary font-black underline decoration-secondary/30">Eliminate Poverty</span>.
               </p>
               <div className="flex flex-col sm:flex-row gap-6 justify-center lg:justify-start">
                 <Button size="lg" className="h-20 px-16 rounded-full text-xl font-black gradient-bg shadow-2xl shadow-primary/40 hover:scale-105 transition-transform group" asChild>
                   <Link href="/login" className="flex items-center gap-3">
-                    Spark Love Free
+                    Launch Your Spark
                     <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
                   </Link>
                 </Button>
                 <Button variant="outline" size="lg" className="h-20 px-12 rounded-full text-xl font-bold border-2 hover:bg-muted/50 transition-colors" asChild>
-                  <Link href="/donate">U can Help</Link>
+                  <Link href="/donate">Support our Mission</Link>
                 </Button>
               </div>
               <div className="flex items-center justify-center lg:justify-start gap-4 text-xs font-black uppercase tracking-[0.2em] text-muted-foreground/60">
                 <Star className="w-4 h-4 fill-secondary text-secondary" />
-                Ending Hardship Worldwide
+                Dating that Dismantles Poverty
                 <Star className="w-4 h-4 fill-secondary text-secondary" />
               </div>
             </div>
@@ -113,7 +111,7 @@ export default function Home() {
                 {heroImage && (
                   <Image 
                     src={heroImage.imageUrl} 
-                    alt="Prosperity through Love" 
+                    alt="Finding Love on I Love U" 
                     fill 
                     className="object-cover"
                     priority
@@ -122,11 +120,11 @@ export default function Home() {
               </div>
               <div className="absolute -bottom-12 -left-12 bg-white p-8 rounded-[3rem] shadow-[0_20px_60px_-10px_rgba(0,0,0,0.15)] border flex items-center gap-6 animate-bounce">
                 <div className="w-20 h-20 rounded-[2rem] gradient-bg flex items-center justify-center text-white shadow-xl shiny-icon">
-                  <TrendingDown className="w-12 h-12" />
+                  <Heart className="w-12 h-12 fill-white" />
                 </div>
                 <div>
-                  <p className="font-black text-2xl tracking-tighter">End Poverty</p>
-                  <p className="text-sm text-muted-foreground font-bold uppercase tracking-widest">Global Job Mission</p>
+                  <p className="font-black text-2xl tracking-tighter">Spark Match</p>
+                  <p className="text-sm text-muted-foreground font-bold uppercase tracking-widest">Connect with Purpose</p>
                 </div>
               </div>
             </div>
@@ -135,22 +133,22 @@ export default function Home() {
 
         <section className="py-24 bg-white">
           <div className="container mx-auto px-4 text-center">
-            <h2 className="text-5xl font-black mb-16 tracking-tighter uppercase">Why I Love U?</h2>
+            <h2 className="text-5xl font-black mb-16 tracking-tighter uppercase">Dating with a Pulse</h2>
             <div className="grid md:grid-cols-3 gap-10">
+              <FeatureCard 
+                icon={<Zap className="w-12 h-12" />}
+                title="AI Powered Matching"
+                description="Our neural engine finds mysterious connections based on shared cultural interests and your 'vibe' for real happiness."
+              />
               <FeatureCard 
                 icon={<HeartHandshake className="w-12 h-12" />}
                 title="Respect is Mandatory"
-                description="We are a community built on pure love. Any sign of disrespect is filtered by AI, ensuring a safe, joyful space for every heart."
+                description="We are a dating community built on pure love. Disrespect is filtered by AI, ensuring a joyful space for every heart."
               />
               <FeatureCard 
                 icon={<Briefcase className="w-12 h-12" />}
-                title="Create Jobs"
-                description="We don't just give help; we create opportunities. Your involvement funds vocational tools for entrepreneurs in rural and city areas."
-              />
-              <FeatureCard 
-                icon={<HandHelping className="w-12 h-12" />}
-                title="Eliminate Hardship"
-                description="Our ultimate KPI is the number of families we lift out of poverty. Every connection here is a spark for global prosperity."
+                title="Love Creates Jobs"
+                description="Your sparks fund vocational tools for entrepreneurs. Every successful date is a win for global prosperity."
               />
             </div>
           </div>
@@ -165,11 +163,11 @@ export default function Home() {
                 <span className="shiny-text">Ultimate Cure</span>
               </h2>
               <p className="text-2xl text-white/70 leading-relaxed font-medium max-w-2xl mx-auto">
-                By connecting the world's hearts, we unlock the resources to build sustainable livelihoods in every village and city. Join the platform where your happiness ends world poverty.
+                Join the platform where your happiness ends world poverty. By connecting the world's hearts, we build sustainable livelihoods in every village and city.
               </p>
               <div className="pt-8">
                 <Button size="lg" className="h-20 px-16 rounded-full text-xl font-black gradient-bg shadow-2xl shadow-primary/40 hover:scale-105 transition-transform group" asChild>
-                  <Link href="/login">Launch Your Spark</Link>
+                  <Link href="/login">Find Your Spark Room</Link>
                 </Button>
               </div>
             </div>
@@ -186,11 +184,11 @@ export default function Home() {
               <span className="font-black text-xl tracking-[0.4em] text-muted-foreground">YOU</span>
             </div>
           </div>
-          <p className="font-black text-lg text-foreground tracking-tight">© {new Date().getFullYear()} I Love U. Ending world poverty through the power of connection.</p>
+          <p className="font-black text-lg text-foreground tracking-tight">© {new Date().getFullYear()} I Love U. The Global Dating Revolution.</p>
           <div className="flex flex-wrap justify-center gap-6 sm:gap-10 mt-8 text-[10px] font-black uppercase tracking-[0.3em]">
             <Link href="/privacy" className="hover:text-primary transition-colors">Privacy Shield</Link>
-            <Link href="/terms" className="hover:text-primary transition-colors">Respect Pledge</Link>
-            <Link href="/donate" className="hover:text-primary transition-colors">Mission Portal</Link>
+            <Link href="/terms" className="hover:text-primary transition-colors">Dating Pledge</Link>
+            <Link href="/donate" className="hover:text-primary transition-colors">Mission Hub</Link>
           </div>
         </div>
       </footer>
