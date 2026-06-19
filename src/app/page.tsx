@@ -57,11 +57,11 @@ export default function Home() {
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="relative shiny-icon p-1 rounded-lg bg-primary/5">
-              <Heart className="w-6 h-6 fill-primary text-primary animate-heartbeat" />
+              <Heart className="w-5 h-5 fill-primary text-primary animate-heartbeat" />
             </div>
             <div className="flex flex-col leading-none">
-              <span className="font-black text-lg tracking-tighter text-primary">I LOVE</span>
-              <span className="font-black text-[6px] tracking-[0.4em] text-muted-foreground ml-0.5 uppercase">YOU</span>
+              <span className="font-black text-base tracking-tighter text-primary">I LOVE</span>
+              <span className="font-black text-[5px] tracking-[0.4em] text-muted-foreground ml-0.5 uppercase">YOU</span>
             </div>
           </div>
           <div className="flex items-center gap-4">
@@ -90,7 +90,7 @@ export default function Home() {
               </div>
               
               <div className="space-y-2">
-                <h1 className="text-5xl lg:text-[6rem] font-black leading-none tracking-tighter animate-in zoom-in duration-1000">
+                <h1 className="text-4xl lg:text-[5rem] font-black leading-none tracking-tighter animate-in zoom-in duration-1000">
                   <span className="shiny-text">I LOVE U</span>
                 </h1>
                 <p className="text-[10px] lg:text-xs font-black tracking-[0.5em] text-primary uppercase opacity-80">
@@ -117,10 +117,10 @@ export default function Home() {
             </div>
 
             <div className="flex justify-center lg:justify-end">
-              <div className="relative w-full max-w-sm lg:max-w-md">
-                <div className="absolute -inset-10 bg-primary/20 rounded-full blur-[80px] -z-10 animate-pulse" />
+              <div className="relative w-full max-w-md lg:max-w-lg">
+                <div className="absolute -inset-10 bg-primary/20 rounded-full blur-[100px] -z-10 animate-pulse" />
                 
-                <div className="relative aspect-[4/5] rounded-[3rem] overflow-hidden shadow-2xl transition-all duration-1000 border-[10px] border-white group bg-muted">
+                <div className="relative aspect-[4/5] rounded-[3.5rem] overflow-hidden shadow-2xl transition-all duration-1000 border-[12px] border-white group bg-muted">
                   {mounted && dynamicImages.map((img, i) => (
                     <div 
                       key={img.id}
@@ -140,21 +140,22 @@ export default function Home() {
                     </div>
                   ))}
 
-                  <div className="absolute top-6 left-6 z-20 bg-white/90 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-primary/10 shadow-xl flex flex-col gap-0.5 animate-in slide-in-from-left-4 duration-700">
+                  {/* Spark Match Badge overlays the Dynamic Pic */}
+                  <div className="absolute top-8 left-8 z-20 bg-white/90 backdrop-blur-md px-5 py-3 rounded-2xl border border-primary/10 shadow-2xl flex flex-col gap-0.5 animate-in slide-in-from-left-4 duration-700">
                     <div className="flex items-center gap-2">
-                       <Heart className="w-3.5 h-3.5 text-primary fill-primary animate-heartbeat" />
-                       <span className="text-[9px] font-black uppercase tracking-widest text-primary">Spark Match</span>
+                       <Heart className="w-4 h-4 text-primary fill-primary animate-heartbeat" />
+                       <span className="text-[10px] font-black uppercase tracking-widest text-primary">Spark Match</span>
                     </div>
-                    <p className="text-[6px] text-muted-foreground font-black uppercase tracking-widest leading-none">Connect with Purpose</p>
+                    <p className="text-[7px] text-muted-foreground font-black uppercase tracking-widest leading-none">Connect with Purpose</p>
                   </div>
 
-                  <div className="absolute bottom-6 right-6 z-20 flex gap-1">
+                  <div className="absolute bottom-8 right-8 z-20 flex gap-1.5">
                     {dynamicImages.map((_, i) => (
                       <div 
                         key={i} 
                         className={cn(
-                          "h-1 rounded-full transition-all duration-500",
-                          imageIndex === i ? "w-5 bg-white" : "w-1 bg-white/40"
+                          "h-1.5 rounded-full transition-all duration-500",
+                          imageIndex === i ? "w-6 bg-white" : "w-1.5 bg-white/40"
                         )} 
                       />
                     ))}

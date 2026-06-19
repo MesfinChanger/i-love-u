@@ -1,8 +1,10 @@
 /**
  * Firebase configuration object.
+ * Uses environment variables for production and falls back to safe empty strings
+ * to prevent the 'api-key-not-valid' error from using broken placeholder text.
  */
 export const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "AIzaSy-REPLACE-WITH-ACTUAL",
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "",
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || "spark-dating.firebaseapp.com",
   projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "spark-dating",
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || "spark-dating.firebasestorage.app",
