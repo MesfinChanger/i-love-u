@@ -25,6 +25,8 @@
         "isAdvertiser": { "type": "boolean", "default": false },
         "publicKey": { "type": "string" },
         "currency": { "type": "string", "default": "USD" },
+        "publicNickname": { "type": "string" },
+        "isPhotoPublic": { "type": "boolean", "default": false },
         "settings": {
           "type": "object",
           "properties": {
@@ -43,7 +45,9 @@
         "bio": { "type": "string" },
         "interests": { "type": "array", "items": { "type": "string" } },
         "culturalInterests": { "type": "array", "items": { "type": "string" } },
-        "locationHint": { "type": "string" }
+        "locationHint": { "type": "string" },
+        "publicNickname": { "type": "string" },
+        "publicPhotoUrl": { "type": "string" }
       }
     },
     "Match": {

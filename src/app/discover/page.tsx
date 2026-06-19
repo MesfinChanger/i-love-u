@@ -17,7 +17,8 @@ import {
   Search,
   UserCheck,
   Globe,
-  Ghost
+  Ghost,
+  CameraOff
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
@@ -27,6 +28,7 @@ import { doc, setDoc, collection, serverTimestamp, query, where } from 'firebase
 import { useToast } from '@/hooks/use-toast';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { cn } from '@/lib/utils';
+import Image from 'next/image';
 
 export default function DiscoverPage() {
   const { user } = useUser();
@@ -61,7 +63,8 @@ export default function DiscoverPage() {
       .filter((u: any) => u.uid !== user?.uid)
       .map((u: any) => ({
         id: u.uid,
-        name: "Mystery Heart", // Hiding name per strict privacy
+        name: u.publicNickname || "Mystery Heart", 
+        publicPhotoUrl: u.publicPhotoUrl || null,
         interests: u.interests || [],
         culturalInterests: u.culturalInterests || [],
         bio: u.bio || "Sharing culture and looking for sparks.",
@@ -125,7 +128,7 @@ export default function DiscoverPage() {
 
       toast({ 
         title: "Connection Allowed!", 
-        description: "You have both allowed each other. Identity revealed in Chat! ✨" 
+        description: "You have both allowed each other. Full Identity revealed in Chat! ✨" 
       });
       handleNext();
     } catch (e) {
@@ -187,54 +190,90 @@ export default function DiscoverPage() {
     );
   }
 
+  const isRevealed = currentItem.publicPhotoUrl !== null;
+
   return (
     <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
       <Header />
       <main className="flex-grow flex items-center justify-center p-4">
         <div className="w-full max-w-md relative aspect-[3/4]">
-          <Card className="absolute inset-0 overflow-hidden border-none shadow-2xl rounded-[3.5rem] bg-white p-10 flex flex-col justify-between">
-            <div className="space-y-8">
-              <div className="flex justify-between items-start">
-                <div className="w-20 h-20 bg-primary/5 rounded-[2rem] flex items-center justify-center border-2 border-dashed border-primary/20">
-                  <Heart className="w-10 h-10 text-primary/20 fill-primary/10 animate-pulse" />
+          <Card className="absolute inset-0 overflow-hidden border-none shadow-2xl rounded-[3.5rem] bg-white p-0 flex flex-col justify-between">
+            {isRevealed ? (
+              <div className="relative h-full w-full">
+                <Image 
+                  src={currentItem.publicPhotoUrl} 
+                  alt={currentItem.name} 
+                  fill 
+                  className="object-cover" 
+                  priority
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-10 space-y-4 text-white">
+                  <div className="flex justify-between items-end">
+                    <div>
+                      <h2 className="text-4xl font-black tracking-tighter">{currentItem.name}</h2>
+                      <div className="flex items-center gap-2 text-xs font-bold text-white/60 uppercase tracking-widest mt-1">
+                        <MapPin className="w-3.5 h-3.5" /> {currentItem.locationHint}
+                      </div>
+                    </div>
+                    <Badge className="bg-primary text-white border-none font-black text-[9px] uppercase h-8 px-4">Revealed Heart</Badge>
+                  </div>
+                  <p className="italic text-lg text-white/90 leading-relaxed font-medium">"{currentItem.bio}"</p>
+                  <div className="flex flex-wrap gap-2 pt-2">
+                    {currentItem.interests.map((tag: string) => (
+                      <Badge key={tag} className="bg-white/10 text-white backdrop-blur-md border-none px-3 py-1.5 rounded-xl font-bold text-[9px]">
+                        {tag}
+                      </Badge>
+                    ))}
+                  </div>
                 </div>
-                <Badge variant="outline" className="h-8 px-4 rounded-full border-primary/10 text-primary font-black uppercase tracking-widest text-[9px]">
-                  Mystery Connection
-                </Badge>
               </div>
-
-              <div className="space-y-4">
-                <h2 className="text-4xl font-black tracking-tighter text-slate-900">Mystery Heart</h2>
-                <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-widest">
-                  <MapPin className="w-3.5 h-3.5" /> {currentItem.locationHint}
-                </div>
-                <p className="italic text-xl text-slate-700 leading-relaxed font-medium">"{currentItem.bio}"</p>
-              </div>
-
-              <div className="space-y-3">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60">Interests & Vibe</p>
-                <div className="flex flex-wrap gap-2">
-                  {currentItem.interests.map((tag: string) => (
-                    <Badge key={tag} className="bg-slate-100 text-slate-600 hover:bg-slate-200 border-none px-3 py-1.5 rounded-xl font-bold text-[10px]">
-                      {tag}
+            ) : (
+              <div className="p-10 flex flex-col h-full justify-between">
+                <div className="space-y-8">
+                  <div className="flex justify-between items-start">
+                    <div className="w-20 h-20 bg-primary/5 rounded-[2rem] flex items-center justify-center border-2 border-dashed border-primary/20">
+                      <Heart className="w-10 h-10 text-primary/20 fill-primary/10 animate-pulse" />
+                    </div>
+                    <Badge variant="outline" className="h-8 px-4 rounded-full border-primary/10 text-primary font-black uppercase tracking-widest text-[9px]">
+                      Mystery Connection
                     </Badge>
-                  ))}
-                  {currentItem.culturalInterests.map((tag: string) => (
-                    <Badge key={tag} className="bg-blue-50 text-blue-600 hover:bg-blue-100 border-none px-3 py-1.5 rounded-xl font-bold text-[10px]">
-                      {tag}
-                    </Badge>
-                  ))}
+                  </div>
+
+                  <div className="space-y-4">
+                    <h2 className="text-4xl font-black tracking-tighter text-slate-900">{currentItem.name}</h2>
+                    <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                      <MapPin className="w-3.5 h-3.5" /> {currentItem.locationHint}
+                    </div>
+                    <p className="italic text-xl text-slate-700 leading-relaxed font-medium">"{currentItem.bio}"</p>
+                  </div>
+
+                  <div className="space-y-3">
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60">Interests & Vibe</p>
+                    <div className="flex flex-wrap gap-2">
+                      {currentItem.interests.map((tag: string) => (
+                        <Badge key={tag} className="bg-slate-100 text-slate-600 hover:bg-slate-200 border-none px-3 py-1.5 rounded-xl font-bold text-[10px]">
+                          {tag}
+                        </Badge>
+                      ))}
+                      {currentItem.culturalInterests.map((tag: string) => (
+                        <Badge key={tag} className="bg-blue-50 text-blue-600 hover:bg-blue-100 border-none px-3 py-1.5 rounded-xl font-bold text-[10px]">
+                          {tag}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-primary/5 p-6 rounded-3xl border border-primary/10">
+                   <div className="flex items-center gap-2 text-primary mb-1">
+                     <Lock className="w-4 h-4" />
+                     <span className="text-[10px] font-black uppercase tracking-widest">Privacy Shield Active</span>
+                   </div>
+                   <p className="text-[9px] text-muted-foreground font-medium italic">Full identity will be revealed only after a mutual connection.</p>
                 </div>
               </div>
-            </div>
-
-            <div className="bg-primary/5 p-6 rounded-3xl border border-primary/10">
-               <div className="flex items-center gap-2 text-primary mb-1">
-                 <Lock className="w-4 h-4" />
-                 <span className="text-[10px] font-black uppercase tracking-widest">Privacy Shield Active</span>
-               </div>
-               <p className="text-[9px] text-muted-foreground font-medium italic">Name and Photo will be revealed only after a mutual connection.</p>
-            </div>
+            )}
           </Card>
           
           <div className="absolute -bottom-24 left-0 right-0 flex justify-center gap-4">

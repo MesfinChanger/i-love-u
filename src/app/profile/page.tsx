@@ -43,7 +43,9 @@ import {
   Megaphone,
   Briefcase,
   IdCard,
-  Home
+  Home,
+  Camera,
+  Eye
 } from 'lucide-react';
 import { generateBio } from '@/ai/flows/generate-bio-flow';
 import { moderateText } from '@/ai/flows/moderate-text-flow';
@@ -55,6 +57,7 @@ import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Switch } from '@/components/ui/switch';
 
 const GENDERS = [{ value: 'male', label: 'Male' }, { value: 'female', label: 'Female' }];
 const COUNTRIES = [
@@ -107,6 +110,8 @@ function ProfileContent() {
   const [allowSensitiveContent, setAllowSensitiveContent] = useState(false);
   const [isDatingEnabled, setIsDatingEnabled] = useState(true);
   const [isAdvertiser, setIsAdvertiser] = useState(false);
+  const [publicNickname, setPublicNickname] = useState('');
+  const [isPhotoPublic, setIsPhotoPublic] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isFetchingLocation, setIsFetchingLocation] = useState(false);
@@ -126,6 +131,8 @@ function ProfileContent() {
       setInterests(profileData.interests?.join(', ') || '');
       setCulturalInterests(profileData.culturalInterests?.join(', ') || '');
       setCurrency(profileData.currency || 'USD');
+      setPublicNickname(profileData.publicNickname || '');
+      setIsPhotoPublic(profileData.isPhotoPublic || false);
       setAllowSensitiveContent(profileData.settings?.allowSensitiveContent || false);
       setIsDatingEnabled(profileData.isDatingEnabled !== false);
       setIsAdvertiser(profileData.isAdvertiser || false);
@@ -161,7 +168,7 @@ function ProfileContent() {
 
     setIsSaving(true);
     try {
-      const moderation = await moderateText({ text: `${displayName} ${bio}` });
+      const moderation = await moderateText({ text: `${displayName} ${bio} ${publicNickname}` });
       if (moderation.isFlagged) {
         toast({ variant: "destructive", title: "Respect Policy", description: moderation.reason });
         setIsSaving(false);
@@ -188,6 +195,8 @@ function ProfileContent() {
         culturalInterests: culturalList,
         isDatingEnabled, 
         isAdvertiser,
+        publicNickname,
+        isPhotoPublic,
         settings: { allowSensitiveContent },
         exactLocation: exactLocation ? { latitude: exactLocation.lat, longitude: exactLocation.lng } : null,
         updatedAt: serverTimestamp()
@@ -200,10 +209,12 @@ function ProfileContent() {
         interests: interestList,
         culturalInterests: culturalList,
         locationHint: location || country,
+        publicNickname: publicNickname || null,
+        publicPhotoUrl: isPhotoPublic ? profileData?.photoUrl || null : null,
         updatedAt: serverTimestamp()
       }, { merge: true });
 
-      toast({ title: "Profile Ready", description: "Your changes have been saved. Safe data synced for discovery." });
+      toast({ title: "Profile Ready", description: "Your changes have been saved. Identity synced for discovery." });
     } catch (e) {
       console.error(e);
       toast({ variant: "destructive", title: "Error", description: "Could not save profile." });
@@ -271,21 +282,21 @@ function ProfileContent() {
         </div>
 
         <Tabs defaultValue="public" className="w-full">
-          <TabsList className="w-full h-14 bg-white rounded-2xl shadow-sm border p-1 mb-8">
-            <TabsTrigger value="public" className="flex-1 rounded-xl gap-2 font-bold text-xs uppercase tracking-widest">
-              <User className="w-4 h-4" />
-              Public Info
+          <TabsList className="w-full h-14 bg-white rounded-2xl shadow-sm border p-1 mb-8 overflow-x-auto no-scrollbar">
+            <TabsTrigger value="public" className="flex-1 rounded-xl gap-2 font-bold text-[10px] uppercase tracking-widest whitespace-nowrap">
+              <User className="w-3.5 h-3.5" />
+              Personal
             </TabsTrigger>
-            <TabsTrigger value="preferences" className="flex-1 rounded-xl gap-2 font-bold text-xs uppercase tracking-widest">
-              <Settings className="w-4 h-4" />
-              Preferences
+            <TabsTrigger value="identity" className="flex-1 rounded-xl gap-2 font-bold text-[10px] uppercase tracking-widest whitespace-nowrap">
+              <Globe2 className="w-3.5 h-3.5" />
+              Public
             </TabsTrigger>
-            <TabsTrigger value="commercial" className="flex-1 rounded-xl gap-2 font-bold text-xs uppercase tracking-widest">
-              <IdCard className="w-4 h-4" />
-              Commercial Info
+            <TabsTrigger value="commercial" className="flex-1 rounded-xl gap-2 font-bold text-[10px] uppercase tracking-widest whitespace-nowrap">
+              <IdCard className="w-3.5 h-3.5" />
+              Commercial
             </TabsTrigger>
-            <TabsTrigger value="security" className="flex-1 rounded-xl gap-2 font-bold text-xs uppercase tracking-widest">
-              <ShieldCheck className="w-4 h-4" />
+            <TabsTrigger value="security" className="flex-1 rounded-xl gap-2 font-bold text-[10px] uppercase tracking-widest whitespace-nowrap">
+              <ShieldCheck className="w-3.5 h-3.5" />
               Safety
             </TabsTrigger>
           </TabsList>
@@ -330,35 +341,54 @@ function ProfileContent() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="preferences">
-            <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-8 space-y-8">
-              <div className="grid sm:grid-cols-2 gap-8">
-                <div className="space-y-3">
-                  <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Home Country</Label>
-                  <Select value={country} onValueChange={setCountry}>
-                    <SelectTrigger className="rounded-2xl h-14 bg-muted/30 border-none px-6"><SelectValue /></SelectTrigger>
-                    <SelectContent>{COUNTRIES.map(c => <SelectItem key={c.code} value={c.code}>{c.name}</SelectItem>)}</SelectContent>
-                  </Select>
+          <TabsContent value="identity">
+             <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-8 space-y-10">
+                <div className="space-y-6">
+                   <div className="flex items-center gap-3 text-primary mb-2">
+                      <Sparkles className="w-6 h-6" />
+                      <h3 className="font-black uppercase tracking-widest text-lg">Public Identity</h3>
+                   </div>
+                   <p className="text-sm text-muted-foreground font-medium leading-relaxed italic">
+                      "Choose how you want to be seen by the world." Posting your photo and a unique nickname helps the community know you better.
+                   </p>
                 </div>
-                <div className="space-y-3">
-                  <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Base Currency</Label>
-                  <Select value={currency} onValueChange={setCurrency}>
-                    <SelectTrigger className="rounded-2xl h-14 bg-muted/30 border-none px-6"><SelectValue /></SelectTrigger>
-                    <SelectContent>{CURRENCIES.map(c => <SelectItem key={c.code} value={c.code}>{c.code} ({c.symbol})</SelectItem>)}</SelectContent>
-                  </Select>
+
+                <div className="space-y-8 pt-4">
+                  <div className="space-y-3">
+                    <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 ml-1">Public Nickname (Unique Identity)</Label>
+                    <Input 
+                      value={publicNickname} 
+                      onChange={e => setPublicNickname(e.target.value)} 
+                      placeholder="e.g. GlobalHeart_24" 
+                      className="rounded-2xl h-14 bg-primary/5 border-2 border-primary/10 px-6 text-lg font-black text-primary focus-visible:border-primary/30" 
+                    />
+                    <p className="text-[9px] text-muted-foreground/60 font-bold uppercase tracking-widest ml-1">This will be shown instead of "Mystery Heart" if set.</p>
+                  </div>
+
+                  <div className="flex items-center justify-between p-6 bg-primary/5 rounded-[2rem] border-2 border-primary/10">
+                     <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-primary shadow-sm">
+                           <Camera className="w-6 h-6" />
+                        </div>
+                        <div>
+                           <h4 className="font-black text-sm uppercase tracking-tight">Post Pic Publicly</h4>
+                           <p className="text-[10px] text-muted-foreground font-medium">Make your profile photo visible during Discovery.</p>
+                        </div>
+                     </div>
+                     <Switch checked={isPhotoPublic} onCheckedChange={setIsPhotoPublic} />
+                  </div>
                 </div>
-              </div>
 
-              <div className="space-y-3">
-                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Personal Interests (Comma separated)</Label>
-                <Input value={interests} onChange={e => setInterests(e.target.value)} placeholder="Travel, Art, Cooking, AI" className="rounded-2xl h-14 bg-muted/30 border-none px-6 font-bold" />
-              </div>
-
-              <div className="space-y-3">
-                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Teachable Culture (Comma separated)</Label>
-                <Input value={culturalInterests} onChange={e => setCulturalInterests(e.target.value)} placeholder="Swahili Language, Kenyan Coffee, Maasai Art" className="rounded-2xl h-14 bg-muted/30 border-none px-6 font-bold" />
-              </div>
-            </Card>
+                <div className="bg-slate-900 p-6 rounded-3xl space-y-3 shadow-lg">
+                   <div className="flex items-center gap-2 text-primary">
+                     <ShieldCheck className="w-4 h-4" />
+                     <h4 className="text-[10px] font-black uppercase tracking-tighter">Identity Control</h4>
+                   </div>
+                   <p className="text-[9px] text-white/80 font-bold leading-relaxed uppercase tracking-widest">
+                     By enabling these features, you agree to show your chosen nickname and photo to all community members. You can change this at any time.
+                   </p>
+                </div>
+             </Card>
           </TabsContent>
 
           <TabsContent value="commercial">
