@@ -6,9 +6,9 @@ import { getAuth, Auth } from 'firebase/auth';
 import { firebaseConfig } from './config';
 
 /**
- * @fileOverview Initializes Firebase services with resilience.
- * Returns null for services if initialization fails or config is missing,
- * allowing the UI to render in a limited state rather than crashing.
+ * @fileOverview Resilient Firebase Initializer.
+ * Hardened to prevent root-level crashes when API keys are invalid.
+ * Returns null for services if initialization fails, allowing the UI to show a "safe-mode".
  */
 export function initializeFirebase(): { app: FirebaseApp | null; db: Firestore | null; auth: Auth | null } {
   // SSR Safety: Do not initialize on the server
@@ -16,42 +16,43 @@ export function initializeFirebase(): { app: FirebaseApp | null; db: Firestore |
     return { app: null, db: null, auth: null };
   }
 
-  // Validate basic config existence
-  const hasApiKey = typeof firebaseConfig.apiKey === 'string' && firebaseConfig.apiKey.length > 0;
-  
-  if (!hasApiKey || firebaseConfig.apiKey === 'undefined' || firebaseConfig.apiKey.includes('YOUR_')) {
-    console.warn("I Love U: Firebase API Key is missing or invalid. The platform will operate in safe-mode.");
+  // Defensive Check: Ensure the API key is not a literal placeholder or empty
+  const hasValidConfig = 
+    typeof firebaseConfig.apiKey === 'string' && 
+    firebaseConfig.apiKey.length > 0 && 
+    !firebaseConfig.apiKey.includes('YOUR_');
+
+  if (!hasValidConfig) {
+    console.warn("I Love U: Safe-Mode active. Firebase API key is missing or invalid.");
     return { app: null, db: null, auth: null };
   }
 
   try {
     const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
     
-    // Initialize services individually
     let db: Firestore | null = null;
     let auth: Auth | null = null;
 
     try {
       db = getFirestore(app);
     } catch (e) {
-      console.warn("Firestore service unavailable:", e);
+      console.warn("I Love U: Firestore boot-failure handled safely.");
     }
 
     try {
       auth = getAuth(app);
     } catch (e) {
-      // Specifically catch auth/invalid-api-key here
-      console.warn("Authentication service unavailable (Check API Key):", e);
+      console.warn("I Love U: Authentication boot-failure handled safely.");
     }
     
     return { app, db, auth };
   } catch (error) {
-    console.error("Firebase root initialization failed:", error);
+    console.error("I Love U: Platform root initialization critical failure:", error);
     return { app: null, db: null, auth: null };
   }
 }
 
-// Re-export specific modules to maintain the barrel while avoiding cycles
+// Direct imports to prevent circular dependency issues in Next.js 15
 export * from './provider';
 export * from './client-provider';
 export * from './auth/use-user';
