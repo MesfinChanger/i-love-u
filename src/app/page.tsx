@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Heart, Sparkles, Globe, Briefcase, TrendingDown, ArrowRight, Star, HeartHandshake, Zap } from 'lucide-react';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { cn } from '@/lib/utils';
 
 const LOVE_TRANSLATIONS = [
   { lang: "English", text: "I Love U", icon: "❤️" },
@@ -25,19 +26,30 @@ const LOVE_TRANSLATIONS = [
 ];
 
 export default function Home() {
-  const heroImage = PlaceHolderImages.find(img => img.id === 'landing-hero');
+  const dynamicImages = useMemo(() => PlaceHolderImages.filter(img => img.id.startsWith('user-') || img.id === 'landing-hero'), []);
+  
   const [langIndex, setLangIndex] = useState(0);
+  const [imageIndex, setImageIndex] = useState(0);
   const [currentYear, setCurrentYear] = useState<number | null>(null);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
     setCurrentYear(new Date().getFullYear());
-    const interval = setInterval(() => {
+    
+    const langInterval = setInterval(() => {
       setLangIndex((prev) => (prev + 1) % LOVE_TRANSLATIONS.length);
     }, 2500);
-    return () => clearInterval(interval);
-  }, []);
+
+    const imageInterval = setInterval(() => {
+      setImageIndex((prev) => (prev + 1) % dynamicImages.length);
+    }, 4000);
+
+    return () => {
+      clearInterval(langInterval);
+      clearInterval(imageInterval);
+    };
+  }, [dynamicImages.length]);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -82,17 +94,6 @@ export default function Home() {
                   <span className="shiny-text">I LOVE U</span>
                 </h1>
                 
-                {/* Minimized Spark Match Badge directly under title */}
-                <div className="inline-flex items-center gap-2 bg-white/95 backdrop-blur-3xl px-4 py-2 rounded-xl border border-primary/10 shadow-md">
-                  <div className="w-6 h-6 rounded-lg gradient-bg flex items-center justify-center text-white">
-                    <Heart className="w-3 h-3 fill-white animate-heartbeat" />
-                  </div>
-                  <div className="text-left leading-none">
-                    <p className="font-black text-xs tracking-tighter">Spark Match</p>
-                    <p className="text-[6px] text-muted-foreground font-black uppercase tracking-[0.1em] opacity-60">Connect with Purpose</p>
-                  </div>
-                </div>
-
                 <div className="flex flex-col gap-2">
                   <p className="text-xs lg:text-sm font-black tracking-[0.6em] text-primary uppercase opacity-80">
                     The AI Dating Revolution
@@ -119,27 +120,49 @@ export default function Home() {
             </div>
 
             <div className="flex justify-center lg:justify-end">
-              <div className="relative w-full max-w-[280px] lg:max-w-xs">
-                <div className="absolute -inset-10 bg-primary/20 rounded-full blur-[80px] -z-10 animate-pulse" />
+              <div className="relative w-full max-w-md lg:max-w-lg">
+                <div className="absolute -inset-20 bg-primary/20 rounded-full blur-[100px] -z-10 animate-pulse" />
                 
-                {/* Minimized Hero Image */}
-                <div className="relative aspect-square rounded-[2rem] overflow-hidden shadow-2xl transition-transform duration-1000 border-8 border-white group">
-                  {heroImage && (
-                    <Image 
-                      src={heroImage.imageUrl} 
-                      alt="Finding Love on I Love U" 
-                      fill 
-                      className="object-cover"
-                      priority
-                      data-ai-hint="happy couple"
-                    />
-                  )}
-                  {/* Minimized Float Badge on Pic */}
-                  <div className="absolute top-4 left-4 z-20 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full border border-primary/10 shadow-lg scale-90">
-                    <div className="flex items-center gap-2">
-                       <Heart className="w-3 h-3 text-primary fill-primary" />
-                       <span className="text-[8px] font-black uppercase tracking-widest text-primary">Joyful Space</span>
+                {/* Large Dynamic Hero Image */}
+                <div className="relative aspect-[4/5] rounded-[3rem] overflow-hidden shadow-2xl transition-all duration-1000 border-[12px] border-white group bg-muted">
+                  {mounted && dynamicImages.map((img, i) => (
+                    <div 
+                      key={img.id}
+                      className={cn(
+                        "absolute inset-0 transition-opacity duration-1000 ease-in-out",
+                        imageIndex === i ? "opacity-100 z-10" : "opacity-0 z-0"
+                      )}
+                    >
+                      <Image 
+                        src={img.imageUrl} 
+                        alt="Dynamic Community Spark" 
+                        fill 
+                        className="object-cover transform group-hover:scale-110 transition-transform duration-10000"
+                        priority={i === 0}
+                        data-ai-hint={img.imageHint}
+                      />
                     </div>
+                  ))}
+
+                  {/* Minimized Float Badge on Pic */}
+                  <div className="absolute top-6 left-6 z-20 bg-white/90 backdrop-blur-md px-5 py-3 rounded-2xl border border-primary/10 shadow-xl scale-100 flex flex-col gap-1">
+                    <div className="flex items-center gap-2">
+                       <Heart className="w-4 h-4 text-primary fill-primary animate-heartbeat" />
+                       <span className="text-[10px] font-black uppercase tracking-widest text-primary">Spark Match</span>
+                    </div>
+                    <p className="text-[7px] text-muted-foreground font-black uppercase tracking-widest leading-none">Connect with Purpose</p>
+                  </div>
+
+                  <div className="absolute bottom-6 right-6 z-20 flex gap-1">
+                    {dynamicImages.map((_, i) => (
+                      <div 
+                        key={i} 
+                        className={cn(
+                          "h-1.5 rounded-full transition-all duration-500",
+                          imageIndex === i ? "w-6 bg-white" : "w-1.5 bg-white/40"
+                        )} 
+                      />
+                    ))}
                   </div>
                 </div>
               </div>
