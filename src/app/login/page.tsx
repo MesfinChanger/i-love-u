@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth, useUser } from '@/firebase';
 import { 
@@ -11,20 +11,39 @@ import {
   GoogleAuthProvider,
   signInWithPhoneNumber,
   RecaptchaVerifier,
-  signInAnonymously
+  signInAnonymously,
+  sendSignInLinkToEmail,
+  isSignInWithEmailLink,
+  signInWithEmailLink
 } from 'firebase/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Heart, Mail, Phone, Chrome, Loader2, ArrowLeft, ShieldCheck, UserCheck, ShieldAlert, HeartHandshake, Sparkles, UserCircle } from 'lucide-react';
+import { 
+  Heart, 
+  Mail, 
+  Phone, 
+  Chrome, 
+  Loader2, 
+  ArrowLeft, 
+  ShieldCheck, 
+  UserCheck, 
+  ShieldAlert, 
+  HeartHandshake, 
+  Sparkles, 
+  UserCircle,
+  Eye,
+  EyeOff,
+  CheckCircle2
+} from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
 
-export default function LoginPage() {
+function LoginContent() {
   const { auth } = useAuth();
   const { user, loading: authLoading } = useUser();
   const router = useRouter();
@@ -32,15 +51,41 @@ export default function LoginPage() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState('');
   const [verificationCode, setVerificationCode] = useState('');
-  const [isVerifyingPhone, setIsVerifyingPhone] = useState(false);
+  
+  const [isVerifying, setIsVerifying] = useState(false); // Common state for "Step 2"
+  const [authMethod, setAuthMethod] = useState<'email' | 'phone' | null>(null);
+  
   const [confirmationResult, setConfirmationResult] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isAdult, setIsAdult] = useState(false);
   const [isRespectful, setIsRespectful] = useState(false);
   const [isHuman, setIsHuman] = useState(false);
   const [isBotChecking, setIsBotChecking] = useState(false);
+
+  useEffect(() => {
+    // Check for Email Link sign-in on mount
+    if (isSignInWithEmailLink(auth, window.location.href)) {
+      let emailForLink = window.localStorage.getItem('emailForSignIn');
+      if (!emailForLink) {
+        emailForLink = window.prompt('Please provide your email for confirmation');
+      }
+      if (emailForLink) {
+        setIsLoading(true);
+        signInWithEmailLink(auth, emailForLink, window.location.href)
+          .then(() => {
+            window.localStorage.removeItem('emailForSignIn');
+            router.push('/discover');
+          })
+          .catch((error) => {
+            toast({ variant: "destructive", title: "Email Link Failed", description: error.message });
+            setIsLoading(false);
+          });
+      }
+    }
+  }, [auth, router, toast]);
 
   useEffect(() => {
     if (user && !authLoading) {
@@ -53,23 +98,23 @@ export default function LoginPage() {
       toast({
         variant: "destructive",
         title: "Age Verification Required",
-        description: "You must be 18 or older to use I Love U."
+        description: "You must be 18+ to join the revolution."
       });
       return false;
     }
     if (!isRespectful) {
       toast({
         variant: "destructive",
-        title: "Happiness Pledge Required",
-        description: "You must agree to treat everyone with respect and love."
+        title: "Respect Policy",
+        description: "Please pledge to bring love and respect."
       });
       return false;
     }
     if (!isHuman) {
       toast({
         variant: "destructive",
-        title: "Security Check Required",
-        description: "Please confirm you are not a robot."
+        title: "Security Check",
+        description: "Please confirm you are a human."
       });
       return false;
     }
@@ -82,67 +127,34 @@ export default function LoginPage() {
       setTimeout(() => {
         setIsHuman(true);
         setIsBotChecking(false);
-        toast({
-          title: "Verification Successful",
-          description: "Human status confirmed. Welcome home! ✨"
-        });
+        toast({ title: "Human Verified", description: "Welcome to a joyful space! ✨" });
       }, 800);
     } else {
       setIsHuman(false);
     }
   };
 
-  const handleEmailAuth = async (type: 'login' | 'signup') => {
-    if (!validateAccess()) return;
+  // Step 1: Send Authentication Code / Link
+  const handleStartEmailAuth = async () => {
+    if (!validateAccess() || !email) return;
     setIsLoading(true);
-    try {
-      if (type === 'login') {
-        await signInWithEmailAndPassword(auth, email, password);
-      } else {
-        await createUserWithEmailAndPassword(auth, email, password);
-      }
-      router.push('/discover');
-    } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Authentication Error",
-        description: error.message
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    
+    const actionCodeSettings = {
+      url: window.location.origin + '/login',
+      handleCodeInApp: true,
+    };
 
-  const handleGoogleLogin = async () => {
-    if (!validateAccess()) return;
-    setIsLoading(true);
-    const provider = new GoogleAuthProvider();
     try {
-      await signInWithPopup(auth, provider);
-      router.push('/discover');
-    } catch (error: any) {
+      await sendSignInLinkToEmail(auth, email, actionCodeSettings);
+      window.localStorage.setItem('emailForSignIn', email);
+      setAuthMethod('email');
+      setIsVerifying(true);
       toast({
-        variant: "destructive",
-        title: "Google Login Failed",
-        description: error.message
+        title: "Verification Sent",
+        description: "A secure authentication link has been sent to your email. ❤️"
       });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleGuestLogin = async () => {
-    if (!validateAccess()) return;
-    setIsLoading(true);
-    try {
-      await signInAnonymously(auth);
-      router.push('/discover');
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Guest Access Failed",
-        description: error.message
-      });
+      toast({ variant: "destructive", title: "Error", description: error.message });
     } finally {
       setIsLoading(false);
     }
@@ -156,50 +168,114 @@ export default function LoginPage() {
     }
   };
 
-  const handleSendCode = async () => {
-    if (!validateAccess()) return;
+  const handleSendPhoneCode = async () => {
+    if (!validateAccess() || !phoneNumber) return;
     setIsLoading(true);
     setupRecaptcha();
     const appVerifier = (window as any).recaptchaVerifier;
     try {
       const result = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
       setConfirmationResult(result);
-      setIsVerifyingPhone(true);
-      toast({
-        title: "Code Sent",
-        description: "Check your phone for the happiness code."
-      });
+      setAuthMethod('phone');
+      setIsVerifying(true);
+      toast({ title: "Code Sent", description: "Check your phone for the 6-digit code." });
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Phone Auth Failed",
-        description: error.message
-      });
+      toast({ variant: "destructive", title: "Phone Auth Failed", description: error.message });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleVerifyCode = async () => {
+  const handleVerifyPhoneCode = async () => {
+    if (!verificationCode || !confirmationResult) return;
     setIsLoading(true);
     try {
       await confirmationResult.confirm(verificationCode);
       router.push('/discover');
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Invalid Code",
-        description: "The verification code you entered is incorrect."
-      });
+      toast({ variant: "destructive", title: "Invalid Code", description: "The verification code is incorrect." });
     } finally {
       setIsLoading(false);
     }
   };
 
-  if (authLoading) {
+  const handleGoogleLogin = async () => {
+    if (!validateAccess()) return;
+    setIsLoading(true);
+    const provider = new GoogleAuthProvider();
+    try {
+      await signInWithPopup(auth, provider);
+      router.push('/discover');
+    } catch (error: any) {
+      toast({ variant: "destructive", title: "Google Login Failed", description: error.message });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGuestLogin = async () => {
+    if (!validateAccess()) return;
+    setIsLoading(true);
+    try {
+      await signInAnonymously(auth);
+      router.push('/discover');
+    } catch (error: any) {
+      toast({ variant: "destructive", title: "Guest Failed", description: error.message });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (authLoading) return (
+    <div className="flex items-center justify-center min-h-screen">
+      <Loader2 className="w-10 h-10 animate-spin text-primary" />
+    </div>
+  );
+
+  if (isVerifying) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="w-10 h-10 animate-spin text-primary" />
+      <div className="flex flex-col min-h-screen bg-muted/30 items-center justify-center p-4">
+        <Card className="w-full max-w-md border-none shadow-2xl rounded-[3.5rem] p-12 bg-white text-center space-y-8">
+           <div className="w-24 h-24 bg-primary/10 rounded-[2.5rem] flex items-center justify-center mx-auto shadow-inner">
+             {authMethod === 'email' ? <Mail className="w-10 h-10 text-primary" /> : <Phone className="w-10 h-10 text-primary" />}
+           </div>
+           
+           <div className="space-y-2">
+             <h2 className="text-3xl font-black tracking-tighter uppercase">Step 2: Verification</h2>
+             <p className="text-muted-foreground text-sm leading-relaxed">
+               {authMethod === 'email' 
+                 ? `We sent a secure link to ${email}. Please check your inbox (and spam) to complete sign in.` 
+                 : `Enter the 6-digit code sent to ${phoneNumber}.`}
+             </p>
+           </div>
+
+           {authMethod === 'phone' && (
+             <div className="space-y-6">
+                <Input 
+                  type="text" 
+                  placeholder="000000" 
+                  value={verificationCode} 
+                  onChange={e => setVerificationCode(e.target.value)}
+                  className="rounded-2xl h-16 text-3xl font-black text-center tracking-[0.5em] bg-muted/20 border-none"
+                />
+                <Button onClick={handleVerifyPhoneCode} disabled={isLoading || verificationCode.length < 6} className="w-full h-16 rounded-2xl gradient-bg font-black uppercase text-xs tracking-widest shadow-xl shadow-primary/20">
+                  {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Confirm Code'}
+                </Button>
+             </div>
+           )}
+
+           {authMethod === 'email' && (
+             <div className="bg-green-50 p-6 rounded-3xl border border-green-100 flex items-center gap-4 text-left">
+                <CheckCircle2 className="w-6 h-6 text-green-600 shrink-0" />
+                <p className="text-xs text-green-800 font-bold uppercase tracking-tight">Email Link active. Keep this window open or return here once you click the link.</p>
+             </div>
+           )}
+
+           <Button variant="ghost" onClick={() => setIsVerifying(false)} className="w-full text-muted-foreground font-black uppercase text-[10px] tracking-widest">
+             <ArrowLeft className="w-3 h-3 mr-2" />
+             Use different method
+           </Button>
+        </Card>
       </div>
     );
   }
@@ -213,20 +289,16 @@ export default function LoginPage() {
 
       <div className="w-full max-w-md space-y-12 py-10">
         <div className="text-center space-y-6">
-          <div className="flex flex-col items-center justify-center gap-8 group">
-            <div className="shiny-icon p-6 rounded-[3.5rem] bg-primary/5 shadow-inner">
-              <Heart className="w-40 h-40 fill-primary text-primary group-hover:scale-110 transition-transform animate-heartbeat" />
+          <div className="flex flex-col items-center justify-center gap-8">
+            <div className="shiny-icon p-6 rounded-[3.5rem] bg-primary/5">
+              <Heart className="w-32 h-32 fill-primary text-primary animate-heartbeat" />
             </div>
             <div className="flex flex-col text-center leading-none">
-              <span className="font-black text-7xl tracking-tighter text-primary shiny-text">I LOVE</span>
-              <span className="font-black text-3xl tracking-[0.5em] text-muted-foreground">YOU</span>
+              <span className="font-black text-6xl tracking-tighter text-primary shiny-text">I LOVE</span>
+              <span className="font-black text-2xl tracking-[0.5em] text-muted-foreground">YOU</span>
             </div>
           </div>
-          <div className="space-y-2">
-            <h1 className="text-3xl font-black tracking-tight uppercase pt-6">Community Access</h1>
-            <p className="text-primary font-black text-xs uppercase tracking-[0.3em]">The AI Dating Revolution</p>
-            <p className="text-muted-foreground text-[10px] font-bold uppercase tracking-widest mt-2">Happiness is Mandatory ❤️</p>
-          </div>
+          <p className="text-primary font-black text-xs uppercase tracking-[0.3em]">Happiness is Mandatory ❤️</p>
         </div>
 
         <Card className="border-none shadow-2xl rounded-[3.5rem] overflow-hidden bg-white">
@@ -256,8 +328,7 @@ export default function LoginPage() {
                         onCheckedChange={(checked) => setIsAdult(checked as boolean)}
                         className="mt-1 w-6 h-6 rounded-lg border-2 border-primary"
                       />
-                      <label htmlFor="age-check" className="text-xs font-black leading-none text-primary uppercase tracking-widest flex items-center gap-3 cursor-pointer">
-                        <ShieldCheck className="w-4 h-4" />
+                      <label htmlFor="age-check" className="text-xs font-black leading-none text-primary uppercase tracking-widest cursor-pointer">
                         I AM 18+ YEARS OLD
                       </label>
                     </div>
@@ -270,19 +341,18 @@ export default function LoginPage() {
                         className="mt-1 w-6 h-6 rounded-lg border-2 border-primary"
                       />
                       <div className="grid gap-2 leading-none cursor-pointer">
-                        <label htmlFor="respect-check" className="text-xs font-black leading-none text-primary uppercase tracking-widest flex items-center gap-3">
-                          <HeartHandshake className="w-4 h-4" />
+                        <label htmlFor="respect-check" className="text-xs font-black leading-none text-primary uppercase tracking-widest">
                           HAPPINESS PLEDGE
                         </label>
                         <p className="text-[11px] text-muted-foreground font-medium italic leading-relaxed">
-                          "I pledge to bring respect and love to every heart in this community."
+                          "I pledge to bring respect and love to every heart."
                         </p>
                       </div>
                     </div>
                 </div>
 
                 <div className={cn(
-                  "flex items-center space-x-4 p-6 rounded-[2rem] border-2 transition-all duration-500 shadow-sm",
+                  "flex items-center space-x-4 p-6 rounded-[2rem] border-2 transition-all duration-500",
                   isHuman ? "bg-green-50 border-green-200" : "bg-muted/30 border-dashed border-muted-foreground/20"
                 )}>
                   <Checkbox 
@@ -290,16 +360,9 @@ export default function LoginPage() {
                     checked={isHuman} 
                     disabled={isBotChecking}
                     onCheckedChange={(checked) => handleBotCheck(checked as boolean)}
-                    className="w-6 h-6 rounded-lg border-2 border-muted-foreground/30 data-[state=checked]:border-green-600"
+                    className="w-6 h-6 rounded-lg"
                   />
-                  <label
-                    htmlFor="bot-check"
-                    className={cn(
-                      "text-xs font-black uppercase tracking-widest flex items-center gap-3 cursor-pointer",
-                      isHuman ? "text-green-600" : "text-muted-foreground"
-                    )}
-                  >
-                    {isBotChecking ? <Loader2 className="w-4 h-4 animate-spin" /> : isHuman ? <UserCheck className="w-4 h-4" /> : <ShieldAlert className="w-4 h-4" />}
+                  <label htmlFor="bot-check" className={cn("text-xs font-black uppercase tracking-widest cursor-pointer", isHuman ? "text-green-600" : "text-muted-foreground")}>
                     {isBotChecking ? "Verifying..." : isHuman ? "Verified Human" : "Confirm Human Status"}
                   </label>
                 </div>
@@ -312,39 +375,38 @@ export default function LoginPage() {
                 </div>
                 <div className="space-y-3">
                   <Label htmlFor="password" id="pass-label" className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 ml-2">Secure Phrase</Label>
-                  <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="rounded-[1.5rem] h-14 bg-muted/20 border-none px-8 text-lg font-bold" />
+                  <div className="relative">
+                    <Input 
+                      id="password" 
+                      type={showPassword ? "text" : "password"} 
+                      value={password} 
+                      onChange={(e) => setPassword(e.target.value)} 
+                      className="rounded-[1.5rem] h-14 bg-muted/20 border-none pl-8 pr-12 text-lg font-bold" 
+                    />
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="absolute right-3 top-1/2 -translate-y-1/2 h-10 w-10 text-muted-foreground hover:text-primary rounded-full"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </Button>
+                  </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4 pt-4">
-                  <Button variant="outline" onClick={() => handleEmailAuth('signup')} disabled={isLoading || isBotChecking} className="rounded-[1.5rem] h-16 font-black uppercase tracking-widest text-xs border-2">Join Free</Button>
-                  <Button onClick={() => handleEmailAuth('login')} disabled={isLoading || isBotChecking} className="rounded-[1.5rem] h-16 gradient-bg font-black uppercase tracking-widest text-xs shadow-xl shadow-primary/20">
-                    {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Enter Heart'}
-                  </Button>
-                </div>
+                <Button onClick={handleStartEmailAuth} disabled={isLoading || isBotChecking || !email} className="w-full h-16 rounded-[1.5rem] gradient-bg font-black uppercase tracking-widest text-xs shadow-xl shadow-primary/20">
+                  {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Get Authentication Code'}
+                </Button>
               </TabsContent>
 
               <TabsContent value="phone" className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
-                {!isVerifyingPhone ? (
-                  <>
-                    <div className="space-y-3">
-                      <Label htmlFor="phone" className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 ml-2">Phone Number</Label>
-                      <Input id="phone" type="tel" placeholder="+1..." value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} className="rounded-[1.5rem] h-14 bg-muted/20 border-none px-8 text-lg font-bold" />
-                    </div>
-                    <Button onClick={handleSendCode} disabled={isLoading || !phoneNumber || isBotChecking} className="w-full h-16 rounded-[1.5rem] gradient-bg font-black uppercase tracking-widest text-xs shadow-xl shadow-primary/20">
-                      {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Send Verification'}
-                    </Button>
-                    <div id="recaptcha-container"></div>
-                  </>
-                ) : (
-                  <>
-                    <div className="space-y-3">
-                      <Label htmlFor="code" className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 ml-2">Verification Code</Label>
-                      <Input id="code" type="text" placeholder="123456" value={verificationCode} onChange={(e) => setVerificationCode(e.target.value)} className="rounded-[1.5rem] h-14 bg-muted/20 border-none px-8 text-2xl font-black text-center tracking-[0.5em]" />
-                    </div>
-                    <Button onClick={handleVerifyCode} disabled={isLoading || !verificationCode} className="w-full h-16 rounded-[1.5rem] gradient-bg font-black uppercase tracking-widest text-xs shadow-xl shadow-primary/20">
-                      {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Verify & Enter'}
-                    </Button>
-                  </>
-                )}
+                <div className="space-y-3">
+                  <Label htmlFor="phone" className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 ml-2">Phone Number</Label>
+                  <Input id="phone" type="tel" placeholder="+1..." value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} className="rounded-[1.5rem] h-14 bg-muted/20 border-none px-8 text-lg font-bold" />
+                </div>
+                <Button onClick={handleSendPhoneCode} disabled={isLoading || !phoneNumber || isBotChecking} className="w-full h-16 rounded-[1.5rem] gradient-bg font-black uppercase tracking-widest text-xs shadow-xl shadow-primary/20">
+                  {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Send Verification Code'}
+                </Button>
+                <div id="recaptcha-container"></div>
               </TabsContent>
 
               <TabsContent value="social" className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
@@ -362,23 +424,19 @@ export default function LoginPage() {
                   <UserCircle className="w-8 h-8 text-primary group-hover:scale-110 transition-transform" />
                   Continue as Guest
                 </Button>
-                <p className="text-center text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Fast Access for Spark Lovers</p>
               </TabsContent>
             </CardContent>
           </Tabs>
-          <CardFooter className="bg-muted/30 p-10 flex flex-col items-center gap-6">
-             <Link href="/discover" className="text-sm text-primary font-black uppercase tracking-[0.3em] hover:underline flex items-center gap-2 group">
-               <Sparkles className="w-4 h-4 group-hover:animate-pulse" />
-               Explore the Mission
-             </Link>
-             <div className="flex gap-6 text-[10px] text-muted-foreground/60 font-black uppercase tracking-widest">
-               <Link href="/privacy" className="hover:text-primary transition-colors">Privacy Shield</Link>
-               <span>•</span>
-               <Link href="/terms" className="hover:text-primary transition-colors">Dating Pledge</Link>
-             </div>
-          </CardFooter>
         </Card>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><Loader2 className="w-10 h-10 animate-spin text-primary" /></div>}>
+      <LoginContent />
+    </Suspense>
   );
 }
