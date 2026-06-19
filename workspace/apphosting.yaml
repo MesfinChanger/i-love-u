@@ -1,7 +1,9 @@
+kind: "AppHostingConfig"
+schemaVersion: "v1"
+
 runConfig:
   cpu: 1
   memoryMiB: 512
-  maxInstances: 2
 
 env:
   - variable: NEXT_PUBLIC_FIREBASE_API_KEY
@@ -16,6 +18,11 @@ env:
       - RUNTIME
   - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
     value: "spark-dating"
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: NEXT_PUBLIC_BASE_URL
+    value: "https://spark-dating.web.app"
     availability:
       - BUILD
       - RUNTIME
