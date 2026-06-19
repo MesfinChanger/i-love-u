@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect, Suspense } from 'react';
@@ -80,7 +79,7 @@ function LoginContent() {
 
   const validateAccess = () => {
     if (!isAgeVerified) {
-      toast({ variant: "destructive", title: "Age Verification Required", description: "You must be 18-65 to join." });
+      toast({ variant: "destructive", title: "Age Verification Required", description: "You must be 18+ to join." });
       return false;
     }
     if (!isRespectful) {
@@ -248,7 +247,7 @@ function LoginContent() {
                 <div className="flex flex-col gap-4 bg-primary/5 p-6 rounded-[2rem] border border-primary/10">
                     <div className="flex items-start space-x-3">
                       <Checkbox id="age-check" checked={isAgeVerified} onCheckedChange={(checked) => setIsAgeVerified(checked as boolean)} className="mt-0.5 w-5 h-5 rounded-md border-2 border-primary" />
-                      <label htmlFor="age-check" className="text-[10px] font-black leading-none text-primary uppercase tracking-widest cursor-pointer">I AM 18-65 YEARS OLD</label>
+                      <label htmlFor="age-check" className="text-[10px] font-black leading-none text-primary uppercase tracking-widest cursor-pointer">I AM 18+ YEARS OLD</label>
                     </div>
                     <div className="flex items-start space-x-3 border-t border-primary/10 pt-4">
                       <Checkbox id="respect-check" checked={isRespectful} onCheckedChange={(checked) => setIsRespectful(checked as boolean)} className="mt-0.5 w-5 h-5 rounded-md border-2 border-primary" />

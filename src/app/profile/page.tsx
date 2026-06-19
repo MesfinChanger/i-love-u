@@ -147,8 +147,8 @@ function ProfileContent() {
   const handleSave = async () => {
     if (!user || !db || isSaving) return;
     const userAge = parseInt(age);
-    if (isNaN(userAge) || userAge < 18 || userAge > 65) {
-      toast({ variant: "destructive", title: "Wait!", description: "Age must be between 18 and 65." });
+    if (isNaN(userAge) || userAge < 18) {
+      toast({ variant: "destructive", title: "Wait!", description: "You must be 18+ to join." });
       return;
     }
 
@@ -194,6 +194,7 @@ function ProfileContent() {
         locationHint: location || country,
         publicNickname: publicNickname || null,
         publicPhotoUrl: isPhotoPublic ? profileData?.photoUrl || null : null,
+        country: country,
         updatedAt: serverTimestamp()
       }, { merge: true });
 
@@ -266,8 +267,8 @@ function ProfileContent() {
                   <Input value={displayName} onChange={e => setDisplayName(e.target.value)} className="rounded-2xl h-14 bg-muted/30 border-none px-6 font-bold" />
                 </div>
                 <div className="space-y-3">
-                  <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Age (18-65)</Label>
-                  <Input type="number" min="18" max="65" value={age} onChange={e => setAge(e.target.value)} className="rounded-2xl h-14 bg-muted/30 border-none px-6 font-bold" />
+                  <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Age (18+)</Label>
+                  <Input type="number" min="18" value={age} onChange={e => setAge(e.target.value)} className="rounded-2xl h-14 bg-muted/30 border-none px-6 font-bold" />
                 </div>
               </div>
               <div className="grid sm:grid-cols-2 gap-8">
