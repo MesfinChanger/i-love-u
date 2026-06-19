@@ -4,9 +4,13 @@ runConfig:
   cpu: 1
   memoryMiB: 512
 env:
+  - variable: NEXT_PUBLIC_FIREBASE_API_KEY
+    value: ""
   - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
     value: "spark-dating.firebaseapp.com"
   - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
     value: "spark-dating"
+  - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+    value: "spark-dating.firebasestorage.app"
   - variable: NEXT_PUBLIC_BASE_URL
     value: "https://spark-dating.web.app"

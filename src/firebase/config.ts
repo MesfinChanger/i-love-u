@@ -1,7 +1,6 @@
 /**
  * Firebase configuration object.
- * This file pulls from environment variables defined in .env or apphosting.yaml.
- * For local development, set these in a .env.local file.
+ * Strictly using environment variables for production security.
  */
 export const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "",

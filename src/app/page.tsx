@@ -60,8 +60,8 @@ export default function Home() {
               <Heart className="w-4 h-4 fill-primary text-primary animate-heartbeat" />
             </div>
             <div className="flex flex-col leading-none">
-              <span className="font-black text-sm tracking-tighter text-primary">I LOVE</span>
-              <span className="font-black text-[4px] tracking-[0.4em] text-muted-foreground ml-0.5 uppercase">YOU</span>
+              <span className="font-black text-[10px] tracking-tighter text-primary">I LOVE</span>
+              <span className="font-black text-[3px] tracking-[0.4em] text-muted-foreground ml-0.5 uppercase">YOU</span>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -90,7 +90,7 @@ export default function Home() {
               </div>
               
               <div className="space-y-2">
-                <h1 className="text-3xl lg:text-7xl font-black leading-none tracking-tighter animate-in zoom-in duration-1000">
+                <h1 className="text-4xl lg:text-6xl font-black leading-none tracking-tighter animate-in zoom-in duration-1000">
                   <span className="shiny-text">I LOVE U</span>
                 </h1>
                 <p className="text-[8px] lg:text-[10px] font-black tracking-[0.5em] text-primary uppercase opacity-80">
@@ -117,10 +117,10 @@ export default function Home() {
             </div>
 
             <div className="flex justify-center lg:justify-end">
-              <div className="relative w-full max-w-lg lg:max-w-xl">
+              <div className="relative w-full max-w-xl lg:max-w-2xl">
                 <div className="absolute -inset-10 bg-primary/20 rounded-full blur-[120px] -z-10 animate-pulse" />
                 
-                <div className="relative aspect-[4/5] rounded-[4rem] overflow-hidden shadow-2xl transition-all duration-1000 border-[16px] border-white group bg-muted">
+                <div className="relative aspect-[4/5] rounded-[5rem] overflow-hidden shadow-2xl transition-all duration-1000 border-[20px] border-white group bg-muted">
                   {mounted && dynamicImages.map((img, i) => (
                     <div 
                       key={img.id}
@@ -141,21 +141,21 @@ export default function Home() {
                   ))}
 
                   {/* Spark Match Badge overlays the Dynamic Pic */}
-                  <div className="absolute top-10 left-10 z-20 bg-white/90 backdrop-blur-md px-6 py-4 rounded-3xl border border-primary/10 shadow-2xl flex flex-col gap-0.5 animate-in slide-in-from-left-4 duration-700">
-                    <div className="flex items-center gap-2">
-                       <Heart className="w-5 h-5 text-primary fill-primary animate-heartbeat" />
-                       <span className="text-[11px] font-black uppercase tracking-widest text-primary">Spark Match</span>
+                  <div className="absolute top-12 left-12 z-20 bg-white/90 backdrop-blur-md px-8 py-5 rounded-[2.5rem] border border-primary/10 shadow-2xl flex flex-col gap-0.5 animate-in slide-in-from-left-4 duration-700">
+                    <div className="flex items-center gap-3">
+                       <Heart className="w-6 h-6 text-primary fill-primary animate-heartbeat" />
+                       <span className="text-xs font-black uppercase tracking-widest text-primary">Spark Match</span>
                     </div>
-                    <p className="text-[8px] text-muted-foreground font-black uppercase tracking-widest leading-none">Connect with Purpose</p>
+                    <p className="text-[9px] text-muted-foreground font-black uppercase tracking-widest leading-none">Connect with Purpose</p>
                   </div>
 
-                  <div className="absolute bottom-10 right-10 z-20 flex gap-2">
+                  <div className="absolute bottom-12 right-12 z-20 flex gap-2">
                     {dynamicImages.map((_, i) => (
                       <div 
                         key={i} 
                         className={cn(
                           "h-2 rounded-full transition-all duration-500",
-                          imageIndex === i ? "w-8 bg-white shadow-lg" : "w-2 bg-white/40"
+                          imageIndex === i ? "w-10 bg-white shadow-lg" : "w-2 bg-white/40"
                         )} 
                       />
                     ))}
