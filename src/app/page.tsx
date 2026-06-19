@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -17,7 +18,11 @@ const LOVE_TRANSLATIONS = [
   { lang: "Portuguese", text: "Eu te amo", icon: "💘" },
   { lang: "Korean", text: "사랑해", icon: "💎" },
   { lang: "Arabic", text: "أحبك", icon: "🌙" },
-  { lang: "Hindi", text: "मैं तुमसे प्यार करता हूँ", icon: "🪔" }
+  { lang: "Hindi", text: "मैं तुमसे प्यार करता हूँ", icon: "🪔" },
+  { lang: "Swahili", text: "Nakupenda", icon: "🦓" },
+  { lang: "Zulu", text: "Ngiyakuthanda", icon: "🦁" },
+  { lang: "Bengali", text: "আমি তোমাকে ভালোবাসি", icon: "🐅" },
+  { lang: "Greek", text: "Σ' αγαπώ", icon: "🏺" }
 ];
 
 export default function Home() {
@@ -27,7 +32,7 @@ export default function Home() {
   useEffect(() => {
     const interval = setInterval(() => {
       setLangIndex((prev) => (prev + 1) % LOVE_TRANSLATIONS.length);
-    }, 3000);
+    }, 2500);
     return () => clearInterval(interval);
   }, []);
 
@@ -59,19 +64,24 @@ export default function Home() {
         <section className="relative py-20 lg:py-32 overflow-hidden bg-gradient-to-b from-primary/5 to-white">
           <div className="container mx-auto px-4 grid lg:grid-cols-2 gap-16 items-center">
             <div className="space-y-8 text-center lg:text-left z-10">
-              <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white/80 backdrop-blur-sm text-primary text-xs font-black border border-primary/10 shadow-sm">
-                <Globe className="w-4 h-4 animate-spin-slow text-secondary" />
-                <span className="transition-all duration-500 ease-in-out uppercase tracking-[0.2em]">
-                  {LOVE_TRANSLATIONS[langIndex].text} {LOVE_TRANSLATIONS[langIndex].icon}
-                </span>
+              {/* MAXIMIZED LANGUAGE BAR */}
+              <div className="inline-flex items-center gap-6 px-10 py-5 rounded-[2.5rem] bg-white/90 backdrop-blur-xl text-primary border-2 border-primary/20 shadow-2xl shiny-icon relative overflow-hidden group">
+                <Globe className="w-8 h-8 animate-spin-slow text-secondary" />
+                <div className="flex flex-col items-start leading-tight">
+                   <p className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground opacity-60 mb-1">Global Mission Reach</p>
+                   <span className="text-2xl lg:text-3xl font-black transition-all duration-700 ease-in-out uppercase tracking-tighter shiny-text">
+                    {LOVE_TRANSLATIONS[langIndex].text} {LOVE_TRANSLATIONS[langIndex].icon}
+                  </span>
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
               </div>
               
               <div className="space-y-2">
                 <h1 className="text-[18vw] lg:text-[14rem] font-black leading-none tracking-tighter animate-in zoom-in duration-1000">
                   <span className="shiny-text drop-shadow-[0_20px_40px_rgba(255,51,102,0.3)]">I LOVE U</span>
                 </h1>
-                <p className="text-sm lg:text-base font-black tracking-[0.4em] text-muted-foreground uppercase opacity-80">
-                  U + Love = <span className="text-secondary font-black drop-shadow-sm">Prosperity</span>
+                <p className="text-xs lg:text-sm font-black tracking-[0.6em] text-muted-foreground uppercase opacity-60 ml-4">
+                  U + Love = Prosperity
                 </p>
               </div>
 
