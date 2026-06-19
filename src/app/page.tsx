@@ -14,19 +14,11 @@ const LOVE_TRANSLATIONS = [
   { lang: "French", text: "Je t'aime", icon: "✨" },
   { lang: "Japanese", text: "愛してる", icon: "🌸" },
   { lang: "German", text: "Ich liebe dich", icon: "🔥" },
-  { lang: "Italian", text: "Ti amo", icon: "🌹" },
-  { lang: "Portuguese", text: "Eu te amo", icon: "💘" },
-  { lang: "Korean", text: "사랑해", icon: "💎" },
-  { lang: "Arabic", text: "أحبك", icon: "🌙" },
-  { lang: "Hindi", text: "मैं तुमसे प्यार करता हूँ", icon: "🪔" },
   { lang: "Swahili", text: "Nakupenda", icon: "🦓" },
-  { lang: "Zulu", text: "Ngiyakuthanda", icon: "🦁" },
-  { lang: "Bengali", text: "আমি তোমাকে ভালোবাসি", icon: "🐅" },
-  { lang: "Greek", text: "Σ' αγαπώ", icon: "🏺" }
+  { lang: "Korean", text: "사랑해", icon: "💎" }
 ];
 
 export default function Home() {
-  // Use only female portraits from around the world for the hero
   const dynamicImages = useMemo(() => PlaceHolderImages.filter(img => img.id.startsWith('user-')), []);
   
   const [langIndex, setLangIndex] = useState(0);
@@ -57,33 +49,33 @@ export default function Home() {
       <header className="fixed top-0 z-50 w-full border-b bg-background/80 backdrop-blur-md">
         <div className="container mx-auto px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="relative p-1.5 rounded-lg bg-primary/5">
-              <Heart className="w-4 h-4 fill-primary text-primary animate-heartbeat" />
+            <div className="relative p-1 rounded-lg bg-primary/5">
+              <Heart className="w-3.5 h-3.5 fill-primary text-primary animate-heartbeat" />
             </div>
             <div className="flex flex-col leading-none">
-              <span className="font-black text-[10px] tracking-tighter text-primary uppercase">I LOVE</span>
-              <span className="font-black text-[4px] tracking-[0.4em] text-muted-foreground ml-0.5 uppercase">YOU</span>
+              <span className="font-black text-[9px] tracking-tighter text-primary uppercase">I LOVE</span>
+              <span className="font-black text-[3px] tracking-[0.4em] text-muted-foreground ml-0.5 uppercase">YOU</span>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <Button variant="ghost" asChild className="font-black text-[8px] uppercase tracking-widest text-primary hover:bg-primary/5 rounded-full px-3 h-8">
               <Link href="/login">Login</Link>
             </Button>
             <Button className="rounded-full px-5 h-8 gradient-bg hover:opacity-90 transition-opacity font-black shadow-lg shadow-primary/20 uppercase text-[8px] tracking-[0.1em]" asChild>
-              <Link href="/login">Join Now</Link>
+              <Link href="/login">Join</Link>
             </Button>
           </div>
         </div>
       </header>
 
       <main className="flex-grow pt-14">
-        <section className="relative min-h-[90vh] flex items-center overflow-hidden bg-gradient-to-b from-primary/5 to-white py-12 lg:py-0">
+        <section className="relative min-h-screen flex items-center overflow-hidden bg-gradient-to-b from-primary/5 via-white to-white py-12 lg:py-0">
           <div className="container mx-auto px-4 grid lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-10 z-10 text-center lg:text-left">
+            <div className="space-y-10 z-10 text-center lg:text-left order-2 lg:order-1">
               <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white/95 backdrop-blur-3xl text-primary border border-primary/10 shadow-md">
                 <Globe className="w-4 h-4 animate-spin-slow text-secondary" />
                 <div className="flex flex-col items-start leading-tight">
-                   <p className="text-[7px] font-black uppercase tracking-[0.4em] text-muted-foreground/60">Global Community</p>
+                   <p className="text-[7px] font-black uppercase tracking-[0.4em] text-muted-foreground/60">Global community</p>
                    <span className="text-[10px] font-black transition-all duration-700 uppercase tracking-tighter shiny-text">
                     {mounted ? LOVE_TRANSLATIONS[langIndex].text : "I Love U"} {mounted ? LOVE_TRANSLATIONS[langIndex].icon : "❤️"}
                   </span>
@@ -91,17 +83,17 @@ export default function Home() {
               </div>
               
               <div className="space-y-3">
-                <h1 className="text-4xl lg:text-6xl font-black leading-none tracking-tighter animate-in zoom-in duration-1000">
-                  <span className="shiny-text uppercase">I Love U</span>
+                <h1 className="text-4xl lg:text-5xl font-black leading-none tracking-tighter animate-in zoom-in duration-1000">
+                  <span className="shiny-text uppercase opacity-80">I Love U</span>
                 </h1>
-                <p className="text-[8px] lg:text-[10px] font-black tracking-[0.6em] text-primary uppercase opacity-60">
-                  The AI Dating & Prosperity Revolution
+                <p className="text-[8px] lg:text-[9px] font-black tracking-[0.5em] text-primary uppercase opacity-40">
+                  The AI Prosperity Revolution
                 </p>
               </div>
 
               <p className="text-lg lg:text-xl text-muted-foreground max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
-                Find your heart while uplifting worlds. <br/>
-                Every connection helps us <span className="text-primary font-black underline decoration-secondary/30 underline-offset-8">eliminate world poverty</span>.
+                Find love while uplifting humanity. <br/>
+                Every connection helps <span className="text-primary font-black underline decoration-secondary/30 underline-offset-8">eliminate world poverty</span>.
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
@@ -115,24 +107,35 @@ export default function Home() {
                   <Link href="/donate">Support Mission</Link>
                 </Button>
               </div>
+              
+              <div className="pt-6 flex items-center justify-center lg:justify-start gap-4 opacity-40">
+                <div className="flex -space-x-3">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-muted overflow-hidden relative">
+                      <Image src={dynamicImages[i % dynamicImages.length].imageUrl} alt="" fill className="object-cover" />
+                    </div>
+                  ))}
+                </div>
+                <p className="text-[9px] font-black uppercase tracking-widest">12k+ Sparking 18-65y</p>
+              </div>
             </div>
 
-            <div className="flex justify-center lg:justify-end h-full">
-              <div className="relative w-full max-w-lg lg:max-w-xl aspect-[4/5] lg:aspect-[3/4]">
-                <div className="absolute -inset-10 bg-primary/10 rounded-full blur-[100px] -z-10 animate-pulse" />
+            <div className="flex justify-center lg:justify-end h-full order-1 lg:order-2">
+              <div className="relative w-full max-w-lg lg:max-w-2xl aspect-[4/5] lg:aspect-[3/4]">
+                <div className="absolute -inset-10 bg-primary/10 rounded-full blur-[120px] -z-10 animate-pulse" />
                 
-                <div className="relative w-full h-full rounded-[4rem] lg:rounded-[6rem] overflow-hidden shadow-2xl transition-all duration-1000 border-[12px] lg:border-[20px] border-white group bg-muted">
+                <div className="relative w-full h-full rounded-[4rem] lg:rounded-[6rem] overflow-hidden shadow-[0_50px_100px_-20px_rgba(255,51,102,0.4)] transition-all duration-1000 border-[10px] lg:border-[16px] border-white group bg-muted">
                   {mounted && dynamicImages.map((img, i) => (
                     <div 
                       key={img.id}
                       className={cn(
-                        "absolute inset-0 transition-opacity duration-1000 ease-in-out",
-                        imageIndex === i ? "opacity-100 z-10" : "opacity-0 z-0"
+                        "absolute inset-0 transition-opacity duration-1500 ease-in-out",
+                        imageIndex === i ? "opacity-100 z-10 scale-100" : "opacity-0 z-0 scale-105"
                       )}
                     >
                       <Image 
                         src={img.imageUrl} 
-                        alt="Global community member" 
+                        alt="Global community woman" 
                         fill 
                         className="object-cover transform group-hover:scale-110 transition-transform duration-[10000ms]"
                         priority={i === 0}
@@ -146,7 +149,7 @@ export default function Home() {
                        <Heart className="w-6 h-6 text-primary fill-primary animate-heartbeat" />
                        <span className="text-xs font-black uppercase tracking-widest text-primary">Spark Match</span>
                     </div>
-                    <p className="text-[9px] text-muted-foreground font-black uppercase tracking-widest leading-none">Connect with Purpose</p>
+                    <p className="text-[9px] text-muted-foreground font-black uppercase tracking-widest leading-none">Global Faces • Pure Hearts</p>
                   </div>
 
                   <div className="absolute bottom-8 right-8 z-20 flex gap-2">
@@ -168,24 +171,24 @@ export default function Home() {
 
         <section className="py-24 bg-white">
           <div className="container mx-auto px-4 text-center">
-            <h2 className="text-xl lg:text-3xl font-black mb-16 tracking-tighter uppercase leading-none">
+            <h2 className="text-xl lg:text-3xl font-black mb-16 tracking-tighter uppercase leading-none opacity-80">
               Dating with a <span className="text-primary">Human Pulse</span>
             </h2>
             <div className="grid md:grid-cols-3 gap-10">
               <FeatureCard 
                 icon={<Zap className="w-8 h-8" />}
-                title="AI Powered Matching"
-                description="Our neural engine finds mysterious connections based on shared cultural interests and your 'vibe' for real happiness."
+                title="AI Powered"
+                description="Our neural engine finds mysterious connections based on 'vibe' and shared culture for real happiness."
               />
               <FeatureCard 
                 icon={<HeartHandshake className="w-8 h-8" />}
-                title="Respect is Mandatory"
-                description="We are a dating community built on pure love. Disrespect is filtered by AI, ensuring a joyful space for every heart."
+                title="Mandatory Respect"
+                description="We are built on pure love. Disrespect is filtered by AI, ensuring a joyful space for every heart."
               />
               <FeatureCard 
                 icon={<Briefcase className="w-8 h-8" />}
-                title="Love Creates Jobs"
-                description="Your sparks fund vocational tools for entrepreneurs. Every successful date is a win for global prosperity."
+                title="Prosperity"
+                description="Your sparks fund vocational tools. Every successful date is a win for global job creation."
               />
             </div>
           </div>
@@ -203,8 +206,8 @@ export default function Home() {
               <span className="font-black text-[7px] tracking-[0.4em] text-muted-foreground uppercase">YOU</span>
             </div>
           </div>
-          <p className="font-black text-base text-foreground tracking-tight mb-3">© {mounted ? currentYear : "..."} I Love U. The Global Dating & Prosperity Revolution.</p>
-          <p className="text-[10px] font-medium italic uppercase tracking-widest opacity-60">Respect and Love is Mandatory ❤️ Ending World Poverty Together.</p>
+          <p className="font-black text-base text-foreground tracking-tight mb-3">© {mounted ? currentYear : "..."} I Love U. Prosperity Revolution.</p>
+          <p className="text-[10px] font-medium italic uppercase tracking-widest opacity-60">Respect and Love is Mandatory ❤️ 18-65 Only</p>
         </div>
       </footer>
     </div>
