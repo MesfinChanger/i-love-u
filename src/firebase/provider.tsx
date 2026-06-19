@@ -7,9 +7,9 @@ import { Auth } from 'firebase/auth';
 import { FirebaseErrorListener } from '@/components/FirebaseErrorListener';
 
 interface FirebaseContextType {
-  app: FirebaseApp;
-  db: Firestore;
-  auth: Auth;
+  app: FirebaseApp | null;
+  db: Firestore | null;
+  auth: Auth | null;
 }
 
 const FirebaseContext = createContext<FirebaseContextType | undefined>(undefined);
@@ -21,9 +21,9 @@ export function FirebaseProvider({
   auth,
 }: {
   children: React.ReactNode;
-  app: FirebaseApp;
-  db: Firestore;
-  auth: Auth;
+  app: FirebaseApp | null;
+  db: Firestore | null;
+  auth: Auth | null;
 }) {
   return (
     <FirebaseContext.Provider value={{ app, db, auth }}>
