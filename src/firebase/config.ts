@@ -5,8 +5,7 @@
 
 const getEnv = (key: string) => {
   if (typeof process === 'undefined' || !process.env) return "";
-  const value = process.env[key];
-  return value || "";
+  return process.env[key] || "";
 };
 
 export const firebaseConfig = {

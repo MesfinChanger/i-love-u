@@ -9,16 +9,12 @@ import { firebaseConfig } from './config';
  * @fileOverview Initializes Firebase services with defensive validation to prevent boot-time crashes.
  */
 export function initializeFirebase(): { app: FirebaseApp; db: Firestore; auth: Auth } {
-  // Defensive bootstrapping: Use a non-empty string for apiKey if missing to prevent initialization crash.
-  // The SDK will still fail gracefully on auth operations rather than crashing the whole app during hydration.
-  const hasValidKey = !!firebaseConfig.apiKey && firebaseConfig.apiKey.length > 5;
+  // Defensive bootstrapping: Only initialize if we have a plausible API key string.
+  // This prevents auth/invalid-api-key from crashing the root layout during SSR or hydration
+  // if environment variables are not yet injected.
+  const hasKey = typeof firebaseConfig.apiKey === 'string' && firebaseConfig.apiKey.length > 10;
   
-  const validatedConfig = {
-    ...firebaseConfig,
-    apiKey: hasValidKey ? firebaseConfig.apiKey : "REVOLUTION_STAGING_KEY_MISSING"
-  };
-
-  const app = getApps().length > 0 ? getApp() : initializeApp(validatedConfig);
+  const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
   const db = getFirestore(app);
   const auth = getAuth(app);
   
