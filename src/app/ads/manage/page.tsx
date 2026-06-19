@@ -22,7 +22,7 @@ import {
   Globe2,
   Video,
   Type,
-  Badge,
+  Tag,
   AlertTriangle,
   MapPin,
   Scale,
@@ -38,6 +38,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { moderateText } from '@/ai/flows/moderate-text-flow';
+import { Badge } from '@/components/ui/badge';
 
 const COUNTRIES = [
   { code: 'GLOBAL', name: 'Global (All Safe Countries)' },

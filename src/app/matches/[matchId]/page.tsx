@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect, useRef } from 'react';
@@ -540,7 +541,7 @@ export default function ChatPage() {
                   ) : (
                     <div className="flex flex-col gap-2">
                       <span className="font-semibold text-base tracking-tight">{textToShow}</span>
-                      <div className={cn("flex items-center gap-1 opacity-40 justify-end mt-1", isMe ? "text-white" : "text-primary")}>
+                      <div className={cn("flex items-center gap-1.5 opacity-40 justify-end mt-1", isMe ? "text-white" : "text-primary")}>
                          <Lock className="w-3 h-3" />
                          <span className="text-[8px] uppercase font-black tracking-widest">E2EE Secured</span>
                       </div>

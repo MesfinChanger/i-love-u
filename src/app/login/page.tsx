@@ -18,7 +18,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Heart, Mail, Phone, Chrome, Loader2, ArrowLeft, ShieldCheck, UserCheck, BotOff, HeartHandshake, Sparkles, UserCircle } from 'lucide-react';
+import { Heart, Mail, Phone, Chrome, Loader2, ArrowLeft, ShieldCheck, UserCheck, ShieldX, HeartHandshake, Sparkles, UserCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -299,7 +299,7 @@ export default function LoginPage() {
                       isHuman ? "text-green-600" : "text-muted-foreground"
                     )}
                   >
-                    {isBotChecking ? <Loader2 className="w-4 h-4 animate-spin" /> : isHuman ? <UserCheck className="w-4 h-4" /> : <BotOff className="w-4 h-4" />}
+                    {isBotChecking ? <Loader2 className="w-4 h-4 animate-spin" /> : isHuman ? <UserCheck className="w-4 h-4" /> : <ShieldX className="w-4 h-4" />}
                     {isBotChecking ? "Verifying..." : isHuman ? "Verified Human" : "Confirm Human Status"}
                   </label>
                 </div>

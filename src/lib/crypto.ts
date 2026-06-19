@@ -3,7 +3,30 @@
 
 /**
  * Utility for End-to-End Encryption (E2EE) using Web Crypto API.
+ * Uses browser-native APIs for maximum compatibility and zero build issues.
  */
+
+// Helper to convert ArrayBuffer to Base64 string in browser
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  let binary = '';
+  const bytes = new Uint8Array(buffer);
+  const len = bytes.byteLength;
+  for (let i = 0; i < len; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return window.btoa(binary);
+}
+
+// Helper to convert Base64 string to ArrayBuffer in browser
+function base64ToArrayBuffer(base64: string): ArrayBuffer {
+  const binaryString = window.atob(base64);
+  const len = binaryString.length;
+  const bytes = new Uint8Array(len);
+  for (let i = 0; i < len; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
+  return bytes.buffer;
+}
 
 export async function generateKeyPair() {
   const keyPair = await window.crypto.subtle.generateKey(
@@ -21,14 +44,14 @@ export async function generateKeyPair() {
   const privateKey = await window.crypto.subtle.exportKey("pkcs8", keyPair.privateKey);
 
   return {
-    publicKey: Buffer.from(publicKey).toString('base64'),
-    privateKey: Buffer.from(privateKey).toString('base64')
+    publicKey: arrayBufferToBase64(publicKey),
+    privateKey: arrayBufferToBase64(privateKey)
   };
 }
 
 export async function encryptText(text: string, publicKeyBase64: string) {
   try {
-    const publicKeyBuffer = Buffer.from(publicKeyBase64, 'base64');
+    const publicKeyBuffer = base64ToArrayBuffer(publicKeyBase64);
     const publicKey = await window.crypto.subtle.importKey(
       "spki",
       publicKeyBuffer,
@@ -47,7 +70,7 @@ export async function encryptText(text: string, publicKeyBase64: string) {
       encoded
     );
 
-    return Buffer.from(encrypted).toString('base64');
+    return arrayBufferToBase64(encrypted);
   } catch (e) {
     console.error("Encryption failed", e);
     return null;
@@ -56,7 +79,7 @@ export async function encryptText(text: string, publicKeyBase64: string) {
 
 export async function decryptText(encryptedBase64: string, privateKeyBase64: string) {
   try {
-    const privateKeyBuffer = Buffer.from(privateKeyBase64, 'base64');
+    const privateKeyBuffer = base64ToArrayBuffer(privateKeyBase64);
     const privateKey = await window.crypto.subtle.importKey(
       "pkcs8",
       privateKeyBuffer,
@@ -68,7 +91,7 @@ export async function decryptText(encryptedBase64: string, privateKeyBase64: str
       ["decrypt"]
     );
 
-    const encryptedBuffer = Buffer.from(encryptedBase64, 'base64');
+    const encryptedBuffer = base64ToArrayBuffer(encryptedBase64);
     const decrypted = await window.crypto.subtle.decrypt(
       { name: "RSA-OAEP" },
       privateKey,
