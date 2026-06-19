@@ -23,7 +23,8 @@ import {
   Globe,
   ShieldCheck,
   CheckCircle2,
-  AlertTriangle
+  AlertTriangle,
+  Zap
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
@@ -52,7 +53,7 @@ function LoginContent() {
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
   const [isLoading, setIsLoading] = useState(false);
 
-  // Mandatory Security Protocols (Required for BOTH Sign In and Join)
+  // Mandatory Security Protocols (Required for EVERYTHING)
   const [isAgeVerified, setIsAgeVerified] = useState(false);
   const [isRespectful, setIsRespectful] = useState(false);
   const [isHuman, setIsHuman] = useState(false);
@@ -91,11 +92,12 @@ function LoginContent() {
 
   const handleAuth = async () => {
     if (!email || !password || !isProtocolComplete) return;
+    
     if (!auth) {
       toast({ 
         variant: "destructive", 
         title: "Connection Error", 
-        description: "The prosperity network is currently initializing. Please check your internet connection or try again in a few seconds. ❤️" 
+        description: "The prosperity network is currently in Safe-Mode. Try Demo Access below or verify your API keys. ❤️" 
       });
       return;
     }
@@ -122,26 +124,13 @@ function LoginContent() {
     }
   };
 
-  const handleGoogleLogin = async () => {
+  const handleDemoAccess = () => {
     if (!isProtocolComplete) return;
-    if (!auth) {
-      toast({ variant: "destructive", title: "Connection Error", description: "Firebase services are unavailable." });
-      return;
-    }
-
-    setIsLoading(true);
-    const provider = new GoogleAuthProvider();
-    try {
-      const res = await signInWithPopup(auth, provider);
-      if (mode === 'signup') {
-        await syncUserProfile(res.user.uid, res.user.email!);
-      }
-      router.push('/discover');
-    } catch (error: any) {
-      toast({ variant: "destructive", title: "Login Failed", description: "Verification failed." });
-    } finally {
-      setIsLoading(false);
-    }
+    toast({
+      title: "Demo Mode Active",
+      description: "Opening the system for exploration. No data will be saved. ✨"
+    });
+    router.push('/discover');
   };
 
   if (authLoading) return <div className="flex items-center justify-center min-h-screen"><Loader2 className="animate-spin text-primary" /></div>;
@@ -165,7 +154,6 @@ function LoginContent() {
         </div>
 
         <Card className="border-none shadow-[0_30px_100px_-10px_rgba(0,0,0,0.08)] rounded-[3.5rem] overflow-hidden bg-white">
-          {/* MANDATORY SECURITY PROTOCOL GATE - ALWAYS VISIBLE */}
           <div className="bg-primary/5 p-8 border-b border-primary/10">
              <div className="flex items-center justify-center gap-2 mb-6">
                 <ShieldCheck className="w-5 h-5 text-primary" />
@@ -203,10 +191,10 @@ function LoginContent() {
             
             <CardContent className="p-10 space-y-8">
               {!auth && (
-                <div className="bg-amber-50 border border-amber-200 p-4 rounded-2xl flex items-start gap-3 mb-4 animate-pulse">
+                <div className="bg-amber-50 border border-amber-200 p-4 rounded-2xl flex items-start gap-3 mb-4">
                   <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
                   <p className="text-[10px] text-amber-700 font-bold uppercase tracking-wider leading-relaxed">
-                    System Initialization: The community connection is still booting up. Please wait...
+                    System Configuration: The community connection is in Safe-Mode. Use "Demo Access" to explore.
                   </p>
                 </div>
               )}
@@ -253,29 +241,29 @@ function LoginContent() {
                 </div>
               </div>
 
-              <div className="pt-4 space-y-6">
+              <div className="pt-4 space-y-4">
                 <Button 
                   onClick={handleAuth} 
-                  disabled={isLoading || !isProtocolComplete || !email || !password || !auth} 
+                  disabled={isLoading || !isProtocolComplete || !email || !password} 
                   className={cn(
                     "w-full h-20 rounded-[2rem] font-black uppercase tracking-[0.3em] text-sm shadow-[0_20px_40px_-10px_rgba(255,51,102,0.4)] active:scale-95 transition-all",
-                    (!isProtocolComplete || !auth) ? "bg-slate-200 text-slate-400" : "gradient-bg"
+                    (!isProtocolComplete) ? "bg-slate-200 text-slate-400" : "gradient-bg"
                   )}
                 >
                   {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : mode === 'signin' ? 'Launch' : 'Join Revolution'}
                 </Button>
                 
-                <Button 
-                  variant="outline" 
-                  onClick={handleGoogleLogin} 
-                  disabled={isLoading || !isProtocolComplete || !auth} 
-                  className="w-full h-16 rounded-[1.5rem] gap-4 font-black uppercase tracking-[0.2em] text-[11px] border-2 border-slate-100 hover:border-primary/20 hover:bg-primary/5 transition-all"
-                >
-                  <div className="w-5 h-5 rounded-full border border-primary/20 flex items-center justify-center">
-                    <Heart className="w-3 x-3 fill-primary text-primary" />
-                  </div>
-                  Quick Access
-                </Button>
+                {!auth && (
+                  <Button 
+                    variant="outline" 
+                    onClick={handleDemoAccess} 
+                    disabled={!isProtocolComplete} 
+                    className="w-full h-16 rounded-[1.5rem] gap-4 font-black uppercase tracking-[0.2em] text-[11px] border-2 border-primary/20 text-primary hover:bg-primary/5 transition-all"
+                  >
+                    <Zap className="w-4 h-4" />
+                    Demo Access (Explore Only)
+                  </Button>
+                )}
               </div>
 
               <p className="text-[9px] text-center text-slate-300 uppercase font-black tracking-[0.3em] pt-4">

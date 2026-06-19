@@ -23,7 +23,7 @@ export function initializeFirebase(): { app: FirebaseApp | null; db: Firestore |
     !firebaseConfig.apiKey.includes('YOUR_');
 
   if (!hasValidConfig) {
-    console.warn("I Love U: Safe-Mode active. Firebase API key is missing or invalid.");
+    console.warn("I Love U: Safe-Mode active. Firebase API key is missing or invalid. Demo Access enabled in UI.");
     return { app: null, db: null, auth: null };
   }
 
