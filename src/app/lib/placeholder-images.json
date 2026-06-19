@@ -1,0 +1,76 @@
+{
+  "placeholderImages": [
+    {
+      "id": "app-logo",
+      "description": "I Love U app logo",
+      "imageUrl": "https://picsum.photos/seed/iloveu-logo/200/200",
+      "imageHint": "happy heart"
+    },
+    {
+      "id": "user-1",
+      "description": "Smiling person profile",
+      "imageUrl": "https://picsum.photos/seed/user1/400/600",
+      "imageHint": "smiling person"
+    },
+    {
+      "id": "user-2",
+      "description": "Portrait man profile",
+      "imageUrl": "https://picsum.photos/seed/user2/400/600",
+      "imageHint": "portrait man"
+    },
+    {
+      "id": "user-3",
+      "description": "Fashion person profile",
+      "imageUrl": "https://picsum.photos/seed/user3/400/600",
+      "imageHint": "fashion person"
+    },
+    {
+      "id": "user-4",
+      "description": "Confident person profile",
+      "imageUrl": "https://picsum.photos/seed/user4/400/600",
+      "imageHint": "confident person"
+    },
+    {
+      "id": "landing-hero",
+      "description": "Pure happiness found here",
+      "imageUrl": "https://picsum.photos/seed/happiness1/1200/800",
+      "imageHint": "happy people"
+    },
+    {
+      "id": "ecommerce-template",
+      "description": "Shopping app preview",
+      "imageUrl": "https://picsum.photos/seed/shop/600/1200",
+      "imageHint": "mobile shopping"
+    },
+    {
+      "id": "social-template",
+      "description": "Social feed preview",
+      "imageUrl": "https://picsum.photos/seed/social/600/1200",
+      "imageHint": "social media"
+    },
+    {
+      "id": "portfolio-template",
+      "description": "Portfolio preview",
+      "imageUrl": "https://picsum.photos/seed/portfolio/600/1200",
+      "imageHint": "creative deck"
+    },
+    {
+      "id": "news-template",
+      "description": "News reader preview",
+      "imageUrl": "https://picsum.photos/seed/news/600/1200",
+      "imageHint": "daily news"
+    },
+    {
+      "id": "chat-template",
+      "description": "Messaging app preview",
+      "imageUrl": "https://picsum.photos/seed/chat/600/1200",
+      "imageHint": "secure chat"
+    },
+    {
+      "id": "fitness-template",
+      "description": "Fitness tracker preview",
+      "imageUrl": "https://picsum.photos/seed/fitness/600/1200",
+      "imageHint": "workout app"
+    }
+  ]
+}

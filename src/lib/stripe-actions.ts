@@ -1,11 +1,11 @@
-
 'use server';
 
 import Stripe from 'stripe';
 import { redirect } from 'next/navigation';
 
 // Use a fallback to prevent build-time crashes if environment variables are missing
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_51PLACEHOLDER_KEY_DO_NOT_USE_IN_PRODUCTION', {
+const stripeSecret = process.env.STRIPE_SECRET_KEY || 'sk_test_51PLACEHOLDER_KEY_DO_NOT_USE_IN_PRODUCTION';
+const stripe = new Stripe(stripeSecret, {
   apiVersion: '2025-01-27.acacia',
 });
 
