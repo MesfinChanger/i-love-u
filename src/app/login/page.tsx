@@ -6,20 +6,17 @@ import { useRouter } from 'next/navigation';
 import { useAuth, useUser } from '@/firebase';
 import { 
   signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword, 
   signInWithPopup, 
   GoogleAuthProvider,
   signInWithPhoneNumber,
   RecaptchaVerifier,
   signInAnonymously,
-  sendSignInLinkToEmail,
-  isSignInWithEmailLink,
-  signInWithEmailLink
+  sendPasswordResetEmail
 } from 'firebase/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Heart, 
@@ -28,11 +25,6 @@ import {
   Chrome, 
   Loader2, 
   ArrowLeft, 
-  ShieldCheck, 
-  UserCheck, 
-  ShieldAlert, 
-  HeartHandshake, 
-  Sparkles, 
   UserCircle,
   Eye,
   EyeOff,
@@ -55,7 +47,7 @@ function LoginContent() {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [verificationCode, setVerificationCode] = useState('');
   
-  const [isVerifying, setIsVerifying] = useState(false); // Common state for "Step 2"
+  const [isVerifying, setIsVerifying] = useState(false); 
   const [authMethod, setAuthMethod] = useState<'email' | 'phone' | null>(null);
   
   const [confirmationResult, setConfirmationResult] = useState<any>(null);
@@ -66,28 +58,6 @@ function LoginContent() {
   const [isBotChecking, setIsBotChecking] = useState(false);
 
   useEffect(() => {
-    // Check for Email Link sign-in on mount
-    if (isSignInWithEmailLink(auth, window.location.href)) {
-      let emailForLink = window.localStorage.getItem('emailForSignIn');
-      if (!emailForLink) {
-        emailForLink = window.prompt('Please provide your email for confirmation');
-      }
-      if (emailForLink) {
-        setIsLoading(true);
-        signInWithEmailLink(auth, emailForLink, window.location.href)
-          .then(() => {
-            window.localStorage.removeItem('emailForSignIn');
-            router.push('/discover');
-          })
-          .catch((error) => {
-            toast({ variant: "destructive", title: "Email Link Failed", description: error.message });
-            setIsLoading(false);
-          });
-      }
-    }
-  }, [auth, router, toast]);
-
-  useEffect(() => {
     if (user && !authLoading) {
       router.push('/discover');
     }
@@ -95,27 +65,15 @@ function LoginContent() {
 
   const validateAccess = () => {
     if (!isAdult) {
-      toast({
-        variant: "destructive",
-        title: "Age Verification Required",
-        description: "You must be 18+ to join the revolution."
-      });
+      toast({ variant: "destructive", title: "Age Verification Required", description: "You must be 18+ to join." });
       return false;
     }
     if (!isRespectful) {
-      toast({
-        variant: "destructive",
-        title: "Respect Policy",
-        description: "Please pledge to bring love and respect."
-      });
+      toast({ variant: "destructive", title: "Respect Policy", description: "Please pledge to bring love and respect." });
       return false;
     }
     if (!isHuman) {
-      toast({
-        variant: "destructive",
-        title: "Security Check",
-        description: "Please confirm you are a human."
-      });
+      toast({ variant: "destructive", title: "Security Check", description: "Please confirm you are a human." });
       return false;
     }
     return true;
@@ -134,25 +92,28 @@ function LoginContent() {
     }
   };
 
-  // Step 1: Send Authentication Code / Link
-  const handleStartEmailAuth = async () => {
-    if (!validateAccess() || !email) return;
+  const handleEmailLogin = async () => {
+    if (!validateAccess() || !email || !password) return;
     setIsLoading(true);
-    
-    const actionCodeSettings = {
-      url: window.location.origin + '/login',
-      handleCodeInApp: true,
-    };
-
     try {
-      await sendSignInLinkToEmail(auth, email, actionCodeSettings);
-      window.localStorage.setItem('emailForSignIn', email);
-      setAuthMethod('email');
-      setIsVerifying(true);
-      toast({
-        title: "Verification Sent",
-        description: "A secure authentication link has been sent to your email. ❤️"
-      });
+      await signInWithEmailAndPassword(auth, email, password);
+      router.push('/discover');
+    } catch (error: any) {
+      toast({ variant: "destructive", title: "Login Failed", description: error.message });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    if (!email) {
+      toast({ variant: "destructive", title: "Email Required", description: "Please enter your email address first." });
+      return;
+    }
+    setIsLoading(true);
+    try {
+      await sendPasswordResetEmail(auth, email);
+      toast({ title: "Reset Email Sent", description: "Check your inbox for the password reset link. ❤️" });
     } catch (error: any) {
       toast({ variant: "destructive", title: "Error", description: error.message });
     } finally {
@@ -237,39 +198,28 @@ function LoginContent() {
       <div className="flex flex-col min-h-screen bg-muted/30 items-center justify-center p-4">
         <Card className="w-full max-w-md border-none shadow-2xl rounded-[3.5rem] p-12 bg-white text-center space-y-8">
            <div className="w-24 h-24 bg-primary/10 rounded-[2.5rem] flex items-center justify-center mx-auto shadow-inner">
-             {authMethod === 'email' ? <Mail className="w-10 h-10 text-primary" /> : <Phone className="w-10 h-10 text-primary" />}
+             <Phone className="w-10 h-10 text-primary" />
            </div>
            
            <div className="space-y-2">
              <h2 className="text-3xl font-black tracking-tighter uppercase">Step 2: Verification</h2>
              <p className="text-muted-foreground text-sm leading-relaxed">
-               {authMethod === 'email' 
-                 ? `We sent a secure link to ${email}. Please check your inbox (and spam) to complete sign in.` 
-                 : `Enter the 6-digit code sent to ${phoneNumber}.`}
+               Enter the 6-digit code sent to {phoneNumber}.
              </p>
            </div>
 
-           {authMethod === 'phone' && (
-             <div className="space-y-6">
-                <Input 
-                  type="text" 
-                  placeholder="000000" 
-                  value={verificationCode} 
-                  onChange={e => setVerificationCode(e.target.value)}
-                  className="rounded-2xl h-16 text-3xl font-black text-center tracking-[0.5em] bg-muted/20 border-none"
-                />
-                <Button onClick={handleVerifyPhoneCode} disabled={isLoading || verificationCode.length < 6} className="w-full h-16 rounded-2xl gradient-bg font-black uppercase text-xs tracking-widest shadow-xl shadow-primary/20">
-                  {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Confirm Code'}
-                </Button>
-             </div>
-           )}
-
-           {authMethod === 'email' && (
-             <div className="bg-green-50 p-6 rounded-3xl border border-green-100 flex items-center gap-4 text-left">
-                <CheckCircle2 className="w-6 h-6 text-green-600 shrink-0" />
-                <p className="text-xs text-green-800 font-bold uppercase tracking-tight">Email Link active. Keep this window open or return here once you click the link.</p>
-             </div>
-           )}
+           <div className="space-y-6">
+              <Input 
+                type="text" 
+                placeholder="000000" 
+                value={verificationCode} 
+                onChange={e => setVerificationCode(e.target.value)}
+                className="rounded-2xl h-16 text-3xl font-black text-center tracking-[0.5em] bg-muted/20 border-none"
+              />
+              <Button onClick={handleVerifyPhoneCode} disabled={isLoading || verificationCode.length < 6} className="w-full h-16 rounded-2xl gradient-bg font-black uppercase text-xs tracking-widest shadow-xl shadow-primary/20">
+                {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Confirm Code'}
+              </Button>
+           </div>
 
            <Button variant="ghost" onClick={() => setIsVerifying(false)} className="w-full text-muted-foreground font-black uppercase text-[10px] tracking-widest">
              <ArrowLeft className="w-3 h-3 mr-2" />
@@ -374,7 +324,16 @@ function LoginContent() {
                   <Input id="email" type="email" placeholder="heart@iloveu.com" value={email} onChange={(e) => setEmail(e.target.value)} className="rounded-[1.5rem] h-14 bg-muted/20 border-none px-8 text-lg font-bold" />
                 </div>
                 <div className="space-y-3">
-                  <Label htmlFor="password" id="pass-label" className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 ml-2">Secure Phrase</Label>
+                  <div className="flex justify-between items-center ml-2">
+                    <Label htmlFor="password" id="pass-label" className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Secure Phrase</Label>
+                    <Button 
+                      variant="link" 
+                      onClick={handleForgotPassword} 
+                      className="text-[9px] font-black uppercase tracking-widest text-primary h-auto p-0 hover:no-underline"
+                    >
+                      Forgot?
+                    </Button>
+                  </div>
                   <div className="relative">
                     <Input 
                       id="password" 
@@ -393,8 +352,8 @@ function LoginContent() {
                     </Button>
                   </div>
                 </div>
-                <Button onClick={handleStartEmailAuth} disabled={isLoading || isBotChecking || !email} className="w-full h-16 rounded-[1.5rem] gradient-bg font-black uppercase tracking-widest text-xs shadow-xl shadow-primary/20">
-                  {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Get Authentication Code'}
+                <Button onClick={handleEmailLogin} disabled={isLoading || isBotChecking || !email || !password} className="w-full h-16 rounded-[1.5rem] gradient-bg font-black uppercase tracking-widest text-xs shadow-xl shadow-primary/20">
+                  {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Launch Spark'}
                 </Button>
               </TabsContent>
 
