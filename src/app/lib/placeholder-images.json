@@ -8,37 +8,37 @@
     },
     {
       "id": "user-1",
-      "description": "Diverse woman from East Asia",
-      "imageUrl": "https://picsum.photos/seed/female-asia-global-high/800/1200",
+      "description": "Woman from East Asia",
+      "imageUrl": "https://picsum.photos/seed/female-asia-high/800/1200",
       "imageHint": "woman asia"
     },
     {
       "id": "user-2",
-      "description": "Diverse woman from Sub-Saharan Africa",
-      "imageUrl": "https://picsum.photos/seed/female-africa-global-high/800/1200",
+      "description": "Woman from Sub-Saharan Africa",
+      "imageUrl": "https://picsum.photos/seed/female-africa-high/800/1200",
       "imageHint": "woman africa"
     },
     {
       "id": "user-3",
-      "description": "Diverse woman from Northern Europe",
-      "imageUrl": "https://picsum.photos/seed/female-europe-global-high/800/1200",
+      "description": "Woman from Europe",
+      "imageUrl": "https://picsum.photos/seed/female-europe-high/800/1200",
       "imageHint": "woman europe"
     },
     {
       "id": "user-4",
-      "description": "Diverse woman from Latin America",
-      "imageUrl": "https://picsum.photos/seed/female-americas-global-high/800/1200",
+      "description": "Woman from Americas",
+      "imageUrl": "https://picsum.photos/seed/female-americas-high/800/1200",
       "imageHint": "woman americas"
     },
     {
       "id": "user-5",
-      "description": "Diverse woman from Middle East",
-      "imageUrl": "https://picsum.photos/seed/female-mideast-global-high/800/1200",
+      "description": "Woman from Middle East",
+      "imageUrl": "https://picsum.photos/seed/female-mideast-high/800/1200",
       "imageHint": "woman portrait"
     },
     {
       "id": "landing-hero",
-      "description": "Global representative community gallery",
+      "description": "Diverse women from around the world gallery",
       "imageUrl": "https://picsum.photos/seed/women-world-high/1200/1600",
       "imageHint": "diverse women"
     }
