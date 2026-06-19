@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect, Suspense } from 'react';
@@ -21,14 +20,11 @@ import {
   ArrowLeft, 
   Eye,
   EyeOff,
-  Chrome,
   Globe,
-  Sparkles,
-  UserCheck
+  Sparkles
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 
@@ -98,6 +94,9 @@ function LoginContent() {
       country: country || 'GLOBAL',
       age: 18,
       isDatingEnabled: true,
+      isAgeVerified,
+      isRespectful,
+      isHuman,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     };
@@ -121,7 +120,7 @@ function LoginContent() {
       if (mode === 'signup') {
         const res = await createUserWithEmailAndPassword(auth, email, password);
         await syncUserProfile(res.user.uid, email);
-        toast({ title: "Welcome!", description: "Account created. Sync your identity in Profile. ❤️" });
+        toast({ title: "Welcome!", description: "Account created. ❤️" });
       } else {
         await signInWithEmailAndPassword(auth, email, password);
       }
@@ -158,18 +157,15 @@ function LoginContent() {
 
   return (
     <div className="flex flex-col min-h-screen bg-[#fcfcfc] items-center justify-center p-6 relative overflow-hidden">
-      {/* Home Link */}
       <Link href="/" className="absolute top-12 left-10 flex items-center gap-2 text-slate-400 hover:text-primary transition-colors font-bold text-[10px] uppercase tracking-widest">
         <ArrowLeft className="w-3.5 h-3.5" />
         Home
       </Link>
 
-      {/* Decorative 'N' Icon */}
       <div className="absolute left-8 top-1/2 -translate-y-1/2 w-10 h-10 bg-slate-800 text-white rounded-full flex items-center justify-center font-black text-xs shadow-lg hidden md:flex">
         N
       </div>
 
-      {/* Floating Spark Assistant Icon */}
       <div className="absolute right-8 top-1/2 -translate-y-1/2 group cursor-pointer hidden md:block">
         <div className="w-14 h-14 rounded-full gradient-bg flex items-center justify-center shadow-2xl relative">
           <Heart className="w-6 h-6 fill-white text-white" />
@@ -193,37 +189,27 @@ function LoginContent() {
         <Card className="border-none shadow-[0_30px_100px_-10px_rgba(0,0,0,0.08)] rounded-[3.5rem] overflow-hidden bg-white">
           <Tabs value={mode} onValueChange={(v) => setMode(v as 'signin' | 'signup')} className="w-full">
             <TabsList className="w-full grid grid-cols-2 h-16 bg-white p-1 border-b">
-              <TabsTrigger value="signin" className="rounded-t-[1.5rem] text-[11px] font-black uppercase tracking-[0.2em] data-[state=active]:bg-white data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary transition-all">Sign In</TabsTrigger>
-              <TabsTrigger value="signup" className="rounded-t-[1.5rem] text-[11px] font-black uppercase tracking-[0.2em] data-[state=active]:bg-white data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary transition-all">Join</TabsTrigger>
+              <TabsTrigger value="signin" className="rounded-t-[1.5rem] text-[11px] font-black uppercase tracking-[0.2em] transition-all">Sign In</TabsTrigger>
+              <TabsTrigger value="signup" className="rounded-t-[1.5rem] text-[11px] font-black uppercase tracking-[0.2em] transition-all">Join</TabsTrigger>
             </TabsList>
             <CardContent className="p-10 space-y-10">
-              {/* Security Box */}
               <div className="bg-primary/5 p-8 rounded-[2.5rem] space-y-4">
-                  <div className="flex items-center space-x-4">
-                    <div 
-                      className={cn("w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all cursor-pointer", isAgeVerified ? "border-primary bg-primary" : "border-slate-200")}
-                      onClick={() => setIsAgeVerified(!isAgeVerified)}
-                    >
+                  <div className="flex items-center space-x-4 cursor-pointer" onClick={() => setIsAgeVerified(!isAgeVerified)}>
+                    <div className={cn("w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all", isAgeVerified ? "border-primary bg-primary" : "border-slate-200")}>
                       {isAgeVerified && <div className="w-2 h-2 rounded-full bg-white" />}
                     </div>
                     <span className="text-[10px] font-black uppercase tracking-widest text-primary/80">I AM 18+ YEARS OLD</span>
                   </div>
                   <div className="h-px bg-primary/10 w-full" />
-                  <div className="flex items-center space-x-4">
-                    <div 
-                      className={cn("w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all cursor-pointer", isRespectful ? "border-primary bg-primary" : "border-slate-200")}
-                      onClick={() => setIsRespectful(!isRespectful)}
-                    >
+                  <div className="flex items-center space-x-4 cursor-pointer" onClick={() => setIsRespectful(!isRespectful)}>
+                    <div className={cn("w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all", isRespectful ? "border-primary bg-primary" : "border-slate-200")}>
                       {isRespectful && <div className="w-2 h-2 rounded-full bg-white" />}
                     </div>
                     <span className="text-[10px] font-black uppercase tracking-widest text-primary/80">RESPECT & LOVE IS MANDATORY</span>
                   </div>
                   <div className="h-px bg-primary/10 w-full" />
-                  <div className="flex items-center space-x-4">
-                    <div 
-                      className={cn("w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all cursor-pointer", isHuman ? "border-primary bg-primary" : "border-slate-200")}
-                      onClick={() => setIsHuman(!isHuman)}
-                    >
+                  <div className="flex items-center space-x-4 cursor-pointer" onClick={() => setIsHuman(!isHuman)}>
+                    <div className={cn("w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all", isHuman ? "border-primary bg-primary" : "border-slate-200")}>
                       {isHuman && <div className="w-2 h-2 rounded-full bg-white" />}
                     </div>
                     <div className="flex items-center gap-2">
