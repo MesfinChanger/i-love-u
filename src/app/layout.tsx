@@ -5,6 +5,7 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { FirebaseClientProvider } from '@/firebase';
 import { Toaster } from '@/components/ui/toaster';
+import { SparkAssistant } from '@/components/SparkAssistant';
 
 export default function RootLayout({
   children,
@@ -47,6 +48,7 @@ export default function RootLayout({
       <body className="font-body antialiased min-h-screen flex flex-col bg-background text-foreground">
         <FirebaseClientProvider>
           {children}
+          <SparkAssistant />
           <Toaster />
         </FirebaseClientProvider>
       </body>

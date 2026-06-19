@@ -8,3 +8,4 @@ import '@/ai/flows/moderate-image-flow.ts';
 import '@/ai/flows/moderate-text-flow.ts';
 import '@/ai/flows/generate-bio-flow.ts';
 import '@/ai/flows/generate-icebreaker-flow.ts';
+import '@/ai/flows/spark-assistant-flow.ts';
