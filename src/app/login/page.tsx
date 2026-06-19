@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect, Suspense } from 'react';
@@ -101,7 +100,7 @@ function LoginContent() {
           return;
         }
         const res = await createUserWithEmailAndPassword(auth, email, password);
-        await syncUserProfile(res.resUser!.user.uid, email);
+        await syncUserProfile(res.user.uid, email);
         toast({ title: "Welcome!", description: "Account created successfully. ❤️" });
       } else {
         await signInWithEmailAndPassword(auth, email, password);
@@ -215,7 +214,7 @@ function LoginContent() {
                         <SelectValue placeholder="SELECT YOUR REGION" />
                       </div>
                     </SelectTrigger>
-                    <SelectContent className="max-h-80">
+                    <SelectContent className="max-h-80 overflow-y-auto">
                       {COUNTRIES.map(c => <SelectItem key={c.code} value={c.code}>{c.name}</SelectItem>)}
                     </SelectContent>
                   </Select>
