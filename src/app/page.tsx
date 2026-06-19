@@ -54,51 +54,51 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
       <header className="fixed top-0 z-50 w-full border-b bg-background/80 backdrop-blur-md">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+        <div className="container mx-auto px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="relative shiny-icon p-1 rounded-lg bg-primary/5">
-              <Heart className="w-5 h-5 fill-primary text-primary animate-heartbeat" />
+              <Heart className="w-4 h-4 fill-primary text-primary animate-heartbeat" />
             </div>
             <div className="flex flex-col leading-none">
-              <span className="font-black text-base tracking-tighter text-primary">I LOVE</span>
-              <span className="font-black text-[5px] tracking-[0.4em] text-muted-foreground ml-0.5 uppercase">YOU</span>
+              <span className="font-black text-sm tracking-tighter text-primary">I LOVE</span>
+              <span className="font-black text-[4px] tracking-[0.4em] text-muted-foreground ml-0.5 uppercase">YOU</span>
             </div>
           </div>
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" asChild className="font-black text-[9px] uppercase tracking-widest text-primary hover:bg-primary/5 rounded-full px-4 h-9">
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" asChild className="font-black text-[8px] uppercase tracking-widest text-primary hover:bg-primary/5 rounded-full px-3 h-8">
               <Link href="/login">Login</Link>
             </Button>
-            <Button className="rounded-full px-6 h-9 gradient-bg hover:opacity-90 transition-opacity font-black shadow-lg shadow-primary/20 uppercase text-[9px] tracking-[0.1em]" asChild>
+            <Button className="rounded-full px-5 h-8 gradient-bg hover:opacity-90 transition-opacity font-black shadow-lg shadow-primary/20 uppercase text-[8px] tracking-[0.1em]" asChild>
               <Link href="/login">Join Now</Link>
             </Button>
           </div>
         </div>
       </header>
 
-      <main className="flex-grow pt-16">
-        <section className="relative py-12 lg:py-24 overflow-hidden bg-gradient-to-b from-primary/5 to-white">
+      <main className="flex-grow pt-14">
+        <section className="relative py-12 lg:py-20 overflow-hidden bg-gradient-to-b from-primary/5 to-white">
           <div className="container mx-auto px-4 grid lg:grid-cols-2 gap-12 items-center text-center lg:text-left">
             <div className="space-y-8 z-10">
               <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white/95 backdrop-blur-3xl text-primary border border-primary/10 shadow-md">
                 <Globe className="w-4 h-4 animate-spin-slow text-secondary" />
                 <div className="flex flex-col items-start leading-tight">
                    <p className="text-[7px] font-black uppercase tracking-[0.4em] text-muted-foreground/60">Global Mission</p>
-                   <span className="text-sm font-black transition-all duration-700 uppercase tracking-tighter shiny-text">
+                   <span className="text-xs font-black transition-all duration-700 uppercase tracking-tighter shiny-text">
                     {mounted ? LOVE_TRANSLATIONS[langIndex].text : "I Love U"} {mounted ? LOVE_TRANSLATIONS[langIndex].icon : "❤️"}
                   </span>
                 </div>
               </div>
               
               <div className="space-y-2">
-                <h1 className="text-4xl lg:text-[5rem] font-black leading-none tracking-tighter animate-in zoom-in duration-1000">
+                <h1 className="text-3xl lg:text-7xl font-black leading-none tracking-tighter animate-in zoom-in duration-1000">
                   <span className="shiny-text">I LOVE U</span>
                 </h1>
-                <p className="text-[10px] lg:text-xs font-black tracking-[0.5em] text-primary uppercase opacity-80">
+                <p className="text-[8px] lg:text-[10px] font-black tracking-[0.5em] text-primary uppercase opacity-80">
                   The AI Dating Revolution
                 </p>
               </div>
 
-              <p className="text-lg text-muted-foreground max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
+              <p className="text-base lg:text-lg text-muted-foreground max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
                 Find Your Heart. Uplifting Worlds. <br/>
                 Your happiness ends poverty through <span className="text-primary font-black underline decoration-secondary/30 underline-offset-8">Global Job Creation</span>.
               </p>
@@ -117,10 +117,10 @@ export default function Home() {
             </div>
 
             <div className="flex justify-center lg:justify-end">
-              <div className="relative w-full max-w-md lg:max-w-lg">
-                <div className="absolute -inset-10 bg-primary/20 rounded-full blur-[100px] -z-10 animate-pulse" />
+              <div className="relative w-full max-w-lg lg:max-w-xl">
+                <div className="absolute -inset-10 bg-primary/20 rounded-full blur-[120px] -z-10 animate-pulse" />
                 
-                <div className="relative aspect-[4/5] rounded-[3.5rem] overflow-hidden shadow-2xl transition-all duration-1000 border-[12px] border-white group bg-muted">
+                <div className="relative aspect-[4/5] rounded-[4rem] overflow-hidden shadow-2xl transition-all duration-1000 border-[16px] border-white group bg-muted">
                   {mounted && dynamicImages.map((img, i) => (
                     <div 
                       key={img.id}
@@ -141,21 +141,21 @@ export default function Home() {
                   ))}
 
                   {/* Spark Match Badge overlays the Dynamic Pic */}
-                  <div className="absolute top-8 left-8 z-20 bg-white/90 backdrop-blur-md px-5 py-3 rounded-2xl border border-primary/10 shadow-2xl flex flex-col gap-0.5 animate-in slide-in-from-left-4 duration-700">
+                  <div className="absolute top-10 left-10 z-20 bg-white/90 backdrop-blur-md px-6 py-4 rounded-3xl border border-primary/10 shadow-2xl flex flex-col gap-0.5 animate-in slide-in-from-left-4 duration-700">
                     <div className="flex items-center gap-2">
-                       <Heart className="w-4 h-4 text-primary fill-primary animate-heartbeat" />
-                       <span className="text-[10px] font-black uppercase tracking-widest text-primary">Spark Match</span>
+                       <Heart className="w-5 h-5 text-primary fill-primary animate-heartbeat" />
+                       <span className="text-[11px] font-black uppercase tracking-widest text-primary">Spark Match</span>
                     </div>
-                    <p className="text-[7px] text-muted-foreground font-black uppercase tracking-widest leading-none">Connect with Purpose</p>
+                    <p className="text-[8px] text-muted-foreground font-black uppercase tracking-widest leading-none">Connect with Purpose</p>
                   </div>
 
-                  <div className="absolute bottom-8 right-8 z-20 flex gap-1.5">
+                  <div className="absolute bottom-10 right-10 z-20 flex gap-2">
                     {dynamicImages.map((_, i) => (
                       <div 
                         key={i} 
                         className={cn(
-                          "h-1.5 rounded-full transition-all duration-500",
-                          imageIndex === i ? "w-6 bg-white" : "w-1.5 bg-white/40"
+                          "h-2 rounded-full transition-all duration-500",
+                          imageIndex === i ? "w-8 bg-white shadow-lg" : "w-2 bg-white/40"
                         )} 
                       />
                     ))}
@@ -168,7 +168,7 @@ export default function Home() {
 
         <section className="py-20 bg-white">
           <div className="container mx-auto px-4 text-center">
-            <h2 className="text-2xl lg:text-3xl font-black mb-12 tracking-tighter uppercase leading-none">
+            <h2 className="text-xl lg:text-2xl font-black mb-12 tracking-tighter uppercase leading-none">
               Dating with a <span className="text-primary">Human Pulse</span>
             </h2>
             <div className="grid md:grid-cols-3 gap-8">

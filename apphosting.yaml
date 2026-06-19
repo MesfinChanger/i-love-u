@@ -5,7 +5,7 @@ runConfig:
   memoryMiB: 512
 env:
   - variable: NEXT_PUBLIC_FIREBASE_API_KEY
-    value: ""
+    value: "" # Set this in the Firebase Console Secrets or Env vars
   - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
     value: "spark-dating.firebaseapp.com"
   - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID

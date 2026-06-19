@@ -1,7 +1,7 @@
 /**
  * Firebase configuration object.
- * Uses environment variables for production and falls back to safe empty strings
- * to prevent the 'api-key-not-valid' error from using broken placeholder text.
+ * This file pulls from environment variables defined in .env or apphosting.yaml.
+ * If the API key is missing, authentication will fail with 'auth/api-key-not-valid'.
  */
 export const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "",
