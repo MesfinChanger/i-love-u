@@ -6,7 +6,7 @@ import { useAuth } from '../provider';
 
 /**
  * @fileOverview Resilient User Hook.
- * Hardened to handle missing Auth instances without throwing TypeErrors.
+ * Hardened to handle missing Auth instances gracefully.
  */
 export function useUser() {
   const auth = useAuth();
@@ -14,27 +14,24 @@ export function useUser() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // If auth is null (Config error), we can't listen for state changes
+    // If auth is not yet available, we stay in loading state
     if (!auth) {
-      setLoading(false);
-      return;
+      // Small timeout to prevent immediate flickering if it's just a initialization ripple
+      const timer = setTimeout(() => {
+        if (!auth) setLoading(false);
+      }, 2000);
+      return () => clearTimeout(timer);
     }
 
-    try {
-      // Standalone modular function call
-      const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-        setUser(firebaseUser);
-        setLoading(false);
-      }, (error) => {
-        console.warn("I Love U: Auth observer error handled.", error);
-        setLoading(false);
-      });
-      
-      return () => unsubscribe();
-    } catch (e) {
-      console.warn("I Love U: Auth state listener bypass:", e);
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      setUser(firebaseUser);
       setLoading(false);
-    }
+    }, (error) => {
+      console.error("I Love U: Auth observer error:", error);
+      setLoading(false);
+    });
+    
+    return () => unsubscribe();
   }, [auth]);
 
   return { user, loading };

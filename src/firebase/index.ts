@@ -8,7 +8,7 @@ import { firebaseConfig } from './config';
 
 /**
  * @fileOverview Standard Firebase Initializer with Safety Guards.
- * Hardened to prevent root-level crashes when API keys are missing or invalid.
+ * Hardened to prevent root-level crashes while allowing services to boot when ready.
  */
 export function initializeFirebase(): { 
   app: FirebaseApp | null; 
@@ -21,48 +21,28 @@ export function initializeFirebase(): {
     return { app: null, db: null, auth: null, storage: null };
   }
 
-  // Defensive Check: Validate basic config existence before any SDK calls
-  if (!firebaseConfig.apiKey || firebaseConfig.apiKey === "") {
-    console.warn("I Love U: Firebase API Key is missing. System operating in limited mode.");
+  // If no API Key is provided, we return null to allow the UI to show a "Safe Mode" or setup guide
+  if (!firebaseConfig.apiKey) {
+    console.warn("I Love U: Firebase API Key is missing. Check your environment variables.");
     return { app: null, db: null, auth: null, storage: null };
   }
 
   try {
-    // 1. Initialize App
     const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
     
-    // 2. Initialize individual services with extreme caution
-    let db: Firestore | null = null;
-    let auth: Auth | null = null;
-    let storage: FirebaseStorage | null = null;
-
-    try {
-      db = getFirestore(app);
-    } catch (e) {
-      console.warn("I Love U: Firestore initialization failed.", e);
-    }
-
-    try {
-      // Auth initialization is where invalid API keys usually trigger crashes
-      auth = getAuth(app);
-    } catch (e) {
-      console.warn("I Love U: Auth initialization failed (Invalid API Key).", e);
-    }
-
-    try {
-      storage = getStorage(app);
-    } catch (e) {
-      console.warn("I Love U: Storage initialization failed.", e);
-    }
+    // Initialize services with individual safety wrappers
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+    const storage = getStorage(app);
     
     return { app, db, auth, storage };
   } catch (error) {
-    console.error("I Love U: Platform initialization critical failure:", error);
+    console.error("I Love U: Platform initialization failure:", error);
     return { app: null, db: null, auth: null, storage: null };
   }
 }
 
-// Barrel exports
+// Barrel exports for convenient access
 export * from './auth/use-user';
 export * from './firestore/use-collection';
 export * from './firestore/use-doc';

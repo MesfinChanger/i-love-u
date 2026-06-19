@@ -21,9 +21,8 @@ import {
   Globe,
   ShieldCheck,
   CheckCircle2,
-  AlertTriangle,
-  Zap,
-  ShieldAlert
+  ShieldAlert,
+  Zap
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
@@ -73,7 +72,7 @@ function LoginContent() {
       toast({ 
         variant: "destructive", 
         title: "Connection Error", 
-        description: "The prosperity network is currently initializing. Please try again in a moment. ❤️" 
+        description: "The prosperity network is finalizing its regional bridge. Please wait a moment. ❤️" 
       });
       return;
     }
@@ -88,7 +87,6 @@ function LoginContent() {
         }
         const res = await createUserWithEmailAndPassword(auth, email, password);
         
-        // Sync Profile
         if (db) {
            await setDoc(doc(db, 'users', res.user.uid), {
             uid: res.user.uid,
@@ -107,6 +105,7 @@ function LoginContent() {
       }
       router.push('/discover');
     } catch (error: any) {
+      console.error(error);
       toast({ variant: "destructive", title: "Access Denied", description: "Check your phrase or try joining us first." });
     } finally {
       setIsLoading(false);
@@ -134,12 +133,14 @@ function LoginContent() {
         </div>
 
         {!auth && (
-          <div className="bg-amber-50 border border-amber-200 p-4 rounded-3xl flex items-start gap-4 mb-6 animate-in slide-in-from-top-4">
-             <ShieldAlert className="w-6 h-6 text-amber-600 shrink-0 mt-0.5" />
+          <div className="bg-primary/5 border border-primary/20 p-6 rounded-[2.5rem] flex items-start gap-4 mb-6 animate-in slide-in-from-top-4">
+             <div className="w-10 h-10 rounded-2xl bg-white flex items-center justify-center shadow-sm">
+                <Zap className="w-5 h-5 text-primary animate-pulse" />
+             </div>
              <div className="space-y-1">
-                <p className="text-[10px] font-black uppercase tracking-widest text-amber-800">Connection Initializing</p>
-                <p className="text-[9px] text-amber-700 font-bold leading-relaxed uppercase opacity-80">
-                  The network is securing your region. Please ensure your credentials are provisioned in the console.
+                <p className="text-[10px] font-black uppercase tracking-widest text-primary">Regional Bridge Initializing</p>
+                <p className="text-[9px] text-muted-foreground font-bold leading-relaxed uppercase opacity-80">
+                  The network is securing your region. If this takes more than a minute, ensure your environment variables are correctly set in the console.
                 </p>
              </div>
           </div>
@@ -238,7 +239,7 @@ function LoginContent() {
               </div>
 
               <p className="text-[9px] text-center text-slate-300 uppercase font-black tracking-[0.3em] pt-4">
-                © {currentYear || 'Prosperity Revolution'} • Global Security Protocol
+                © {currentYear} • Global Security Protocol
               </p>
             </CardContent>
           </Tabs>

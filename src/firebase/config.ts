@@ -8,12 +8,10 @@ const getEnv = (key: string) => {
   const val = process.env[key];
   
   // Defensive check for common placeholder strings or literal "undefined"
-  // Next.js sometimes injects "undefined" as a string if the variable is missing
   if (!val || 
       val === "YOUR_API_KEY" || 
       val === "undefined" || 
-      val === "" || 
-      val.startsWith('AIza') === false // Firebase API keys always start with AIza
+      val === ""
   ) {
     return "";
   }
