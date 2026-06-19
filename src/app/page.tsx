@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -57,17 +56,23 @@ export default function Home() {
       <main className="flex-grow pt-24">
         <section className="relative py-20 lg:py-32 overflow-hidden bg-gradient-to-b from-primary/5 to-white">
           <div className="container mx-auto px-4 grid lg:grid-cols-2 gap-16 items-center">
-            <div className="space-y-10 text-center lg:text-left z-10">
-              <div className="inline-flex items-center gap-4 px-6 py-3 rounded-full bg-white text-primary text-base font-black border-2 border-primary/10 shadow-xl shadow-primary/5">
-                <Globe className="w-5 h-5 animate-spin-slow" />
-                <span className="transition-all duration-500 ease-in-out min-w-[180px] uppercase tracking-widest">
+            <div className="space-y-8 text-center lg:text-left z-10">
+              <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white/80 backdrop-blur-sm text-primary text-xs font-black border border-primary/10 shadow-sm">
+                <Globe className="w-4 h-4 animate-spin-slow" />
+                <span className="transition-all duration-500 ease-in-out uppercase tracking-[0.2em]">
                   {LOVE_TRANSLATIONS[langIndex].text} {LOVE_TRANSLATIONS[langIndex].icon}
                 </span>
               </div>
-              <h1 className="text-7xl lg:text-9xl font-black leading-tight tracking-tighter">
-                U + Love = <br />
-                <span className="gradient-text">Prosperity</span>
-              </h1>
+              
+              <div className="space-y-2">
+                <h1 className="text-[15vw] lg:text-[12rem] font-black leading-none tracking-tighter animate-in zoom-in duration-1000">
+                  <span className="shiny-text drop-shadow-[0_15px_30px_rgba(255,51,102,0.35)]">I LOVE U</span>
+                </h1>
+                <p className="text-2xl lg:text-3xl font-black tracking-[0.3em] text-muted-foreground uppercase opacity-80">
+                  U + Love = <span className="text-primary">Prosperity</span>
+                </p>
+              </div>
+
               <p className="text-2xl text-muted-foreground max-w-lg mx-auto lg:mx-0 leading-relaxed font-medium">
                 Connect Hearts. Uplifting Worlds. <br/>
                 We are on a mandatory mission to <span className="text-primary font-black underline decoration-primary/20">Eliminate Poverty</span> through global job creation. 
@@ -100,7 +105,6 @@ export default function Home() {
                     fill 
                     className="object-cover"
                     priority
-                    data-ai-hint="prosperous diverse communities"
                   />
                 )}
               </div>
