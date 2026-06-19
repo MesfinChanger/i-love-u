@@ -8,69 +8,33 @@
     },
     {
       "id": "user-1",
-      "description": "Happiness profile user 1",
-      "imageUrl": "https://picsum.photos/seed/user1/400/600",
-      "imageHint": "smiling person"
+      "description": "Woman from Asia",
+      "imageUrl": "https://picsum.photos/seed/female-asia/600/800",
+      "imageHint": "woman asia"
     },
     {
       "id": "user-2",
-      "description": "Happiness profile user 2",
-      "imageUrl": "https://picsum.photos/seed/user2/400/600",
-      "imageHint": "portrait man"
+      "description": "Woman from Africa",
+      "imageUrl": "https://picsum.photos/seed/female-africa/600/800",
+      "imageHint": "woman africa"
     },
     {
       "id": "user-3",
-      "description": "Happiness profile user 3",
-      "imageUrl": "https://picsum.photos/seed/user3/400/600",
-      "imageHint": "fashion person"
+      "description": "Woman from Europe",
+      "imageUrl": "https://picsum.photos/seed/female-europe/600/800",
+      "imageHint": "woman europe"
     },
     {
       "id": "user-4",
-      "description": "Happiness profile user 4",
-      "imageUrl": "https://picsum.photos/seed/user4/400/600",
-      "imageHint": "confident person"
+      "description": "Woman from Americas",
+      "imageUrl": "https://picsum.photos/seed/female-americas/600/800",
+      "imageHint": "woman americas"
     },
     {
       "id": "landing-hero",
-      "description": "Pure happiness found here",
-      "imageUrl": "https://picsum.photos/seed/happiness1/1200/800",
-      "imageHint": "happy people"
-    },
-    {
-      "id": "ecommerce-template",
-      "description": "Shopping app preview",
-      "imageUrl": "https://picsum.photos/seed/shop/600/1200",
-      "imageHint": "mobile shopping"
-    },
-    {
-      "id": "social-template",
-      "description": "Social feed preview",
-      "imageUrl": "https://picsum.photos/seed/social/600/1200",
-      "imageHint": "social media"
-    },
-    {
-      "id": "portfolio-template",
-      "description": "Portfolio preview",
-      "imageUrl": "https://picsum.photos/seed/portfolio/600/1200",
-      "imageHint": "creative deck"
-    },
-    {
-      "id": "news-template",
-      "description": "News reader preview",
-      "imageUrl": "https://picsum.photos/seed/news/600/1200",
-      "imageHint": "daily news"
-    },
-    {
-      "id": "chat-template",
-      "description": "Messaging app preview",
-      "imageUrl": "https://picsum.photos/seed/chat/600/1200",
-      "imageHint": "secure chat"
-    },
-    {
-      "id": "fitness-template",
-      "description": "Fitness tracker preview",
-      "imageUrl": "https://picsum.photos/seed/fitness/600/1200",
-      "imageHint": "workout app"
+      "description": "Diverse women from around the world",
+      "imageUrl": "https://picsum.photos/seed/women-world/1200/800",
+      "imageHint": "diverse women"
     }
   ]
 }
