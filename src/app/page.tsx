@@ -37,7 +37,7 @@ export default function Home() {
         <div className="container mx-auto px-4 h-24 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="relative shiny-icon p-2 rounded-2xl bg-primary/5">
-              <Heart className="w-16 h-16 fill-primary text-primary animate-pulse" />
+              <Heart className="w-16 h-16 fill-primary text-primary animate-heartbeat" />
             </div>
             <div className="flex flex-col leading-none">
               <span className="font-black text-4xl tracking-tighter text-primary">I LOVE</span>

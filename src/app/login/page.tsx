@@ -196,7 +196,7 @@ export default function LoginPage() {
         <div className="text-center space-y-4">
           <div className="flex flex-col items-center justify-center gap-6 group">
             <div className="shiny-icon p-4 rounded-[2.5rem] bg-primary/5">
-              <Heart className="w-32 h-32 fill-primary text-primary group-hover:scale-110 transition-transform animate-pulse" />
+              <Heart className="w-32 h-32 fill-primary text-primary group-hover:scale-110 transition-transform animate-heartbeat" />
             </div>
             <div className="flex flex-col text-center leading-none">
               <span className="font-black text-6xl tracking-tighter text-primary shiny-text">I LOVE</span>
