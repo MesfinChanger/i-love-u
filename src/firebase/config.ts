@@ -5,8 +5,15 @@
 
 const isProd = process.env.NODE_ENV === 'production';
 
+// Ensure API key is never undefined to prevent auth/api-key-not-valid
+const getApiKey = () => {
+  const key = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
+  if (key && key !== "") return key;
+  return isProd ? "" : "AIzaSy_DEV_PLACEHOLDER";
+};
+
 export const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || (isProd ? "" : "AIzaSy_DEV_PLACEHOLDER"),
+  apiKey: getApiKey(),
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || "",
   projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "",
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || "",
@@ -15,5 +22,5 @@ export const firebaseConfig = {
 };
 
 if (!firebaseConfig.apiKey && typeof window !== 'undefined') {
-  console.warn("Firebase API Key is missing. Ensure NEXT_PUBLIC_FIREBASE_API_KEY is set in your environment.");
+  console.warn("Firebase API Key is missing. Ensure NEXT_PUBLIC_FIREBASE_API_KEY is set in your environment variables for production.");
 }
