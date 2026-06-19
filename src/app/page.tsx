@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Heart, Globe, ArrowRight, Zap, Briefcase } from 'lucide-react';
+import { Heart, Globe, ArrowRight, Zap, Briefcase, ShieldCheck } from 'lucide-react';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { cn } from '@/lib/utils';
@@ -32,7 +32,7 @@ export default function Home() {
 
     const imageInterval = setInterval(() => {
       setImageIndex((prev) => (prev + 1) % dynamicImages.length);
-    }, 5000);
+    }, 6000);
 
     return () => {
       clearInterval(langInterval);
@@ -43,15 +43,15 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen bg-white overflow-x-hidden">
       {/* Minimized Header */}
-      <header className="fixed top-0 z-50 w-full bg-white/10 backdrop-blur-xl">
-        <div className="container mx-auto px-6 h-12 flex items-center justify-between">
+      <header className="fixed top-0 z-50 w-full bg-white/5 backdrop-blur-xl">
+        <div className="container mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Heart className="w-3.5 h-3.5 fill-primary text-primary animate-heartbeat" />
-            <span className="font-black text-[9px] tracking-[0.4em] text-primary uppercase">I LOVE U</span>
+            <Heart className="w-4 h-4 fill-primary text-primary animate-heartbeat" />
+            <span className="font-black text-[10px] tracking-[0.4em] text-primary uppercase">I LOVE U</span>
           </div>
           <div className="flex items-center gap-4">
-            <Link href="/login" className="text-[8px] font-black uppercase tracking-widest text-slate-500 hover:text-primary transition-colors">Login</Link>
-            <Button size="sm" className="rounded-full h-7 px-4 gradient-bg font-black uppercase text-[7px] tracking-widest shadow-lg" asChild>
+            <Link href="/login" className="text-[9px] font-black uppercase tracking-widest text-slate-500 hover:text-primary transition-colors">Login</Link>
+            <Button size="sm" className="rounded-full h-8 px-5 gradient-bg font-black uppercase text-[8px] tracking-widest shadow-xl" asChild>
               <Link href="/login">Launch</Link>
             </Button>
           </div>
@@ -67,113 +67,116 @@ export default function Home() {
                 key={img.id}
                 className={cn(
                   "absolute inset-0 transition-all duration-3000 ease-in-out",
-                  imageIndex === i ? "opacity-100 scale-100 blur-0" : "opacity-0 scale-105 blur-sm"
+                  imageIndex === i ? "opacity-100 scale-100 blur-0" : "opacity-0 scale-110 blur-md"
                 )}
               >
                 <Image 
                   src={img.imageUrl} 
                   alt="Global Heart" 
                   fill 
-                  className="object-cover brightness-95"
+                  className="object-cover brightness-90"
                   priority={i === 0}
                   data-ai-hint="woman portrait"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-white/20" />
+                <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-black/10" />
               </div>
             ))}
           </div>
 
           <div className="container mx-auto px-6 relative z-10">
-            <div className="max-w-3xl space-y-12">
-              {/* Dynamic Badge */}
-              <div className="bg-white/95 backdrop-blur-md px-6 py-4 rounded-[2rem] border border-primary/10 shadow-2xl inline-flex animate-in slide-in-from-left-4 duration-1000">
+            <div className="max-w-4xl space-y-12">
+              {/* Spark Match Badge */}
+              <div className="bg-white/90 backdrop-blur-xl px-6 py-4 rounded-[2.5rem] border border-primary/20 shadow-2xl inline-flex animate-in slide-in-from-left-6 duration-1000">
                 <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-2xl gradient-bg flex items-center justify-center">
-                    <Heart className="w-5 h-5 text-white fill-white animate-heartbeat" />
+                  <div className="w-12 h-12 rounded-2xl gradient-bg flex items-center justify-center shadow-lg">
+                    <Heart className="w-6 h-6 text-white fill-white animate-heartbeat" />
                   </div>
                   <div>
-                    <span className="text-[10px] font-black uppercase tracking-widest text-primary">Spark Match</span>
-                    <p className="text-[8px] text-slate-500 font-bold uppercase tracking-widest leading-none">Global Network Active</p>
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Spark Match Active</span>
+                    <p className="text-[9px] text-slate-500 font-bold uppercase tracking-widest leading-none mt-1">Global Community Network</p>
                   </div>
                 </div>
               </div>
 
-              <div className="space-y-6">
-                <h1 className="text-7xl lg:text-9xl font-black leading-[0.8] tracking-tighter text-slate-900 mix-blend-multiply">
+              <div className="space-y-8">
+                <h1 className="text-7xl lg:text-9xl font-black leading-[0.85] tracking-tighter text-slate-900 mix-blend-multiply drop-shadow-sm">
                   Spark Love.<br/>
                   End Poverty.
                 </h1>
-                <p className="text-xl text-slate-800/80 max-w-xl leading-relaxed font-medium italic">
-                  Join the world's most respectful community. Every connection helps eliminate world poverty through global job creation.
+                <p className="text-2xl text-slate-800/90 max-w-2xl leading-relaxed font-medium italic drop-shadow-sm">
+                  The world's most respectful dating revolution. Every mysterious heart connection funds local job creation to eliminate global poverty forever.
                 </p>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-5">
-                <Button size="lg" className="h-20 px-14 rounded-[2.5rem] text-xl font-black gradient-bg shadow-[0_30px_60px_-15px_rgba(255,51,102,0.5)] hover:scale-105 transition-transform group" asChild>
-                  <Link href="/login" className="flex items-center gap-4">
+              <div className="flex flex-col sm:flex-row gap-6">
+                <Button size="lg" className="h-24 px-16 rounded-[3rem] text-2xl font-black gradient-bg shadow-[0_30px_60px_-15px_rgba(255,51,102,0.6)] hover:scale-105 transition-transform group" asChild>
+                  <Link href="/login" className="flex items-center gap-5">
                     Launch Spark
-                    <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight className="w-8 h-8 group-hover:translate-x-2 transition-transform" />
                   </Link>
                 </Button>
-                <Button variant="outline" size="lg" className="h-20 px-12 rounded-[2.5rem] text-lg font-bold border-2 bg-white/50 backdrop-blur-md hover:bg-white transition-all" asChild>
+                <Button variant="outline" size="lg" className="h-24 px-14 rounded-[3rem] text-xl font-bold border-2 border-white/20 bg-white/40 backdrop-blur-2xl hover:bg-white transition-all shadow-xl" asChild>
                   <Link href="/donate">Support Mission</Link>
                 </Button>
               </div>
 
-              <div className="flex items-center gap-6">
-                <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-slate-900 text-white shadow-xl">
-                  <Globe className="w-4 h-4 animate-spin-slow text-secondary" />
-                  <span className="text-[9px] font-black uppercase tracking-widest">
+              <div className="flex items-center gap-8">
+                <div className="inline-flex items-center gap-4 px-5 py-3 rounded-full bg-slate-900 text-white shadow-2xl">
+                  <Globe className="w-5 h-5 animate-spin-slow text-secondary" />
+                  <span className="text-[11px] font-black uppercase tracking-widest">
                     {mounted ? LOVE_TRANSLATIONS[langIndex].text : "I Love U"} {mounted ? LOVE_TRANSLATIONS[langIndex].icon : "❤️"}
                   </span>
                 </div>
-                <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-600/60">Respect is Mandatory • 18+</p>
+                <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.4em] text-slate-700/70">
+                   <ShieldCheck className="w-4 h-4 text-primary" />
+                   Respect is Mandatory • 18+
+                </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Feature Cards Section */}
-        <section className="py-32 bg-white">
+        {/* Features Section */}
+        <section className="py-40 bg-white relative z-10">
           <div className="container mx-auto px-6 text-center">
-            <h2 className="text-4xl font-black mb-24 tracking-tighter uppercase opacity-90">
+            <h2 className="text-5xl font-black mb-32 tracking-tighter uppercase opacity-90">
               One Mission. <span className="text-primary">Pure Love.</span>
             </h2>
-            <div className="grid md:grid-cols-3 gap-8">
-              <div className="bg-slate-50/50 p-12 rounded-[3.5rem] text-left group hover:bg-white hover:shadow-2xl transition-all duration-500">
-                <div className="w-16 h-16 rounded-2xl bg-primary/5 flex items-center justify-center text-primary mb-8 group-hover:scale-110 transition-transform">
-                  <Zap className="w-8 h-8" />
+            <div className="grid md:grid-cols-3 gap-12">
+              <div className="bg-slate-50/50 p-16 rounded-[4rem] text-left group hover:bg-white hover:shadow-[0_40px_100px_-20px_rgba(0,0,0,0.1)] transition-all duration-700 border border-transparent hover:border-primary/5">
+                <div className="w-20 h-20 rounded-3xl bg-primary/5 flex items-center justify-center text-primary mb-10 group-hover:scale-110 transition-transform shadow-sm">
+                  <Zap className="w-10 h-10" />
                 </div>
-                <h3 className="text-xl font-black mb-4 tracking-tighter uppercase">AI Filtered</h3>
-                <p className="text-slate-500 leading-relaxed font-medium italic">Our neural engine finds mysterious connections. Disrespect is filtered automatically because love is mandatory.</p>
+                <h3 className="text-2xl font-black mb-5 tracking-tighter uppercase">AI Filtered</h3>
+                <p className="text-slate-500 text-lg leading-relaxed font-medium italic">Our neural engine finds mysterious connections. Disrespect is filtered automatically because love is mandatory.</p>
               </div>
-              <div className="bg-slate-50/50 p-12 rounded-[3.5rem] text-left group hover:bg-white hover:shadow-2xl transition-all duration-500">
-                <div className="w-16 h-16 rounded-2xl bg-secondary/5 flex items-center justify-center text-secondary mb-8 group-hover:scale-110 transition-transform">
-                  <Heart className="w-8 h-8 fill-current" />
+              <div className="bg-slate-50/50 p-16 rounded-[4rem] text-left group hover:bg-white hover:shadow-[0_40px_100px_-20px_rgba(0,0,0,0.1)] transition-all duration-700 border border-transparent hover:border-secondary/5">
+                <div className="w-20 h-20 rounded-3xl bg-secondary/5 flex items-center justify-center text-secondary mb-10 group-hover:scale-110 transition-transform shadow-sm">
+                  <Heart className="w-10 h-10 fill-current" />
                 </div>
-                <h3 className="text-xl font-black mb-4 tracking-tighter uppercase">Respect Only</h3>
-                <p className="text-slate-500 leading-relaxed font-medium italic">We are built on pure respect. Join a global community where kindness is the only metric of success.</p>
+                <h3 className="text-2xl font-black mb-5 tracking-tighter uppercase">Respect Only</h3>
+                <p className="text-slate-500 text-lg leading-relaxed font-medium italic">We are built on pure respect. Join a global community where kindness is the only metric of success.</p>
               </div>
-              <div className="bg-slate-50/50 p-12 rounded-[3.5rem] text-left group hover:bg-white hover:shadow-2xl transition-all duration-500">
-                <div className="w-16 h-16 rounded-2xl bg-indigo-500/5 flex items-center justify-center text-indigo-500 mb-8 group-hover:scale-110 transition-transform">
-                  <Briefcase className="w-8 h-8" />
+              <div className="bg-slate-50/50 p-16 rounded-[4rem] text-left group hover:bg-white hover:shadow-[0_40px_100px_-20px_rgba(0,0,0,0.1)] transition-all duration-700 border border-transparent hover:border-indigo-500/5">
+                <div className="w-20 h-20 rounded-3xl bg-indigo-500/5 flex items-center justify-center text-indigo-500 mb-10 group-hover:scale-110 transition-transform shadow-sm">
+                  <Briefcase className="w-10 h-10" />
                 </div>
-                <h3 className="text-xl font-black mb-4 tracking-tighter uppercase">Prosperity</h3>
-                <p className="text-slate-500 leading-relaxed font-medium italic">Every connection funds vocational training and local job creation. Help us eliminate global poverty forever.</p>
+                <h3 className="text-2xl font-black mb-5 tracking-tighter uppercase">Prosperity</h3>
+                <p className="text-slate-500 text-lg leading-relaxed font-medium italic">Every connection funds vocational training and local job creation. Help us eliminate global poverty forever.</p>
               </div>
             </div>
           </div>
         </section>
       </main>
 
-      <footer className="py-20 border-t bg-slate-50 relative z-10">
-        <div className="container mx-auto px-6 text-center text-slate-400">
-          <div className="flex items-center justify-center gap-2 mb-8 opacity-60">
-            <Heart className="w-5 h-5 fill-primary text-primary" />
-            <span className="font-black text-xs tracking-[0.3em] text-primary uppercase">I LOVE U</span>
+      <footer className="py-24 border-t bg-slate-50 relative z-10">
+        <div className="container mx-auto px-6 text-center">
+          <div className="flex items-center justify-center gap-3 mb-10 opacity-70">
+            <Heart className="w-6 h-6 fill-primary text-primary" />
+            <span className="font-black text-sm tracking-[0.4em] text-primary uppercase">I LOVE U</span>
           </div>
-          <p className="font-black text-[9px] tracking-widest mb-3 uppercase">© 2025 The Prosperity Revolution.</p>
-          <p className="text-[8px] font-bold italic uppercase tracking-widest opacity-40">Reaching Every Community • Respect & Love is Mandatory ❤️</p>
+          <p className="font-black text-[10px] tracking-[0.3em] mb-4 uppercase text-slate-400">© 2025 The Prosperity Revolution.</p>
+          <p className="text-[9px] font-bold italic uppercase tracking-widest opacity-40 text-slate-400">Reaching Every Community • Respect & Love is Mandatory ❤️</p>
         </div>
       </footer>
     </div>

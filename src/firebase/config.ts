@@ -1,6 +1,6 @@
 /**
  * @fileOverview Firebase configuration object.
- * Resolves 'auth/api-key-not-valid' by strictly prioritizing environment variables.
+ * Strictly prioritizes environment variables for production and automatic publishing.
  */
 
 export const firebaseConfig = {
@@ -13,5 +13,5 @@ export const firebaseConfig = {
 };
 
 if (!firebaseConfig.apiKey && typeof window !== 'undefined') {
-  console.error("CRITICAL: Firebase API Key is missing. Ensure NEXT_PUBLIC_FIREBASE_API_KEY is set in your Firebase Console / App Hosting environment.");
+  console.warn("Firebase API Key is missing. Ensure NEXT_PUBLIC_FIREBASE_API_KEY is set in your Firebase Console or environment.");
 }

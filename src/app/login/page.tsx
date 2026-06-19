@@ -21,7 +21,9 @@ import {
   Eye,
   EyeOff,
   Chrome,
-  Globe
+  Globe,
+  ShieldCheck,
+  UserCheck
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
@@ -77,7 +79,7 @@ function LoginContent() {
       return false;
     }
     if (!isHuman) {
-      toast({ variant: "destructive", title: "Security", description: "Please confirm you are human." });
+      toast({ variant: "destructive", title: "Security Protocol", description: "Human verification is mandatory. ✨" });
       return false;
     }
     if (mode === 'signup' && !country) {
@@ -167,6 +169,12 @@ function LoginContent() {
                     <div className="flex items-start space-x-4 pt-4 border-t border-primary/10">
                       <Checkbox id="respect-check" checked={isRespectful} onCheckedChange={(c) => setIsRespectful(c as boolean)} className="mt-1 w-5 h-5 rounded-md border-2 border-primary" />
                       <label htmlFor="respect-check" className="text-[10px] font-black leading-tight text-primary uppercase tracking-widest cursor-pointer">RESPECT & LOVE IS MANDATORY</label>
+                    </div>
+                    <div className="flex items-start space-x-4 pt-4 border-t border-primary/10">
+                      <Checkbox id="human-check" checked={isHuman} onCheckedChange={(c) => setIsHuman(c as boolean)} className="mt-1 w-5 h-5 rounded-md border-2 border-primary" />
+                      <label htmlFor="human-check" className="text-[10px] font-black leading-tight text-primary uppercase tracking-widest cursor-pointer flex items-center gap-2">
+                        <UserCheck className="w-3 h-3" /> VERIFY HUMAN
+                      </label>
                     </div>
                 </div>
               </div>
