@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { Header } from '@/components/Header';
 import { BottomNav } from '@/components/BottomNav';
 import { Button } from '@/components/ui/button';
@@ -78,7 +78,7 @@ const CURRENCIES = [
   { code: 'IDR', symbol: 'Rp' }
 ];
 
-export default function ProfilePage() {
+function ProfileContent() {
   const { user } = useUser();
   const db = useFirestore();
   const auth = useAuth();
@@ -139,7 +139,7 @@ export default function ProfilePage() {
   }, [profileData]);
 
   const handleUpdateLocation = () => {
-    if (!navigator.geolocation) return;
+    if (typeof navigator === 'undefined' || !navigator.geolocation) return;
     setIsFetchingLocation(true);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
@@ -499,5 +499,13 @@ export default function ProfilePage() {
       </main>
       <BottomNav />
     </div>
+  );
+}
+
+export default function ProfilePage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><Loader2 className="animate-spin text-primary" /></div>}>
+      <ProfileContent />
+    </Suspense>
   );
 }

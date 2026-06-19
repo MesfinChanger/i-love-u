@@ -1,13 +1,16 @@
+
 'use client';
 
 /**
  * Utility for End-to-End Encryption (E2EE) using Web Crypto API.
- * Uses browser-native APIs for maximum compatibility and zero build issues.
+ * Optimized for SSR safety and maximum compatibility.
  */
+
+const isBrowser = typeof window !== 'undefined' && typeof window.crypto !== 'undefined';
 
 // Helper to convert ArrayBuffer to Base64 string in browser
 function arrayBufferToBase64(buffer: ArrayBuffer): string {
-  if (typeof window === 'undefined') return '';
+  if (!isBrowser) return '';
   let binary = '';
   const bytes = new Uint8Array(buffer);
   const len = bytes.byteLength;
@@ -19,18 +22,22 @@ function arrayBufferToBase64(buffer: ArrayBuffer): string {
 
 // Helper to convert Base64 string to ArrayBuffer in browser
 function base64ToArrayBuffer(base64: string): ArrayBuffer {
-  if (typeof window === 'undefined') return new ArrayBuffer(0);
-  const binaryString = window.atob(base64);
-  const len = binaryString.length;
-  const bytes = new Uint8Array(len);
-  for (let i = 0; i < len; i++) {
-    bytes[i] = binaryString.charCodeAt(i);
+  if (!isBrowser) return new ArrayBuffer(0);
+  try {
+    const binaryString = window.atob(base64);
+    const len = binaryString.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+    return bytes.buffer;
+  } catch (e) {
+    return new ArrayBuffer(0);
   }
-  return bytes.buffer;
 }
 
 export async function generateKeyPair() {
-  if (typeof window === 'undefined') return { publicKey: '', privateKey: '' };
+  if (!isBrowser) return { publicKey: '', privateKey: '' };
   
   const keyPair = await window.crypto.subtle.generateKey(
     {
@@ -53,10 +60,12 @@ export async function generateKeyPair() {
 }
 
 export async function encryptText(text: string, publicKeyBase64: string) {
-  if (typeof window === 'undefined') return null;
+  if (!isBrowser || !publicKeyBase64) return null;
   
   try {
     const publicKeyBuffer = base64ToArrayBuffer(publicKeyBase64);
+    if (publicKeyBuffer.byteLength === 0) return null;
+
     const publicKey = await window.crypto.subtle.importKey(
       "spki",
       publicKeyBuffer,
@@ -83,10 +92,12 @@ export async function encryptText(text: string, publicKeyBase64: string) {
 }
 
 export async function decryptText(encryptedBase64: string, privateKeyBase64: string) {
-  if (typeof window === 'undefined') return "[Encrypted Message]";
+  if (!isBrowser || !encryptedBase64 || !privateKeyBase64) return "[Encrypted Message]";
   
   try {
     const privateKeyBuffer = base64ToArrayBuffer(privateKeyBase64);
+    if (privateKeyBuffer.byteLength === 0) return "[Encrypted Message]";
+
     const privateKey = await window.crypto.subtle.importKey(
       "pkcs8",
       privateKeyBuffer,

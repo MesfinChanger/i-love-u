@@ -8,6 +8,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: ['/ads/manage', '/shop/manage'],
     },
-    sitemap: 'https://spark-dating.web.app/sitemap.xml',
+    sitemap: 'https://spark-dating.web.app/sitemap',
   }
 }
