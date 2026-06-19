@@ -29,8 +29,10 @@ export default function Home() {
   const heroImage = PlaceHolderImages.find(img => img.id === 'landing-hero');
   const [langIndex, setLangIndex] = useState(0);
   const [currentYear, setCurrentYear] = useState<number | null>(null);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     setCurrentYear(new Date().getFullYear());
     const interval = setInterval(() => {
       setLangIndex((prev) => (prev + 1) % LOVE_TRANSLATIONS.length);
@@ -72,7 +74,7 @@ export default function Home() {
                 <div className="flex flex-col items-start leading-tight">
                    <p className="text-xs font-black uppercase tracking-[0.5em] text-muted-foreground/60 mb-2">Global Mission Reach</p>
                    <span className="text-3xl lg:text-5xl font-black transition-all duration-700 ease-in-out uppercase tracking-tighter shiny-text">
-                    {LOVE_TRANSLATIONS[langIndex].text} {LOVE_TRANSLATIONS[langIndex].icon}
+                    {mounted ? LOVE_TRANSLATIONS[langIndex].text : "I Love U"} {mounted ? LOVE_TRANSLATIONS[langIndex].icon : "❤️"}
                   </span>
                 </div>
                 <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:rotate-12 transition-transform">
@@ -118,31 +120,33 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="relative">
-              <div className="absolute -inset-10 bg-primary/20 rounded-full blur-[150px] -z-10 animate-pulse" />
-              
-              {/* Minimized Spark Match Badge - Now moving with the pic */}
-              <div className="absolute -top-12 -left-12 z-20 inline-flex items-center gap-4 bg-white/95 backdrop-blur-3xl p-5 pr-10 rounded-[2.5rem] border-4 border-white shadow-2xl animate-in zoom-in-50 duration-1000">
-                <div className="w-16 h-16 rounded-3xl gradient-bg flex items-center justify-center text-white shadow-2xl shadow-primary/30">
-                  <Heart className="w-10 h-10 fill-white animate-heartbeat" />
+            <div className="flex justify-center lg:justify-end">
+              <div className="relative w-full max-w-sm lg:max-w-md">
+                <div className="absolute -inset-10 bg-primary/20 rounded-full blur-[100px] -z-10 animate-pulse" />
+                
+                {/* Minimized Spark Match Badge Overlay */}
+                <div className="absolute -top-8 -left-8 z-20 inline-flex items-center gap-3 bg-white/95 backdrop-blur-3xl p-4 pr-8 rounded-[2rem] border-2 border-white shadow-xl animate-in zoom-in-50 duration-1000">
+                  <div className="w-12 h-12 rounded-2xl gradient-bg flex items-center justify-center text-white shadow-lg shadow-primary/30">
+                    <Heart className="w-6 h-6 fill-white animate-heartbeat" />
+                  </div>
+                  <div className="text-left leading-none">
+                    <p className="font-black text-lg tracking-tighter">Spark Match</p>
+                    <p className="text-[8px] text-muted-foreground font-black uppercase tracking-[0.2em] opacity-60 mt-1">Connect with Purpose</p>
+                  </div>
                 </div>
-                <div className="text-left leading-none">
-                  <p className="font-black text-2xl tracking-tighter">Spark Match</p>
-                  <p className="text-[10px] text-muted-foreground font-black uppercase tracking-[0.2em] opacity-60 mt-2">Connect with Purpose</p>
+                
+                <div className="relative aspect-square rounded-[4rem] overflow-hidden shadow-[0_40px_80px_-15px_rgba(0,0,0,0.2)] rotate-3 hover:rotate-0 transition-transform duration-1000 border-[15px] border-white">
+                  {heroImage && (
+                    <Image 
+                      src={heroImage.imageUrl} 
+                      alt="Finding Love on I Love U" 
+                      fill 
+                      className="object-cover"
+                      priority
+                      data-ai-hint="happy couple"
+                    />
+                  )}
                 </div>
-              </div>
-              
-              <div className="relative aspect-square rounded-[6rem] overflow-hidden shadow-[0_60px_120px_-15px_rgba(0,0,0,0.3)] rotate-3 hover:rotate-0 transition-transform duration-1000 border-[25px] border-white">
-                {heroImage && (
-                  <Image 
-                    src={heroImage.imageUrl} 
-                    alt="Finding Love on I Love U" 
-                    fill 
-                    className="object-cover"
-                    priority
-                    data-ai-hint="happy couple"
-                  />
-                )}
               </div>
             </div>
           </div>
@@ -208,7 +212,7 @@ export default function Home() {
               <span className="font-black text-2xl tracking-[0.5em] text-muted-foreground">YOU</span>
             </div>
           </div>
-          <p className="font-black text-xl text-foreground tracking-tight mb-4">© {currentYear || '...'} I Love U. The Global Dating & Prosperity Revolution.</p>
+          <p className="font-black text-xl text-foreground tracking-tight mb-4">© {mounted ? currentYear : "..."} I Love U. The Global Dating & Prosperity Revolution.</p>
           <p className="text-sm font-medium italic mb-10">Respect and Love is Mandatory ❤️ Ending World Poverty Together.</p>
           <div className="flex flex-wrap justify-center gap-8 sm:gap-12 text-[11px] font-black uppercase tracking-[0.4em]">
             <Link href="/privacy" className="hover:text-primary transition-colors">Privacy Shield</Link>
