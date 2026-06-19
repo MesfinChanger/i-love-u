@@ -32,3 +32,9 @@ env:
     availability:
       - BUILD
       - RUNTIME
+  - variable: STRIPE_SECRET_KEY
+    availability:
+      - RUNTIME
+  - variable: GEMINI_API_KEY
+    availability:
+      - RUNTIME

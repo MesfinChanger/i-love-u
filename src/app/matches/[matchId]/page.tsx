@@ -23,7 +23,7 @@ import {
   Heart,
   Star
 } from 'lucide-react';
-import { useUser, useFirestore, useCollection, useDoc } from '@/firebase';
+import { useUser, useFirestore, useCollection, useDoc, useFirebaseStorage } from '@/firebase';
 import { collection, addDoc, query, orderBy, serverTimestamp, doc, updateDoc, writeBatch } from 'firebase/firestore';
 import { useParams, useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -60,6 +60,7 @@ export default function ChatPage() {
   const { matchId } = useParams();
   const { user } = useUser();
   const db = useFirestore();
+  const { uploadFile, isUploading: isStorageUploading } = useFirebaseStorage();
   const router = useRouter();
   const { toast } = useToast();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -67,7 +68,6 @@ export default function ChatPage() {
 
   const [newMessage, setNewMessage] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [isUnconnecting, setIsUnconnecting] = useState(false);
   const [isInvitingWitness, setIsInvitingWitness] = useState(false);
@@ -190,16 +190,19 @@ export default function ChatPage() {
     const file = e.target.files?.[0];
     if (!file || !user || !db || !matchId) return;
 
-    setIsUploading(true);
     try {
       const reader = new FileReader();
       reader.onloadend = async () => {
         const dataUri = reader.result as string;
         const moderation = await moderateImage({ photoDataUri: dataUri });
         
+        // Upload to Google Cloud Storage
+        const fileName = `${Date.now()}-${file.name}`;
+        const cloudUrl = await uploadFile(`matches/${matchId}/${fileName}`, file);
+
         addDoc(collection(db, 'matches', String(matchId), 'messages'), {
           senderId: user.uid,
-          imageUrl: dataUri,
+          imageUrl: cloudUrl, // Using Google Cloud Storage URL
           isSensitive: moderation.isSensitive,
           contextLabel: contextLabel || null,
           timestamp: serverTimestamp(),
@@ -217,8 +220,6 @@ export default function ChatPage() {
         title: "Upload Failed",
         description: "Could not process image."
       });
-    } finally {
-      setIsUploading(false);
     }
   };
 
@@ -505,6 +506,7 @@ export default function ChatPage() {
                             alt="Shared cultural moment" 
                             fill 
                             className={cn("object-cover transition-all duration-1000", isSensitive && "blur-3xl hover:blur-none")}
+                            unoptimized={msg.imageUrl.startsWith('https://firebasestorage.googleapis.com')}
                           />
                         )}
                         {isSensitive && !blurContent && (
@@ -568,10 +570,10 @@ export default function ChatPage() {
             size="icon" 
             className="rounded-2xl shrink-0 bg-muted/40 h-14 w-14 text-muted-foreground hover:bg-primary/5 hover:text-primary transition-all shadow-inner"
             onClick={() => fileInputRef.current?.click()}
-            disabled={isUploading}
+            disabled={isSending || isStorageUploading}
             aria-label="Upload photo"
           >
-            {isUploading ? <Loader2 className="w-6 h-6 animate-spin" /> : <Camera className="w-7 h-7" aria-hidden="true" />}
+            {isStorageUploading ? <Loader2 className="w-6 h-6 animate-spin" /> : <Camera className="w-7 h-7" aria-hidden="true" />}
           </Button>
           <form onSubmit={handleSendMessage} className="flex-grow flex gap-3">
             <Input 
