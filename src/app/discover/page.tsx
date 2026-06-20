@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -14,7 +15,9 @@ import {
   Loader2,
   Ghost,
   Star,
-  Send
+  Send,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
@@ -26,6 +29,13 @@ import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 export default function DiscoverPage() {
   const { user } = useUser();
@@ -60,7 +70,6 @@ export default function DiscoverPage() {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const profiles = useMemo(() => {
-    // Only attempt to merge real data if we are mounted and have data
     const hasItems = mounted && discoveryItems && discoveryItems.length > 0;
     
     const baseProfiles = hasItems 
@@ -70,6 +79,7 @@ export default function DiscoverPage() {
           id: u.uid,
           name: u.publicNickname || "Mystery Heart", 
           publicPhotoUrl: u.publicPhotoUrl || null,
+          additionalPhotoUrls: u.additionalPhotoUrls || [],
           interests: u.interests || [],
           culturalInterests: u.culturalInterests || [],
           bio: u.bio || "Sharing culture and looking for sparks.",
@@ -81,6 +91,10 @@ export default function DiscoverPage() {
             id: 'mock-1',
             name: 'Amina',
             publicPhotoUrl: PlaceHolderImages.find(img => img.id === 'user-2')?.imageUrl,
+            additionalPhotoUrls: [
+              "https://picsum.photos/seed/africa-1/800/1200",
+              "https://picsum.photos/seed/africa-2/800/1200"
+            ],
             interests: ['Textiles', 'Tea', 'Hiking'],
             culturalInterests: ['Swahili History'],
             bio: "Exploring the intersection of art and nature.",
@@ -91,6 +105,9 @@ export default function DiscoverPage() {
             id: 'mock-2',
             name: 'Yuki',
             publicPhotoUrl: PlaceHolderImages.find(img => img.id === 'user-1')?.imageUrl,
+            additionalPhotoUrls: [
+               "https://picsum.photos/seed/japan-1/800/1200"
+            ],
             interests: ['Coding', 'Origami', 'Jazz'],
             culturalInterests: ['Japanese Tea Ceremony'],
             bio: "Looking for a soul to share a quiet sunset with.",
@@ -101,6 +118,7 @@ export default function DiscoverPage() {
             id: 'mock-3',
             name: 'Elena',
             publicPhotoUrl: PlaceHolderImages.find(img => img.id === 'user-3')?.imageUrl,
+            additionalPhotoUrls: [],
             interests: ['Architecture', 'Pasta', 'Piano'],
             culturalInterests: ['Renaissance Art'],
             bio: "Building dreams and finding love in small moments.",
@@ -170,14 +188,12 @@ export default function DiscoverPage() {
 
   const handleNext = () => setCurrentIndex(prev => prev + 1);
 
-  // If loading real data and we've hydrated, show a stable loader
   if (mounted && usersLoading && db) return (
     <div className="flex flex-col min-h-screen items-center justify-center">
       <Loader2 className="w-10 h-10 animate-spin text-primary" />
     </div>
   );
 
-  // Hydration mismatch guard for the final display
   if (!mounted) return (
     <div className="flex flex-col min-h-screen bg-muted/30 pb-24 items-center justify-center">
        <Loader2 className="w-8 h-8 animate-spin text-primary opacity-20" />
@@ -230,30 +246,46 @@ export default function DiscoverPage() {
     );
   }
 
-  const isRevealed = currentItem?.publicPhotoUrl !== null && currentItem?.publicPhotoUrl !== undefined;
+  const photos = currentItem.publicPhotoUrl ? [currentItem.publicPhotoUrl, ...(currentItem.additionalPhotoUrls || [])] : [];
+  const hasMultiplePhotos = photos.length > 1;
 
   return (
     <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
       <Header />
       <main className="flex-grow flex flex-col items-center justify-center p-4">
         <div className="w-full max-w-md flex flex-col items-center">
-          {mounted && !db && (
-            <div className="mb-4">
-               <Badge className="bg-amber-500 text-white font-black uppercase text-[8px] tracking-widest px-4 py-1.5 shadow-xl animate-bounce">Prototype Mode Active</Badge>
-            </div>
-          )}
           <Card className="w-full relative h-[calc(100vh-18rem)] overflow-hidden border-none shadow-2xl rounded-[2.5rem] bg-white p-0 flex flex-col">
-            {isRevealed && currentItem ? (
-              <div className="relative h-full w-full">
-                <Image 
-                  src={currentItem.publicPhotoUrl!} 
-                  alt={currentItem.name} 
-                  fill 
-                  className="object-cover" 
-                  priority
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 p-8 space-y-3 text-white">
+            {photos.length > 0 ? (
+              <Carousel className="w-full h-full">
+                <CarouselContent className="h-full">
+                  {photos.map((url, idx) => (
+                    <CarouselItem key={idx} className="relative h-[calc(100vh-18rem)]">
+                      <Image 
+                        src={url} 
+                        alt={`${currentItem.name} ${idx + 1}`} 
+                        fill 
+                        className="object-cover" 
+                        priority={idx === 0}
+                      />
+                      {/* Photo Index Indicator */}
+                      <div className="absolute top-8 left-0 right-0 flex justify-center gap-1.5 z-20">
+                         {photos.map((_, i) => (
+                           <div key={i} className={cn("h-1 rounded-full transition-all", idx === i ? "w-8 bg-white" : "w-2 bg-white/40")} />
+                         ))}
+                      </div>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                {hasMultiplePhotos && (
+                  <>
+                    <CarouselPrevious className="left-4 bg-black/20 border-none text-white hover:bg-black/40 h-10 w-10" />
+                    <CarouselNext className="right-4 bg-black/20 border-none text-white hover:bg-black/40 h-10 w-10" />
+                  </>
+                )}
+                
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent pointer-events-none" />
+                
+                <div className="absolute bottom-0 left-0 right-0 p-8 space-y-3 text-white z-10">
                   <div className="flex justify-between items-end">
                     <div>
                       <h2 className="text-3xl font-black tracking-tighter">{currentItem.name}</h2>
@@ -272,8 +304,8 @@ export default function DiscoverPage() {
                     ))}
                   </div>
                 </div>
-              </div>
-            ) : currentItem ? (
+              </Carousel>
+            ) : (
               <div className="p-8 flex flex-col h-full justify-between">
                 <div className="space-y-6">
                   <div className="flex justify-between items-start">
@@ -313,7 +345,7 @@ export default function DiscoverPage() {
                    <p className="text-[8px] text-muted-foreground font-medium italic">Consensual matching: Identity revealed after mutual invitation.</p>
                 </div>
               </div>
-            ) : null}
+            )}
           </Card>
           
           <div className="relative mt-8 flex justify-center gap-4 w-full px-4">

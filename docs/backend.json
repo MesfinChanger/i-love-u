@@ -18,6 +18,7 @@
         "interests": { "type": "array", "items": { "type": "string" } },
         "culturalInterests": { "type": "array", "items": { "type": "string" } },
         "photoUrl": { "type": "string" },
+        "additionalPhotoUrls": { "type": "array", "items": { "type": "string" } },
         "address1": { "type": "string" },
         "address2": { "type": "string" },
         "city": { "type": "string" },
@@ -48,6 +49,7 @@
         "locationHint": { "type": "string" },
         "publicNickname": { "type": "string" },
         "publicPhotoUrl": { "type": "string" },
+        "additionalPhotoUrls": { "type": "array", "items": { "type": "string" } },
         "country": { "type": "string" },
         "birthMonthDay": { "type": "string", "description": "Month and Day of birth only for privacy." }
       }

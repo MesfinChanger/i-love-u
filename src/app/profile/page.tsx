@@ -29,6 +29,7 @@ import {
   Languages,
   UserCircle,
   Plus,
+  Trash2,
   Image as ImageIcon
 } from 'lucide-react';
 import { 
@@ -51,6 +52,7 @@ import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { COUNTRIES, LANGUAGES, CURRENCIES } from '@/lib/world-data';
+import Image from 'next/image';
 
 const GENDERS = [{ value: 'male', label: 'Male' }, { value: 'female', label: 'Female' }];
 
@@ -63,6 +65,7 @@ function ProfileContent() {
   const router = useRouter();
   const galleryInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
+  const additionalInputRef = useRef<HTMLInputElement>(null);
 
   const userRef = useMemoFirebase(() => {
     if (!db || !user) return null;
@@ -76,6 +79,7 @@ function ProfileContent() {
   const [lastName, setLastName] = useState('');
   const [birthdate, setBirthdate] = useState('');
   const [photoUrl, setPhotoUrl] = useState('');
+  const [additionalPhotoUrls, setAdditionalPhotoUrls] = useState<string[]>([]);
   
   // Address Fields
   const [address1, setAddress1] = useState('');
@@ -100,6 +104,7 @@ function ProfileContent() {
 
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingGallery, setIsUploadingGallery] = useState(false);
 
   useEffect(() => {
     if (profileData) {
@@ -107,6 +112,7 @@ function ProfileContent() {
       setLastName(profileData.lastName || '');
       setBirthdate(profileData.birthdate || '');
       setPhotoUrl(profileData.photoUrl || '');
+      setAdditionalPhotoUrls(profileData.additionalPhotoUrls || []);
       setAddress1(profileData.address1 || '');
       setAddress2(profileData.address2 || '');
       setCity(profileData.city || '');
@@ -135,11 +141,13 @@ function ProfileContent() {
     return age;
   };
 
-  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>, isGallery = false) => {
     const file = e.target.files?.[0];
     if (!file || !user) return;
 
     try {
+      if (isGallery) setIsUploadingGallery(true);
+      
       const reader = new FileReader();
       reader.onloadend = async () => {
         const dataUri = reader.result as string;
@@ -147,17 +155,31 @@ function ProfileContent() {
         
         if (moderation.isSensitive) {
           toast({ variant: "destructive", title: "Respect Rule Violation", description: "This image was flagged by AI and cannot be used. ✨" });
+          if (isGallery) setIsUploadingGallery(false);
           return;
         }
 
-        const url = await uploadFile(`profiles/${user.uid}/avatar`, file);
-        setPhotoUrl(url);
+        const path = isGallery ? `profiles/${user.uid}/gallery_${Date.now()}` : `profiles/${user.uid}/avatar`;
+        const url = await uploadFile(path, file);
+        
+        if (isGallery) {
+          setAdditionalPhotoUrls(prev => [...prev, url]);
+          setIsUploadingGallery(false);
+        } else {
+          setPhotoUrl(url);
+        }
+        
         toast({ title: "Photo Secured", description: "Your respectful image has been uploaded." });
       };
       reader.readAsDataURL(file);
     } catch (error) {
       toast({ variant: "destructive", title: "Upload Ripple", description: "Could not process image." });
+      if (isGallery) setIsUploadingGallery(false);
     }
+  };
+
+  const removeGalleryPhoto = (url: string) => {
+    setAdditionalPhotoUrls(prev => prev.filter(p => p !== url));
   };
 
   const handleSave = async () => {
@@ -180,6 +202,7 @@ function ProfileContent() {
         displayName, 
         birthdate, 
         photoUrl,
+        additionalPhotoUrls,
         age: userAge, 
         gender, 
         bio, 
@@ -202,7 +225,8 @@ function ProfileContent() {
         uid: user.uid, 
         bio, 
         publicNickname: publicNickname || "Mystery Heart", 
-        publicPhotoUrl: isPhotoPublic ? photoUrl || null : null, 
+        publicPhotoUrl: isPhotoPublic ? photoUrl || null : null,
+        additionalPhotoUrls: isPhotoPublic ? additionalPhotoUrls : [],
         country, 
         updatedAt: serverTimestamp()
       }, { merge: true });
@@ -265,8 +289,8 @@ function ProfileContent() {
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              <input type="file" ref={galleryInputRef} className="hidden" accept="image/*" onChange={handlePhotoUpload} />
-              <input type="file" ref={cameraInputRef} className="hidden" accept="image/*" capture="user" onChange={handlePhotoUpload} />
+              <input type="file" ref={galleryInputRef} className="hidden" accept="image/*" onChange={(e) => handlePhotoUpload(e)} />
+              <input type="file" ref={cameraInputRef} className="hidden" accept="image/*" capture="user" onChange={(e) => handlePhotoUpload(e)} />
             </div>
             <div>
               <h1 className="text-3xl font-black tracking-tighter flex items-center gap-2">
@@ -431,6 +455,49 @@ function ProfileContent() {
                         </div>
                      </div>
                      <Switch checked={isPhotoPublic} onCheckedChange={setIsPhotoPublic} />
+                  </div>
+
+                  {/* Photo Gallery Section */}
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between px-1">
+                      <Label className="text-[9px] font-black uppercase tracking-widest opacity-60">Photo Gallery</Label>
+                      <input 
+                        type="file" 
+                        ref={additionalInputRef} 
+                        className="hidden" 
+                        accept="image/*" 
+                        onChange={(e) => handlePhotoUpload(e, true)} 
+                      />
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        disabled={isUploadingGallery || additionalPhotoUrls.length >= 5}
+                        onClick={() => additionalInputRef.current?.click()} 
+                        className="text-primary gap-1.5 h-8 px-4 bg-primary/5 rounded-full text-[9px] font-black uppercase hover:bg-primary/10"
+                      >
+                        {isUploadingGallery ? <Loader2 className="w-3 h-3 animate-spin" /> : <Plus className="w-3 h-3" />}
+                        Add Pic
+                      </Button>
+                    </div>
+                    <div className="grid grid-cols-5 gap-2">
+                       {additionalPhotoUrls.map((url, idx) => (
+                         <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border border-muted group">
+                           <Image src={url} alt={`Gallery ${idx}`} fill className="object-cover" />
+                           <button 
+                             onClick={() => removeGalleryPhoto(url)}
+                             className="absolute inset-0 bg-black/40 items-center justify-center hidden group-hover:flex transition-opacity"
+                           >
+                             <Trash2 className="w-5 h-5 text-white" />
+                           </button>
+                         </div>
+                       ))}
+                       {Array.from({ length: 5 - additionalPhotoUrls.length }).map((_, i) => (
+                         <div key={`empty-${i}`} className="aspect-square rounded-xl border-2 border-dashed border-muted bg-muted/10 flex items-center justify-center">
+                            <ImageIcon className="w-4 h-4 text-muted-foreground/30" />
+                         </div>
+                       ))}
+                    </div>
+                    <p className="text-[8px] text-muted-foreground italic text-center uppercase tracking-widest font-bold">Limit: 5 Additional Sacred Moments</p>
                   </div>
                   
                   <div className="space-y-3">

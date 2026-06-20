@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useMemo, Suspense } from 'react';
@@ -18,7 +19,8 @@ import {
   Users, 
   Ghost,
   ShieldCheck,
-  Star
+  Star,
+  ImageIcon
 } from 'lucide-react';
 import { useUser, useFirestore, useCollection } from '@/firebase';
 import { query, collection, doc, setDoc, serverTimestamp, where, orderBy, limit } from 'firebase/firestore';
@@ -44,8 +46,6 @@ function SearchContent() {
 
   const profilesQuery = useMemoFirebase(() => {
     if (!db) return null;
-    // Simple fetch all and filter client-side for MVP/Prototype
-    // Production would use startAt/endAt for nickname prefix searching
     return query(collection(db, 'publicProfiles'), limit(100));
   }, [db]);
 
@@ -53,13 +53,13 @@ function SearchContent() {
 
   const filteredProfiles = useMemo(() => {
     if (!allProfiles) return [];
-    const query = searchTerm.toLowerCase();
+    const queryStr = searchTerm.toLowerCase();
     return allProfiles.filter((p: any) => {
       if (p.uid === user?.uid) return false;
-      const nicknameMatch = p.publicNickname?.toLowerCase().includes(query);
-      const interestMatch = p.interests?.some((i: string) => i.toLowerCase().includes(query));
-      const bioMatch = p.bio?.toLowerCase().includes(query);
-      return query === '' || nicknameMatch || interestMatch || bioMatch;
+      const nicknameMatch = p.publicNickname?.toLowerCase().includes(queryStr);
+      const interestMatch = p.interests?.some((i: string) => i.toLowerCase().includes(queryStr));
+      const bioMatch = p.bio?.toLowerCase().includes(queryStr);
+      return queryStr === '' || nicknameMatch || interestMatch || bioMatch;
     });
   }, [allProfiles, searchTerm, user]);
 
@@ -136,76 +136,88 @@ function SearchContent() {
           </div>
         ) : filteredProfiles.length > 0 ? (
           <div className="grid gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            {filteredProfiles.map((p: any) => (
-              <Card key={p.uid} className="rounded-[2.5rem] border-none shadow-lg overflow-hidden bg-white hover:shadow-xl transition-all group">
-                <CardContent className="p-0">
-                  <div className="flex flex-col sm:flex-row">
-                    <div className="relative w-full sm:w-40 aspect-square shrink-0">
-                      {p.publicPhotoUrl ? (
-                        <Image 
-                          src={p.publicPhotoUrl} 
-                          alt={p.publicNickname} 
-                          fill 
-                          className="object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-primary/5 flex items-center justify-center text-primary/20">
-                          <Users className="w-12 h-12" />
-                        </div>
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent sm:hidden" />
-                    </div>
-
-                    <div className="p-6 flex-grow flex flex-col justify-between min-w-0">
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2 min-w-0">
-                            <h3 className="text-2xl font-black tracking-tighter truncate">{p.publicNickname || "Mystery Heart"}</h3>
-                            <Badge variant="outline" className="text-[7px] font-black uppercase tracking-widest px-2 h-5 border-primary/20 text-primary">PUBLIC</Badge>
+            {filteredProfiles.map((p: any) => {
+              const photoCount = (p.publicPhotoUrl ? 1 : 0) + (p.additionalPhotoUrls?.length || 0);
+              
+              return (
+                <Card key={p.uid} className="rounded-[2.5rem] border-none shadow-lg overflow-hidden bg-white hover:shadow-xl transition-all group">
+                  <CardContent className="p-0">
+                    <div className="flex flex-col sm:flex-row">
+                      <div className="relative w-full sm:w-40 aspect-square shrink-0">
+                        {p.publicPhotoUrl ? (
+                          <>
+                            <Image 
+                              src={p.publicPhotoUrl} 
+                              alt={p.publicNickname} 
+                              fill 
+                              className="object-cover"
+                            />
+                            {photoCount > 1 && (
+                              <Badge className="absolute bottom-2 right-2 bg-black/60 text-white border-none text-[8px] font-black h-5 px-2 gap-1 backdrop-blur-md">
+                                <ImageIcon className="w-2.5 h-2.5" />
+                                {photoCount}
+                              </Badge>
+                            )}
+                          </>
+                        ) : (
+                          <div className="w-full h-full bg-primary/5 flex items-center justify-center text-primary/20">
+                            <Users className="w-12 h-12" />
                           </div>
-                          <div className="flex items-center gap-1.5 text-[9px] font-black text-muted-foreground/60 uppercase">
-                            <MapPin className="w-3 h-3" />
-                            {p.country || 'Global'}
-                          </div>
-                        </div>
-
-                        <p className="text-sm text-muted-foreground font-medium italic line-clamp-2 leading-relaxed">
-                          "{p.bio || "Searching for meaningful sparks and cultural exchange."}"
-                        </p>
-
-                        <div className="flex flex-wrap gap-1.5">
-                          {p.interests?.slice(0, 3).map((interest: string) => (
-                            <Badge key={interest} className="bg-muted/50 text-muted-foreground border-none text-[8px] font-bold px-2 py-0.5 rounded-lg">
-                              {interest}
-                            </Badge>
-                          ))}
-                        </div>
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent sm:hidden" />
                       </div>
 
-                      <div className="flex items-center gap-3 mt-6">
-                        <Button 
-                          onClick={() => handleAction(p.uid, 'friend')}
-                          disabled={isProcessing === p.uid}
-                          variant="outline" 
-                          className="flex-1 h-12 rounded-xl font-black text-[9px] uppercase tracking-widest border-2 hover:bg-blue-50 transition-all gap-2"
-                        >
-                          {isProcessing === p.uid ? <Loader2 className="w-3 h-3 animate-spin" /> : <Send className="w-3 h-3" />}
-                          Invite
-                        </Button>
-                        <Button 
-                          onClick={() => handleAction(p.uid, 'date')}
-                          disabled={isProcessing === p.uid}
-                          className="flex-1 h-12 rounded-xl gradient-bg font-black text-[9px] uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-105 transition-all gap-2"
-                        >
-                          {isProcessing === p.uid ? <Loader2 className="w-3 h-3 animate-spin" /> : <Heart className="w-3 h-3 fill-current" />}
-                          Spark
-                        </Button>
+                      <div className="p-6 flex-grow flex flex-col justify-between min-w-0">
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <h3 className="text-2xl font-black tracking-tighter truncate">{p.publicNickname || "Mystery Heart"}</h3>
+                              <Badge variant="outline" className="text-[7px] font-black uppercase tracking-widest px-2 h-5 border-primary/20 text-primary">PUBLIC</Badge>
+                            </div>
+                            <div className="flex items-center gap-1.5 text-[9px] font-black text-muted-foreground/60 uppercase">
+                              <MapPin className="w-3 h-3" />
+                              {p.country || 'Global'}
+                            </div>
+                          </div>
+
+                          <p className="text-sm text-muted-foreground font-medium italic line-clamp-2 leading-relaxed">
+                            "{p.bio || "Searching for meaningful sparks and cultural exchange."}"
+                          </p>
+
+                          <div className="flex flex-wrap gap-1.5">
+                            {p.interests?.slice(0, 3).map((interest: string) => (
+                              <Badge key={interest} className="bg-muted/50 text-muted-foreground border-none text-[8px] font-bold px-2 py-0.5 rounded-lg">
+                                {interest}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-3 mt-6">
+                          <Button 
+                            onClick={() => handleAction(p.uid, 'friend')}
+                            disabled={isProcessing === p.uid}
+                            variant="outline" 
+                            className="flex-1 h-12 rounded-xl font-black text-[9px] uppercase tracking-widest border-2 hover:bg-blue-50 transition-all gap-2"
+                          >
+                            {isProcessing === p.uid ? <Loader2 className="w-3 h-3 animate-spin" /> : <Send className="w-3 h-3" />}
+                            Invite
+                          </Button>
+                          <Button 
+                            onClick={() => handleAction(p.uid, 'date')}
+                            disabled={isProcessing === p.uid}
+                            className="flex-1 h-12 rounded-xl gradient-bg font-black text-[9px] uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-105 transition-all gap-2"
+                          >
+                            {isProcessing === p.uid ? <Loader2 className="w-3 h-3 animate-spin" /> : <Heart className="w-3 h-3 fill-current" />}
+                            Spark
+                          </Button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center py-24 text-center space-y-6 opacity-20">
