@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Header } from '@/components/Header';
 import { Button } from '@/components/ui/button';
 import { 
@@ -35,6 +35,11 @@ export default function DiscoverPage() {
   const db = useFirestore();
   const { toast } = useToast();
 
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const userRef = useMemoFirebase(() => {
     if (!db || !user) return null;
     return doc(db, 'users', user.uid);
@@ -58,8 +63,8 @@ export default function DiscoverPage() {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const profiles = useMemo(() => {
-    // If no DB or no items, return mock profiles for Prototype Mode
-    const hasItems = discoveryItems && discoveryItems.length > 0;
+    // Gate with mounted to ensure the first client render matches the server (mock profiles)
+    const hasItems = mounted && discoveryItems && discoveryItems.length > 0;
     
     const baseProfiles = hasItems 
       ? (discoveryItems || [])
@@ -107,7 +112,7 @@ export default function DiscoverPage() {
           }
         ];
 
-    const adItems = (activeAds || [])
+    const adItems = (mounted && activeAds ? activeAds : [])
       .filter((ad: any) => {
         if (!ad.targetCountries) return true;
         return ad.targetCountries.includes(viewerCountry) || ad.targetCountries.includes('GLOBAL');
@@ -132,7 +137,7 @@ export default function DiscoverPage() {
     }
     
     return finalFeed;
-  }, [discoveryItems, activeAds, user, viewerCountry]);
+  }, [discoveryItems, activeAds, user, viewerCountry, mounted]);
 
   const currentItem = profiles[currentIndex];
 
@@ -173,13 +178,14 @@ export default function DiscoverPage() {
 
   const handleNext = () => setCurrentIndex(prev => prev + 1);
 
-  if (usersLoading && db) return (
+  // Use mounted guard to prevent hydration mismatch for the loading state
+  if (mounted && usersLoading && db) return (
     <div className="flex flex-col min-h-screen items-center justify-center">
       <Loader2 className="w-10 h-10 animate-spin text-primary" />
     </div>
   );
 
-  if (!currentItem) return (
+  if (mounted && !currentItem) return (
     <div className="flex flex-col min-h-screen bg-muted/30 pb-24 items-center justify-center p-8 text-center">
       <Header />
       <div className="space-y-4">
@@ -192,7 +198,7 @@ export default function DiscoverPage() {
     </div>
   );
 
-  if (currentItem.type === 'ad') {
+  if (currentItem?.type === 'ad') {
     const isVideo = currentItem.adType === 'video';
     return (
       <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
@@ -225,7 +231,7 @@ export default function DiscoverPage() {
     );
   }
 
-  const isRevealed = currentItem.publicPhotoUrl !== null && currentItem.publicPhotoUrl !== undefined;
+  const isRevealed = currentItem?.publicPhotoUrl !== null && currentItem?.publicPhotoUrl !== undefined;
 
   return (
     <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
@@ -238,7 +244,7 @@ export default function DiscoverPage() {
             </div>
           )}
           <Card className="absolute inset-0 overflow-hidden border-none shadow-2xl rounded-[3.5rem] bg-white p-0 flex flex-col justify-between">
-            {isRevealed ? (
+            {isRevealed && currentItem ? (
               <div className="relative h-full w-full">
                 <Image 
                   src={currentItem.publicPhotoUrl!} 
@@ -268,7 +274,7 @@ export default function DiscoverPage() {
                   </div>
                 </div>
               </div>
-            ) : (
+            ) : currentItem ? (
               <div className="p-10 flex flex-col h-full justify-between">
                 <div className="space-y-8">
                   <div className="flex justify-between items-start">
@@ -313,7 +319,7 @@ export default function DiscoverPage() {
                    <p className="text-[9px] text-muted-foreground font-medium italic">Full identity will be revealed only after a mutual connection.</p>
                 </div>
               </div>
-            )}
+            ) : null}
           </Card>
           
           <div className="absolute -bottom-24 left-0 right-0 flex justify-center gap-4">
