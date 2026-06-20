@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect, useRef } from 'react';
@@ -21,8 +22,14 @@ import {
   Heart,
   Star,
   Languages,
-  Gift
+  Gift,
+  Image as ImageIcon
 } from 'lucide-react';
+import { 
+  Popover, 
+  PopoverContent, 
+  PopoverTrigger 
+} from '@/components/ui/popover';
 import { useUser, useFirestore, useCollection, useDoc, useFirebaseStorage } from '@/firebase';
 import { collection, addDoc, query, orderBy, serverTimestamp, doc, updateDoc, writeBatch } from 'firebase/firestore';
 import { useParams, useRouter } from 'next/navigation';
@@ -66,7 +73,8 @@ export default function ChatPage() {
   const router = useRouter();
   const { toast } = useToast();
   const scrollRef = useRef<HTMLDivElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   const [newMessage, setNewMessage] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -501,7 +509,7 @@ export default function ChatPage() {
              {CHAT_SHORTCUTS.map((shortcut) => (
                <Tooltip key={shortcut.id}>
                  <TooltipTrigger asChild>
-                    <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} className="rounded-full shrink-0 h-9 gap-2 border-primary/10 text-primary hover:bg-primary/5 transition-all font-black text-[9px] uppercase tracking-widest px-4">
+                    <Button variant="outline" size="sm" onClick={() => galleryInputRef.current?.click()} className="rounded-full shrink-0 h-9 gap-2 border-primary/10 text-primary hover:bg-primary/5 transition-all font-black text-[9px] uppercase tracking-widest px-4">
                       <shortcut.icon className="w-3.5 h-3.5" />
                       {shortcut.label}
                     </Button>
@@ -517,10 +525,29 @@ export default function ChatPage() {
         </div>
 
         <div className="flex items-center gap-2">
-          <input type="file" id="chat-photo-input" accept="image/*" className="hidden" ref={fileInputRef} onChange={(e) => handleImageUpload(e)} />
-          <Button variant="ghost" size="icon" className="rounded-xl shrink-0 bg-muted/40 h-12 w-12 text-muted-foreground" onClick={() => fileInputRef.current?.click()} disabled={isSending || isStorageUploading}>
-            {isStorageUploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Camera className="w-6 h-6" />}
-          </Button>
+          <input type="file" id="chat-photo-gallery" accept="image/*" className="hidden" ref={galleryInputRef} onChange={(e) => handleImageUpload(e)} />
+          <input type="file" id="chat-photo-camera" accept="image/*" capture="user" className="hidden" ref={cameraInputRef} onChange={(e) => handleImageUpload(e)} />
+          
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="ghost" size="icon" className="rounded-xl shrink-0 bg-muted/40 h-12 w-12 text-muted-foreground" disabled={isSending || isStorageUploading}>
+                {isStorageUploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Camera className="w-6 h-6" />}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-48 p-2 rounded-2xl border-none shadow-2xl" side="top" align="start">
+              <div className="flex flex-col gap-1">
+                <Button variant="ghost" size="sm" onClick={() => cameraInputRef.current?.click()} className="justify-start gap-3 rounded-xl py-5 h-auto">
+                   <Camera className="w-4 h-4 text-primary" />
+                   <span className="font-bold text-xs uppercase tracking-tight">Camera</span>
+                </Button>
+                <Button variant="ghost" size="sm" onClick={() => galleryInputRef.current?.click()} className="justify-start gap-3 rounded-xl py-5 h-auto">
+                   <ImageIcon className="w-4 h-4 text-primary" />
+                   <span className="font-bold text-xs uppercase tracking-tight">Gallery</span>
+                </Button>
+              </div>
+            </PopoverContent>
+          </Popover>
+
           <form onSubmit={handleSendMessage} className="flex-grow flex gap-2">
             <Input value={newMessage} onChange={e => setNewMessage(e.target.value)} placeholder="Respectful message..." className="rounded-2xl bg-muted/40 border-none h-12 px-6 font-bold text-base shadow-inner" disabled={isSending} />
             <Button type="submit" size="icon" className="rounded-xl h-12 w-12 gradient-bg shrink-0 shadow-lg shadow-primary/20 active:scale-90 transition-transform" disabled={!newMessage.trim() || isSending}>

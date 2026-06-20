@@ -28,8 +28,15 @@ import {
   Lock,
   Languages,
   UserCircle,
-  Plus
+  Plus,
+  Image as ImageIcon
 } from 'lucide-react';
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from '@/components/ui/dropdown-menu';
 import { generateBio } from '@/ai/flows/generate-bio-flow';
 import { moderateImage } from '@/ai/flows/moderate-image-flow';
 import { useToast } from '@/hooks/use-toast';
@@ -54,7 +61,8 @@ function ProfileContent() {
   const { uploadFile, isUploading: isStorageUploading } = useFirebaseStorage();
   const { toast } = useToast();
   const router = useRouter();
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   const userRef = useMemoFirebase(() => {
     if (!db || !user) return null;
@@ -230,17 +238,35 @@ function ProfileContent() {
       <main className="container mx-auto px-4 max-w-2xl py-6">
         <div className="flex items-center justify-between mb-6 gap-4">
           <div className="flex items-center gap-4">
-            <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-              <Avatar className="w-16 h-16 border-2 border-primary/20 shadow-lg">
-                <AvatarImage src={photoUrl} className="object-cover" />
-                <AvatarFallback className="bg-primary/5 text-primary">
-                  {isStorageUploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <User className="w-8 h-8" />}
-                </AvatarFallback>
-              </Avatar>
-              <div className="absolute -bottom-1 -right-1 bg-primary text-white p-1 rounded-full border-2 border-white shadow-sm group-hover:scale-110 transition-transform">
-                <Plus className="w-3 h-3" />
-              </div>
-              <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handlePhotoUpload} />
+            <div className="relative group">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <div className="relative cursor-pointer">
+                    <Avatar className="w-16 h-16 border-2 border-primary/20 shadow-lg">
+                      <AvatarImage src={photoUrl} className="object-cover" />
+                      <AvatarFallback className="bg-primary/5 text-primary">
+                        {isStorageUploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <User className="w-8 h-8" />}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="absolute -bottom-1 -right-1 bg-primary text-white p-1 rounded-full border-2 border-white shadow-sm group-hover:scale-110 transition-transform">
+                      <Plus className="w-3 h-3" />
+                    </div>
+                  </div>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="rounded-2xl p-2 border-none shadow-xl">
+                  <DropdownMenuItem onClick={() => cameraInputRef.current?.click()} className="rounded-xl gap-3 py-3 cursor-pointer">
+                    <Camera className="w-4 h-4 text-primary" />
+                    <span className="font-bold text-sm">Take Photo</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => galleryInputRef.current?.click()} className="rounded-xl gap-3 py-3 cursor-pointer">
+                    <ImageIcon className="w-4 h-4 text-primary" />
+                    <span className="font-bold text-sm">Choose from Gallery</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <input type="file" ref={galleryInputRef} className="hidden" accept="image/*" onChange={handlePhotoUpload} />
+              <input type="file" ref={cameraInputRef} className="hidden" accept="image/*" capture="user" onChange={handlePhotoUpload} />
             </div>
             <div>
               <h1 className="text-3xl font-black tracking-tighter flex items-center gap-2">
@@ -382,9 +408,23 @@ function ProfileContent() {
 
                   <div className="flex items-center justify-between p-6 bg-primary/5 rounded-2xl border border-primary/10">
                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-primary shadow-sm border border-primary/5 cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-                          {isStorageUploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Camera className="w-5 h-5" />}
-                        </div>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-primary shadow-sm border border-primary/5 cursor-pointer">
+                              {isStorageUploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Camera className="w-5 h-5" />}
+                            </div>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent className="rounded-2xl border-none shadow-2xl p-2">
+                             <DropdownMenuItem onClick={() => cameraInputRef.current?.click()} className="rounded-xl gap-3 py-3 cursor-pointer">
+                               <Camera className="w-4 h-4 text-primary" />
+                               <span className="font-bold text-sm">Take Photo</span>
+                             </DropdownMenuItem>
+                             <DropdownMenuItem onClick={() => galleryInputRef.current?.click()} className="rounded-xl gap-3 py-3 cursor-pointer">
+                               <ImageIcon className="w-4 h-4 text-primary" />
+                               <span className="font-bold text-sm">Library</span>
+                             </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                         <div>
                           <h4 className="font-black text-xs uppercase tracking-tight">Public Photo</h4>
                           <p className="text-[9px] text-muted-foreground italic font-medium">Toggle discovery visibility.</p>

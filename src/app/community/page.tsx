@@ -16,8 +16,14 @@ import {
   Ghost,
   MessageSquare,
   Camera,
-  EyeOff
+  EyeOff,
+  Image as ImageIcon
 } from 'lucide-react';
+import { 
+  Popover, 
+  PopoverContent, 
+  PopoverTrigger 
+} from '@/components/ui/popover';
 import { useUser, useFirestore, useCollection, useDoc, useFirebaseStorage } from '@/firebase';
 import { collection, addDoc, query, orderBy, serverTimestamp, limit, doc } from 'firebase/firestore';
 import { moderateText } from '@/ai/flows/moderate-text-flow';
@@ -35,7 +41,8 @@ export default function CommunityPage() {
   const { uploadFile, isUploading: isStorageUploading } = useFirebaseStorage();
   const { toast } = useToast();
   const scrollRef = useRef<HTMLDivElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   const [newMessage, setNewMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
@@ -193,10 +200,29 @@ export default function CommunityPage() {
           </div>
         )}
         <form onSubmit={handleSendMessage} className="flex gap-2">
-          <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleImageSelect} />
-          <Button type="button" variant="ghost" size="icon" onClick={() => fileInputRef.current?.click()} className="rounded-xl h-12 w-12 bg-muted/40 text-muted-foreground">
-            <Camera className="w-6 h-6" />
-          </Button>
+          <input type="file" ref={galleryInputRef} className="hidden" accept="image/*" onChange={handleImageSelect} />
+          <input type="file" ref={cameraInputRef} className="hidden" accept="image/*" capture="user" onChange={handleImageSelect} />
+          
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button type="button" variant="ghost" size="icon" className="rounded-xl h-12 w-12 bg-muted/40 text-muted-foreground">
+                <Camera className="w-6 h-6" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-48 p-2 rounded-2xl border-none shadow-2xl" side="top" align="start">
+              <div className="flex flex-col gap-1">
+                <Button variant="ghost" size="sm" onClick={() => cameraInputRef.current?.click()} className="justify-start gap-3 rounded-xl py-5 h-auto">
+                   <Camera className="w-4 h-4 text-primary" />
+                   <span className="font-bold text-xs uppercase tracking-tight">Camera</span>
+                </Button>
+                <Button variant="ghost" size="sm" onClick={() => galleryInputRef.current?.click()} className="justify-start gap-3 rounded-xl py-5 h-auto">
+                   <ImageIcon className="w-4 h-4 text-primary" />
+                   <span className="font-bold text-xs uppercase tracking-tight">Gallery</span>
+                </Button>
+              </div>
+            </PopoverContent>
+          </Popover>
+
           <Input 
             value={newMessage} 
             onChange={e => setNewMessage(e.target.value)} 
