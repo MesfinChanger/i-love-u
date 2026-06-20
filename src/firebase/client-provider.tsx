@@ -1,11 +1,11 @@
 /**
  * @fileOverview Client-side Firebase Provider.
- * Direct relative imports to prevent circular dependency loops.
+ * Imports initialization logic from init.ts to avoid barrel circularity.
  */
 'use client';
 
 import React, { useMemo } from 'react';
-import { initializeFirebase } from './index';
+import { initializeFirebase } from './init';
 import { FirebaseProvider } from './provider';
 
 export function FirebaseClientProvider({ children }: { children: React.ReactNode }) {
