@@ -24,10 +24,10 @@ import {
   ShieldCheck,
   Camera,
   MapPin,
-  Lock
+  Lock,
+  Languages
 } from 'lucide-react';
 import { generateBio } from '@/ai/flows/generate-bio-flow';
-import { moderateText } from '@/ai/flows/moderate-text-flow';
 import { useToast } from '@/hooks/use-toast';
 import { useUser, useFirestore, useAuth, useDoc } from '@/firebase';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
@@ -38,14 +38,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
+import { COUNTRIES, LANGUAGES, CURRENCIES } from '@/lib/world-data';
 
 const GENDERS = [{ value: 'male', label: 'Male' }, { value: 'female', label: 'Female' }];
-
-const COUNTRIES = [
-  { code: 'AF', name: 'Afghanistan' }, { code: 'US', name: 'United States' }, { code: 'GB', name: 'United Kingdom' },
-  { code: 'NG', name: 'Nigeria' }, { code: 'KE', name: 'Kenya' }, { code: 'IN', name: 'India' },
-  { code: 'JP', name: 'Japan' }, { code: 'FR', name: 'France' }, { code: 'DE', name: 'Germany' }
-];
 
 function ProfileContent() {
   const { user } = useUser();
@@ -79,6 +74,8 @@ function ProfileContent() {
   const [bio, setBio] = useState('');
   const [publicNickname, setPublicNickname] = useState('');
   const [isPhotoPublic, setIsPhotoPublic] = useState(false);
+  const [preferredLanguage, setPreferredLanguage] = useState('English');
+  const [currency, setCurrency] = useState('USD');
 
   // Security Protocol
   const [isAgeVerified, setIsAgeVerified] = useState(false);
@@ -106,6 +103,8 @@ function ProfileContent() {
       setIsAgeVerified(profileData.isAgeVerified || false);
       setIsRespectful(profileData.isRespectful || false);
       setIsHuman(profileData.isHuman || false);
+      setPreferredLanguage(profileData.preferredLanguage || 'English');
+      setCurrency(profileData.currency || 'USD');
     }
   }, [profileData]);
 
@@ -133,11 +132,38 @@ function ProfileContent() {
     setIsSaving(true);
     try {
       await setDoc(doc(db, 'users', user.uid), {
-        uid: user.uid, firstName, lastName, displayName, birthdate, age: userAge, gender, bio, address1, address2, city, state, country, publicNickname, isPhotoPublic, isAgeVerified, isRespectful, isHuman, updatedAt: serverTimestamp()
+        uid: user.uid, 
+        firstName, 
+        lastName, 
+        displayName, 
+        birthdate, 
+        age: userAge, 
+        gender, 
+        bio, 
+        address1, 
+        address2, 
+        city, 
+        state, 
+        country, 
+        publicNickname, 
+        isPhotoPublic, 
+        isAgeVerified, 
+        isRespectful, 
+        isHuman, 
+        preferredLanguage,
+        currency,
+        updatedAt: serverTimestamp()
       }, { merge: true });
+
       await setDoc(doc(db, 'publicProfiles', user.uid), {
-        uid: user.uid, bio, publicNickname: publicNickname || "Mystery Heart", publicPhotoUrl: isPhotoPublic ? profileData?.photoUrl || null : null, country, updatedAt: serverTimestamp()
+        uid: user.uid, 
+        bio, 
+        publicNickname: publicNickname || "Mystery Heart", 
+        publicPhotoUrl: isPhotoPublic ? profileData?.photoUrl || null : null, 
+        country, 
+        updatedAt: serverTimestamp()
       }, { merge: true });
+
       toast({ title: "Identity Synced", description: "Your profile has been updated! ❤️" });
     } catch (e) {
       toast({ variant: "destructive", title: "Error", description: "Could not sync." });
@@ -149,7 +175,10 @@ function ProfileContent() {
   const handleGenerateBio = async () => {
     setIsGenerating(true);
     try {
-      const result = await generateBio({ interests: ['Respect', 'Love', 'Prosperity'] });
+      const result = await generateBio({ 
+        interests: ['Respect', 'Love', 'Prosperity'],
+        language: preferredLanguage
+      });
       setBio(result.bio);
     } finally {
       setIsGenerating(false);
@@ -263,6 +292,31 @@ function ProfileContent() {
                     <Label className="text-[8px] font-black uppercase tracking-widest opacity-60 ml-1">Unique Nickname</Label>
                     <Input value={publicNickname} onChange={e => setPublicNickname(e.target.value)} placeholder="e.g. MysteryHeart77" className="h-10 text-sm font-black text-primary" />
                   </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <Label className="text-[8px] font-black uppercase tracking-widest opacity-60 ml-1">Preferred Language</Label>
+                      <Select value={preferredLanguage} onValueChange={setPreferredLanguage}>
+                        <SelectTrigger className="h-10 text-sm">
+                          <Languages className="w-3 h-3 mr-2" />
+                          <SelectValue placeholder="Select Language" />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-64 overflow-y-auto">
+                          {LANGUAGES.map(lang => <SelectItem key={lang} value={lang}>{lang}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-[8px] font-black uppercase tracking-widest opacity-60 ml-1">Currency</Label>
+                      <Select value={currency} onValueChange={setCurrency}>
+                        <SelectTrigger className="h-10 text-sm"><SelectValue placeholder="Select Currency" /></SelectTrigger>
+                        <SelectContent className="max-h-64 overflow-y-auto">
+                          {CURRENCIES.map(curr => <SelectItem key={curr.code} value={curr.code}>{curr.code} ({curr.symbol})</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
                   <div className="flex items-center justify-between p-4 bg-primary/5 rounded-xl border border-primary/10">
                      <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-primary shadow-sm"><Camera className="w-4 h-4" /></div>
@@ -273,6 +327,7 @@ function ProfileContent() {
                      </div>
                      <Switch checked={isPhotoPublic} onCheckedChange={setIsPhotoPublic} />
                   </div>
+                  
                   <div className="space-y-2">
                     <div className="flex items-center justify-between px-1">
                       <Label className="text-[8px] font-black uppercase tracking-widest opacity-60">Personal Bio</Label>

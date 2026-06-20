@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect, Suspense } from 'react';
@@ -29,17 +28,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { createSubscriptionSession } from '@/lib/stripe-actions';
 import { useSearchParams, useRouter } from 'next/navigation';
-
-const CURRENCIES = [
-  { code: 'USD', symbol: '$' },
-  { code: 'EUR', symbol: '€' },
-  { code: 'GBP', symbol: '£' },
-  { code: 'JPY', symbol: '¥' },
-  { code: 'NGN', symbol: '₦' },
-  { code: 'KES', symbol: 'KSh' },
-  { code: 'INR', symbol: '₹' },
-  { code: 'IDR', symbol: 'Rp' }
-];
+import { CURRENCIES } from '@/lib/world-data';
 
 function SellerManageContent() {
   const { user } = useUser();
@@ -81,7 +70,7 @@ function SellerManageContent() {
   const negotiationRequested = profile?.negotiationRequested || false;
   const userCurrency = profile?.currency || 'USD';
   const currencySymbol = useMemo(() => CURRENCIES.find(c => c.code === userCurrency)?.symbol || '$', [userCurrency]);
-  const hasFullCommercialInfo = profile?.address && profile?.taxId;
+  const hasFullCommercialInfo = profile?.address1 && profile?.taxId;
 
   const handleSubscribe = async (plan: 'basic_seller' | 'pro_seller') => {
     if (!user || !db) return;
@@ -92,7 +81,7 @@ function SellerManageContent() {
         title: "Verification Required",
         description: "Please complete your Business Address and SSN/TIN in Profile before subscribing."
       });
-      router.push('/profile?tab=commercial');
+      router.push('/profile?tab=address');
       return;
     }
 
@@ -110,7 +99,7 @@ function SellerManageContent() {
   const handleRequestCommissionPlan = () => {
     if (!user || !db) return;
     if (!hasFullCommercialInfo) {
-      router.push('/profile?tab=commercial');
+      router.push('/profile?tab=address');
       return;
     }
     setIsRequestingNegotiation(true);

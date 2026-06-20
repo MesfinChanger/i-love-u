@@ -32,12 +32,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { generateKeyPair } from '@/lib/crypto';
-
-const COUNTRIES = [
-  { code: 'AF', name: 'Afghanistan' }, { code: 'US', name: 'United States' }, { code: 'GB', name: 'United Kingdom' },
-  { code: 'NG', name: 'Nigeria' }, { code: 'KE', name: 'Kenya' }, { code: 'IN', name: 'India' },
-  { code: 'JP', name: 'Japan' }, { code: 'FR', name: 'France' }, { code: 'DE', name: 'Germany' }
-];
+import { COUNTRIES } from '@/lib/world-data';
 
 function LoginContent() {
   const auth = useAuth();
@@ -195,9 +190,9 @@ function LoginContent() {
                     <Zap className="w-5 h-5 text-amber-500 animate-pulse" />
                 </div>
                 <div className="space-y-1">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-amber-700">Regional Bridge Initializing</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-amber-700">Regional Bridge Required</p>
                     <p className="text-[9px] text-amber-600/80 font-bold leading-relaxed uppercase">
-                    The network is securing your region. If this takes more than a minute, please reload the page to pick up latest credentials.
+                    The platform is waiting for your project credentials in .env.local. If you are just testing, use Prototype Mode below.
                     </p>
                 </div>
              </div>

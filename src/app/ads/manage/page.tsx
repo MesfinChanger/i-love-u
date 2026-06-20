@@ -38,17 +38,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { moderateText } from '@/ai/flows/moderate-text-flow';
 import { Badge } from '@/components/ui/badge';
-
-const COUNTRIES = [
-  { code: 'GLOBAL', name: 'Global (All Safe Countries)' },
-  { code: 'US', name: 'United States' },
-  { code: 'GB', name: 'United Kingdom' },
-  { code: 'NG', name: 'Nigeria' },
-  { code: 'KE', name: 'Kenya' },
-  { code: 'JP', name: 'Japan' },
-  { code: 'DE', name: 'Germany' },
-  { code: 'FR', name: 'France' }
-];
+import { COUNTRIES } from '@/lib/world-data';
 
 function AdvertiserManageContent() {
   const { user } = useUser();
@@ -88,7 +78,7 @@ function AdvertiserManageContent() {
   }, [searchParams, toast]);
 
   const userCurrency = profile?.currency || 'USD';
-  const hasFullCommercialInfo = profile?.address && profile?.taxId;
+  const hasFullCommercialInfo = profile?.address1 && profile?.taxId;
 
   const handleCreateCampaign = async () => {
     if (!user || !db || !title || !description) return;
@@ -99,7 +89,7 @@ function AdvertiserManageContent() {
         title: "Verification Required",
         description: "Please complete your Business Address and SSN/TIN in Profile before launching ads."
       });
-      router.push('/profile?tab=commercial');
+      router.push('/profile?tab=address');
       return;
     }
 
@@ -236,7 +226,8 @@ function AdvertiserManageContent() {
                       <SelectTrigger className="rounded-xl h-12">
                         <SelectValue placeholder="Select Target Country" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="max-h-80 overflow-y-auto">
+                        <SelectItem value="GLOBAL">Global (All Safe Regions)</SelectItem>
                         {COUNTRIES.map(c => (
                           <SelectItem key={c.code} value={c.code}>{c.name}</SelectItem>
                         ))}

@@ -14,17 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { createDonationSession } from '@/lib/stripe-actions';
 import { useSearchParams } from 'next/navigation';
-
-const CURRENCIES = [
-  { code: 'USD', symbol: '$' },
-  { code: 'EUR', symbol: '€' },
-  { code: 'GBP', symbol: '£' },
-  { code: 'JPY', symbol: '¥' },
-  { code: 'NGN', symbol: '₦' },
-  { code: 'KES', symbol: 'KSh' },
-  { code: 'INR', symbol: '₹' },
-  { code: 'IDR', symbol: 'Rp' }
-];
+import { CURRENCIES } from '@/lib/world-data';
 
 function DonateContent() {
   const { user } = useUser();
