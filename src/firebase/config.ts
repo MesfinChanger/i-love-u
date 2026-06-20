@@ -1,14 +1,13 @@
 /**
- * @fileOverview Standardized Firebase configuration.
- * Maps environment variables directly with a robust sanitizer to prevent 
- * placeholder strings or invalid keys from crashing the SDK.
+ * @fileOverview Standardized Firebase configuration for the Prosperity Revolution.
+ * Correctly maps environment variables while filtering out invalid placeholder strings.
  */
 
 const sanitizeEnv = (val: string | undefined): string => {
   if (!val) return "";
   const trimmed = val.trim();
   
-  // Filter out literal placeholder strings, un-substituted env names, or common patterns
+  // Explicitly filter out known placeholder patterns or un-substituted variables
   if (
     trimmed === "" || 
     trimmed === "undefined" || 
@@ -16,8 +15,7 @@ const sanitizeEnv = (val: string | undefined): string => {
     trimmed.startsWith("NEXT_PUBLIC_") ||
     trimmed.startsWith("YOUR_") ||
     trimmed.startsWith("<") ||
-    trimmed.startsWith("{") ||
-    trimmed.includes("API_KEY")
+    trimmed.startsWith("{")
   ) {
     return "";
   }
