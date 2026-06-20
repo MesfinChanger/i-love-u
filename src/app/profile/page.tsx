@@ -370,7 +370,7 @@ function ProfileContent() {
               <input type="file" ref={cameraInputRef} className="hidden" accept="image/*" capture="user" onChange={(e) => handlePhotoUpload(e)} />
             </div>
             <div>
-              <h1 className="text-3xl font-black tracking-tighter flex items-center gap-2">
+              <h1 className="text-xl font-black tracking-tighter flex items-center gap-2">
                 My Account
               </h1>
               <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-widest ml-1">Manage your global presence.</p>
@@ -418,7 +418,7 @@ function ProfileContent() {
           <TabsContent value="personal">
             <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-8 space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
               <div className="flex justify-between items-center px-1">
-                 <h3 className="text-xl font-black uppercase tracking-tighter">Identity Details</h3>
+                 <h3 className="text-base font-black uppercase tracking-tighter">Identity Details</h3>
                  <Save className="w-4 h-4 text-primary/20" />
               </div>
               <div className="space-y-6">
@@ -456,7 +456,7 @@ function ProfileContent() {
           <TabsContent value="address">
             <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-8 space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
               <div className="flex justify-between items-center px-1">
-                 <h3 className="text-xl font-black uppercase tracking-tighter">Regional Origin</h3>
+                 <h3 className="text-base font-black uppercase tracking-tighter">Regional Origin</h3>
                  <Save className="w-4 h-4 text-primary/20" />
               </div>
               <div className="space-y-6">
@@ -520,7 +520,7 @@ function ProfileContent() {
           <TabsContent value="public">
              <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-8 space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
                 <div className="flex justify-between items-center px-1">
-                   <h3 className="text-xl font-black uppercase tracking-tighter">Public Presence</h3>
+                   <h3 className="text-base font-black uppercase tracking-tighter">Public Presence</h3>
                    <Save className="w-4 h-4 text-primary/20" />
                 </div>
                 <div className="space-y-6">
@@ -662,7 +662,7 @@ function ProfileContent() {
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-2 shadow-inner border-2 border-primary/5">
                   <ShieldCheck className="w-8 h-8 text-primary animate-pulse" />
                 </div>
-                <h3 className="text-2xl font-black uppercase tracking-tighter">Security Protocol</h3>
+                <h3 className="text-lg font-black uppercase tracking-tighter">Security Protocol</h3>
                 <p className="text-[10px] text-muted-foreground font-black uppercase tracking-[0.2em] opacity-60">Mandatory community safety</p>
               </div>
 

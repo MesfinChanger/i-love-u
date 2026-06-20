@@ -29,11 +29,11 @@ export function Header() {
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3 group" aria-label="I Love U Home">
           <div className="relative shiny-icon p-1.5 rounded-xl bg-primary/5">
-            <Heart className="w-8 h-8 fill-primary text-primary transition-transform group-hover:scale-110 animate-heartbeat" aria-hidden="true" />
+            <Heart className="w-10 h-10 fill-primary text-primary transition-transform group-hover:scale-110 animate-heartbeat" aria-hidden="true" />
           </div>
           <div className="flex flex-col leading-[0.8]">
-            <span className="font-black text-lg tracking-tighter text-primary uppercase">I LOVE</span>
-            <span className="font-black text-[5px] tracking-[0.6em] text-muted-foreground ml-1 uppercase">YOU</span>
+            <span className="font-black text-2xl tracking-tighter text-primary uppercase">I LOVE</span>
+            <span className="font-black text-[7px] tracking-[0.6em] text-muted-foreground ml-1 uppercase">YOU</span>
           </div>
         </Link>
         

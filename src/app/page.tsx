@@ -48,8 +48,8 @@ export default function Home() {
       <header className="fixed top-0 z-50 w-full bg-white/5 backdrop-blur-xl">
         <div className="container mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <Heart className="w-8 h-8 fill-primary text-primary animate-heartbeat" />
-            <span className="font-black text-[12px] tracking-[0.5em] text-primary uppercase ml-1">I LOVE YOU</span>
+            <Heart className="w-10 h-10 fill-primary text-primary animate-heartbeat" />
+            <span className="font-black text-[16px] tracking-[0.5em] text-primary uppercase ml-1">I LOVE YOU</span>
           </div>
           <div className="flex items-center gap-4">
             <Link href="/login" className="text-[10px] font-black uppercase tracking-widest text-white/60 hover:text-white transition-colors">Login</Link>
@@ -167,7 +167,7 @@ export default function Home() {
       <footer className="py-24 border-t bg-slate-50 relative z-10">
         <div className="container mx-auto px-6 text-center">
           <div className="flex items-center justify-center gap-3 mb-10 opacity-70">
-            <Heart className="w-8 h-8 fill-primary text-primary" />
+            <Heart className="w-10 h-10 fill-primary text-primary" />
             <span className="font-black text-[12px] tracking-[0.4em] text-primary uppercase">I LOVE YOU</span>
           </div>
           <p className="font-black text-[10px] tracking-[0.3em] mb-4 uppercase text-slate-400">© {currentYear || 'Prosperity Revolution'} • Reaching Every Heart</p>
