@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "UserProfile": {
@@ -94,12 +95,15 @@
     },
     "Message": {
       "title": "Message",
-      "description": "Chat message with gift attachment support.",
+      "description": "Chat message with gift and translation support.",
       "type": "object",
       "properties": {
         "senderId": { "type": "string" },
         "text": { "type": "string" },
         "encryptedText": { "type": "string" },
+        "translatedText": { "type": "string" },
+        "giftId": { "type": "string" },
+        "giftImageUrl": { "type": "string" },
         "timestamp": { "type": "string", "format": "date-time" }
       }
     }

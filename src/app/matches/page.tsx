@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useMemo, useState, useEffect } from 'react';
@@ -10,7 +11,7 @@ import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { Badge } from '@/components/ui/badge';
-import { Heart, Zap, Globe2, MessageCircle, Loader2, Sparkles, ShieldCheck, Clock, Star, Lock } from 'lucide-react';
+import { Heart, Zap, Globe2, MessageCircle, Loader2, Sparkles, ShieldCheck, Clock, Star, Lock, Languages } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function MatchesPage() {
@@ -45,7 +46,7 @@ export default function MatchesPage() {
         <div className="flex justify-between items-end mb-6">
           <div className="space-y-0.5">
             <h1 className="text-3xl font-black tracking-tighter">My Hearts</h1>
-            <p className="text-[10px] text-muted-foreground font-medium italic">Nurturing global connections.</p>
+            <p className="text-[10px] text-muted-foreground font-medium italic uppercase tracking-widest">Bridging languages & cultures.</p>
           </div>
           <div className="bg-primary/10 text-primary px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5 shadow-sm border border-primary/5">
             <Sparkles className="w-3 h-3" />
@@ -150,6 +151,10 @@ function ExclusiveSparkCard({ match, currentUserId }: { match: any, currentUserI
                    <Lock className="w-2 h-2" />
                    E2EE
                  </Badge>
+                 <Badge className="bg-blue-500/10 text-blue-600 border-none text-[7px] font-black uppercase tracking-widest px-2 h-5 flex items-center gap-1">
+                   <Languages className="w-2 h-2" />
+                   AI Translate
+                 </Badge>
               </div>
             </div>
           </CardContent>
@@ -201,8 +206,13 @@ function FriendMatchCard({ match, currentUserId }: { match: any, currentUserId: 
             </p>
           </div>
           
-          <div className="bg-blue-50 p-2 rounded-xl text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition-all shadow-inner">
-             <MessageCircle className="w-4 h-4" />
+          <div className="flex items-center gap-2">
+             <div className="bg-blue-50 p-2 rounded-xl text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition-all shadow-inner">
+                <Languages className="w-4 h-4" />
+             </div>
+             <div className="bg-blue-50 p-2 rounded-xl text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition-all shadow-inner">
+                <MessageCircle className="w-4 h-4" />
+             </div>
           </div>
         </CardContent>
       </Card>
