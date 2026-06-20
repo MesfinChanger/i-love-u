@@ -1,13 +1,13 @@
 /**
  * @fileOverview Hardened Firebase configuration.
- * Sanitizes environment variables to ensure invalid placeholders are rejected.
+ * Proactively sanitizes environment variables to ensure invalid placeholders are rejected.
  */
 
 const sanitizeEnv = (val: string | undefined, keyName: string): string => {
   if (!val) return "";
   const trimmed = val.trim();
   
-  // Reject literal placeholder strings or un-substituted environment variable names
+  // Reject literal placeholder strings, un-substituted environment variable names, or the keyName itself
   if (
     trimmed === "" || 
     trimmed === "undefined" || 

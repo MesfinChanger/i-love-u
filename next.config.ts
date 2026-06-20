@@ -8,7 +8,11 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true,
   },
   experimental: {
-    // Next.js 15 workstation configuration
+    // Correct Next.js 15 placement for workstation safety
+    allowedDevOrigins: [
+      '6000-firebase-studio-1781669153012.cluster-xuuc5xf5uvgp6xje3qbpsmzu3o.cloudworkstations.dev',
+      'localhost:9002'
+    ],
   },
   images: {
     remotePatterns: [
