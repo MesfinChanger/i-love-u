@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Sparkles, Heart, User, ShoppingBag, Globe2 } from 'lucide-react';
+import { Sparkles, Heart, User, ShoppingBag, Globe2, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useTranslation } from './providers/LanguageProvider';
@@ -13,6 +13,7 @@ export function BottomNav() {
 
   const navItems = [
     { href: '/discover', icon: Sparkles, label: t('nav.discover') },
+    { href: '/search', icon: Search, label: t('nav.search') },
     { href: '/community', icon: Globe2, label: t('nav.global') },
     { href: '/matches', icon: Heart, label: t('nav.matches') },
     { href: '/shop', icon: ShoppingBag, label: t('nav.shop') },

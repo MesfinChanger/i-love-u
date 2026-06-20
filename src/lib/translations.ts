@@ -9,6 +9,7 @@ export const TRANSLATIONS: Record<LanguageCode, any> = {
   English: {
     nav: {
       discover: "Discover",
+      search: "Search",
       global: "Global",
       matches: "Matches",
       shop: "Shop",
@@ -34,6 +35,13 @@ export const TRANSLATIONS: Record<LanguageCode, any> = {
       spark: "Spark",
       allExplored: "All Hearts Explored"
     },
+    search: {
+      title: "Find Hearts",
+      subtitle: "SEARCH THE REVOLUTION",
+      placeholder: "Nickname or Interest...",
+      noResults: "No hearts found for this vibration.",
+      searching: "Scanning the network..."
+    },
     profile: {
       account: "My Account",
       sync: "Sync",
@@ -47,6 +55,7 @@ export const TRANSLATIONS: Record<LanguageCode, any> = {
   Spanish: {
     nav: {
       discover: "Descubrir",
+      search: "Buscar",
       global: "Global",
       matches: "Corazones",
       shop: "Tienda",
@@ -72,6 +81,13 @@ export const TRANSLATIONS: Record<LanguageCode, any> = {
       spark: "Chispa",
       allExplored: "Corazones Explorados"
     },
+    search: {
+      title: "Buscar Corazones",
+      subtitle: "BUSCAR EN LA REVOLUCIÓN",
+      placeholder: "Apodo o Interés...",
+      noResults: "No se encontraron corazones.",
+      searching: "Escaneando la red..."
+    },
     profile: {
       account: "Mi Cuenta",
       sync: "Sincronizar",
@@ -85,6 +101,7 @@ export const TRANSLATIONS: Record<LanguageCode, any> = {
   French: {
     nav: {
       discover: "Découvrir",
+      search: "Chercher",
       global: "Global",
       matches: "Matchs",
       shop: "Boutique",
@@ -110,6 +127,13 @@ export const TRANSLATIONS: Record<LanguageCode, any> = {
       spark: "Étincelle",
       allExplored: "Tous les Cœurs Explorés"
     },
+    search: {
+      title: "Chercher des Cœurs",
+      subtitle: "RECHERCHE DANS LA RÉVOLUTION",
+      placeholder: "Surnom ou Intérêt...",
+      noResults: "Aucun cœur trouvé.",
+      searching: "Balayage du réseau..."
+    },
     profile: {
       account: "Mon Compte",
       sync: "Sync",
@@ -123,6 +147,7 @@ export const TRANSLATIONS: Record<LanguageCode, any> = {
   Swahili: {
     nav: {
       discover: "Gundua",
+      search: "Tafuta",
       global: "Ulimwengu",
       matches: "Mechi",
       shop: "Duka",
@@ -147,6 +172,13 @@ export const TRANSLATIONS: Record<LanguageCode, any> = {
       invite: "Alika",
       spark: "Cheche",
       allExplored: "Mioyo Yote Imegunduliwa"
+    },
+    search: {
+      title: "Tafuta Mioyo",
+      subtitle: "TAFUTA MAPINDUZI",
+      placeholder: "Jina la Utani au Maslahi...",
+      noResults: "Hakuna mioyo iliyopatikana.",
+      searching: "Inatafuta kwenye mtandao..."
     },
     profile: {
       account: "Akaunti Yangu",
