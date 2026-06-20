@@ -36,8 +36,15 @@ export function useCollection<T = DocumentData>(query: Query<T> | null) {
         async (err) => {
           // Check if this looks like a permission error
           if (err.message?.toLowerCase().includes('permission')) {
-            // Attempt to extract the path from the internal query object if possible
-            const path = (query as any)._query?.path?.segments?.join('/') || 'collection/query';
+            // Path extraction logic for different SDK versions
+            let path = 'collection/query';
+            try {
+              const q = query as any;
+              path = q._query?.path?.segments?.join('/') || q.path || 'collection/query';
+            } catch (e) {
+              console.warn("Could not extract path from query", e);
+            }
+
             const permissionError = new FirestorePermissionError({
               path: path,
               operation: 'list',
