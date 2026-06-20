@@ -29,13 +29,25 @@
         "relationshipStatus": { "type": "string", "enum": ["single", "dating"] },
         "isSeller": { "type": "boolean", "default": false },
         "isAdvertiser": { "type": "boolean", "default": false },
+        "sellerStatus": { "type": "string", "enum": ["none", "pending", "approved", "rejected"], "default": "none" },
+        "advertiserStatus": { "type": "string", "enum": ["none", "pending", "approved", "rejected"], "default": "none" },
+        "adminChecklist": { 
+          "type": "object",
+          "properties": {
+            "idVerified": { "type": "boolean" },
+            "addressVerified": { "type": "boolean" },
+            "policySigned": { "type": "boolean" },
+            "humanVerified": { "type": "boolean" }
+          }
+        },
         "publicKey": { "type": "string" },
         "currency": { "type": "string", "default": "USD" },
         "publicNickname": { "type": "string" },
         "isPhotoPublic": { "type": "boolean", "default": false },
         "isAgeVerified": { "type": "boolean", "default": false },
         "isRespectful": { "type": "boolean", "default": false },
-        "isHuman": { "type": "boolean", "default": false }
+        "isHuman": { "type": "boolean", "default": false },
+        "isAdmin": { "type": "boolean", "default": false }
       },
       "required": ["uid", "firstName", "lastName", "birthdate"]
     },

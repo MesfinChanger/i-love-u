@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
@@ -28,10 +29,12 @@ import {
   ShieldAlert,
   IdCard,
   Rocket,
-  Save
+  Save,
+  Clock,
+  FileCheck
 } from 'lucide-react';
 import { useUser, useFirestore, useDoc, useCollection } from '@/firebase';
-import { doc, setDoc, addDoc, collection, serverTimestamp, query, where } from 'firebase/firestore';
+import { doc, setDoc, addDoc, collection, serverTimestamp, query, where, updateDoc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { createAdCampaignSession } from '@/lib/stripe-actions';
@@ -72,6 +75,9 @@ function AdvertiserManageContent() {
   const [isCreating, setIsCreating] = useState(false);
   const [mounted, setMounted] = useState(false);
 
+  const advertiserStatus = profile?.advertiserStatus || 'none';
+  const isApprovedAdvertiser = profile?.isAdvertiser && advertiserStatus === 'approved';
+
   // Hold Protocol: Load Draft
   useEffect(() => {
     setMounted(true);
@@ -110,22 +116,39 @@ function AdvertiserManageContent() {
   const isSeller = profile?.isSeller || false;
   const hasFullCommercialInfo = profile?.address1 && profile?.taxId;
 
+  const handleApplyAdvertiser = async () => {
+    if (!user || !db) return;
+    if (!hasFullCommercialInfo) {
+      router.push('/profile?tab=address');
+      return;
+    }
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        advertiserStatus: 'pending'
+      });
+      toast({
+        title: "Approval Request Sent",
+        description: "Administrators will thoroughly review your account. ✨"
+      });
+    } catch (e) {
+      toast({ variant: "destructive", title: "Error", description: "Failed to apply." });
+    }
+  };
+
   const handleCreateCampaign = async () => {
     if (!user || !db || !title || !description) return;
 
-    if (!hasFullCommercialInfo) {
+    if (!isApprovedAdvertiser) {
       toast({
         variant: "destructive",
-        title: "Verification Required",
-        description: "Please complete your Business Address and SSN/TIN in Profile before launching ads."
+        title: "Admin Approval Required",
+        description: "Your advertiser status must be approved by the platform before launching ads."
       });
-      router.push('/profile?tab=address');
       return;
     }
 
     const amount = parseFloat(budget);
     
-    // Minimum budget of 10 for non-sellers. Sellers can do 0 for free ads.
     if (!isSeller && (isNaN(amount) || amount < 10)) {
       toast({
         variant: "destructive",
@@ -167,7 +190,6 @@ function AdvertiserManageContent() {
         timestamp: serverTimestamp(),
       });
 
-      // Clear draft on success
       localStorage.removeItem(`ad_draft_${user.uid}`);
 
       if (amount > 0) {
@@ -190,6 +212,41 @@ function AdvertiserManageContent() {
     }
   };
 
+  if (advertiserStatus === 'pending') {
+    return (
+      <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
+        <Header />
+        <main className="container mx-auto px-4 py-12 max-w-lg">
+           <Card className="rounded-[3rem] border-none shadow-2xl overflow-hidden bg-white p-12 text-center space-y-8">
+              <div className="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center mx-auto ring-4 ring-white shadow-xl">
+                 <Clock className="w-12 h-12 text-blue-500 animate-pulse" />
+              </div>
+              <div className="space-y-3">
+                 <h1 className="text-4xl font-black tracking-tighter uppercase">Ad-Admin Review</h1>
+                 <p className="text-muted-foreground font-medium leading-relaxed italic">
+                   "Reach requires responsibility." Administrators are verifying your identity and liability agreement before you can reach our community hearts.
+                 </p>
+              </div>
+              <div className="bg-slate-900 p-8 rounded-[2.5rem] space-y-4 shadow-xl border border-primary/20">
+                 <div className="flex items-center gap-3 text-primary justify-center">
+                    <FileCheck className="w-6 h-6" />
+                    <h4 className="font-black text-xs uppercase tracking-widest">Advertiser Checklist</h4>
+                 </div>
+                 <ul className="text-[10px] text-white/70 font-bold uppercase tracking-widest space-y-2 text-left">
+                    <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary" /> Advertiser ID Confirmation</li>
+                    <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary" /> Tax Identification Verified</li>
+                    <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary" /> Full Liability Acceptance</li>
+                    <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary" /> Human/Org Verification</li>
+                 </ul>
+              </div>
+              <Button variant="outline" className="w-full h-14 rounded-2xl font-black uppercase text-[10px] tracking-widest border-2" onClick={() => router.push('/discover')}>Return to Discovery</Button>
+           </Card>
+        </main>
+        <BottomNav />
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
       <Header />
@@ -200,14 +257,18 @@ function AdvertiserManageContent() {
               <Megaphone className="w-10 h-10 text-primary" aria-hidden="true" />
               Advertiser Tools
             </h1>
-            <p className="text-muted-foreground">Promote legally and respectfully to our community.</p>
+            <p className="text-muted-foreground">Promote legally and respectfully after **Admin Approval**.</p>
           </div>
           <div className="flex flex-col items-end gap-2">
-            {isSeller && (
-              <Badge className="bg-green-100 text-green-700 border-none px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
-                <Rocket className="w-3 h-3" />
-                Verified Seller: Free Ads Active
+            {isApprovedAdvertiser ? (
+               <Badge className="bg-green-100 text-green-700 border-none px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+                <CheckCircle2 className="w-3 h-3" />
+                Admin Approved Advertiser
               </Badge>
+            ) : advertiserStatus === 'none' && (
+              <Button onClick={handleApplyAdvertiser} className="rounded-full gradient-bg h-10 px-6 font-black uppercase text-[10px] tracking-widest shadow-lg">
+                Apply for Admin Approval
+              </Button>
             )}
             <div className="bg-primary/10 text-primary p-4 rounded-2xl border border-primary/20 flex items-center gap-3">
                <TrendingUp className="w-5 h-5" />
@@ -234,18 +295,25 @@ function AdvertiserManageContent() {
               </Card>
             )}
 
-            <Card className="rounded-[2.5rem] border-none shadow-xl bg-white overflow-hidden">
+            <Card className={cn("rounded-[2.5rem] border-none shadow-xl bg-white overflow-hidden", !isApprovedAdvertiser && "opacity-60 grayscale pointer-events-none")}>
               <CardHeader className="bg-primary/5 border-b p-8 flex flex-row items-center justify-between">
                 <div>
                    <CardTitle className="flex items-center gap-2 text-2xl tracking-tighter">
                      <Plus className="w-5 h-5 text-primary" />
                      New Ad Campaign
                    </CardTitle>
-                   <CardDescription>Target legally compliant regions.</CardDescription>
+                   <CardDescription>Target approved regions.</CardDescription>
                 </div>
                 <Save className="w-6 h-6 text-primary/20" />
               </CardHeader>
               <CardContent className="p-8 space-y-6">
+                {!isApprovedAdvertiser && (
+                  <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-center gap-3 mb-4">
+                    <ShieldAlert className="w-5 h-5 text-amber-600" />
+                    <p className="text-[10px] font-black uppercase tracking-widest text-amber-800">Account requires Admin Approval to launch campaigns.</p>
+                  </div>
+                )}
+
                 <Tabs value={adType} onValueChange={(v) => setAdType(v as 'text' | 'video')} className="w-full">
                   <TabsList className="grid grid-cols-2 w-full h-12 rounded-xl mb-6">
                     <TabsTrigger value="text" className="rounded-lg gap-2">
@@ -355,11 +423,11 @@ function AdvertiserManageContent() {
                 <Button 
                   className="w-full h-16 rounded-2xl gradient-bg text-lg font-bold shadow-xl shadow-primary/20 active:scale-95 transition-all gap-2"
                   onClick={handleCreateCampaign}
-                  disabled={isCreating || !title || !description}
+                  disabled={isCreating || !title || !description || !isApprovedAdvertiser}
                   aria-label="Launch Ad Campaign"
                 >
                   {isCreating ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
-                  {!hasFullCommercialInfo ? 'Complete Profile to Launch' : (isSeller && budget === '0' ? 'Launch Free Ad' : 'Accept Liability & Save')}
+                  {!isApprovedAdvertiser ? 'Awaiting Admin Approval' : 'Accept Liability & Save'}
                 </Button>
               </CardContent>
             </Card>
