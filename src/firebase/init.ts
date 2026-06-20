@@ -24,12 +24,18 @@ export function initializeFirebase(): {
   // Valid keys typically start with 'AIza' and are significantly long
   const isKeyValid = apiKey && 
                      apiKey.startsWith("AIza") && 
-                     apiKey.length > 25 &&
+                     apiKey.length > 20 && // Relaxed slightly for prototyping
                      !apiKey.includes("NEXT_PUBLIC") &&
-                     !apiKey.includes("PLACEHOLDER");
+                     !apiKey.includes("PLACEHOLDER") &&
+                     !apiKey.includes("REPLACE_WITH");
 
   if (!isKeyValid) {
-    // Return null services to trigger 'Standby' mode in UI instead of crashing SDK
+    // Log diagnostics to help the developer understand why initialization is skipped
+    if (!apiKey) {
+      console.warn("I Love U: Firebase API Key is missing. Regional Bridge in standby.");
+    } else {
+      console.warn("I Love U: Firebase API Key failed integrity check. Ensure it is a valid AIza... key.");
+    }
     return { app: null, db: null, auth: null, storage: null };
   }
 
@@ -39,9 +45,10 @@ export function initializeFirebase(): {
     const auth = getAuth(app);
     const storage = getStorage(app);
     
+    console.log("I Love U: Regional Bridge Secured. Prosperity Network Online. ❤️");
     return { app, db, auth, storage };
   } catch (error: any) {
-    console.warn("I Love U: Initialization standby. Waiting for regional credentials.");
+    console.warn("I Love U: Initialization standby. Waiting for regional credentials.", error.message);
     return { app: null, db: null, auth: null, storage: null };
   }
 }
