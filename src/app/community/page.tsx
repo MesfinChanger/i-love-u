@@ -19,6 +19,7 @@ import {
   EyeOff,
   Paperclip,
   FileIcon,
+  Volume2,
   Image as ImageIcon
 } from 'lucide-react';
 import { 
@@ -30,6 +31,7 @@ import { useUser, useFirestore, useCollection, useDoc, useFirebaseStorage } from
 import { collection, addDoc, query, orderBy, serverTimestamp, limit, doc } from 'firebase/firestore';
 import { moderateText } from '@/ai/flows/moderate-text-flow';
 import { moderateImage } from '@/ai/flows/moderate-image-flow';
+import { textToSpeech } from '@/ai/flows/text-to-speech-flow';
 import { useToast } from '@/hooks/use-toast';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { Card } from '@/components/ui/card';
@@ -52,6 +54,7 @@ export default function CommunityPage() {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setSelectedImagePreview] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [speakingIds, setSpeakingIds] = useState<Set<string>>(new Set());
 
   const userRef = useMemoFirebase(() => {
     if (!db || !user) return null;
@@ -80,7 +83,7 @@ export default function CommunityPage() {
     const file = e.target.files?.[0];
     if (file) {
       setSelectedImage(file);
-      setSelectedFile(null); // Clear generic file if an image is selected
+      setSelectedFile(null);
       const reader = new FileReader();
       reader.onloadend = () => setSelectedImagePreview(reader.result as string);
       reader.readAsDataURL(file);
@@ -96,6 +99,24 @@ export default function CommunityPage() {
     }
   };
 
+  const handleSpeak = async (msgId: string, text: string) => {
+    if (speakingIds.has(msgId)) return;
+    setSpeakingIds(prev => new Set(prev).add(msgId));
+    try {
+      const result = await textToSpeech({ text });
+      const audio = new Audio(result.media);
+      audio.play();
+    } catch (error) {
+      toast({ variant: "destructive", title: "Audio Error", description: "The platform couldn't find its voice right now. ✨" });
+    } finally {
+      setSpeakingIds(prev => {
+        const next = new Set(prev);
+        next.delete(msgId);
+        return next;
+      });
+    }
+  };
+
   const handleSendMessage = async (e?: React.FormEvent) => {
     e?.preventDefault();
     if ((!newMessage.trim() && !selectedImage && !selectedFile) || !user || !db || isSending) return;
@@ -107,7 +128,6 @@ export default function CommunityPage() {
       let fileName = null;
       let isSensitive = false;
 
-      // scan text if present
       if (newMessage.trim()) {
         const textModeration = await moderateText({ text: newMessage, context: 'chat' });
         if (textModeration.isFlagged) {
@@ -117,7 +137,6 @@ export default function CommunityPage() {
         }
       }
 
-      // scan and upload image if present
       if (selectedImage && imagePreview) {
         const imageModeration = await moderateImage({ photoDataUri: imagePreview });
         if (imageModeration.isSensitive) {
@@ -129,7 +148,6 @@ export default function CommunityPage() {
         isSensitive = imageModeration.isSensitive;
       }
 
-      // upload big file if present
       if (selectedFile) {
         fileUrl = await uploadFile(`community_files/${Date.now()}-${selectedFile.name}`, selectedFile);
         fileName = selectedFile.name;
@@ -213,7 +231,17 @@ export default function CommunityPage() {
                        <Button size="sm" variant="ghost" className="h-7 text-[8px] font-black uppercase px-2" onClick={() => window.open(msg.fileUrl)}>Download</Button>
                     </div>
                   )}
-                  {msg.text && <p>{msg.text}</p>}
+                  {msg.text && (
+                    <div className="flex flex-col gap-2">
+                       <p>{msg.text}</p>
+                       <div className="flex justify-end">
+                          <button onClick={() => handleSpeak(msg.id, msg.text)} className={cn("flex items-center gap-1.5 transition-opacity opacity-40 hover:opacity-100", isMe ? "text-white" : "text-primary")}>
+                            {speakingIds.has(msg.id) ? <Loader2 className="w-3 h-3 animate-spin" /> : <Volume2 className="w-3 h-3" />}
+                            <span className="text-[8px] font-black uppercase">Listen</span>
+                          </button>
+                       </div>
+                    </div>
+                  )}
                 </div>
               </div>
             );

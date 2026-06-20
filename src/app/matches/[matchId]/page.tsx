@@ -25,6 +25,7 @@ import {
   Gift,
   Paperclip,
   FileIcon,
+  Volume2,
   Image as ImageIcon
 } from 'lucide-react';
 import { 
@@ -40,6 +41,7 @@ import { generateIcebreaker } from '@/ai/flows/generate-icebreaker-flow';
 import { moderateImage } from '@/ai/flows/moderate-image-flow';
 import { moderateText } from '@/ai/flows/moderate-text-flow';
 import { translateMessage } from '@/ai/flows/translate-flow';
+import { textToSpeech } from '@/ai/flows/text-to-speech-flow';
 import { useToast } from '@/hooks/use-toast';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
@@ -87,6 +89,7 @@ export default function ChatPage() {
   const [witnessUid, setWitnessUid] = useState('');
   const [decryptedMessages, setDecryptedMessages] = useState<Record<string, string>>({});
   const [translatingIds, setTranslatingIds] = useState<Set<string>>(new Set());
+  const [speakingIds, setSpeakingIds] = useState<Set<string>>(new Set());
 
   const userRef = useMemoFirebase(() => {
     if (!db || !user) return null;
@@ -231,6 +234,24 @@ export default function ChatPage() {
     }
   };
 
+  const handleSpeak = async (msgId: string, text: string) => {
+    if (speakingIds.has(msgId)) return;
+    setSpeakingIds(prev => new Set(prev).add(msgId));
+    try {
+      const result = await textToSpeech({ text });
+      const audio = new Audio(result.media);
+      audio.play();
+    } catch (error) {
+      toast({ variant: "destructive", title: "Audio Error", description: "The platform couldn't find its voice right now. ✨" });
+    } finally {
+      setSpeakingIds(prev => {
+        const next = new Set(prev);
+        next.delete(msgId);
+        return next;
+      });
+    }
+  };
+
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, isImage = false) => {
     const file = e.target.files?.[0];
     if (!file || !user || !db || !matchId) return;
@@ -254,7 +275,6 @@ export default function ChatPage() {
         };
         reader.readAsDataURL(file);
       } else {
-        // Generic big file upload
         const fileName = `${Date.now()}-${file.name}`;
         const cloudUrl = await uploadFile(`matches/${matchId}/${fileName}`, file);
 
@@ -474,6 +494,7 @@ export default function ChatPage() {
             const blurContent = isSensitive && !myProfile?.settings?.allowSensitiveContent;
             const textToShow = msg.encryptedText ? (decryptedMessages[msg.id] || "...") : msg.text;
             const translation = msg.translations?.[myProfile?.preferredLanguage || 'English'];
+            const actualText = translation || textToShow;
 
             return (
               <div key={msg.id || i} className={`flex ${isMe ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 duration-500`}>
@@ -487,7 +508,7 @@ export default function ChatPage() {
                             <p className="text-[9px] font-black text-white/40 uppercase tracking-widest">Flagged by AI</p>
                           </div>
                         ) : (
-                          <Image src={msg.imageUrl} alt="Shared moment" fill className={cn("object-cover transition-all duration-1000", isSensitive && "blur-3xl hover:blur-none")} unoptimized={msg.imageUrl.startsWith('https://firebasestorage.googleapis.com')} />
+                          <Image src={msg.imageUrl} alt="Shared moment" fill className={cn("object-cover transition-all duration-1000", isSensitive && "blur-3xl hover:blur-none")} unoptimized={msg.imageUrl?.startsWith('https://firebasestorage.googleapis.com')} />
                         )}
                       </div>
                     </div>
@@ -504,15 +525,23 @@ export default function ChatPage() {
                     </div>
                   ) : (
                     <div className="flex flex-col gap-2">
-                      <span className="font-semibold text-sm tracking-tight">{translation || textToShow}</span>
+                      <span className="font-semibold text-sm tracking-tight">{actualText}</span>
                       {translation && <p className="text-[9px] opacity-60 italic font-medium">Translated from partner language</p>}
                       <div className={cn("flex items-center gap-3 mt-1", isMe ? "justify-end text-white/40" : "justify-between text-primary/40")}>
-                         {!isMe && !translation && textToShow !== "..." && (
-                           <button onClick={() => handleTranslate(msg.id, textToShow)} className="flex items-center gap-1 hover:text-primary transition-colors">
-                             {translatingIds.has(msg.id) ? <Loader2 className="w-2.5 h-2.5 animate-spin" /> : <Languages className="w-2.5 h-2.5" />}
-                             <span className="text-[8px] font-black uppercase">Translate</span>
-                           </button>
-                         )}
+                         <div className="flex items-center gap-2">
+                            {!isMe && !translation && textToShow !== "..." && (
+                              <button onClick={() => handleTranslate(msg.id, textToShow)} className="flex items-center gap-1 hover:text-primary transition-colors">
+                                {translatingIds.has(msg.id) ? <Loader2 className="w-2.5 h-2.5 animate-spin" /> : <Languages className="w-2.5 h-2.5" />}
+                                <span className="text-[8px] font-black uppercase">Translate</span>
+                              </button>
+                            )}
+                            {actualText && actualText !== "..." && actualText !== "[Encrypted Content]" && (
+                               <button onClick={() => handleSpeak(msg.id, actualText)} className="flex items-center gap-1 hover:text-primary transition-colors">
+                                 {speakingIds.has(msg.id) ? <Loader2 className="w-2.5 h-2.5 animate-spin" /> : <Volume2 className="w-2.5 h-2.5" />}
+                                 <span className="text-[8px] font-black uppercase">Listen</span>
+                               </button>
+                            )}
+                         </div>
                          <div className="flex items-center gap-1">
                            <Lock className="w-2.5 h-2.5" />
                            <span className="text-[7px] uppercase font-black tracking-widest">Secured</span>

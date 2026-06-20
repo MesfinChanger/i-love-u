@@ -10,3 +10,4 @@ import '@/ai/flows/generate-bio-flow.ts';
 import '@/ai/flows/generate-icebreaker-flow.ts';
 import '@/ai/flows/spark-assistant-flow.ts';
 import '@/ai/flows/translate-flow.ts';
+import '@/ai/flows/text-to-speech-flow.ts';
