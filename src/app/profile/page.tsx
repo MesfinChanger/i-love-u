@@ -199,6 +199,22 @@ function ProfileContent() {
     return age;
   };
 
+  const handleCountryChange = (newCountryCode: string) => {
+    setCountry(newCountryCode);
+    setState('');
+    setCity('');
+    
+    // Automatically Link Phone Code
+    const countryData = COUNTRIES.find(c => c.code === newCountryCode);
+    if (countryData?.phoneCode) {
+      // If phone is empty or just contains an old prefix, update it
+      const currentPrefix = COUNTRIES.find(c => phoneNumber.startsWith(c.phoneCode))?.phoneCode;
+      if (!phoneNumber || phoneNumber === currentPrefix) {
+        setPhoneNumber(countryData.phoneCode);
+      }
+    }
+  };
+
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>, isGallery = false) => {
     const file = e.target.files?.[0];
     if (!file || !user) return;
@@ -496,7 +512,7 @@ function ProfileContent() {
                 
                 <div className="space-y-2">
                   <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1">Country / Region</Label>
-                  <Select value={country} onValueChange={(v) => { setCountry(v); setState(''); setCity(''); }}>
+                  <Select value={country} onValueChange={handleCountryChange}>
                     <SelectTrigger className="h-12 text-sm rounded-xl font-bold bg-muted/30 border-none px-4">
                       <SelectValue placeholder="Select Country" />
                     </SelectTrigger>
