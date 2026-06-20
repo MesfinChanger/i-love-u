@@ -6,7 +6,7 @@ import { firebaseConfig } from './config';
 
 /**
  * @fileOverview Resilient Firebase Initializer.
- * Only initializes services if a structurally valid API key is present.
+ * Hardened to only boot services if legitimate credentials are present.
  */
 export function initializeFirebase(): { 
   app: FirebaseApp | null; 
@@ -20,8 +20,8 @@ export function initializeFirebase(): {
 
   const apiKey = firebaseConfig.apiKey;
   
-  // High-integrity check: Firebase keys standardly start with 'AIza' and are at least 30 chars.
-  // This prevents 'auth/api-key-not-valid' technical exceptions during project provisioning.
+  // Integrity check: Firebase keys standardly start with 'AIza' and are ~39 chars.
+  // This prevents 'auth/api-key-not-valid' technical exceptions during regional bridge stabilization.
   const isKeyValid = apiKey && 
                      apiKey.startsWith("AIza") && 
                      apiKey.length > 30;
