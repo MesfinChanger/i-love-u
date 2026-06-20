@@ -48,8 +48,8 @@ export default function Home() {
       <header className="fixed top-0 z-50 w-full bg-white/5 backdrop-blur-xl">
         <div className="container mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <Heart className="w-6 h-6 fill-primary text-primary animate-heartbeat" />
-            <span className="font-black text-[12px] tracking-[0.5em] text-primary uppercase ml-1">I LOVE U</span>
+            <Heart className="w-8 h-8 fill-primary text-primary animate-heartbeat" />
+            <span className="font-black text-[12px] tracking-[0.5em] text-primary uppercase ml-1">I LOVE YOU</span>
           </div>
           <div className="flex items-center gap-4">
             <Link href="/login" className="text-[10px] font-black uppercase tracking-widest text-white/60 hover:text-white transition-colors">Login</Link>
@@ -67,7 +67,7 @@ export default function Home() {
               <div 
                 key={img.id}
                 className={cn(
-                  "absolute inset-0 transition-all duration-3000 ease-in-out",
+                  "absolute inset-0 transition-all duration-[3000ms] ease-in-out",
                   imageIndex === i ? "opacity-100 scale-105 blur-0" : "opacity-0 scale-100 blur-sm"
                 )}
               >
@@ -86,7 +86,7 @@ export default function Home() {
 
           <div className="container mx-auto px-6 relative z-10 pt-20">
             <div className="max-w-4xl space-y-12">
-              <div className="bg-white/10 backdrop-blur-2xl px-6 py-4 rounded-[2rem] border border-white/20 shadow-2xl inline-flex animate-bounce duration-3000 group hover:bg-white/20 transition-all">
+              <div className="bg-white/10 backdrop-blur-2xl px-6 py-4 rounded-[2rem] border border-white/20 shadow-2xl inline-flex animate-bounce duration-[3000ms] group hover:bg-white/20 transition-all">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-2xl gradient-bg flex items-center justify-center shadow-lg group-hover:rotate-6 transition-transform">
                     <Sparkles className="w-6 h-6 text-white animate-pulse" />
@@ -167,8 +167,8 @@ export default function Home() {
       <footer className="py-24 border-t bg-slate-50 relative z-10">
         <div className="container mx-auto px-6 text-center">
           <div className="flex items-center justify-center gap-3 mb-10 opacity-70">
-            <Heart className="w-6 h-6 fill-primary text-primary" />
-            <span className="font-black text-[12px] tracking-[0.4em] text-primary uppercase">I LOVE U</span>
+            <Heart className="w-8 h-8 fill-primary text-primary" />
+            <span className="font-black text-[12px] tracking-[0.4em] text-primary uppercase">I LOVE YOU</span>
           </div>
           <p className="font-black text-[10px] tracking-[0.3em] mb-4 uppercase text-slate-400">© {currentYear || 'Prosperity Revolution'} • Reaching Every Heart</p>
           <p className="text-[9px] font-bold italic uppercase tracking-widest opacity-40 text-slate-400">Respect & Love is Mandatory ❤️ Eliminating Poverty Globally</p>

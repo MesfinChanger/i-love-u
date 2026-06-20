@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect, Suspense } from 'react';
@@ -116,7 +115,6 @@ function SellerManageContent() {
 
     setIsSubscribing(true);
     try {
-      // First set status to pending for admin approval if not already approved
       if (sellerStatus !== 'approved') {
         await updateDoc(doc(db, 'users', user.uid), {
           sellerStatus: 'pending',
@@ -277,7 +275,7 @@ function SellerManageContent() {
                     {isSubscribing ? <Loader2 className="w-4 h-4 animate-spin" /> : "Verify & Scale"}
                   </Button>
                 </CardFooter>
-              </div>
+              </Card>
             </div>
 
             <div className="p-10 bg-slate-900 rounded-[3rem] text-white space-y-6 max-w-2xl mx-auto mt-12 shadow-2xl relative overflow-hidden group">
