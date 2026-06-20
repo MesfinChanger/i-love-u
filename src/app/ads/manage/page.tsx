@@ -27,7 +27,8 @@ import {
   Scale,
   ShieldAlert,
   IdCard,
-  Rocket
+  Rocket,
+  Save
 } from 'lucide-react';
 import { useUser, useFirestore, useDoc, useCollection } from '@/firebase';
 import { doc, setDoc, addDoc, collection, serverTimestamp, query, where } from 'firebase/firestore';
@@ -205,12 +206,15 @@ function AdvertiserManageContent() {
             )}
 
             <Card className="rounded-[2.5rem] border-none shadow-xl bg-white overflow-hidden">
-              <CardHeader className="bg-primary/5 border-b">
-                <CardTitle className="flex items-center gap-2 text-2xl tracking-tighter">
-                  <Plus className="w-5 h-5 text-primary" />
-                  New Ad Campaign
-                </CardTitle>
-                <CardDescription>Target legally compliant regions.</CardDescription>
+              <CardHeader className="bg-primary/5 border-b p-8 flex flex-row items-center justify-between">
+                <div>
+                   <CardTitle className="flex items-center gap-2 text-2xl tracking-tighter">
+                     <Plus className="w-5 h-5 text-primary" />
+                     New Ad Campaign
+                   </CardTitle>
+                   <CardDescription>Target legally compliant regions.</CardDescription>
+                </div>
+                <Save className="w-6 h-6 text-primary/20" />
               </CardHeader>
               <CardContent className="p-8 space-y-6">
                 <Tabs value={adType} onValueChange={(v) => setAdType(v as 'text' | 'video')} className="w-full">
@@ -320,12 +324,12 @@ function AdvertiserManageContent() {
                 </div>
 
                 <Button 
-                  className="w-full h-16 rounded-2xl gradient-bg text-lg font-bold shadow-xl shadow-primary/20 active:scale-95 transition-all"
+                  className="w-full h-16 rounded-2xl gradient-bg text-lg font-bold shadow-xl shadow-primary/20 active:scale-95 transition-all gap-2"
                   onClick={handleCreateCampaign}
                   disabled={isCreating || !title || !description}
                   aria-label="Launch Ad Campaign"
                 >
-                  {isCreating ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : <Rocket className="w-5 h-5 mr-2" />}
+                  {isCreating ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
                   {!hasFullCommercialInfo ? 'Complete Profile to Launch' : (isSeller && budget === '0' ? 'Launch Free Ad' : 'Accept Liability & Launch')}
                 </Button>
               </CardContent>

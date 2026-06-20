@@ -362,28 +362,36 @@ function ProfileContent() {
         </div>
 
         <Tabs defaultValue="personal" className="w-full">
-          <TabsList className="w-full h-12 bg-white/50 rounded-xl p-1 mb-6 border shadow-sm backdrop-blur-md overflow-x-auto no-scrollbar">
-            <TabsTrigger value="personal" className="flex-1 rounded-lg text-[9px] font-black uppercase tracking-widest gap-1.5">
+          <TabsList className="w-full h-14 bg-white/50 rounded-2xl p-1 mb-6 border shadow-sm backdrop-blur-md overflow-x-auto no-scrollbar">
+            <TabsTrigger value="personal" className="flex-1 rounded-xl text-[9px] font-black uppercase tracking-widest gap-1.5 group data-[state=active]:text-primary">
               <User className="w-3.5 h-3.5" />
               Info
+              <Save className="w-2.5 h-2.5 ml-auto opacity-20 group-data-[state=active]:opacity-100 transition-opacity" />
             </TabsTrigger>
-            <TabsTrigger value="address" className="flex-1 rounded-lg text-[9px] font-black uppercase tracking-widest gap-1.5">
+            <TabsTrigger value="address" className="flex-1 rounded-xl text-[9px] font-black uppercase tracking-widest gap-1.5 group data-[state=active]:text-primary">
               <MapPin className="w-3.5 h-3.5" />
               Address
+              <Save className="w-2.5 h-2.5 ml-auto opacity-20 group-data-[state=active]:opacity-100 transition-opacity" />
             </TabsTrigger>
-            <TabsTrigger value="public" className="flex-1 rounded-lg text-[9px] font-black uppercase tracking-widest gap-1.5">
+            <TabsTrigger value="public" className="flex-1 rounded-xl text-[9px] font-black uppercase tracking-widest gap-1.5 group data-[state=active]:text-primary">
               <Globe2 className="w-3.5 h-3.5" />
               Public
+              <Save className="w-2.5 h-2.5 ml-auto opacity-20 group-data-[state=active]:opacity-100 transition-opacity" />
             </TabsTrigger>
-            <TabsTrigger value="security" className="flex-1 rounded-lg text-[9px] font-black uppercase tracking-widest relative gap-1.5">
+            <TabsTrigger value="security" className="flex-1 rounded-xl text-[9px] font-black uppercase tracking-widest relative gap-1.5 group data-[state=active]:text-primary">
               <ShieldCheck className="w-3.5 h-3.5" />
               Security
               {!isProtocolComplete && <div className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full animate-pulse border-2 border-white" />}
+              <Save className="w-2.5 h-2.5 ml-auto opacity-20 group-data-[state=active]:opacity-100 transition-opacity" />
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="personal">
             <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-8 space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <div className="flex justify-between items-center px-1">
+                 <h3 className="text-xl font-black uppercase tracking-tighter">Identity Details</h3>
+                 <Save className="w-4 h-4 text-primary/20" />
+              </div>
               <div className="space-y-6">
                 <div className="grid sm:grid-cols-2 gap-6">
                   <div className="space-y-2">
@@ -418,6 +426,10 @@ function ProfileContent() {
 
           <TabsContent value="address">
             <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-8 space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <div className="flex justify-between items-center px-1">
+                 <h3 className="text-xl font-black uppercase tracking-tighter">Regional Origin</h3>
+                 <Save className="w-4 h-4 text-primary/20" />
+              </div>
               <div className="space-y-6">
                 <div className="space-y-2">
                   <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1">Home Address Line 1</Label>
@@ -478,6 +490,10 @@ function ProfileContent() {
 
           <TabsContent value="public">
              <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-8 space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                <div className="flex justify-between items-center px-1">
+                   <h3 className="text-xl font-black uppercase tracking-tighter">Public Presence</h3>
+                   <Save className="w-4 h-4 text-primary/20" />
+                </div>
                 <div className="space-y-6">
                   <div className="space-y-2">
                     <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1">Unique Nickname</Label>
@@ -604,7 +620,10 @@ function ProfileContent() {
                         AI Spark Bio
                       </Button>
                     </div>
-                    <Textarea value={bio} onChange={e => setBio(e.target.value)} className="min-h-[160px] rounded-[1.5rem] text-sm italic p-6 bg-muted/30 border-none font-medium leading-relaxed" placeholder="Tell the community about your mission and what sparks joy for you..." />
+                    <div className="relative">
+                       <Textarea value={bio} onChange={e => setBio(e.target.value)} className="min-h-[160px] rounded-[1.5rem] text-sm italic p-6 bg-muted/30 border-none font-medium leading-relaxed" placeholder="Tell the community about your mission and what sparks joy for you..." />
+                       <Save className="absolute right-4 bottom-4 w-3.5 h-3.5 text-primary/10" />
+                    </div>
                   </div>
                 </div>
              </Card>

@@ -20,7 +20,8 @@ import {
   HeartHandshake,
   Percent,
   Check,
-  IdCard
+  IdCard,
+  Save
 } from 'lucide-react';
 import { useUser, useFirestore, useDoc } from '@/firebase';
 import { doc, setDoc, updateDoc } from 'firebase/firestore';
@@ -56,6 +57,7 @@ function SellerManageContent() {
   const [shopDesc, setShopDesc] = useState('');
   const [isSubscribing, setIsSubscribing] = useState(false);
   const [isRequestingNegotiation, setIsRequestingNegotiation] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     if (searchParams.get('success')) {
@@ -115,16 +117,21 @@ function SellerManageContent() {
     setIsRequestingNegotiation(false);
   };
 
-  const handleSaveShop = () => {
+  const handleSaveShop = async () => {
     if (!user || !db) return;
-    const shopId = `shop-${user.uid}`;
-    setDoc(doc(db, 'shops', shopId), {
-      ownerId: user.uid,
-      name: shopName,
-      description: shopDesc,
-      logoUrl: 'https://picsum.photos/seed/shop/200/200'
-    }, { merge: true });
-    toast({ title: "Shop Updated", description: "Your virtual store is live." });
+    setIsSaving(true);
+    try {
+      const shopId = `shop-${user.uid}`;
+      await setDoc(doc(db, 'shops', shopId), {
+        ownerId: user.uid,
+        name: shopName,
+        description: shopDesc,
+        logoUrl: 'https://picsum.photos/seed/shop/200/200'
+      }, { merge: true });
+      toast({ title: "Shop Updated", description: "Your virtual store is live. ✨" });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -195,10 +202,9 @@ function SellerManageContent() {
                     {isSubscribing ? <Loader2 className="w-4 h-4 animate-spin" /> : "Scale with Pro"}
                   </Button>
                 </CardFooter>
-              </Card>
-            </div>
+              </div>
 
-            <div className="p-8 bg-slate-900 rounded-[3rem] text-white space-y-4 max-w-2xl mx-auto mt-12 shadow-2xl">
+              <div className="p-8 bg-slate-900 rounded-[3rem] text-white space-y-4 max-w-2xl mx-auto mt-12 shadow-2xl">
                <div className="flex items-center gap-3 text-primary justify-center">
                   <HeartHandshake className="w-8 h-8" />
                   <h3 className="font-black text-2xl uppercase tracking-tighter">Entrepreneur Support</h3>
@@ -212,11 +218,12 @@ function SellerManageContent() {
           <div className="space-y-8">
             <h1 className="text-4xl font-black tracking-tighter">Manage Your Shop</h1>
             <Card className="rounded-[2.5rem] border-none shadow-xl overflow-hidden bg-white">
-              <CardHeader className="bg-primary/5 border-b p-8">
+              <CardHeader className="bg-primary/5 border-b p-8 flex flex-row items-center justify-between">
                 <CardTitle className="flex items-center gap-3">
                   <Store className="w-8 h-8 text-primary" />
                   Store Identity
                 </CardTitle>
+                <Save className="w-6 h-6 text-primary/20" />
               </CardHeader>
               <CardContent className="p-8 space-y-6">
                 <div className="space-y-3">
@@ -227,7 +234,10 @@ function SellerManageContent() {
                   <Label htmlFor="shop-desc" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Store Description</Label>
                   <Textarea id="shop-desc" placeholder="Describe your mission and what you sell..." value={shopDesc} onChange={e => setShopDesc(e.target.value)} className="rounded-[1.5rem] min-h-[120px] bg-muted/20 border-none p-6" />
                 </div>
-                <Button className="w-full rounded-2xl h-16 gradient-bg font-black uppercase tracking-widest text-xs shadow-xl shadow-primary/20" onClick={handleSaveShop}>Update Storefront</Button>
+                <Button className="w-full rounded-2xl h-16 gradient-bg font-black uppercase tracking-widest text-xs shadow-xl shadow-primary/20 gap-2" onClick={handleSaveShop} disabled={isSaving}>
+                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                  Update Storefront
+                </Button>
               </CardContent>
             </Card>
 
