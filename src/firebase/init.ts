@@ -21,11 +21,13 @@ export function initializeFirebase(): {
     return { app: null, db: null, auth: null, storage: null };
   }
 
-  // Final gate: If API Key is missing or too short, we stay in standby.
-  const isReady = firebaseConfig.apiKey && firebaseConfig.apiKey.length > 20;
+  // Final gate: Ensure we have a legitimate API key that isn't a placeholder name
+  const hasValidKey = firebaseConfig.apiKey && 
+                      firebaseConfig.apiKey.length > 20 && 
+                      !firebaseConfig.apiKey.includes("NEXT_PUBLIC_");
 
-  if (!isReady) {
-    console.warn("I Love U: Regional bridge is in standby. Waiting for secure credentials.");
+  if (!hasValidKey) {
+    console.warn("I Love U: Regional bridge is in standby. Waiting for secure credentials. ❤️");
     return { app: null, db: null, auth: null, storage: null };
   }
 
