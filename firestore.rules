@@ -23,8 +23,6 @@ service cloud.firestore {
 
     // User Profiles - Strict privacy
     match /users/{userId} {
-      // Only the owner can see everything (TaxID, address, etc)
-      // Only a matched partner can see the profile (Age, Gender, Bio, Photo)
       allow read: if isOwner(userId) || (isAuthenticated() && hasActiveMatch(request.auth.uid, userId));
       allow write: if isOwner(userId);
     }
@@ -58,8 +56,15 @@ service cloud.firestore {
       match /messages/{messageId} {
         allow read: if isParticipant(matchId);
         allow create: if isParticipant(matchId);
-        allow update, delete: if false; // IMMUTABLE FOR ACCOUNTABILITY
+        allow update, delete: if false; 
       }
+    }
+
+    // Community Wall - Public moderated feed
+    match /communityMessages/{messageId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.resource.data.senderId == request.auth.uid;
+      allow update, delete: if false;
     }
 
     // Reports - Admin only read

@@ -107,6 +107,17 @@
         "giftImageUrl": { "type": "string" },
         "timestamp": { "type": "string", "format": "date-time" }
       }
+    },
+    "CommunityMessage": {
+      "title": "Community Message",
+      "description": "A public message shared on the global community wall. Strictly moderated.",
+      "type": "object",
+      "properties": {
+        "senderId": { "type": "string" },
+        "senderNickname": { "type": "string" },
+        "text": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      }
     }
   },
   "auth": {
@@ -118,6 +129,7 @@
     "/donations/{donationId}": { "schema": "Donation", "description": "Support donations" },
     "/matches/{matchId}": { "schema": "Match", "description": "Active connections" },
     "/matches/{matchId}/messages/{messageId}": { "schema": "Message", "description": "Moderated chat history" },
-    "/ads/{adId}": { "schema": "AdCampaign", "description": "Sponsored discovery ads" }
+    "/ads/{adId}": { "schema": "AdCampaign", "description": "Sponsored discovery ads" },
+    "/communityMessages/{messageId}": { "schema": "CommunityMessage", "description": "Global moderated feed" }
   }
 }
