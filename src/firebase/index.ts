@@ -5,6 +5,7 @@
  * Re-exports components explicitly to prevent ChunkLoadErrors and circular dependencies.
  */
 
+import { initializeFirebase } from './init';
 import { 
   FirebaseProvider, 
   useFirebase, 
@@ -18,7 +19,6 @@ import { useUser } from './auth/use-user';
 import { useCollection } from './firestore/use-collection';
 import { useDoc } from './firestore/use-doc';
 import { useFirebaseStorage } from './storage/use-storage';
-import { initializeFirebase } from './init';
 import { useMemoFirebase } from './use-memo-firebase';
 
 export {

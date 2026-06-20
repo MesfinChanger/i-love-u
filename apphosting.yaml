@@ -2,38 +2,3 @@ version: v1beta
 runConfig:
   cpu: 1
   memoryMiB: 512
-env:
-  - variable: NEXT_PUBLIC_FIREBASE_API_KEY
-    availability:
-      - BUILD
-      - RUNTIME
-  - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
-    availability:
-      - BUILD
-      - RUNTIME
-  - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
-    availability:
-      - BUILD
-      - RUNTIME
-  - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
-    availability:
-      - BUILD
-      - RUNTIME
-  - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
-    availability:
-      - BUILD
-      - RUNTIME
-  - variable: NEXT_PUBLIC_FIREBASE_APP_ID
-    availability:
-      - BUILD
-      - RUNTIME
-  - variable: NEXT_PUBLIC_BASE_URL
-    availability:
-      - BUILD
-      - RUNTIME
-  - variable: STRIPE_SECRET_KEY
-    availability:
-      - RUNTIME
-  - variable: GEMINI_API_KEY
-    availability:
-      - RUNTIME
