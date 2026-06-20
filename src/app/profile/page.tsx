@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, Suspense, useRef } from 'react';
+import { useState, useEffect, Suspense, useRef, useMemo } from 'react';
 import { Header } from '@/components/Header';
 import { BottomNav } from '@/components/BottomNav';
 import { Button } from '@/components/ui/button';
@@ -53,7 +53,7 @@ import { Switch } from '@/components/ui/switch';
 import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
-import { COUNTRIES, LANGUAGES, CURRENCIES } from '@/lib/world-data';
+import { COUNTRIES, LANGUAGES, CURRENCIES, WORLD_LOCATIONS } from '@/lib/world-data';
 import Image from 'next/image';
 
 const GENDERS = [{ value: 'male', label: 'Male' }, { value: 'female', label: 'Female' }];
@@ -143,6 +143,17 @@ function ProfileContent() {
     }
   }, [profileData]);
 
+  // Hierarchical Location Logic
+  const availableRegions = useMemo(() => {
+    const data = WORLD_LOCATIONS[country] || WORLD_LOCATIONS['DEFAULT'];
+    return data.regions;
+  }, [country]);
+
+  const availableCities = useMemo(() => {
+    const region = availableRegions.find(r => r.name === state);
+    return region ? region.cities : [];
+  }, [state, availableRegions]);
+
   const calculateAge = (bday: string) => {
     if (!bday) return 0;
     const today = new Date();
@@ -224,7 +235,7 @@ function ProfileContent() {
     }
     setIsSaving(true);
     try {
-      const locationHint = `${city || 'Unknown Village'}, ${COUNTRIES.find(c => c.code === country)?.name || 'Global'}`;
+      const locationHint = `${city || 'Unknown Community'}, ${COUNTRIES.find(c => c.code === country)?.name || 'Global'}`;
 
       await setDoc(doc(db, 'users', user.uid), {
         uid: user.uid, 
@@ -413,25 +424,48 @@ function ProfileContent() {
                   <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1">Home Address Line 1</Label>
                   <Input value={address1} onChange={e => setAddress1(e.target.value)} className="h-12 text-sm rounded-xl font-bold bg-muted/30 border-none px-4" placeholder="Street address or P.O. Box" />
                 </div>
-                <div className="grid sm:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1">City / Village / District / Wereda</Label>
-                    <Input value={city} onChange={e => setCity(e.target.value)} className="h-12 text-sm rounded-xl font-bold bg-muted/30 border-none px-4" placeholder="Your local community name" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1">State / Province / Region</Label>
-                    <Input value={state} onChange={e => setState(e.target.value)} className="h-12 text-sm rounded-xl font-bold bg-muted/30 border-none px-4" placeholder="Regional name" />
-                  </div>
-                </div>
+                
                 <div className="space-y-2">
                   <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1">Country / Region</Label>
-                  <Select value={country} onValueChange={setCountry}>
-                    <SelectTrigger className="h-12 text-sm rounded-xl font-bold bg-muted/30 border-none px-4"><SelectValue placeholder="Select Country" /></SelectTrigger>
+                  <Select value={country} onValueChange={(v) => { setCountry(v); setState(''); setCity(''); }}>
+                    <SelectTrigger className="h-12 text-sm rounded-xl font-bold bg-muted/30 border-none px-4">
+                      <SelectValue placeholder="Select Country" />
+                    </SelectTrigger>
                     <SelectContent className="max-h-64 overflow-y-auto">
                       {COUNTRIES.map(c => <SelectItem key={c.code} value={c.code}>{c.name}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>
+
+                <div className="grid sm:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1">State / Province / Region</Label>
+                    <Select value={state} onValueChange={(v) => { setState(v); setCity(''); }}>
+                      <SelectTrigger className="h-12 text-sm rounded-xl font-bold bg-muted/30 border-none px-4">
+                        <SelectValue placeholder="Select Region" />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-64 overflow-y-auto">
+                        {availableRegions.map(r => <SelectItem key={r.name} value={r.name}>{r.name}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1">City / Village / District / Wereda</Label>
+                    <Select value={city} onValueChange={setCity}>
+                      <SelectTrigger className="h-12 text-sm rounded-xl font-bold bg-muted/30 border-none px-4">
+                        <SelectValue placeholder="Select Community" />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-64 overflow-y-auto">
+                        {availableCities.length > 0 ? (
+                          availableCities.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)
+                        ) : (
+                          <SelectItem value="Other">Other / Not Listed</SelectItem>
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                
                 <p className="text-[8px] text-muted-foreground italic font-medium uppercase tracking-widest text-center mt-4">
                   "Every Village is a Community." We bridge all hearts.
                 </p>

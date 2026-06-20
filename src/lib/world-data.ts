@@ -1,6 +1,7 @@
+
 /**
  * @fileOverview Comprehensive global data for the Prosperity Revolution.
- * Includes ISO countries, world languages, and global currencies.
+ * Includes ISO countries, world languages, global currencies, and hierarchical locations.
  */
 
 export const COUNTRIES = [
@@ -75,6 +76,54 @@ export const COUNTRIES = [
   { code: 'VN', name: 'Vietnam' }, { code: 'VG', name: 'Virgin Islands, British' }, { code: 'VI', name: 'Virgin Islands, U.S.' },
   { code: 'YE', name: 'Yemen' }, { code: 'ZM', name: 'Zambia' }, { code: 'ZW', name: 'Zimbabwe' }
 ];
+
+export const WORLD_LOCATIONS: Record<string, { regions: { name: string, cities: string[] }[] }> = {
+  'ET': { // Ethiopia
+    regions: [
+      { name: 'Addis Ababa', cities: ['Addis Ketema', 'Akaki Kality', 'Arada', 'Bole', 'Gullele', 'Kirkos', 'Kolfe Keranio', 'Lideta', 'Nifas Silk-Lafto', 'Yeka'] },
+      { name: 'Amhara', cities: ['Bahir Dar', 'Gondar', 'Dessie', 'Debre Birhan', 'Kombolcha', 'Debre Markos'] },
+      { name: 'Oromia', cities: ['Adama', 'Jimma', 'Bishoftu', 'Shashemene', 'Burayu', 'Nekemte'] },
+      { name: 'Tigray', cities: ['Mekele', 'Adigrat', 'Shire', 'Axum', 'Humera'] },
+      { name: 'Sidama', cities: ['Hawassa', 'Yirgalem', 'Aleta Wendo'] }
+    ]
+  },
+  'US': { // United States
+    regions: [
+      { name: 'California', cities: ['Los Angeles', 'San Francisco', 'San Diego', 'Sacramento', 'San Jose'] },
+      { name: 'New York', cities: ['New York City', 'Buffalo', 'Albany', 'Rochester', 'Yonkers'] },
+      { name: 'Texas', cities: ['Houston', 'Austin', 'Dallas', 'San Antonio', 'Fort Worth'] },
+      { name: 'Florida', cities: ['Miami', 'Orlando', 'Tampa', 'Jacksonville', 'Tallahassee'] }
+    ]
+  },
+  'NG': { // Nigeria
+    regions: [
+      { name: 'Lagos', cities: ['Ikeja', 'Lekki', 'Ikorodu', 'Epe', 'Badagry'] },
+      { name: 'Abuja', cities: ['Garki', 'Wuse', 'Asokoro', 'Maitama', 'Kuje'] },
+      { name: 'Kano', cities: ['Kano City', 'Wudil', 'Gwarzo', 'Bichi'] }
+    ]
+  },
+  'KE': { // Kenya
+    regions: [
+      { name: 'Nairobi', cities: ['Westlands', 'Dagoretti', 'Kasarani', 'Kibra', 'Langata'] },
+      { name: 'Mombasa', cities: ['Island', 'Changamwe', 'Likoni', 'Kisauni'] },
+      { name: 'Kisumu', cities: ['Kisumu Central', 'Kisumu West', 'Nyakach'] }
+    ]
+  },
+  'IN': { // India
+    regions: [
+      { name: 'Maharashtra', cities: ['Mumbai', 'Pune', 'Nagpur', 'Nashik'] },
+      { name: 'Karnataka', cities: ['Bengaluru', 'Mysuru', 'Hubballi', 'Mangaluru'] },
+      { name: 'Delhi', cities: ['New Delhi', 'Old Delhi', 'Dwarka', 'Rohini'] }
+    ]
+  },
+  'DEFAULT': {
+    regions: [
+      { name: 'Capital Region', cities: ['Main City', 'North District', 'South District'] },
+      { name: 'Coastal Region', cities: ['Port Village', 'Beach Town', 'Island District'] },
+      { name: 'Rural Region', cities: ['Agricultural Village', 'Mountain District', 'Forest Wereda'] }
+    ]
+  }
+};
 
 export const LANGUAGES = [
   'Afrikaans', 'Albanian', 'Amharic', 'Arabic', 'Armenian', 'Azerbaijani', 'Basque', 'Belarusian', 'Bengali', 'Bosnian',
