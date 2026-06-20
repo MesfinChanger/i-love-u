@@ -278,16 +278,25 @@ function LoginContent() {
                 </div>
                 
                 <div className="space-y-4 relative">
-                  <p className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-800 ml-1">SECURE PHRASE</p>
-                  <Input 
-                    type={showPassword ? "text" : "password"} 
-                    value={password} 
-                    onChange={(e) => setPassword(e.target.value)} 
-                    className="h-12 border-none border-b-2 border-slate-100 rounded-none px-0 font-bold text-base focus-visible:ring-0 focus-visible:border-primary transition-all pr-12" 
-                  />
-                  <Button variant="ghost" size="icon" className="absolute right-0 bottom-2 text-slate-300 hover:text-primary transition-colors" onClick={() => setShowPassword(!showPassword)}>
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </Button>
+                  <div className="flex justify-between items-baseline ml-1">
+                    <p className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-800">SECURE PHRASE</p>
+                    {mode === 'signin' && (
+                      <Link href="/login/reset" className="text-[9px] font-black uppercase tracking-widest text-slate-400 hover:text-primary transition-colors">
+                        Forgot?
+                      </Link>
+                    )}
+                  </div>
+                  <div className="relative">
+                    <Input 
+                      type={showPassword ? "text" : "password"} 
+                      value={password} 
+                      onChange={(e) => setPassword(e.target.value)} 
+                      className="h-12 border-none border-b-2 border-slate-100 rounded-none px-0 font-bold text-base focus-visible:ring-0 focus-visible:border-primary transition-all pr-12" 
+                    />
+                    <Button variant="ghost" size="icon" className="absolute right-0 bottom-2 text-slate-300 hover:text-primary transition-colors" onClick={() => setShowPassword(!showPassword)}>
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </Button>
+                  </div>
                 </div>
               </div>
 
