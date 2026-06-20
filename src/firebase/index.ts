@@ -5,11 +5,34 @@
  * Explicitly re-exports components to ensure stable module resolution in Next.js 15.
  */
 
-export * from './provider';
-export { FirebaseClientProvider } from './client-provider';
-export { useUser } from './auth/use-user';
-export { useCollection } from './firestore/use-collection';
-export { useDoc } from './firestore/use-doc';
-export { useFirebaseStorage } from './storage/use-storage';
-export { initializeFirebase } from './init';
-export { useMemoFirebase } from './use-memo-firebase';
+import { 
+  FirebaseProvider, 
+  useFirebase, 
+  useFirebaseApp, 
+  useFirestore, 
+  useAuth, 
+  useStorage 
+} from './provider';
+import { FirebaseClientProvider } from './client-provider';
+import { useUser } from './auth/use-user';
+import { useCollection } from './firestore/use-collection';
+import { useDoc } from './firestore/use-doc';
+import { useFirebaseStorage } from './storage/use-storage';
+import { initializeFirebase } from './init';
+import { useMemoFirebase } from './use-memo-firebase';
+
+export {
+  FirebaseProvider,
+  FirebaseClientProvider,
+  useFirebase,
+  useFirebaseApp,
+  useFirestore,
+  useAuth,
+  useStorage,
+  useUser,
+  useCollection,
+  useDoc,
+  useFirebaseStorage,
+  initializeFirebase,
+  useMemoFirebase,
+};

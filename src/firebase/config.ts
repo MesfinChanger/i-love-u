@@ -8,12 +8,11 @@ const sanitizeEnv = (val: string | undefined, keyName: string): string => {
   const trimmed = val.trim();
   
   // Explicitly filter out known placeholder patterns or un-substituted variables
-  // Check if the value is equal to its own environment variable name (common in uninitialized builds)
   if (
     trimmed === "" || 
     trimmed === "undefined" || 
     trimmed === "null" || 
-    trimmed === keyName ||
+    trimmed === keyName || // Matches "NEXT_PUBLIC_FIREBASE_API_KEY"
     trimmed.includes("PLACEHOLDER") ||
     trimmed.startsWith("<") ||
     trimmed.startsWith("{")
