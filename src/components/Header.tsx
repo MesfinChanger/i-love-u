@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -18,7 +17,8 @@ import {
   User,
   LayoutGrid,
   LogOut,
-  Loader2
+  Loader2,
+  Languages
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DonationDialog } from '@/components/DonationDialog';
@@ -29,6 +29,12 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import { useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
@@ -37,6 +43,13 @@ import { useTranslation } from './providers/LanguageProvider';
 import { useAuth } from '@/firebase';
 import { signOut } from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
+
+const SUPPORTED_LANGUAGES = [
+  { name: 'English', native: 'English' },
+  { name: 'Spanish', native: 'Español' },
+  { name: 'French', native: 'Français' },
+  { name: 'Swahili', native: 'Kiswahili' }
+];
 
 /**
  * @fileOverview The platform header, featuring a vertical navigation menu and Notification Center.
@@ -48,7 +61,7 @@ export function Header() {
   const [hasNotifications, setHasNotifications] = useState(true);
   const [isSigningOut, setIsSigningOut] = useState(false);
   const pathname = usePathname();
-  const { t } = useTranslation();
+  const { t, language, setLanguage } = useTranslation();
 
   const triggerAssistant = () => {
     window.dispatchEvent(new CustomEvent('toggle-spark-assistant'));
@@ -132,7 +145,38 @@ export function Header() {
                   );
                 })}
 
-                <div className="pt-4 mt-4 border-t border-dashed">
+                <div className="pt-6 mt-6 border-t border-dashed space-y-2">
+                   <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-4 mb-2">Platform Settings</p>
+                   
+                   <DropdownMenu>
+                     <DropdownMenuTrigger asChild>
+                        <button className="flex items-center gap-4 p-4 rounded-[1.5rem] transition-all w-full text-slate-600 hover:bg-muted/50 group text-left">
+                          <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center group-hover:bg-white group-hover:shadow-md transition-all text-slate-500">
+                             <Languages className="w-5 h-5" />
+                          </div>
+                          <div className="flex flex-col">
+                             <span className="font-black text-sm uppercase tracking-widest">Language</span>
+                             <span className="text-[9px] font-bold text-primary uppercase">{language}</span>
+                          </div>
+                        </button>
+                     </DropdownMenuTrigger>
+                     <DropdownMenuContent className="w-56 rounded-2xl p-2 border-none shadow-2xl" side="right" align="end">
+                        {SUPPORTED_LANGUAGES.map((lang) => (
+                          <DropdownMenuItem 
+                            key={lang.name} 
+                            onClick={() => setLanguage(lang.name)}
+                            className={cn(
+                              "rounded-xl py-3 px-4 font-bold text-xs uppercase tracking-wider cursor-pointer transition-colors",
+                              language === lang.name ? "bg-primary/10 text-primary" : "hover:bg-muted"
+                            )}
+                          >
+                            <span className="flex-grow">{lang.name}</span>
+                            <span className="text-[10px] opacity-40 font-medium">{lang.native}</span>
+                          </DropdownMenuItem>
+                        ))}
+                     </DropdownMenuContent>
+                   </DropdownMenu>
+
                   <button 
                     onClick={handleSignOut}
                     disabled={isSigningOut}
@@ -159,6 +203,28 @@ export function Header() {
         
         {/* Universal Actions */}
         <div className="flex items-center gap-1">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="text-primary/60 hover:text-primary w-10 h-10" aria-label="Select Language">
+                <Languages className="w-5 h-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-48 rounded-2xl p-2 border-none shadow-2xl mr-4" align="end">
+              {SUPPORTED_LANGUAGES.map((lang) => (
+                <DropdownMenuItem 
+                  key={lang.name} 
+                  onClick={() => setLanguage(lang.name)}
+                  className={cn(
+                    "rounded-xl py-3 px-4 font-bold text-xs uppercase tracking-wider cursor-pointer",
+                    language === lang.name ? "bg-primary/10 text-primary" : "hover:bg-muted"
+                  )}
+                >
+                  {lang.name}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           <DonationDialog />
           
           <Button variant="ghost" size="icon" onClick={triggerAssistant} className="text-primary/60 hover:text-primary w-10 h-10" aria-label="Ask Spark Guide">

@@ -3,12 +3,12 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { TRANSLATIONS, DEFAULT_LANGUAGE } from '@/lib/translations';
 import { useUser, useFirestore, useDoc } from '@/firebase';
-import { doc } from 'firebase/firestore';
+import { doc, updateDoc } from 'firebase/firestore';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 
 interface LanguageContextType {
   language: string;
-  setLanguage: (lang: string) => void;
+  setLanguage: (lang: string) => Promise<void>;
   t: (path: string) => string;
 }
 
@@ -24,17 +24,17 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   }, [db, user]);
   
   const { data: profile } = useDoc(userRef);
-  const [language, setLanguage] = useState(DEFAULT_LANGUAGE);
+  const [language, setInternalLanguage] = useState(DEFAULT_LANGUAGE);
 
   useEffect(() => {
     // 1. Try profile preference
     if (profile?.preferredLanguage && TRANSLATIONS[profile.preferredLanguage]) {
-      setLanguage(profile.preferredLanguage);
+      setInternalLanguage(profile.preferredLanguage);
       return;
     }
 
-    // 2. Try browser detection
-    if (typeof window !== 'undefined') {
+    // 2. Try browser detection if not logged in or no preference
+    if (typeof window !== 'undefined' && !profile?.preferredLanguage) {
       const browserLang = navigator.language.split('-')[0];
       const langMap: Record<string, string> = {
         'es': 'Spanish',
@@ -45,24 +45,41 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       
       const detected = langMap[browserLang];
       if (detected && TRANSLATIONS[detected]) {
-        setLanguage(detected);
+        setInternalLanguage(detected);
       }
     }
   }, [profile]);
+
+  const setLanguage = async (newLang: string) => {
+    if (!TRANSLATIONS[newLang]) return;
+    
+    setInternalLanguage(newLang);
+    
+    // Save to Firestore if user is authenticated
+    if (db && user) {
+      try {
+        await updateDoc(doc(db, 'users', user.uid), {
+          preferredLanguage: newLang
+        });
+      } catch (e) {
+        console.error("Failed to save language preference:", e);
+      }
+    }
+  };
 
   const t = (path: string) => {
     const keys = path.split('.');
     let current = TRANSLATIONS[language] || TRANSLATIONS[DEFAULT_LANGUAGE];
     
     for (const key of keys) {
-      if (current[key] === undefined) {
+      if (!current || current[key] === undefined) {
         // Fallback to English if key missing in current language
         let fallback = TRANSLATIONS[DEFAULT_LANGUAGE];
         for (const fKey of keys) {
           fallback = fallback?.[fKey];
           if (!fallback) break;
         }
-        return fallback || path;
+        return typeof fallback === 'string' ? fallback : path;
       }
       current = current[key];
     }
