@@ -25,7 +25,8 @@ import {
   Camera,
   MapPin,
   Lock,
-  Languages
+  Languages,
+  UserCircle
 } from 'lucide-react';
 import { generateBio } from '@/ai/flows/generate-bio-flow';
 import { useToast } from '@/hooks/use-toast';
@@ -164,7 +165,7 @@ function ProfileContent() {
         updatedAt: serverTimestamp()
       }, { merge: true });
 
-      toast({ title: "Identity Synced", description: "Your profile has been updated! ❤️" });
+      toast({ title: "Identity Synced", description: "Your account details have been updated! ❤️" });
     } catch (e) {
       toast({ variant: "destructive", title: "Error", description: "Could not sync." });
     } finally {
@@ -195,16 +196,19 @@ function ProfileContent() {
       <main className="container mx-auto px-4 max-w-2xl py-6">
         <div className="flex items-center justify-between mb-6 gap-4">
           <div>
-            <h1 className="text-3xl font-black tracking-tighter">Identity</h1>
-            <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-widest">Global community origin.</p>
+            <h1 className="text-3xl font-black tracking-tighter flex items-center gap-2">
+              <UserCircle className="w-8 h-8 text-primary" />
+              My Account
+            </h1>
+            <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-widest ml-1">Manage your global presence.</p>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={() => signOut(auth)} className="h-9 px-4 text-[9px] font-black uppercase">Sign Out</Button>
+            <Button variant="outline" size="sm" onClick={() => signOut(auth)} className="h-9 px-4 text-[9px] font-black uppercase rounded-full">Sign Out</Button>
             <Button 
               size="sm"
               onClick={handleSave} 
               disabled={isSaving || !isProtocolComplete} 
-              className={cn("h-9 px-5 text-[9px] font-black uppercase shadow-lg", isProtocolComplete ? "gradient-bg" : "bg-slate-200 text-slate-400")}
+              className={cn("h-9 px-5 text-[9px] font-black uppercase shadow-lg rounded-full", isProtocolComplete ? "gradient-bg" : "bg-slate-200 text-slate-400")}
             >
               {isSaving ? <Loader2 className="w-3 h-3 animate-spin mr-1.5" /> : <Save className="w-3 h-3 mr-1.5" />}
               Sync
@@ -213,69 +217,81 @@ function ProfileContent() {
         </div>
 
         <Tabs defaultValue="personal" className="w-full">
-          <TabsList className="w-full h-10 bg-white/50 rounded-lg p-0.5 mb-6 border shadow-sm backdrop-blur-md overflow-x-auto no-scrollbar">
-            <TabsTrigger value="personal" className="flex-1 rounded-md text-[8px] uppercase tracking-widest"><User className="w-3 h-3 mr-1" />Info</TabsTrigger>
-            <TabsTrigger value="address" className="flex-1 rounded-md text-[8px] uppercase tracking-widest"><MapPin className="w-3 h-3 mr-1" />Address</TabsTrigger>
-            <TabsTrigger value="public" className="flex-1 rounded-md text-[8px] uppercase tracking-widest"><Globe2 className="w-3 h-3 mr-1" />Public</TabsTrigger>
-            <TabsTrigger value="security" className="flex-1 rounded-md text-[8px] uppercase tracking-widest relative">
-              <ShieldCheck className="w-3 h-3 mr-1" />Security
-              {!isProtocolComplete && <div className="absolute top-0 right-0 w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />}
+          <TabsList className="w-full h-12 bg-white/50 rounded-xl p-1 mb-6 border shadow-sm backdrop-blur-md overflow-x-auto no-scrollbar">
+            <TabsTrigger value="personal" className="flex-1 rounded-lg text-[9px] font-black uppercase tracking-widest gap-1.5">
+              <User className="w-3.5 h-3.5" />
+              Info
+            </TabsTrigger>
+            <TabsTrigger value="address" className="flex-1 rounded-lg text-[9px] font-black uppercase tracking-widest gap-1.5">
+              <MapPin className="w-3.5 h-3.5" />
+              Address
+            </TabsTrigger>
+            <TabsTrigger value="public" className="flex-1 rounded-lg text-[9px] font-black uppercase tracking-widest gap-1.5">
+              <Globe2 className="w-3.5 h-3.5" />
+              Public
+            </TabsTrigger>
+            <TabsTrigger value="security" className="flex-1 rounded-lg text-[9px] font-black uppercase tracking-widest relative gap-1.5">
+              <ShieldCheck className="w-3.5 h-3.5" />
+              Security
+              {!isProtocolComplete && <div className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full animate-pulse border-2 border-white" />}
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="personal">
-            <Card className="rounded-[2rem] border-none shadow-lg bg-white p-6 space-y-6">
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <Label className="text-[8px] font-black uppercase tracking-widest opacity-60 ml-1">First Name</Label>
-                  <Input value={firstName} onChange={e => setFirstName(e.target.value)} className="h-10 text-sm" placeholder="Legal first name" />
+            <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-8 space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <div className="space-y-6">
+                <div className="grid sm:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1">Legal First Name</Label>
+                    <Input value={firstName} onChange={e => setFirstName(e.target.value)} className="h-12 text-sm rounded-xl font-bold bg-muted/30 border-none px-4" placeholder="First Name" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1">Legal Last Name</Label>
+                    <Input value={lastName} onChange={e => setLastName(e.target.value)} className="h-12 text-sm rounded-xl font-bold bg-muted/30 border-none px-4" placeholder="Last Name" />
+                  </div>
                 </div>
-                <div className="space-y-1.5">
-                  <Label className="text-[8px] font-black uppercase tracking-widest opacity-60 ml-1">Last Name</Label>
-                  <Input value={lastName} onChange={e => setLastName(e.target.value)} className="h-10 text-sm" placeholder="Legal last name" />
+                <div className="grid sm:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1">Display Name</Label>
+                    <Input value={displayName} onChange={e => setDisplayName(e.target.value)} className="h-12 text-sm rounded-xl font-bold bg-muted/30 border-none px-4" placeholder="How friends see you" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1">Birthdate</Label>
+                    <Input type="date" value={birthdate} onChange={e => setBirthdate(e.target.value)} className="h-12 text-sm rounded-xl font-bold bg-muted/30 border-none px-4" />
+                  </div>
                 </div>
-              </div>
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <Label className="text-[8px] font-black uppercase tracking-widest opacity-60 ml-1">Display Name</Label>
-                  <Input value={displayName} onChange={e => setDisplayName(e.target.value)} className="h-10 text-sm" placeholder="How friends see you" />
+                <div className="space-y-2">
+                  <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1">Gender</Label>
+                  <Select value={gender} onValueChange={setGender}>
+                    <SelectTrigger className="h-12 text-sm rounded-xl font-bold bg-muted/30 border-none px-4"><SelectValue placeholder="Select Gender" /></SelectTrigger>
+                    <SelectContent>{GENDERS.map(g => <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>)}</SelectContent>
+                  </Select>
                 </div>
-                <div className="space-y-1.5">
-                  <Label className="text-[8px] font-black uppercase tracking-widest opacity-60 ml-1">Birthdate</Label>
-                  <Input type="date" value={birthdate} onChange={e => setBirthdate(e.target.value)} className="h-10 text-sm" />
-                </div>
-              </div>
-              <div className="space-y-1.5">
-                <Label className="text-[8px] font-black uppercase tracking-widest opacity-60 ml-1">Gender</Label>
-                <Select value={gender} onValueChange={setGender}>
-                  <SelectTrigger className="h-10 text-sm"><SelectValue placeholder="Select Gender" /></SelectTrigger>
-                  <SelectContent>{GENDERS.map(g => <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>)}</SelectContent>
-                </Select>
               </div>
             </Card>
           </TabsContent>
 
           <TabsContent value="address">
-            <Card className="rounded-[2rem] border-none shadow-lg bg-white p-6 space-y-6">
-              <div className="space-y-4">
-                <div className="space-y-1.5">
-                  <Label className="text-[8px] font-black uppercase tracking-widest opacity-60 ml-1">Address Line 1</Label>
-                  <Input value={address1} onChange={e => setAddress1(e.target.value)} className="h-10 text-sm" placeholder="Street address" />
+            <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-8 space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1">Home Address Line 1</Label>
+                  <Input value={address1} onChange={e => setAddress1(e.target.value)} className="h-12 text-sm rounded-xl font-bold bg-muted/30 border-none px-4" placeholder="Street address" />
                 </div>
-                <div className="grid sm:grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <Label className="text-[8px] font-black uppercase tracking-widest opacity-60 ml-1">City</Label>
-                    <Input value={city} onChange={e => setCity(e.target.value)} className="h-10 text-sm" placeholder="City" />
+                <div className="grid sm:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1">City</Label>
+                    <Input value={city} onChange={e => setCity(e.target.value)} className="h-12 text-sm rounded-xl font-bold bg-muted/30 border-none px-4" placeholder="City" />
                   </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-[8px] font-black uppercase tracking-widest opacity-60 ml-1">State</Label>
-                    <Input value={state} onChange={e => setState(e.target.value)} className="h-10 text-sm" placeholder="State" />
+                  <div className="space-y-2">
+                    <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1">State / Province</Label>
+                    <Input value={state} onChange={e => setState(e.target.value)} className="h-12 text-sm rounded-xl font-bold bg-muted/30 border-none px-4" placeholder="State" />
                   </div>
                 </div>
-                <div className="space-y-1.5">
-                  <Label className="text-[8px] font-black uppercase tracking-widest opacity-60 ml-1">Country</Label>
+                <div className="space-y-2">
+                  <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1">Country / Region</Label>
                   <Select value={country} onValueChange={setCountry}>
-                    <SelectTrigger className="h-10 text-sm"><SelectValue placeholder="Select Country" /></SelectTrigger>
+                    <SelectTrigger className="h-12 text-sm rounded-xl font-bold bg-muted/30 border-none px-4"><SelectValue placeholder="Select Country" /></SelectTrigger>
                     <SelectContent className="max-h-64 overflow-y-auto">
                       {COUNTRIES.map(c => <SelectItem key={c.code} value={c.code}>{c.name}</SelectItem>)}
                     </SelectContent>
@@ -286,19 +302,19 @@ function ProfileContent() {
           </TabsContent>
 
           <TabsContent value="public">
-             <Card className="rounded-[2rem] border-none shadow-lg bg-white p-6 space-y-6">
-                <div className="space-y-4">
-                  <div className="space-y-1.5">
-                    <Label className="text-[8px] font-black uppercase tracking-widest opacity-60 ml-1">Unique Nickname</Label>
-                    <Input value={publicNickname} onChange={e => setPublicNickname(e.target.value)} placeholder="e.g. MysteryHeart77" className="h-10 text-sm font-black text-primary" />
+             <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-8 space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1">Unique Nickname</Label>
+                    <Input value={publicNickname} onChange={e => setPublicNickname(e.target.value)} placeholder="e.g. MysteryHeart77" className="h-12 text-sm font-black text-primary bg-muted/30 border-none px-4 rounded-xl" />
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <Label className="text-[8px] font-black uppercase tracking-widest opacity-60 ml-1">Preferred Language</Label>
+                  <div className="grid grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1">Preferred Language</Label>
                       <Select value={preferredLanguage} onValueChange={setPreferredLanguage}>
-                        <SelectTrigger className="h-10 text-sm">
-                          <Languages className="w-3 h-3 mr-2" />
+                        <SelectTrigger className="h-12 text-sm rounded-xl font-bold bg-muted/30 border-none px-4">
+                          <Languages className="w-4 h-4 mr-2 opacity-40" />
                           <SelectValue placeholder="Select Language" />
                         </SelectTrigger>
                         <SelectContent className="max-h-64 overflow-y-auto">
@@ -306,10 +322,10 @@ function ProfileContent() {
                         </SelectContent>
                       </Select>
                     </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-[8px] font-black uppercase tracking-widest opacity-60 ml-1">Currency</Label>
+                    <div className="space-y-2">
+                      <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1">Local Currency</Label>
                       <Select value={currency} onValueChange={setCurrency}>
-                        <SelectTrigger className="h-10 text-sm"><SelectValue placeholder="Select Currency" /></SelectTrigger>
+                        <SelectTrigger className="h-12 text-sm rounded-xl font-bold bg-muted/30 border-none px-4"><SelectValue placeholder="Select Currency" /></SelectTrigger>
                         <SelectContent className="max-h-64 overflow-y-auto">
                           {CURRENCIES.map(curr => <SelectItem key={curr.code} value={curr.code}>{curr.code} ({curr.symbol})</SelectItem>)}
                         </SelectContent>
@@ -317,65 +333,69 @@ function ProfileContent() {
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between p-4 bg-primary/5 rounded-xl border border-primary/10">
-                     <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-primary shadow-sm"><Camera className="w-4 h-4" /></div>
+                  <div className="flex items-center justify-between p-6 bg-primary/5 rounded-2xl border border-primary/10">
+                     <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-primary shadow-sm border border-primary/5"><Camera className="w-5 h-5" /></div>
                         <div>
-                          <h4 className="font-black text-[10px] uppercase">Public Photo</h4>
-                          <p className="text-[8px] opacity-60 italic mt-0.5">Toggle discovery visibility.</p>
+                          <h4 className="font-black text-xs uppercase tracking-tight">Public Photo</h4>
+                          <p className="text-[9px] text-muted-foreground italic font-medium">Toggle discovery visibility.</p>
                         </div>
                      </div>
                      <Switch checked={isPhotoPublic} onCheckedChange={setIsPhotoPublic} />
                   </div>
                   
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     <div className="flex items-center justify-between px-1">
-                      <Label className="text-[8px] font-black uppercase tracking-widest opacity-60">Personal Bio</Label>
-                      <Button variant="ghost" size="sm" onClick={handleGenerateBio} disabled={isGenerating} className="text-primary gap-1 h-7 px-3 bg-muted/20 rounded-full text-[8px] font-black uppercase">
-                        {isGenerating ? <Loader2 className="w-2.5 h-2.5 animate-spin" /> : <Sparkles className="w-2.5 h-2.5" />}AI Bio
+                      <Label className="text-[9px] font-black uppercase tracking-widest opacity-60">Personal Bio</Label>
+                      <Button variant="ghost" size="sm" onClick={handleGenerateBio} disabled={isGenerating} className="text-primary gap-1.5 h-8 px-4 bg-primary/5 rounded-full text-[9px] font-black uppercase hover:bg-primary/10">
+                        {isGenerating ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+                        AI Spark Bio
                       </Button>
                     </div>
-                    <Textarea value={bio} onChange={e => setBio(e.target.value)} className="min-h-[120px] rounded-xl text-sm italic p-4" placeholder="Tell the community about your mission..." />
+                    <Textarea value={bio} onChange={e => setBio(e.target.value)} className="min-h-[160px] rounded-[1.5rem] text-sm italic p-6 bg-muted/30 border-none font-medium leading-relaxed" placeholder="Tell the community about your mission and what sparks joy for you..." />
                   </div>
                 </div>
              </Card>
           </TabsContent>
 
           <TabsContent value="security">
-            <Card className="rounded-[2rem] border-none shadow-lg bg-white p-6 space-y-6">
-              <div className="text-center space-y-1">
-                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-2 animate-pulse">
-                  <ShieldCheck className="w-6 h-6 text-primary" />
+            <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-8 space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <div className="text-center space-y-2">
+                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-2 shadow-inner border-2 border-primary/5">
+                  <ShieldCheck className="w-8 h-8 text-primary animate-pulse" />
                 </div>
-                <h3 className="text-lg font-black uppercase tracking-tighter">Security Protocol</h3>
-                <p className="text-[10px] text-muted-foreground font-medium italic">Mandatory confirmations.</p>
+                <h3 className="text-2xl font-black uppercase tracking-tighter">Security Protocol</h3>
+                <p className="text-[10px] text-muted-foreground font-black uppercase tracking-[0.2em] opacity-60">Mandatory community safety</p>
               </div>
 
-              <div className="space-y-3">
-                <div className="flex flex-col gap-3 bg-primary/5 p-4 rounded-2xl border border-primary/10">
-                    <div className="flex items-center space-x-3 cursor-pointer" onClick={() => setIsAgeVerified(!isAgeVerified)}>
-                      <div className={cn("w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all", isAgeVerified ? "border-primary bg-primary" : "border-slate-200")}>
-                        {isAgeVerified && <div className="w-2 h-2 rounded-full bg-white" />}
+              <div className="space-y-4">
+                <div className="flex flex-col gap-4 bg-primary/5 p-6 rounded-[2rem] border border-primary/10">
+                    <div className="flex items-center space-x-4 cursor-pointer group" onClick={() => setIsAgeVerified(!isAgeVerified)}>
+                      <div className={cn("w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all group-hover:scale-110", isAgeVerified ? "border-primary bg-primary" : "border-slate-300")}>
+                        {isAgeVerified && <div className="w-2.5 h-2.5 rounded-full bg-white" />}
                       </div>
-                      <span className="text-[9px] font-black uppercase tracking-widest text-primary">I AM 18+ YEARS OLD</span>
+                      <span className={cn("text-[11px] font-black uppercase tracking-widest transition-colors", isAgeVerified ? "text-primary" : "text-slate-400")}>I am 18+ years old</span>
                     </div>
-                    <div className="flex items-center space-x-3 pt-3 border-t border-primary/10 cursor-pointer" onClick={() => setIsRespectful(!isRespectful)}>
-                      <div className={cn("w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all", isRespectful ? "border-primary bg-primary" : "border-slate-200")}>
-                        {isRespectful && <div className="w-2 h-2 rounded-full bg-white" />}
+                    <div className="h-px bg-primary/10 w-full" />
+                    <div className="flex items-center space-x-4 cursor-pointer group" onClick={() => setIsRespectful(!isRespectful)}>
+                      <div className={cn("w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all group-hover:scale-110", isRespectful ? "border-primary bg-primary" : "border-slate-300")}>
+                        {isRespectful && <div className="w-2.5 h-2.5 rounded-full bg-white" />}
                       </div>
-                      <span className="text-[9px] font-black uppercase tracking-widest text-primary">RESPECT IS MANDATORY</span>
+                      <span className={cn("text-[11px] font-black uppercase tracking-widest transition-colors", isRespectful ? "text-primary" : "text-slate-400")}>Respect is Mandatory</span>
                     </div>
-                    <div className="flex items-center space-x-3 pt-3 border-t border-primary/10 cursor-pointer" onClick={() => setIsHuman(!isHuman)}>
-                      <div className={cn("w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all", isHuman ? "border-primary bg-primary" : "border-slate-200")}>
-                        {isHuman && <div className="w-2 h-2 rounded-full bg-white" />}
+                    <div className="h-px bg-primary/10 w-full" />
+                    <div className="flex items-center space-x-4 cursor-pointer group" onClick={() => setIsHuman(!isHuman)}>
+                      <div className={cn("w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all group-hover:scale-110", isHuman ? "border-primary bg-primary" : "border-slate-300")}>
+                        {isHuman && <div className="w-2.5 h-2.5 rounded-full bg-white" />}
                       </div>
-                      <span className="text-[9px] font-black uppercase tracking-widest text-primary">VERIFY HUMAN STATUS</span>
+                      <span className={cn("text-[11px] font-black uppercase tracking-widest transition-colors", isHuman ? "text-primary" : "text-slate-400")}>Verify Human Status</span>
                     </div>
                 </div>
-                <div className="p-3 bg-slate-900 rounded-xl flex items-center gap-2">
-                  <Lock className="w-3 h-3 text-primary shrink-0" />
-                  <p className="text-[7px] text-white/70 italic uppercase tracking-widest font-bold">
-                    All requirements are mandatory to access syncing.
+                
+                <div className="p-5 bg-slate-900 rounded-2xl flex items-center gap-4 shadow-lg border border-primary/20">
+                  <Lock className="w-6 h-6 text-primary shrink-0" />
+                  <p className="text-[9px] text-white/80 italic uppercase tracking-widest font-black leading-relaxed">
+                    Account syncing is locked until all security protocols are confirmed.
                   </p>
                 </div>
               </div>
