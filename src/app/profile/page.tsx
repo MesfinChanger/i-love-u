@@ -80,11 +80,11 @@ function ProfileContent() {
   const [additionalPhotoUrls, setAdditionalPhotoUrls] = useState<string[]>([]);
   const [publicVideoUrl, setPublicVideoUrl] = useState('');
   
-  // Address Fields
+  // Granular Location Fields
   const [address1, setAddress1] = useState('');
   const [address2, setAddress2] = useState('');
-  const [city, setCity] = useState('');
-  const [state, setState] = useState('');
+  const [city, setCity] = useState(''); // Used for City / Village / District / Wereda
+  const [state, setState] = useState(''); // Used for State / Province / Region
   const [country, setCountry] = useState('US');
 
   // Vibe Fields
@@ -224,6 +224,8 @@ function ProfileContent() {
     }
     setIsSaving(true);
     try {
+      const locationHint = `${city || 'Unknown Village'}, ${COUNTRIES.find(c => c.code === country)?.name || 'Global'}`;
+
       await setDoc(doc(db, 'users', user.uid), {
         uid: user.uid, 
         firstName, 
@@ -259,6 +261,7 @@ function ProfileContent() {
         publicVideoUrl: isPhotoPublic ? publicVideoUrl || null : null,
         additionalPhotoUrls: isPhotoPublic ? additionalPhotoUrls : [],
         country, 
+        locationHint,
         updatedAt: serverTimestamp()
       }, { merge: true });
 
@@ -408,16 +411,16 @@ function ProfileContent() {
               <div className="space-y-6">
                 <div className="space-y-2">
                   <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1">Home Address Line 1</Label>
-                  <Input value={address1} onChange={e => setAddress1(e.target.value)} className="h-12 text-sm rounded-xl font-bold bg-muted/30 border-none px-4" placeholder="Street address" />
+                  <Input value={address1} onChange={e => setAddress1(e.target.value)} className="h-12 text-sm rounded-xl font-bold bg-muted/30 border-none px-4" placeholder="Street address or P.O. Box" />
                 </div>
                 <div className="grid sm:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1">City</Label>
-                    <Input value={city} onChange={e => setCity(e.target.value)} className="h-12 text-sm rounded-xl font-bold bg-muted/30 border-none px-4" placeholder="City" />
+                    <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1">City / Village / District / Wereda</Label>
+                    <Input value={city} onChange={e => setCity(e.target.value)} className="h-12 text-sm rounded-xl font-bold bg-muted/30 border-none px-4" placeholder="Your local community name" />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1">State / Province</Label>
-                    <Input value={state} onChange={e => setState(e.target.value)} className="h-12 text-sm rounded-xl font-bold bg-muted/30 border-none px-4" placeholder="State" />
+                    <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1">State / Province / Region</Label>
+                    <Input value={state} onChange={e => setState(e.target.value)} className="h-12 text-sm rounded-xl font-bold bg-muted/30 border-none px-4" placeholder="Regional name" />
                   </div>
                 </div>
                 <div className="space-y-2">
@@ -429,6 +432,9 @@ function ProfileContent() {
                     </SelectContent>
                   </Select>
                 </div>
+                <p className="text-[8px] text-muted-foreground italic font-medium uppercase tracking-widest text-center mt-4">
+                  "Every Village is a Community." We bridge all hearts.
+                </p>
               </div>
             </Card>
           </TabsContent>
