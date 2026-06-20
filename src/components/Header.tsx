@@ -16,7 +16,9 @@ import {
   Globe2,
   ShoppingBag,
   User,
-  LayoutGrid
+  LayoutGrid,
+  LogOut,
+  Loader2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DonationDialog } from '@/components/DonationDialog';
@@ -29,20 +31,41 @@ import {
 } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
 import { useState } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useTranslation } from './providers/LanguageProvider';
+import { useAuth } from '@/firebase';
+import { signOut } from 'firebase/auth';
+import { useToast } from '@/hooks/use-toast';
 
 /**
  * @fileOverview The platform header, featuring a vertical navigation menu and Notification Center.
  */
 export function Header() {
+  const auth = useAuth();
+  const router = useRouter();
+  const { toast } = useToast();
   const [hasNotifications, setHasNotifications] = useState(true);
+  const [isSigningOut, setIsSigningOut] = useState(false);
   const pathname = usePathname();
   const { t } = useTranslation();
 
   const triggerAssistant = () => {
     window.dispatchEvent(new CustomEvent('toggle-spark-assistant'));
+  };
+
+  const handleSignOut = async () => {
+    if (!auth || isSigningOut) return;
+    setIsSigningOut(true);
+    try {
+      await signOut(auth);
+      router.push('/login');
+      toast({ title: "Disconnected", description: "Successfully signed out. ❤️" });
+    } catch (e) {
+      toast({ variant: "destructive", title: "Error", description: "Sign out failed." });
+    } finally {
+      setIsSigningOut(false);
+    }
   };
 
   const navItems = [
@@ -108,6 +131,19 @@ export function Header() {
                     </Link>
                   );
                 })}
+
+                <div className="pt-4 mt-4 border-t border-dashed">
+                  <button 
+                    onClick={handleSignOut}
+                    disabled={isSigningOut}
+                    className="flex items-center gap-4 p-4 rounded-[1.5rem] transition-all w-full text-slate-400 hover:text-red-500 hover:bg-red-50 group"
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center group-hover:bg-white group-hover:shadow-md transition-all">
+                      {isSigningOut ? <Loader2 className="w-5 h-5 animate-spin" /> : <LogOut className="w-5 h-5" />}
+                    </div>
+                    <span className="font-black text-sm uppercase tracking-widest">Sign Out</span>
+                  </button>
+                </div>
               </nav>
 
               <div className="p-8 border-t bg-slate-50/50">

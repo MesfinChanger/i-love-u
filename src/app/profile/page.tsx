@@ -107,12 +107,12 @@ function ProfileContent() {
 
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isSigningOut, setIsSigningOut] = useState(false);
   const [isUploadingGallery, setIsUploadingGallery] = useState(false);
   const [isUploadingVideo, setIsUploadingVideo] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    // Load local draft if exists
     const draft = localStorage.getItem(`profile_draft_${user?.uid}`);
     if (draft) {
       try {
@@ -131,7 +131,6 @@ function ProfileContent() {
     }
   }, [user]);
 
-  // Auto-hold draft effect
   useEffect(() => {
     if (user?.uid && mounted) {
       const draft = { firstName, lastName, email, phoneNumber, publicNickname, address1, bio, gender, preferredLanguage, currency };
@@ -174,11 +173,9 @@ function ProfileContent() {
     }
   }, [profileData, user?.email]);
 
-  // Commercial Restriction Logic
   const isCommercialUser = profileData?.isSeller || profileData?.isAdvertiser;
   const isProtocolComplete = !isCommercialUser || (isAgeVerified && isRespectful && isHuman);
 
-  // Hierarchical Location Logic
   const availableStates = useMemo(() => {
     const data = WORLD_LOCATIONS[country] || WORLD_LOCATIONS['DEFAULT'];
     return data.states || [];
@@ -204,10 +201,8 @@ function ProfileContent() {
     setState('');
     setCity('');
     
-    // Automatically Link Phone Code
     const countryData = COUNTRIES.find(c => c.code === newCountryCode);
     if (countryData?.phoneCode) {
-      // If phone is empty or just contains an old prefix, update it
       const currentPrefix = COUNTRIES.find(c => phoneNumber.startsWith(c.phoneCode))?.phoneCode;
       if (!phoneNumber || phoneNumber === currentPrefix) {
         setPhoneNumber(countryData.phoneCode);
@@ -276,7 +271,6 @@ function ProfileContent() {
   const handleSave = async () => {
     if (!user || !db || isSaving) return;
     
-    // Restriction only for sellers/advertisers
     if (isCommercialUser && (!isAgeVerified || !isRespectful || !isHuman)) {
       toast({ variant: "destructive", title: "Protocol Required", description: "Commercial users must complete the Security tab." });
       return;
@@ -338,6 +332,20 @@ function ProfileContent() {
       toast({ variant: "destructive", title: "Error", description: "Could not save changes." });
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleSignOut = async () => {
+    if (!auth || isSigningOut) return;
+    setIsSigningOut(true);
+    try {
+      await signOut(auth);
+      router.push('/login');
+      toast({ title: "Session Disconnected", description: "Your heart has been safely signed out. ❤️" });
+    } catch (e) {
+      toast({ variant: "destructive", title: "Sign Out Error", description: "Could not safely disconnect." });
+    } finally {
+      setIsSigningOut(false);
     }
   };
 
@@ -404,7 +412,16 @@ function ProfileContent() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={() => signOut(auth!)} className="h-9 px-4 text-[9px] font-black uppercase rounded-full">Sign Out</Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleSignOut} 
+              disabled={isSigningOut}
+              className="h-9 px-4 text-[9px] font-black uppercase rounded-full gap-2"
+            >
+              {isSigningOut ? <Loader2 className="w-3 h-3 animate-spin" /> : <LogOut className="w-3 h-3" />}
+              Sign Out
+            </Button>
             <Button 
               size="sm"
               onClick={handleSave} 
