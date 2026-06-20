@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, Suspense, useRef, useMemo } from 'react';
@@ -31,7 +32,9 @@ import {
   Trash2,
   Video,
   PlayCircle,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Mail,
+  Phone
 } from 'lucide-react';
 import { 
   DropdownMenu, 
@@ -74,6 +77,8 @@ function ProfileContent() {
   // Identity Fields
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [birthdate, setBirthdate] = useState('');
   const [photoUrl, setPhotoUrl] = useState('');
   const [additionalPhotoUrls, setAdditionalPhotoUrls] = useState<string[]>([]);
@@ -114,6 +119,8 @@ function ProfileContent() {
         const parsed = JSON.parse(draft);
         setFirstName(prev => parsed.firstName || prev);
         setLastName(prev => parsed.lastName || prev);
+        setEmail(prev => parsed.email || prev);
+        setPhoneNumber(prev => parsed.phoneNumber || prev);
         setPublicNickname(prev => parsed.publicNickname || prev);
         setAddress1(prev => parsed.address1 || prev);
         setBio(prev => parsed.bio || prev);
@@ -127,10 +134,10 @@ function ProfileContent() {
   // Auto-hold draft effect
   useEffect(() => {
     if (user?.uid && mounted) {
-      const draft = { firstName, lastName, publicNickname, address1, bio, gender, preferredLanguage, currency };
+      const draft = { firstName, lastName, email, phoneNumber, publicNickname, address1, bio, gender, preferredLanguage, currency };
       localStorage.setItem(`profile_draft_${user.uid}`, JSON.stringify(draft));
     }
-  }, [firstName, lastName, publicNickname, address1, bio, gender, preferredLanguage, currency, user?.uid, mounted]);
+  }, [firstName, lastName, email, phoneNumber, publicNickname, address1, bio, gender, preferredLanguage, currency, user?.uid, mounted]);
 
   const userRef = useMemoFirebase(() => {
     if (!db || !user) return null;
@@ -143,6 +150,8 @@ function ProfileContent() {
     if (profileData) {
       setFirstName(profileData.firstName || '');
       setLastName(profileData.lastName || '');
+      setEmail(profileData.email || user?.email || '');
+      setPhoneNumber(profileData.phoneNumber || '');
       setBirthdate(profileData.birthdate || '');
       setPhotoUrl(profileData.photoUrl || '');
       setAdditionalPhotoUrls(profileData.additionalPhotoUrls || []);
@@ -163,7 +172,7 @@ function ProfileContent() {
       setPreferredLanguage(profileData.preferredLanguage || 'English');
       setCurrency(profileData.currency || 'USD');
     }
-  }, [profileData]);
+  }, [profileData, user?.email]);
 
   // Commercial Restriction Logic
   const isCommercialUser = profileData?.isSeller || profileData?.isAdvertiser;
@@ -270,6 +279,8 @@ function ProfileContent() {
         uid: user.uid, 
         firstName, 
         lastName, 
+        email,
+        phoneNumber,
         displayName, 
         birthdate, 
         photoUrl,
@@ -432,6 +443,24 @@ function ProfileContent() {
                     <Input value={lastName} onChange={e => setLastName(e.target.value)} className="h-12 text-sm rounded-xl font-bold bg-muted/30 border-none px-4" placeholder="Last Name" />
                   </div>
                 </div>
+
+                <div className="grid sm:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1">Email Address</Label>
+                    <div className="relative">
+                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/40" />
+                      <Input value={email} onChange={e => setEmail(e.target.value)} type="email" className="h-12 pl-12 text-sm rounded-xl font-bold bg-muted/30 border-none pr-4" placeholder="heart@example.com" />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1">Phone Number</Label>
+                    <div className="relative">
+                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/40" />
+                      <Input value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} type="tel" className="h-12 pl-12 text-sm rounded-xl font-bold bg-muted/30 border-none pr-4" placeholder="+1..." />
+                    </div>
+                  </div>
+                </div>
+
                 <div className="grid sm:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1">Display Name</Label>

@@ -7,6 +7,8 @@
       "type": "object",
       "properties": {
         "uid": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "phoneNumber": { "type": "string" },
         "firstName": { "type": "string" },
         "lastName": { "type": "string" },
         "displayName": { "type": "string" },
