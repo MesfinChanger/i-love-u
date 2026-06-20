@@ -71,8 +71,8 @@ function LoginContent() {
     if (!auth) {
       toast({ 
         variant: "destructive", 
-        title: "Regional Bridge Pending", 
-        description: "The secure connection is still initializing. Please reload to pick up latest credentials. ❤️" 
+        title: "Bridge Initializing", 
+        description: "The regional bridge is still securing your connection. Please reload if this takes too long. ❤️" 
       });
       return;
     }
@@ -109,7 +109,7 @@ function LoginContent() {
       let message = "Check your phrase or join the revolution. ❤️";
       
       const errString = error?.message?.toLowerCase() || "";
-      if (errString.includes('api-key-not-valid') || errString.includes('invalid-api-key')) {
+      if (errString.includes('api-key-not-valid')) {
         message = "Regional configuration ripple detected. Please reload the page to refresh your secure bridge. ✨";
       } else if (error.code === 'auth/email-already-in-use') {
         message = "This email is already part of the revolution. Please sign in.";

@@ -1,12 +1,13 @@
 /**
  * @fileOverview Hardened Firebase configuration object.
- * Maps NEXT_PUBLIC environment variables with strict validation to prevent initialization crashes.
+ * Standard Next.js environment variable mapping.
  */
 
 const getEnv = (key: string): string => {
+  if (typeof window === 'undefined') return "";
   const value = process.env[key];
-  // Filter out placeholders, literal "undefined" strings, and empty values
-  if (!value || value === 'undefined' || value === 'null' || value.includes('YOUR_')) {
+  // Filter out literal "undefined" or "null" strings often seen in early provisioning
+  if (!value || value === 'undefined' || value === 'null') {
     return "";
   }
   return value.trim();
