@@ -96,7 +96,7 @@
     },
     "Message": {
       "title": "Message",
-      "description": "Chat message with gift and translation support.",
+      "description": "Chat message with gift, file, and translation support.",
       "type": "object",
       "properties": {
         "senderId": { "type": "string" },
@@ -105,6 +105,12 @@
         "translatedText": { "type": "string" },
         "giftId": { "type": "string" },
         "giftImageUrl": { "type": "string" },
+        "fileUrl": { "type": "string" },
+        "fileName": { "type": "string" },
+        "fileType": { "type": "string" },
+        "fileSize": { "type": "number" },
+        "imageUrl": { "type": "string" },
+        "isSensitive": { "type": "boolean" },
         "timestamp": { "type": "string", "format": "date-time" }
       }
     },
@@ -117,6 +123,8 @@
         "senderNickname": { "type": "string" },
         "text": { "type": "string" },
         "imageUrl": { "type": "string" },
+        "fileUrl": { "type": "string" },
+        "fileName": { "type": "string" },
         "isSensitive": { "type": "boolean" },
         "timestamp": { "type": "string", "format": "date-time" }
       }

@@ -23,6 +23,8 @@ import {
   Star,
   Languages,
   Gift,
+  Paperclip,
+  FileIcon,
   Image as ImageIcon
 } from 'lucide-react';
 import { 
@@ -75,6 +77,7 @@ export default function ChatPage() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [newMessage, setNewMessage] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -228,35 +231,46 @@ export default function ChatPage() {
     }
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, contextLabel?: string) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, isImage = false) => {
     const file = e.target.files?.[0];
     if (!file || !user || !db || !matchId) return;
 
     try {
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        const dataUri = reader.result as string;
-        const moderation = await moderateImage({ photoDataUri: dataUri });
-        
+      if (isImage) {
+        const reader = new FileReader();
+        reader.onloadend = async () => {
+          const dataUri = reader.result as string;
+          const moderation = await moderateImage({ photoDataUri: dataUri });
+          
+          const fileName = `${Date.now()}-${file.name}`;
+          const cloudUrl = await uploadFile(`matches/${matchId}/${fileName}`, file);
+
+          await addDoc(collection(db, 'matches', matchId, 'messages'), {
+            senderId: user.uid,
+            imageUrl: cloudUrl,
+            isSensitive: moderation.isSensitive,
+            timestamp: serverTimestamp(),
+          });
+        };
+        reader.readAsDataURL(file);
+      } else {
+        // Generic big file upload
         const fileName = `${Date.now()}-${file.name}`;
         const cloudUrl = await uploadFile(`matches/${matchId}/${fileName}`, file);
 
         await addDoc(collection(db, 'matches', matchId, 'messages'), {
           senderId: user.uid,
-          imageUrl: cloudUrl,
-          isSensitive: moderation.isSensitive,
-          contextLabel: contextLabel || null,
+          fileUrl: cloudUrl,
+          fileName: file.name,
+          fileType: file.type,
+          fileSize: file.size,
           timestamp: serverTimestamp(),
         });
-        
-        toast({
-          title: contextLabel ? `Shared: ${contextLabel}` : "Image Sent",
-          description: moderation.isSensitive ? "Sensitive content protected." : "Moment shared successfully."
-        });
-      };
-      reader.readAsDataURL(file);
+
+        toast({ title: "File Shared", description: `${file.name} sent to your connection.` });
+      }
     } catch (error) {
-      toast({ variant: "destructive", title: "Upload Failed", description: "Could not process image." });
+      toast({ variant: "destructive", title: "Upload Failed", description: "Could not share file." });
     }
   };
 
@@ -466,7 +480,6 @@ export default function ChatPage() {
                 <div className={cn("max-w-[85%] px-5 py-4 rounded-[2.2rem] text-sm leading-relaxed shadow-sm transition-all relative group", isMe ? 'bg-primary text-white rounded-tr-none' : 'bg-white text-foreground rounded-tl-none border border-primary/5')}>
                   {msg.imageUrl ? (
                     <div className="flex flex-col gap-3">
-                       {msg.contextLabel && <div className={cn("text-[8px] uppercase font-black tracking-widest flex items-center gap-1", isMe ? "text-white/60" : "text-primary")}><Star className="w-2.5 h-2.5 fill-current" />{msg.contextLabel}</div>}
                        <div className="relative w-60 h-72 overflow-hidden rounded-[1.8rem] bg-muted shadow-inner">
                         {blurContent ? (
                           <div className="w-full h-full bg-slate-900 flex flex-col items-center justify-center text-center p-6 gap-3">
@@ -477,6 +490,17 @@ export default function ChatPage() {
                           <Image src={msg.imageUrl} alt="Shared moment" fill className={cn("object-cover transition-all duration-1000", isSensitive && "blur-3xl hover:blur-none")} unoptimized={msg.imageUrl.startsWith('https://firebasestorage.googleapis.com')} />
                         )}
                       </div>
+                    </div>
+                  ) : msg.fileUrl ? (
+                    <div className="flex items-center gap-4 bg-muted/20 p-4 rounded-2xl border border-dashed border-primary/10">
+                       <div className="p-3 bg-white rounded-xl shadow-sm text-primary">
+                          <FileIcon className="w-6 h-6" />
+                       </div>
+                       <div className="min-w-0 flex-grow">
+                          <p className="font-bold text-xs truncate">{msg.fileName || "Shared File"}</p>
+                          <p className="text-[8px] text-muted-foreground font-black uppercase tracking-widest">{(msg.fileSize / 1024 / 1024).toFixed(2)} MB</p>
+                       </div>
+                       <Button size="sm" variant="ghost" className="text-primary font-black text-[9px] uppercase tracking-widest" onClick={() => window.open(msg.fileUrl)}>Download</Button>
                     </div>
                   ) : (
                     <div className="flex flex-col gap-2">
@@ -525,8 +549,9 @@ export default function ChatPage() {
         </div>
 
         <div className="flex items-center gap-2">
-          <input type="file" id="chat-photo-gallery" accept="image/*" className="hidden" ref={galleryInputRef} onChange={(e) => handleImageUpload(e)} />
-          <input type="file" id="chat-photo-camera" accept="image/*" capture="user" className="hidden" ref={cameraInputRef} onChange={(e) => handleImageUpload(e)} />
+          <input type="file" id="chat-photo-gallery" accept="image/*" className="hidden" ref={galleryInputRef} onChange={(e) => handleFileUpload(e, true)} />
+          <input type="file" id="chat-photo-camera" accept="image/*" capture="user" className="hidden" ref={cameraInputRef} onChange={(e) => handleFileUpload(e, true)} />
+          <input type="file" id="chat-file-upload" className="hidden" ref={fileInputRef} onChange={(e) => handleFileUpload(e, false)} />
           
           <Popover>
             <PopoverTrigger asChild>
@@ -543,6 +568,10 @@ export default function ChatPage() {
                 <Button variant="ghost" size="sm" onClick={() => galleryInputRef.current?.click()} className="justify-start gap-3 rounded-xl py-5 h-auto">
                    <ImageIcon className="w-4 h-4 text-primary" />
                    <span className="font-bold text-xs uppercase tracking-tight">Gallery</span>
+                </Button>
+                <Button variant="ghost" size="sm" onClick={() => fileInputRef.current?.click()} className="justify-start gap-3 rounded-xl py-5 h-auto border-t border-muted/50 mt-1">
+                   <Paperclip className="w-4 h-4 text-primary" />
+                   <span className="font-bold text-xs uppercase tracking-tight">Share File</span>
                 </Button>
               </div>
             </PopoverContent>
