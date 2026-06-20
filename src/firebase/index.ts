@@ -1,8 +1,8 @@
 'use client';
 
 /**
- * @fileOverview Firebase Barrel File.
- * Explicitly re-exports components to resolve "ChunkLoadError" and stable resolution.
+ * @fileOverview Stable Firebase Barrel File.
+ * Re-exports components explicitly to prevent ChunkLoadErrors and circular dependencies.
  */
 
 import { 

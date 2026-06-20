@@ -1,13 +1,13 @@
 /**
- * @fileOverview Standardized Firebase configuration for the Prosperity Revolution.
- * Hardened to reject un-substituted placeholders from various build environments.
+ * @fileOverview Hardened Firebase configuration.
+ * Sanitizes environment variables to ensure invalid placeholders are rejected.
  */
 
 const sanitizeEnv = (val: string | undefined, keyName: string): string => {
   if (!val) return "";
   const trimmed = val.trim();
   
-  // Aggressively filter common placeholder patterns or literal env variable names
+  // Reject literal placeholder strings injected by uninitialized environments
   if (
     trimmed === "" || 
     trimmed === "undefined" || 

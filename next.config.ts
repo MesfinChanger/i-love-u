@@ -1,14 +1,13 @@
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
-  /* config options here */
   typescript: {
     ignoreBuildErrors: true,
   },
   eslint: {
     ignoreDuringBuilds: true,
   },
-  // Next.js 15: allowedDevOrigins is now a top-level option
+  // Next.js 15: allowedDevOrigins is now a top-level option for cross-origin safety in workstations
   allowedDevOrigins: [
     '6000-firebase-studio-1781669153012.cluster-xuuc5xf5uvgp6xje3qbpsmzu3o.cloudworkstations.dev',
     'localhost:9002'
