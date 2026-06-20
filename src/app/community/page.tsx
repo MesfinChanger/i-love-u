@@ -14,25 +14,33 @@ import {
   Sparkles, 
   Heart,
   Ghost,
-  MessageSquare
+  MessageSquare,
+  Camera,
+  EyeOff
 } from 'lucide-react';
-import { useUser, useFirestore, useCollection, useDoc } from '@/firebase';
+import { useUser, useFirestore, useCollection, useDoc, useFirebaseStorage } from '@/firebase';
 import { collection, addDoc, query, orderBy, serverTimestamp, limit, doc } from 'firebase/firestore';
 import { moderateText } from '@/ai/flows/moderate-text-flow';
+import { moderateImage } from '@/ai/flows/moderate-image-flow';
 import { useToast } from '@/hooks/use-toast';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
+import Image from 'next/image';
 
 export default function CommunityPage() {
   const { user } = useUser();
   const db = useFirestore();
+  const { uploadFile, isUploading: isStorageUploading } = useFirebaseStorage();
   const { toast } = useToast();
   const scrollRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [newMessage, setNewMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setSelectedImagePreview] = useState<string | null>(null);
 
   const userRef = useMemoFirebase(() => {
     if (!db || !user) return null;
@@ -57,32 +65,59 @@ export default function CommunityPage() {
     }
   }, [messages]);
 
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => setSelectedImagePreview(reader.result as string);
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSendMessage = async (e?: React.FormEvent) => {
     e?.preventDefault();
-    if (!newMessage.trim() || !user || !db || isSending) return;
+    if ((!newMessage.trim() && !selectedImage) || !user || !db || isSending) return;
 
     setIsSending(true);
     try {
-      const moderation = await moderateText({ text: newMessage, context: 'chat' });
-      
-      if (moderation.isFlagged) {
-        toast({
-          variant: "destructive",
-          title: "Respect Rule Violation",
-          description: moderation.reason || "Offensive content is forbidden in the Friendship Circle. ✨"
-        });
-        setIsSending(false);
-        return;
+      let imageUrl = null;
+      let isSensitive = false;
+
+      // scan text if present
+      if (newMessage.trim()) {
+        const textModeration = await moderateText({ text: newMessage, context: 'chat' });
+        if (textModeration.isFlagged) {
+          toast({ variant: "destructive", title: "Respect Rule Violation", description: textModeration.reason || "Disrespectful words are forbidden." });
+          setIsSending(false);
+          return;
+        }
+      }
+
+      // scan and upload image if present
+      if (selectedImage && imagePreview) {
+        const imageModeration = await moderateImage({ photoDataUri: imagePreview });
+        if (imageModeration.isSensitive) {
+          toast({ variant: "destructive", title: "Safe Space Protocol", description: "Image contains sensitive content and was blocked by AI. ✨" });
+          setIsSending(false);
+          return;
+        }
+        imageUrl = await uploadFile(`community/${Date.now()}-${selectedImage.name}`, selectedImage);
+        isSensitive = imageModeration.isSensitive;
       }
 
       await addDoc(collection(db, 'communityMessages'), {
         senderId: user.uid,
         senderNickname: myProfile?.publicNickname || "Mystery Heart",
         text: newMessage,
+        imageUrl: imageUrl,
+        isSensitive: isSensitive,
         timestamp: serverTimestamp(),
       });
 
       setNewMessage('');
+      setSelectedImage(null);
+      setSelectedImagePreview(null);
     } catch (error) {
       toast({ variant: "destructive", title: "Error", description: "Could not post to wall." });
     } finally {
@@ -122,10 +157,22 @@ export default function CommunityPage() {
                    <span className="text-[7px] text-muted-foreground/40">{msg.timestamp ? new Date(msg.timestamp.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '...'}</span>
                 </div>
                 <div className={cn(
-                  "max-w-[85%] px-4 py-3 rounded-[1.8rem] text-sm font-medium shadow-sm transition-all",
+                  "max-w-[85%] px-4 py-3 rounded-[1.8rem] text-sm font-medium shadow-sm transition-all flex flex-col gap-3",
                   isMe ? "bg-primary text-white rounded-tr-none" : "bg-white text-slate-800 rounded-tl-none border"
                 )}>
-                  {msg.text}
+                  {msg.imageUrl && (
+                    <div className="relative w-full aspect-square min-w-[200px] overflow-hidden rounded-2xl bg-muted/20">
+                      {msg.isSensitive && !myProfile?.settings?.allowSensitiveContent ? (
+                         <div className="w-full h-full bg-slate-900 flex flex-col items-center justify-center text-center p-6 gap-2">
+                            <EyeOff className="w-8 h-8 text-white/20" />
+                            <p className="text-[8px] font-black text-white/40 uppercase tracking-widest">Flagged by AI</p>
+                         </div>
+                      ) : (
+                        <Image src={msg.imageUrl} alt="Community moment" fill className="object-cover" />
+                      )}
+                    </div>
+                  )}
+                  {msg.text && <p>{msg.text}</p>}
                 </div>
               </div>
             );
@@ -138,8 +185,18 @@ export default function CommunityPage() {
         )}
       </main>
 
-      <footer className="p-4 bg-white/80 backdrop-blur-xl border-t pb-24 shrink-0">
+      <footer className="p-4 bg-white/80 backdrop-blur-xl border-t pb-24 shrink-0 space-y-3">
+        {imagePreview && (
+          <div className="relative w-20 h-20 rounded-xl overflow-hidden border-2 border-primary/20 animate-in zoom-in-95">
+             <Image src={imagePreview} alt="Preview" fill className="object-cover" />
+             <button onClick={() => { setSelectedImage(null); setSelectedImagePreview(null); }} className="absolute top-0 right-0 bg-black/50 text-white p-1 rounded-bl-xl"><EyeOff className="w-3 h-3" /></button>
+          </div>
+        )}
         <form onSubmit={handleSendMessage} className="flex gap-2">
+          <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleImageSelect} />
+          <Button type="button" variant="ghost" size="icon" onClick={() => fileInputRef.current?.click()} className="rounded-xl h-12 w-12 bg-muted/40 text-muted-foreground">
+            <Camera className="w-6 h-6" />
+          </Button>
           <Input 
             value={newMessage} 
             onChange={e => setNewMessage(e.target.value)} 
@@ -147,8 +204,8 @@ export default function CommunityPage() {
             className="rounded-2xl bg-muted/40 border-none h-12 px-6 font-bold text-sm"
             disabled={isSending}
           />
-          <Button type="submit" size="icon" className="rounded-xl h-12 w-12 gradient-bg shrink-0 shadow-lg" disabled={!newMessage.trim() || isSending}>
-            {isSending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
+          <Button type="submit" size="icon" className="rounded-xl h-12 w-12 gradient-bg shrink-0 shadow-lg" disabled={(!newMessage.trim() && !selectedImage) || isSending}>
+            {isSending || isStorageUploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
           </Button>
         </form>
       </footer>

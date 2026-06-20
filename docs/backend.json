@@ -116,6 +116,8 @@
         "senderId": { "type": "string" },
         "senderNickname": { "type": "string" },
         "text": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "isSensitive": { "type": "boolean" },
         "timestamp": { "type": "string", "format": "date-time" }
       }
     }

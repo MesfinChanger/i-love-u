@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, useRef } from 'react';
 import { Header } from '@/components/Header';
 import { BottomNav } from '@/components/BottomNav';
 import { Button } from '@/components/ui/button';
@@ -26,11 +27,13 @@ import {
   MapPin,
   Lock,
   Languages,
-  UserCircle
+  UserCircle,
+  Plus
 } from 'lucide-react';
 import { generateBio } from '@/ai/flows/generate-bio-flow';
+import { moderateImage } from '@/ai/flows/moderate-image-flow';
 import { useToast } from '@/hooks/use-toast';
-import { useUser, useFirestore, useAuth, useDoc } from '@/firebase';
+import { useUser, useFirestore, useAuth, useDoc, useFirebaseStorage } from '@/firebase';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
@@ -38,6 +41,7 @@ import { useRouter } from 'next/navigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Card } from '@/components/ui/card';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { COUNTRIES, LANGUAGES, CURRENCIES } from '@/lib/world-data';
 
@@ -47,8 +51,10 @@ function ProfileContent() {
   const { user } = useUser();
   const db = useFirestore();
   const auth = useAuth();
+  const { uploadFile, isUploading: isStorageUploading } = useFirebaseStorage();
   const { toast } = useToast();
   const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const userRef = useMemoFirebase(() => {
     if (!db || !user) return null;
@@ -61,6 +67,7 @@ function ProfileContent() {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [birthdate, setBirthdate] = useState('');
+  const [photoUrl, setPhotoUrl] = useState('');
   
   // Address Fields
   const [address1, setAddress1] = useState('');
@@ -91,6 +98,7 @@ function ProfileContent() {
       setFirstName(profileData.firstName || '');
       setLastName(profileData.lastName || '');
       setBirthdate(profileData.birthdate || '');
+      setPhotoUrl(profileData.photoUrl || '');
       setAddress1(profileData.address1 || '');
       setAddress2(profileData.address2 || '');
       setCity(profileData.city || '');
@@ -119,6 +127,31 @@ function ProfileContent() {
     return age;
   };
 
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+
+    try {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const dataUri = reader.result as string;
+        const moderation = await moderateImage({ photoDataUri: dataUri });
+        
+        if (moderation.isSensitive) {
+          toast({ variant: "destructive", title: "Respect Rule Violation", description: "This image was flagged by AI and cannot be used. ✨" });
+          return;
+        }
+
+        const url = await uploadFile(`profiles/${user.uid}/avatar`, file);
+        setPhotoUrl(url);
+        toast({ title: "Photo Secured", description: "Your respectful image has been uploaded." });
+      };
+      reader.readAsDataURL(file);
+    } catch (error) {
+      toast({ variant: "destructive", title: "Upload Ripple", description: "Could not process image." });
+    }
+  };
+
   const handleSave = async () => {
     if (!user || !db || isSaving) return;
     if (!isAgeVerified || !isRespectful || !isHuman) {
@@ -138,6 +171,7 @@ function ProfileContent() {
         lastName, 
         displayName, 
         birthdate, 
+        photoUrl,
         age: userAge, 
         gender, 
         bio, 
@@ -160,7 +194,7 @@ function ProfileContent() {
         uid: user.uid, 
         bio, 
         publicNickname: publicNickname || "Mystery Heart", 
-        publicPhotoUrl: isPhotoPublic ? profileData?.photoUrl || null : null, 
+        publicPhotoUrl: isPhotoPublic ? photoUrl || null : null, 
         country, 
         updatedAt: serverTimestamp()
       }, { merge: true });
@@ -195,12 +229,25 @@ function ProfileContent() {
       <Header />
       <main className="container mx-auto px-4 max-w-2xl py-6">
         <div className="flex items-center justify-between mb-6 gap-4">
-          <div>
-            <h1 className="text-3xl font-black tracking-tighter flex items-center gap-2">
-              <UserCircle className="w-8 h-8 text-primary" />
-              My Account
-            </h1>
-            <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-widest ml-1">Manage your global presence.</p>
+          <div className="flex items-center gap-4">
+            <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+              <Avatar className="w-16 h-16 border-2 border-primary/20 shadow-lg">
+                <AvatarImage src={photoUrl} className="object-cover" />
+                <AvatarFallback className="bg-primary/5 text-primary">
+                  {isStorageUploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <User className="w-8 h-8" />}
+                </AvatarFallback>
+              </Avatar>
+              <div className="absolute -bottom-1 -right-1 bg-primary text-white p-1 rounded-full border-2 border-white shadow-sm group-hover:scale-110 transition-transform">
+                <Plus className="w-3 h-3" />
+              </div>
+              <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handlePhotoUpload} />
+            </div>
+            <div>
+              <h1 className="text-3xl font-black tracking-tighter flex items-center gap-2">
+                My Account
+              </h1>
+              <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-widest ml-1">Manage your global presence.</p>
+            </div>
           </div>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" onClick={() => signOut(auth)} className="h-9 px-4 text-[9px] font-black uppercase rounded-full">Sign Out</Button>
@@ -335,7 +382,9 @@ function ProfileContent() {
 
                   <div className="flex items-center justify-between p-6 bg-primary/5 rounded-2xl border border-primary/10">
                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-primary shadow-sm border border-primary/5"><Camera className="w-5 h-5" /></div>
+                        <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-primary shadow-sm border border-primary/5 cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+                          {isStorageUploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Camera className="w-5 h-5" />}
+                        </div>
                         <div>
                           <h4 className="font-black text-xs uppercase tracking-tight">Public Photo</h4>
                           <p className="text-[9px] text-muted-foreground italic font-medium">Toggle discovery visibility.</p>
