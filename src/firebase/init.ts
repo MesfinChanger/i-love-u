@@ -9,7 +9,7 @@ import { firebaseConfig } from './config';
 /**
  * @fileOverview Core Firebase Initializer.
  * Resilient to missing or partially provisioned environment variables.
- * Prevents initialization with invalid or placeholder API keys.
+ * Prevents initialization with invalid or placeholder API keys to avoid runtime crashes.
  */
 export function initializeFirebase(): { 
   app: FirebaseApp | null; 
@@ -24,25 +24,32 @@ export function initializeFirebase(): {
 
   // Basic validation to prevent SDK from crashing on invalid keys.
   // Standard Firebase keys are usually 39 characters. We check for a minimum length
-  // to ensure we aren't passing empty strings or short placeholders.
-  const isKeyValid = firebaseConfig.apiKey && firebaseConfig.apiKey.length > 20;
+  // and absence of placeholder text to ensure we aren't passing bunk data to the SDK.
+  const isKeyValid = firebaseConfig.apiKey && 
+                     firebaseConfig.apiKey.length > 20 && 
+                     !firebaseConfig.apiKey.includes('NEXT_PUBLIC_');
 
   if (!isKeyValid) {
-    console.warn("I Love U: Firebase credentials not detected or invalid. Regional bridge is on standby.");
+    console.warn("I Love U Platform: Valid credentials not yet detected. Regional bridge is on standby.");
     return { app: null, db: null, auth: null, storage: null };
   }
 
   try {
     const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
     
-    // Initialize services individually with fallback
+    // Initialize services individually
     const db = getFirestore(app);
     const auth = getAuth(app);
     const storage = getStorage(app);
     
     return { app, db, auth, storage };
-  } catch (error) {
-    console.error("I Love U: Platform initialization ripple:", error);
+  } catch (error: any) {
+    // If the error is specifically about API key format during initializeApp
+    if (error?.message?.toLowerCase().includes('api-key')) {
+       console.error("I Love U Platform: API Key rejection ripple detected.");
+       return { app: null, db: null, auth: null, storage: null };
+    }
+    console.error("I Love U Platform: Initialization ripple:", error);
     return { app: null, db: null, auth: null, storage: null };
   }
 }
