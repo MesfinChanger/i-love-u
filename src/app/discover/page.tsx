@@ -10,14 +10,14 @@ import {
   Sparkles, 
   MapPin, 
   Lock, 
-  Volume2,
-  VolumeX,
-  Loader2,
-  Ghost,
-  Star,
-  Send,
-  ChevronLeft,
-  ChevronRight
+  Volume2, 
+  VolumeX, 
+  Loader2, 
+  Ghost, 
+  Star, 
+  Send, 
+  ChevronLeft, 
+  ChevronRight 
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
@@ -54,15 +54,17 @@ export default function DiscoverPage() {
   const { data: myProfile } = useDoc(userRef);
 
   const discoveryQuery = useMemoFirebase(() => {
-    if (!db) return null;
+    // Only query if we have a user, as security rules require authentication
+    if (!db || !user) return null;
     return query(collection(db, 'publicProfiles'));
-  }, [db]);
+  }, [db, user]);
   const { data: discoveryItems, loading: usersLoading } = useCollection(discoveryQuery);
 
   const adsQuery = useMemoFirebase(() => {
-    if (!db) return null;
+    // Only query if we have a user, as security rules require authentication
+    if (!db || !user) return null;
     return query(collection(db, 'ads'), where('status', '==', 'active'));
-  }, [db]);
+  }, [db, user]);
   const { data: activeAds } = useCollection(adsQuery);
 
   const viewerCountry = myProfile?.country || 'GLOBAL';
@@ -188,7 +190,7 @@ export default function DiscoverPage() {
 
   const handleNext = () => setCurrentIndex(prev => prev + 1);
 
-  if (mounted && usersLoading && db) return (
+  if (mounted && usersLoading && db && user) return (
     <div className="flex flex-col min-h-screen items-center justify-center">
       <Loader2 className="w-10 h-10 animate-spin text-primary" />
     </div>

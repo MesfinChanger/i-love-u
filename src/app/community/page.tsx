@@ -63,13 +63,14 @@ export default function CommunityPage() {
   const { data: myProfile } = useDoc(userRef);
 
   const communityQuery = useMemoFirebase(() => {
-    if (!db) return null;
+    // Only query if we have a user, as security rules require authentication
+    if (!db || !user) return null;
     return query(
       collection(db, 'communityMessages'),
       orderBy('timestamp', 'asc'),
       limit(100)
     );
-  }, [db]);
+  }, [db, user]);
 
   const { data: messages, loading } = useCollection(communityQuery);
 

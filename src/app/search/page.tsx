@@ -45,9 +45,10 @@ function SearchContent() {
   }, []);
 
   const profilesQuery = useMemoFirebase(() => {
-    if (!db) return null;
+    // Only query if we have a user, as security rules require authentication
+    if (!db || !user) return null;
     return query(collection(db, 'publicProfiles'), limit(100));
-  }, [db]);
+  }, [db, user]);
 
   const { data: allProfiles, loading } = useCollection(profilesQuery);
 
