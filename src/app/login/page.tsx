@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, Suspense } from 'react';
@@ -5,7 +6,8 @@ import { useRouter } from 'next/navigation';
 import { useAuth, useUser, useFirestore } from '@/firebase';
 import { 
   signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword
+  createUserWithEmailAndPassword,
+  signInAnonymously
 } from 'firebase/auth';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
@@ -22,7 +24,9 @@ import {
   ShieldCheck,
   CheckCircle2,
   Zap,
-  RefreshCw
+  RefreshCw,
+  UserSecret,
+  Sparkles
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
@@ -67,10 +71,51 @@ function LoginContent() {
 
   const isProtocolComplete = isAgeVerified && isRespectful && isHuman;
 
+  const handleGuestJoin = async () => {
+    if (!isProtocolComplete) {
+      toast({ variant: "destructive", title: "Protocol Required", description: "Complete the security confirmations first. ❤️" });
+      return;
+    }
+    
+    if (!auth) {
+      setIsConfigError(true);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const res = await signInAnonymously(auth);
+      
+      // Generate E2EE Key for Guest Privacy
+      const { publicKey, privateKey } = await generateKeyPair();
+      localStorage.setItem(`spark_priv_${res.user.uid}`, privateKey);
+
+      if (db) {
+        await setDoc(doc(db, 'users', res.user.uid), {
+          uid: res.user.uid,
+          isAnonymous: true,
+          country: country || 'GLOBAL',
+          publicKey,
+          isAgeVerified,
+          isRespectful,
+          isHuman,
+          createdAt: serverTimestamp()
+        }, { merge: true });
+      }
+
+      toast({ title: "Welcome, Guest!", description: "Joined as a mysterious heart. ❤️" });
+      router.push('/discover');
+    } catch (e) {
+      console.error(e);
+      toast({ variant: "destructive", title: "Access Denied", description: "Could not launch guest access." });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleAuth = async () => {
     if (!email || !password || !isProtocolComplete) return;
     
-    // Safety check for initialized Auth service
     if (!auth) {
       toast({ 
         variant: "destructive", 
@@ -91,11 +136,7 @@ function LoginContent() {
         }
 
         const res = await createUserWithEmailAndPassword(auth, email, password);
-        
-        // Generate E2EE Starting Key for the Prosperity Revolution
         const { publicKey, privateKey } = await generateKeyPair();
-        
-        // Store private key locally (NEVER leaves the device)
         localStorage.setItem(`spark_priv_${res.user.uid}`, privateKey);
         
         if (db) {
@@ -103,7 +144,7 @@ function LoginContent() {
             uid: res.user.uid,
             email,
             country,
-            publicKey, // Store public key for community encryption
+            publicKey,
             isAgeVerified,
             isRespectful,
             isHuman,
@@ -120,21 +161,8 @@ function LoginContent() {
       console.error("Auth Error:", error);
       let message = "Check your credentials or join the revolution. ❤️";
       
-      const errString = error?.message?.toLowerCase() || "";
-      const isApiKeyError = errString.includes('api-key-not-valid') || 
-                            errString.includes('invalid-api-key') ||
-                            error.code === 'auth/invalid-api-key' ||
-                            error.code === 'auth/api-key-not-valid';
-
-      if (isApiKeyError) {
-        message = "Regional configuration ripple detected. Please reload the page to refresh your secure bridge. ✨";
+      if (error.code?.includes('api-key-not-valid')) {
         setIsConfigError(true);
-      } else if (error.code === 'auth/email-already-in-use') {
-        message = "This email is already part of the revolution. Please sign in.";
-      } else if (error.code === 'auth/weak-password') {
-        message = "Your secure phrase is too short. Help us keep you safe.";
-      } else if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
-        message = "Invalid credentials. Please verify your secure phrase. ❤️";
       }
 
       toast({ variant: "destructive", title: "Access Denied", description: message });
@@ -259,17 +287,35 @@ function LoginContent() {
                 </div>
               </div>
 
-              <div className="pt-4">
+              <div className="space-y-4">
                 <Button 
                   onClick={handleAuth} 
                   disabled={isLoading || !isProtocolComplete || !email || !password || !auth || isConfigError} 
                   className={cn(
-                    "w-full h-20 rounded-[2rem] font-black uppercase tracking-[0.3em] text-sm shadow-[0_20px_40px_-10px_rgba(255,51,102,0.4)] active:scale-95 transition-all",
+                    "w-full h-20 rounded-[2rem] font-black uppercase tracking-[0.3em] text-sm shadow-xl active:scale-95 transition-all",
                     (!isProtocolComplete || !auth || isConfigError) ? "bg-slate-200 text-slate-400" : "gradient-bg"
                   )}
                 >
                   {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : mode === 'signin' ? 'Launch' : 'Join Revolution'}
                 </Button>
+
+                {mode === 'signup' && (
+                  <div className="pt-2">
+                    <div className="relative mb-6">
+                      <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-100"></div></div>
+                      <div className="relative flex justify-center text-[8px] font-black uppercase tracking-widest"><span className="bg-white px-4 text-slate-300">OR</span></div>
+                    </div>
+                    <Button 
+                      onClick={handleGuestJoin}
+                      disabled={isLoading || !isProtocolComplete || !auth || isConfigError}
+                      variant="outline"
+                      className="w-full h-16 rounded-2xl border-2 border-slate-100 font-black uppercase tracking-[0.2em] text-[10px] text-slate-400 hover:bg-primary/5 hover:text-primary hover:border-primary/20 transition-all gap-3"
+                    >
+                      <Sparkles className="w-4 h-4" />
+                      Launch as Guest
+                    </Button>
+                  </div>
+                )}
               </div>
 
               <p className="text-[9px] text-center text-slate-300 uppercase font-black tracking-[0.3em] pt-4">
