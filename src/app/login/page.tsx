@@ -28,6 +28,7 @@ import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import { generateKeyPair } from '@/lib/crypto';
 
 const COUNTRIES = [
   { code: 'AF', name: 'Afghanistan' }, { code: 'US', name: 'United States' }, { code: 'GB', name: 'United Kingdom' },
@@ -88,13 +89,21 @@ function LoginContent() {
           setIsLoading(false);
           return;
         }
+
         const res = await createUserWithEmailAndPassword(auth, email, password);
+        
+        // Generate E2EE Starting Key for the Prosperity Revolution
+        const { publicKey, privateKey } = await generateKeyPair();
+        
+        // Store private key locally (NEVER leaves the device)
+        localStorage.setItem(`spark_priv_${res.user.uid}`, privateKey);
         
         if (db) {
            await setDoc(doc(db, 'users', res.user.uid), {
             uid: res.user.uid,
             email,
             country,
+            publicKey, // Store public key for community encryption
             isAgeVerified,
             isRespectful,
             isHuman,
@@ -102,7 +111,7 @@ function LoginContent() {
           }, { merge: true });
         }
 
-        toast({ title: "Welcome!", description: "Account created successfully. ❤️" });
+        toast({ title: "Welcome!", description: "Account created and secure keys generated. ❤️" });
       } else {
         await signInWithEmailAndPassword(auth, email, password);
       }
