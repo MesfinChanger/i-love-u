@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  // In Next.js 15, allowedDevOrigins is a top-level property for workstation safety
+  // Workstation safety for Firebase Studio workstation
   allowedDevOrigins: [
     '6000-firebase-studio-1781669153012.cluster-xuuc5xf5uvgp6xje3qbpsmzu3o.cloudworkstations.dev',
     'localhost:9002'

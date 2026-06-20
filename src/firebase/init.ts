@@ -20,11 +20,11 @@ export function initializeFirebase(): {
 
   const apiKey = firebaseConfig.apiKey;
   
-  // High-integrity check: Firebase keys standardly start with 'AIza' and are at least 25 chars.
+  // High-integrity check: Firebase keys standardly start with 'AIza' and are at least 30 chars.
   // This prevents 'auth/api-key-not-valid' technical exceptions during project provisioning.
   const isKeyValid = apiKey && 
                      apiKey.startsWith("AIza") && 
-                     apiKey.length > 25;
+                     apiKey.length > 30;
 
   if (!isKeyValid) {
     // Return null services to trigger mission-aligned 'Standby' mode in UI
