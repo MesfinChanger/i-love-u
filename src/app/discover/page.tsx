@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -13,7 +14,8 @@ import {
   VolumeX,
   Loader2,
   Ghost,
-  Star
+  Star,
+  Send
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
@@ -139,7 +141,7 @@ export default function DiscoverPage() {
   const handleAction = async (type: 'friend' | 'date') => {
     if (!user || !db || !currentItem || currentItem.type === 'ad' || currentItem.id.startsWith('mock')) {
       if (currentItem?.id.startsWith('mock')) {
-        toast({ title: "Prototype Connection!", description: "In real mode, this would spark a secure journey. ✨" });
+        toast({ title: "Prototype Invitation!", description: "In real mode, this would send a secure invitation. ✨" });
         handleNext();
       }
       return;
@@ -151,23 +153,18 @@ export default function DiscoverPage() {
     const matchData = {
       userIds: uids,
       timestamp: serverTimestamp(),
-      lastMessage: type === 'date' ? "A Spark has been allowed! ✨" : "Connection allowed 🤝",
-      status: "active",
+      lastMessage: type === 'date' ? "A Spark invitation has been sent! ✨" : "Connection invitation sent 🤝",
+      status: "pending",
+      invitedBy: user.uid,
       type: type
     };
 
     try {
       await setDoc(doc(db, 'matches', matchId), matchData);
-      if (type === 'date') {
-        await setDoc(doc(db, 'users', user.uid), {
-          relationshipStatus: 'dating',
-          partnerId: currentItem.id
-        }, { merge: true });
-      }
-      toast({ title: "Connection Allowed!", description: "Full Identity revealed in Chat! ✨" });
+      toast({ title: "Invitation Sent!", description: "Waiting for them to accept your spark. ❤️" });
       handleNext();
     } catch (e) {
-      toast({ variant: "destructive", title: "Action Failed", description: "Respectful connection could not be made." });
+      toast({ variant: "destructive", title: "Action Failed", description: "Respectful invitation could not be sent." });
     }
   };
 
@@ -305,7 +302,7 @@ export default function DiscoverPage() {
                      <Lock className="w-3 h-3" />
                      <span className="text-[8px] font-black uppercase tracking-widest">Privacy Shield Active</span>
                    </div>
-                   <p className="text-[8px] text-muted-foreground font-medium italic">Full identity will be revealed only after a mutual connection.</p>
+                   <p className="text-[8px] text-muted-foreground font-medium italic">Consensual matching: Identity revealed after mutual invitation.</p>
                 </div>
               </div>
             ) : null}
@@ -315,11 +312,13 @@ export default function DiscoverPage() {
             <Button variant="outline" size="icon" className="w-14 h-14 rounded-full bg-white text-slate-400 hover:text-red-500 border-none shadow-xl transition-all hover:scale-110 shrink-0" onClick={handleNext}>
               <X className="w-6 h-6" />
             </Button>
-            <Button className="w-full max-w-[100px] h-14 rounded-full bg-white text-blue-600 shadow-xl font-black uppercase text-[9px] border-none hover:bg-blue-50" onClick={() => handleAction('friend')}>
-              Connect
+            <Button className="w-full max-w-[100px] h-14 rounded-full bg-white text-blue-600 shadow-xl font-black uppercase text-[9px] border-none hover:bg-blue-50 gap-2" onClick={() => handleAction('friend')}>
+              <Send className="w-3 h-3" />
+              Invite
             </Button>
-            <Button className="w-full max-w-[120px] h-14 rounded-full shadow-xl font-black uppercase text-[9px] gradient-bg hover:scale-105 transition-transform" onClick={() => handleAction('date')}>
-              Spark Love
+            <Button className="w-full max-w-[120px] h-14 rounded-full shadow-xl font-black uppercase text-[9px] gradient-bg hover:scale-105 transition-transform gap-2" onClick={() => handleAction('date')}>
+              <Heart className="w-3 h-3 fill-current" />
+              Spark
             </Button>
           </div>
         </div>

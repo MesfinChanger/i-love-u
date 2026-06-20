@@ -60,8 +60,9 @@
         "userIds": { "type": "array", "items": { "type": "string" } },
         "timestamp": { "type": "string", "format": "date-time" },
         "lastMessage": { "type": "string" },
-        "status": { "type": "string", "enum": ["active", "unmatched"] },
+        "status": { "type": "string", "enum": ["pending", "active", "unmatched", "declined"] },
         "type": { "type": "string", "enum": ["friend", "date"], "default": "friend" },
+        "invitedBy": { "type": "string" },
         "witnessId": { "type": "string" },
         "witnessStatus": { "type": "string", "enum": ["none", "pending", "confirmed"] }
       }
