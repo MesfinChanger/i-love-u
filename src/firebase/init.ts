@@ -20,14 +20,14 @@ export function initializeFirebase(): {
 
   const apiKey = firebaseConfig.apiKey;
   
-  // High-integrity check: Firebase keys standardly start with 'AIza' and are long
+  // High-integrity check: Firebase keys standardly start with 'AIza' and are at least 30 chars
+  // This prevents 'auth/api-key-not-valid' technical exceptions from placeholders.
   const isKeyValid = apiKey && 
                      apiKey.startsWith("AIza") && 
-                     apiKey.length > 20;
+                     apiKey.length > 25;
 
   if (!isKeyValid) {
-    // Return null services to trigger mission-aligned 'Initializing' mode in UI
-    // and prevent 'auth/api-key-not-valid' technical exceptions.
+    // Return null services to trigger mission-aligned 'Standby' mode in UI
     return { app: null, db: null, auth: null, storage: null };
   }
 
@@ -39,7 +39,7 @@ export function initializeFirebase(): {
     
     return { app, db, auth, storage };
   } catch (error: any) {
-    console.warn("I Love U: Initialization ripple:", error.message);
+    console.warn("I Love U: Initialization ripple detected. Waiting for valid regional credentials.");
     return { app: null, db: null, auth: null, storage: null };
   }
 }

@@ -114,7 +114,8 @@ function LoginContent() {
       const errString = error?.message?.toLowerCase() || "";
       const isApiKeyError = errString.includes('api-key-not-valid') || 
                             errString.includes('invalid-api-key') ||
-                            error.code === 'auth/invalid-api-key';
+                            error.code === 'auth/invalid-api-key' ||
+                            error.code === 'auth/api-key-not-valid';
 
       if (isApiKeyError) {
         message = "Regional configuration ripple detected. Please reload the page to refresh your secure bridge. ✨";
@@ -123,6 +124,8 @@ function LoginContent() {
         message = "This email is already part of the revolution. Please sign in.";
       } else if (error.code === 'auth/weak-password') {
         message = "Your secure phrase is too short. Help us keep you safe.";
+      } else if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+        message = "Invalid credentials. Please verify your secure phrase. ❤️";
       }
 
       toast({ variant: "destructive", title: "Access Denied", description: message });
