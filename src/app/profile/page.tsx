@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, Suspense, useRef, useMemo } from 'react';
@@ -82,8 +83,8 @@ function ProfileContent() {
   // Granular Location Fields
   const [address1, setAddress1] = useState('');
   const [address2, setAddress2] = useState('');
-  const [city, setCity] = useState(''); // Used for City / Village / District / Wereda
-  const [state, setState] = useState(''); // Used for State / Province
+  const [city, setCity] = useState(''); 
+  const [state, setState] = useState(''); 
   const [country, setCountry] = useState('US');
 
   // Vibe Fields
@@ -107,7 +108,18 @@ function ProfileContent() {
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+    // Load local draft if exists
+    const draft = localStorage.getItem(`profile_draft_${user?.uid}`);
+    if (draft) {
+      try {
+        const parsed = JSON.parse(draft);
+        setFirstName(parsed.firstName || '');
+        setLastName(parsed.lastName || '');
+        setPublicNickname(parsed.publicNickname || '');
+        // Note: We don't overwrite server data on mount, but draft loading is a safety net
+      } catch(e) {}
+    }
+  }, [user]);
 
   const userRef = useMemoFirebase(() => {
     if (!db || !user) return null;
@@ -275,6 +287,7 @@ function ProfileContent() {
         updatedAt: serverTimestamp()
       }, { merge: true });
 
+      localStorage.removeItem(`profile_draft_${user.uid}`);
       toast({ title: "Identity Synced", description: "Your account details have been updated! ❤️" });
     } catch (e) {
       toast({ variant: "destructive", title: "Error", description: "Could not sync." });
@@ -551,7 +564,6 @@ function ProfileContent() {
                      <Switch checked={isPhotoPublic} onCheckedChange={setIsPhotoPublic} />
                   </div>
 
-                  {/* Highlight Video Section */}
                   <div className="space-y-4">
                     <div className="flex items-center justify-between px-1">
                       <Label className="text-[9px] font-black uppercase tracking-widest opacity-60">Public Highlight Video</Label>
@@ -569,7 +581,6 @@ function ProfileContent() {
                     )}
                   </div>
 
-                  {/* Photo Gallery Section */}
                   <div className="space-y-4">
                     <div className="flex items-center justify-between px-1">
                       <Label className="text-[9px] font-black uppercase tracking-widest opacity-60">Photo Gallery</Label>
