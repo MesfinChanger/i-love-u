@@ -11,30 +11,46 @@ import {
   MessageCircle, 
   Globe, 
   ShieldCheck,
-  Zap
+  Zap,
+  Info
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { sparkAssistant, type SparkAssistantInput } from '@/ai/flows/spark-assistant-flow';
 import { cn } from '@/lib/utils';
-import { useUser } from '@/firebase';
+import { useUser, useFirestore, useDoc } from '@/firebase';
+import { doc } from 'firebase/firestore';
+import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 
 export function SparkAssistant() {
   const { user } = useUser();
+  const db = useFirestore();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<{ role: 'user' | 'model'; text: string }[]>([
-    { role: 'model', text: "Welcome to the Revolution! I am your Spark Assistant. How can I help you spread happiness or understand our global mission today? ❤️" }
+    { role: 'model', text: "Welcome to the Revolution! I am your Spark Assistant. I have full access to guide you through our platform. How can I help you spread happiness today? ❤️" }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  const userRef = useMemoFirebase(() => {
+    if (!db || !user) return null;
+    return doc(db, 'users', user.uid);
+  }, [db, user]);
+  const { data: profile } = useDoc(userRef);
 
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages, isOpen]);
+
+  useEffect(() => {
+    const handleToggle = () => setIsOpen(prev => !prev);
+    window.addEventListener('toggle-spark-assistant', handleToggle);
+    return () => window.removeEventListener('toggle-spark-assistant', handleToggle);
+  }, []);
 
   const handleSend = async (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -47,7 +63,16 @@ export function SparkAssistant() {
 
     try {
       const history = messages.map(m => ({ role: m.role, text: m.text }));
-      const result = await sparkAssistant({ message: userMessage, history });
+      const result = await sparkAssistant({ 
+        message: userMessage, 
+        history,
+        userContext: {
+          nickname: profile?.publicNickname || profile?.displayName,
+          isSeller: profile?.isSeller,
+          country: profile?.country,
+          isAdvertiser: profile?.isAdvertiser
+        }
+      });
       setMessages(prev => [...prev, { role: 'model', text: result.reply }]);
     } catch (error) {
       setMessages(prev => [...prev, { role: 'model', text: "I'm having a small moment of reflection. Please try again in a heartbeat! ✨" }]);
@@ -74,7 +99,7 @@ export function SparkAssistant() {
 
       {/* Assistant Window */}
       {isOpen && (
-        <Card className="w-[calc(100vw-3rem)] sm:w-[400px] h-[500px] rounded-[2.5rem] shadow-[0_40px_100px_-10px_rgba(0,0,0,0.3)] border-none overflow-hidden flex flex-col bg-white animate-in zoom-in-95 slide-in-from-bottom-10 duration-300">
+        <Card className="w-[calc(100vw-3rem)] sm:w-[400px] h-[540px] rounded-[2.5rem] shadow-[0_40px_100px_-10px_rgba(0,0,0,0.3)] border-none overflow-hidden flex flex-col bg-white animate-in zoom-in-95 slide-in-from-bottom-10 duration-300">
           <CardHeader className="gradient-bg p-6 flex flex-row items-center justify-between shrink-0">
              <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center">
@@ -82,7 +107,7 @@ export function SparkAssistant() {
                 </div>
                 <div className="leading-none">
                   <CardTitle className="text-white text-lg font-black tracking-tighter">Spark Guide</CardTitle>
-                  <p className="text-[9px] text-white/70 font-black uppercase tracking-[0.2em] mt-1">U + Love = Prosperity</p>
+                  <p className="text-[9px] text-white/70 font-black uppercase tracking-[0.2em] mt-1">AI Mission Support</p>
                 </div>
              </div>
              <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)} className="text-white hover:bg-white/10 rounded-full">
@@ -90,9 +115,11 @@ export function SparkAssistant() {
              </Button>
           </CardHeader>
           
-          <div className="bg-primary/5 px-4 py-2 flex items-center justify-center gap-2 border-b">
-             <ShieldCheck className="w-3 h-3 text-primary" />
-             <span className="text-[8px] font-black uppercase tracking-widest text-primary/60">Respect & Love is Mandatory AI Support</span>
+          <div className="bg-primary/5 px-6 py-3 flex items-center gap-3 border-b">
+             <Info className="w-3.5 h-3.5 text-primary shrink-0" />
+             <p className="text-[9px] font-bold text-primary/70 leading-tight uppercase tracking-tight">
+                Ask about our mission to end poverty, how to use Discovery, or how to launch free ads.
+             </p>
           </div>
 
           <CardContent className="flex-grow overflow-y-auto p-6 space-y-4 no-scrollbar" ref={scrollRef}>
@@ -122,7 +149,7 @@ export function SparkAssistant() {
                 <Input 
                   value={input}
                   onChange={e => setInput(e.target.value)}
-                  placeholder="Ask about our mission..."
+                  placeholder="How can I support you?"
                   className="rounded-2xl bg-white border-none shadow-inner h-12 px-5 font-bold text-sm"
                   disabled={isLoading}
                 />
@@ -137,7 +164,7 @@ export function SparkAssistant() {
              </form>
              <div className="flex items-center justify-center gap-2 mt-4 opacity-30">
                 <Globe className="w-3 h-3" />
-                <p className="text-[8px] font-black uppercase tracking-widest">Ending World Poverty Together</p>
+                <p className="text-[8px] font-black uppercase tracking-widest text-center">Ending World Poverty Together ❤️ Reaching Every City</p>
              </div>
           </div>
         </Card>

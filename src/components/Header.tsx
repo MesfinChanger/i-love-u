@@ -1,17 +1,22 @@
+
 'use client';
 
 import Link from 'next/link';
-import { Heart, Search, Bell } from 'lucide-react';
+import { Heart, Search, Bell, CircleHelp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DonationDialog } from '@/components/DonationDialog';
 
 export function Header() {
+  const triggerAssistant = () => {
+    window.dispatchEvent(new CustomEvent('toggle-spark-assistant'));
+  };
+
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur-md" role="banner">
       <div className="container mx-auto px-4 h-14 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 group" aria-label="I Love U Home">
           <div className="relative shiny-icon p-1 rounded-lg bg-primary/5">
-            <Heart className="w-6 h-6 fill-primary text-primary transition-transform group-hover:scale-110 animate-pulse" aria-hidden="true" />
+            <Heart className="w-6 h-6 fill-primary text-primary transition-transform group-hover:scale-110 animate-heartbeat" aria-hidden="true" />
           </div>
           <div className="flex flex-col leading-none">
             <span className="font-black text-xs tracking-tighter text-primary uppercase">I LOVE</span>
@@ -21,6 +26,9 @@ export function Header() {
         
         <div className="flex items-center gap-1">
           <DonationDialog />
+          <Button variant="ghost" size="icon" onClick={triggerAssistant} className="text-primary/60 hover:text-primary w-9 h-9" aria-label="Ask Spark Guide">
+            <CircleHelp className="w-5 h-5" aria-hidden="true" />
+          </Button>
           <Button variant="ghost" size="icon" className="text-muted-foreground w-9 h-9" aria-label="Search profiles">
             <Search className="w-4 h-4" aria-hidden="true" />
           </Button>
