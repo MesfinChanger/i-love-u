@@ -26,7 +26,8 @@ import {
   MapPin,
   Scale,
   ShieldAlert,
-  IdCard
+  IdCard,
+  Rocket
 } from 'lucide-react';
 import { useUser, useFirestore, useDoc, useCollection } from '@/firebase';
 import { doc, setDoc, addDoc, collection, serverTimestamp, query, where } from 'firebase/firestore';
@@ -39,6 +40,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { moderateText } from '@/ai/flows/moderate-text-flow';
 import { Badge } from '@/components/ui/badge';
 import { COUNTRIES } from '@/lib/world-data';
+import { cn } from '@/lib/utils';
 
 function AdvertiserManageContent() {
   const { user } = useUser();
@@ -78,6 +80,7 @@ function AdvertiserManageContent() {
   }, [searchParams, toast]);
 
   const userCurrency = profile?.currency || 'USD';
+  const isSeller = profile?.isSeller || false;
   const hasFullCommercialInfo = profile?.address1 && profile?.taxId;
 
   const handleCreateCampaign = async () => {
@@ -94,7 +97,9 @@ function AdvertiserManageContent() {
     }
 
     const amount = parseFloat(budget);
-    if (isNaN(amount) || amount < 10) {
+    
+    // Minimum budget of 10 for non-sellers. Sellers can do 0 for free ads.
+    if (!isSeller && (isNaN(amount) || amount < 10)) {
       toast({
         variant: "destructive",
         title: "Minimum Budget",
@@ -131,13 +136,26 @@ function AdvertiserManageContent() {
         budget: amount,
         currency: userCurrency,
         status: 'pending',
+        isFreeSellerAd: isSeller && amount === 0,
         timestamp: serverTimestamp(),
       });
 
-      await createAdCampaignSession(amount, userCurrency, user.uid, title);
+      if (amount > 0) {
+        await createAdCampaignSession(amount, userCurrency, user.uid, title);
+      } else {
+        toast({
+          title: "Free Campaign Launched!",
+          description: "As a Verified Seller, your free ad is now in the review queue. ✨",
+        });
+        setTitle('');
+        setDescription('');
+        setTargetUrl('');
+        setVideoUrl('');
+        setIsCreating(false);
+      }
     } catch (e) {
       console.error(e);
-      toast({ variant: "destructive", title: "Error", description: "Payment redirect failed." });
+      toast({ variant: "destructive", title: "Error", description: "Operation failed." });
       setIsCreating(false);
     }
   };
@@ -154,12 +172,12 @@ function AdvertiserManageContent() {
             </h1>
             <p className="text-muted-foreground">Promote legally and respectfully to our community.</p>
           </div>
-          <div className="flex gap-2">
-            {!hasFullCommercialInfo && (
-              <div className="bg-amber-50 text-amber-700 px-4 py-3 rounded-2xl border border-amber-200 flex items-center gap-3 animate-pulse">
-                <ShieldAlert className="w-5 h-5" />
-                <span className="text-xs font-bold">Verification Incomplete</span>
-              </div>
+          <div className="flex flex-col items-end gap-2">
+            {isSeller && (
+              <Badge className="bg-green-100 text-green-700 border-none px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+                <Rocket className="w-3 h-3" />
+                Verified Seller: Free Ads Active
+              </Badge>
             )}
             <div className="bg-primary/10 text-primary p-4 rounded-2xl border border-primary/20 flex items-center gap-3">
                <TrendingUp className="w-5 h-5" />
@@ -274,14 +292,19 @@ function AdvertiserManageContent() {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="ad-budget">Budget ({userCurrency})</Label>
-                      <Input 
-                        id="ad-budget" 
-                        type="number" 
-                        min="10"
-                        value={budget}
-                        onChange={e => setBudget(e.target.value)}
-                        className="rounded-xl font-bold"
-                      />
+                      <div className="relative">
+                        <Input 
+                          id="ad-budget" 
+                          type="number" 
+                          min={isSeller ? "0" : "10"}
+                          value={budget}
+                          onChange={e => setBudget(e.target.value)}
+                          className={cn("rounded-xl font-bold", isSeller && budget === '0' && "text-green-600 border-green-200")}
+                        />
+                        {isSeller && budget === '0' && (
+                          <Badge className="absolute right-2 top-1/2 -translate-y-1/2 bg-green-500 text-white text-[8px] font-black uppercase">FREE</Badge>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -302,8 +325,8 @@ function AdvertiserManageContent() {
                   disabled={isCreating || !title || !description}
                   aria-label="Launch Ad Campaign"
                 >
-                  {isCreating ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : <CreditCard className="w-5 h-5 mr-2" />}
-                  {hasFullCommercialInfo ? 'Accept Liability & Launch' : 'Complete Profile to Launch'}
+                  {isCreating ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : <Rocket className="w-5 h-5 mr-2" />}
+                  {!hasFullCommercialInfo ? 'Complete Profile to Launch' : (isSeller && budget === '0' ? 'Launch Free Ad' : 'Accept Liability & Launch')}
                 </Button>
               </CardContent>
             </Card>
@@ -317,7 +340,10 @@ function AdvertiserManageContent() {
               myAds.map((ad: any) => (
                 <Card key={ad.id} className="rounded-3xl border-none shadow-sm bg-white overflow-hidden">
                   <CardContent className="p-5 space-y-2">
-                    <h3 className="font-bold">{ad.title}</h3>
+                    <div className="flex justify-between items-start">
+                       <h3 className="font-bold">{ad.title}</h3>
+                       {ad.isFreeSellerAd && <Badge variant="outline" className="text-[7px] text-green-600 border-green-200">SELLER FREE</Badge>}
+                    </div>
                     <p className="text-xs text-muted-foreground line-clamp-2">{ad.description}</p>
                     <div className="flex items-center justify-between pt-2 border-t mt-2">
                        <span className="text-[10px] font-bold text-muted-foreground uppercase">{ad.targetCountries?.[0] || 'GLOBAL'}</span>
