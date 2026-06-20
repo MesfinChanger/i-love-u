@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, Suspense, useRef, useMemo } from 'react';
@@ -116,10 +115,19 @@ function ProfileContent() {
         setFirstName(parsed.firstName || '');
         setLastName(parsed.lastName || '');
         setPublicNickname(parsed.publicNickname || '');
-        // Note: We don't overwrite server data on mount, but draft loading is a safety net
+        setAddress1(parsed.address1 || '');
+        setBio(parsed.bio || '');
       } catch(e) {}
     }
   }, [user]);
+
+  // Auto-hold draft effect
+  useEffect(() => {
+    if (user?.uid && mounted) {
+      const draft = { firstName, lastName, publicNickname, address1, bio };
+      localStorage.setItem(`profile_draft_${user.uid}`, JSON.stringify(draft));
+    }
+  }, [firstName, lastName, publicNickname, address1, bio, user?.uid, mounted]);
 
   const userRef = useMemoFirebase(() => {
     if (!db || !user) return null;
@@ -203,7 +211,7 @@ function ProfileContent() {
           setPhotoUrl(url);
         }
         
-        toast({ title: "Photo Secured", description: "Your respectful image has been uploaded." });
+        toast({ title: "Photo Secured", description: "Your respectful image has been saved." });
       };
       reader.readAsDataURL(file);
     } catch (error) {
@@ -288,9 +296,9 @@ function ProfileContent() {
       }, { merge: true });
 
       localStorage.removeItem(`profile_draft_${user.uid}`);
-      toast({ title: "Identity Synced", description: "Your account details have been updated! ❤️" });
+      toast({ title: "Identity Saved", description: "Your account details have been updated! ❤️" });
     } catch (e) {
-      toast({ variant: "destructive", title: "Error", description: "Could not sync." });
+      toast({ variant: "destructive", title: "Error", description: "Could not save changes." });
     } finally {
       setIsSaving(false);
     }
@@ -369,7 +377,7 @@ function ProfileContent() {
               className={cn("h-9 px-5 text-[9px] font-black uppercase shadow-lg rounded-full", isProtocolComplete ? "gradient-bg" : "bg-slate-200 text-slate-400")}
             >
               {isSaving ? <Loader2 className="w-3 h-3 animate-spin mr-1.5" /> : <Save className="w-3 h-3 mr-1.5" />}
-              Sync
+              Save
             </Button>
           </div>
         </div>
@@ -677,7 +685,7 @@ function ProfileContent() {
                 <div className="p-5 bg-slate-900 rounded-2xl flex items-center gap-4 shadow-lg border border-primary/20">
                   <Lock className="w-6 h-6 text-primary shrink-0" />
                   <p className="text-[9px] text-white/80 italic uppercase tracking-widest font-black leading-relaxed">
-                    Account syncing is locked until all security protocols are confirmed.
+                    Account saving is locked until all security protocols are confirmed.
                   </p>
                 </div>
               </div>

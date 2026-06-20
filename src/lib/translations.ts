@@ -44,7 +44,7 @@ export const TRANSLATIONS: Record<LanguageCode, any> = {
     },
     profile: {
       account: "My Account",
-      sync: "Sync",
+      save: "Save",
       signOut: "Sign Out",
       personal: "Info",
       address: "Address",
@@ -90,7 +90,7 @@ export const TRANSLATIONS: Record<LanguageCode, any> = {
     },
     profile: {
       account: "Mi Cuenta",
-      sync: "Sincronizar",
+      save: "Guardar",
       signOut: "Cerrar Sesión",
       personal: "Info",
       address: "Dirección",
@@ -136,7 +136,7 @@ export const TRANSLATIONS: Record<LanguageCode, any> = {
     },
     profile: {
       account: "Mon Compte",
-      sync: "Sync",
+      save: "Sauvegarder",
       signOut: "Déconnexion",
       personal: "Info",
       address: "Adresse",
@@ -182,7 +182,7 @@ export const TRANSLATIONS: Record<LanguageCode, any> = {
     },
     profile: {
       account: "Akaunti Yangu",
-      sync: "Sawazisha",
+      save: "Hifadhi",
       signOut: "Ondoka",
       personal: "Habari",
       address: "Anwani",

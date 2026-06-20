@@ -1,4 +1,3 @@
-
 'use server';
 /**
  * @fileOverview The Spark Guide AI Agent - Master Instruction Flow.
@@ -52,7 +51,7 @@ STEP-BY-STEP GUIDANCE FOR USERS:
    - Step 1: Go to "Profile" (User icon in bottom nav).
    - Step 2: Complete the "Security" tab first. You must check "Respect is Mandatory".
    - Step 3: Go to "Public" tab to set your Nickname and upload a "Highlight Video".
-   - Step 4: Click the "Sync" button to save your changes globally.
+   - Step 4: Click the "Save" button to protect your changes globally.
 
 2. HOW TO DISCOVER & CONNECT:
    - Step 1: Go to "Discover" (Sparkles icon).
