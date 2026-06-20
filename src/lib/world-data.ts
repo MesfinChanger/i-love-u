@@ -78,49 +78,88 @@ export const COUNTRIES = [
 ];
 
 export const WORLD_LOCATIONS: Record<string, { regions: { name: string, cities: string[] }[] }> = {
-  'ET': { // Ethiopia
+  'ET': { // Ethiopia - Extended high-resolution administrative data
     regions: [
-      { name: 'Addis Ababa', cities: ['Addis Ketema', 'Akaki Kality', 'Arada', 'Bole', 'Gullele', 'Kirkos', 'Kolfe Keranio', 'Lideta', 'Nifas Silk-Lafto', 'Yeka'] },
-      { name: 'Amhara', cities: ['Bahir Dar', 'Gondar', 'Dessie', 'Debre Birhan', 'Kombolcha', 'Debre Markos'] },
-      { name: 'Oromia', cities: ['Adama', 'Jimma', 'Bishoftu', 'Shashemene', 'Burayu', 'Nekemte'] },
-      { name: 'Tigray', cities: ['Mekele', 'Adigrat', 'Shire', 'Axum', 'Humera'] },
-      { name: 'Sidama', cities: ['Hawassa', 'Yirgalem', 'Aleta Wendo'] }
+      { name: 'Addis Ababa', cities: ['Addis Ketema Wereda', 'Akaki Kality Wereda', 'Arada Wereda', 'Bole Wereda', 'Gullele Wereda', 'Kirkos Wereda', 'Kolfe Keranio Wereda', 'Lideta Wereda', 'Nifas Silk-Lafto Wereda', 'Yeka Wereda', 'Lemi Kura Wereda'] },
+      { name: 'Amhara', cities: ['Bahir Dar', 'Gondar', 'Dessie', 'Debre Birhan', 'Kombolcha', 'Debre Markos', 'Lalibela', 'Sekota', 'Woldiya', 'Motta', 'Enjibara', 'Debre Tabor'] },
+      { name: 'Oromia', cities: ['Adama', 'Jimma', 'Bishoftu', 'Shashemene', 'Burayu', 'Nekemte', 'Asella', 'Goba', 'Sebeta', 'Ambo', 'Chiro', 'Dukem', 'Metu', 'Waliso', 'Fiche'] },
+      { name: 'Tigray', cities: ['Mekele', 'Adigrat', 'Shire (Inda Selassie)', 'Axum', 'Humera', 'Alamata', 'Wukro', 'Adwa', 'Maychew', 'Sheraro'] },
+      { name: 'Sidama', cities: ['Hawassa', 'Yirgalem', 'Aleta Wendo', 'Leku', 'Benza', 'Daye', 'Hula', 'Irgalem'] },
+      { name: 'SNNPR', cities: ['Arba Minch', 'Hosanna', 'Dilla', 'Sodo (Wolaita)', 'Butajira', 'Jinka', 'Sawla', 'Bonga', 'Mizan Teferi', 'Worabe'] },
+      { name: 'Somali', cities: ['Jijiga', 'Gode', 'Degahabur', 'Kebri Dahar', 'Kebridahar', 'Shilavo', 'Warder'] },
+      { name: 'Afar', cities: ['Semera', 'Asaita', 'Logia', 'Dubti', 'Chifra', 'Gewane'] },
+      { name: 'Gambela', cities: ['Gambela City', 'Itang', 'Pugnido'] },
+      { name: 'Benishangul-Gumuz', cities: ['Assosa', 'Kamashi', 'Gilgel Beles'] },
+      { name: 'Harari', cities: ['Harar City'] },
+      { name: 'Dire Dawa', cities: ['Dire Dawa City'] }
     ]
   },
   'US': { // United States
     regions: [
-      { name: 'California', cities: ['Los Angeles', 'San Francisco', 'San Diego', 'Sacramento', 'San Jose'] },
-      { name: 'New York', cities: ['New York City', 'Buffalo', 'Albany', 'Rochester', 'Yonkers'] },
-      { name: 'Texas', cities: ['Houston', 'Austin', 'Dallas', 'San Antonio', 'Fort Worth'] },
-      { name: 'Florida', cities: ['Miami', 'Orlando', 'Tampa', 'Jacksonville', 'Tallahassee'] }
+      { name: 'California', cities: ['Los Angeles', 'San Francisco', 'San Diego', 'Sacramento', 'San Jose', 'Oakland', 'Fresno', 'Long Beach', 'Irvine', 'Pasadena'] },
+      { name: 'New York', cities: ['New York City', 'Buffalo', 'Albany', 'Rochester', 'Yonkers', 'Syracuse', 'New Rochelle', 'Mount Vernon'] },
+      { name: 'Texas', cities: ['Houston', 'Austin', 'Dallas', 'San Antonio', 'Fort Worth', 'El Paso', 'Arlington', 'Corpus Christi', 'Plano'] },
+      { name: 'Florida', cities: ['Miami', 'Orlando', 'Tampa', 'Jacksonville', 'Tallahassee', 'Fort Lauderdale', 'St. Petersburg', 'Hialeah'] },
+      { name: 'Illinois', cities: ['Chicago', 'Aurora', 'Rockford', 'Joliet', 'Naperville', 'Springfield'] },
+      { name: 'Georgia', cities: ['Atlanta', 'Augusta', 'Columbus', 'Savannah', 'Athens'] }
     ]
   },
   'NG': { // Nigeria
     regions: [
-      { name: 'Lagos', cities: ['Ikeja', 'Lekki', 'Ikorodu', 'Epe', 'Badagry'] },
-      { name: 'Abuja', cities: ['Garki', 'Wuse', 'Asokoro', 'Maitama', 'Kuje'] },
-      { name: 'Kano', cities: ['Kano City', 'Wudil', 'Gwarzo', 'Bichi'] }
+      { name: 'Lagos', cities: ['Ikeja', 'Lekki', 'Ikorodu', 'Epe', 'Badagry', 'Surulere', 'Agege', 'Mushin', 'Victoria Island', 'Ajah'] },
+      { name: 'Abuja', cities: ['Garki', 'Wuse', 'Asokoro', 'Maitama', 'Kuje', 'Gwagwalada', 'Bwari', 'Abaji'] },
+      { name: 'Kano', cities: ['Kano City', 'Wudil', 'Gwarzo', 'Bichi', 'Gaya', 'Rano'] },
+      { name: 'Rivers', cities: ['Port Harcourt', 'Obio-Akpor', 'Bonny', 'Eleme', 'Okrika'] },
+      { name: 'Oyo', cities: ['Ibadan', 'Ogbomosho', 'Oyo Town', 'Iseyin'] }
     ]
   },
   'KE': { // Kenya
     regions: [
-      { name: 'Nairobi', cities: ['Westlands', 'Dagoretti', 'Kasarani', 'Kibra', 'Langata'] },
-      { name: 'Mombasa', cities: ['Island', 'Changamwe', 'Likoni', 'Kisauni'] },
-      { name: 'Kisumu', cities: ['Kisumu Central', 'Kisumu West', 'Nyakach'] }
+      { name: 'Nairobi', cities: ['Westlands', 'Dagoretti', 'Kasarani', 'Kibra', 'Langata', 'Embakasi', 'Makadara', 'Mathare'] },
+      { name: 'Mombasa', cities: ['Island', 'Changamwe', 'Likoni', 'Kisauni', 'Nyali', 'Jomvu'] },
+      { name: 'Kisumu', cities: ['Kisumu Central', 'Kisumu West', 'Nyakach', 'Muhoroni', 'Seme'] },
+      { name: 'Kiambu', cities: ['Thika', 'Kiambu Town', 'Limuru', 'Kikuyu', 'Ruiru'] },
+      { name: 'Nakuru', cities: ['Nakuru City', 'Naivasha', 'Molo', 'Gilgil'] }
     ]
   },
   'IN': { // India
     regions: [
-      { name: 'Maharashtra', cities: ['Mumbai', 'Pune', 'Nagpur', 'Nashik'] },
-      { name: 'Karnataka', cities: ['Bengaluru', 'Mysuru', 'Hubballi', 'Mangaluru'] },
-      { name: 'Delhi', cities: ['New Delhi', 'Old Delhi', 'Dwarka', 'Rohini'] }
+      { name: 'Maharashtra', cities: ['Mumbai', 'Pune', 'Nagpur', 'Nashik', 'Thane', 'Aurangabad', 'Solapur', 'Amravati'] },
+      { name: 'Karnataka', cities: ['Bengaluru', 'Mysuru', 'Hubballi', 'Mangaluru', 'Belagavi', 'Kalaburagi', 'Ballari'] },
+      { name: 'Delhi', cities: ['New Delhi', 'Old Delhi', 'Dwarka', 'Rohini', 'Saket', 'Vasant Kunj'] },
+      { name: 'Tamil Nadu', cities: ['Chennai', 'Coimbatore', 'Madurai', 'Tiruchirappalli', 'Salem'] },
+      { name: 'West Bengal', cities: ['Kolkata', 'Howrah', 'Durgapur', 'Asansol', 'Siliguri'] }
+    ]
+  },
+  'GB': { // United Kingdom
+    regions: [
+      { name: 'England', cities: ['London', 'Birmingham', 'Manchester', 'Liverpool', 'Leeds', 'Sheffield', 'Bristol', 'Newcastle'] },
+      { name: 'Scotland', cities: ['Glasgow', 'Edinburgh', 'Aberdeen', 'Dundee', 'Inverness', 'Perth'] },
+      { name: 'Wales', cities: ['Cardiff', 'Swansea', 'Newport', 'Wrexham'] },
+      { name: 'Northern Ireland', cities: ['Belfast', 'Derry', 'Lisburn', 'Newry'] }
+    ]
+  },
+  'CA': { // Canada
+    regions: [
+      { name: 'Ontario', cities: ['Toronto', 'Ottawa', 'Mississauga', 'Hamilton', 'Brampton', 'London', 'Markham'] },
+      { name: 'Quebec', cities: ['Montreal', 'Quebec City', 'Laval', 'Gatineau', 'Longueuil', 'Sherbrooke'] },
+      { name: 'British Columbia', cities: ['Vancouver', 'Victoria', 'Surrey', 'Burnaby', 'Richmond', 'Kelowna'] },
+      { name: 'Alberta', cities: ['Calgary', 'Edmonton', 'Red Deer', 'Lethbridge'] }
+    ]
+  },
+  'BR': { // Brazil
+    regions: [
+      { name: 'São Paulo', cities: ['São Paulo City', 'Campinas', 'Guarulhos', 'Santo André', 'São Bernardo do Campo'] },
+      { name: 'Rio de Janeiro', cities: ['Rio de Janeiro City', 'Niterói', 'São Gonçalo', 'Duque de Caxias'] },
+      { name: 'Minas Gerais', cities: ['Belo Horizonte', 'Uberlândia', 'Contagem', 'Juiz de Fora'] },
+      { name: 'Bahia', cities: ['Salvador', 'Feira de Santana', 'Vitória da Conquista'] }
     ]
   },
   'DEFAULT': {
     regions: [
-      { name: 'Capital Region', cities: ['Main City', 'North District', 'South District'] },
-      { name: 'Coastal Region', cities: ['Port Village', 'Beach Town', 'Island District'] },
-      { name: 'Rural Region', cities: ['Agricultural Village', 'Mountain District', 'Forest Wereda'] }
+      { name: 'Capital Region', cities: ['Main City', 'North District', 'South District', 'Central Wereda'] },
+      { name: 'Coastal Region', cities: ['Port Village', 'Beach Town', 'Island District', 'Shoreline Wereda'] },
+      { name: 'Rural Region', cities: ['Agricultural Village', 'Mountain District', 'Forest Wereda', 'Highland Village'] }
     ]
   }
 };
