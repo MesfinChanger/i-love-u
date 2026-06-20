@@ -112,11 +112,14 @@ function ProfileContent() {
     if (draft) {
       try {
         const parsed = JSON.parse(draft);
-        setFirstName(parsed.firstName || '');
-        setLastName(parsed.lastName || '');
-        setPublicNickname(parsed.publicNickname || '');
-        setAddress1(parsed.address1 || '');
-        setBio(parsed.bio || '');
+        setFirstName(prev => parsed.firstName || prev);
+        setLastName(prev => parsed.lastName || prev);
+        setPublicNickname(prev => parsed.publicNickname || prev);
+        setAddress1(prev => parsed.address1 || prev);
+        setBio(prev => parsed.bio || prev);
+        setGender(prev => parsed.gender || prev);
+        setPreferredLanguage(prev => parsed.preferredLanguage || prev);
+        setCurrency(prev => parsed.currency || prev);
       } catch(e) {}
     }
   }, [user]);
@@ -124,10 +127,10 @@ function ProfileContent() {
   // Auto-hold draft effect
   useEffect(() => {
     if (user?.uid && mounted) {
-      const draft = { firstName, lastName, publicNickname, address1, bio };
+      const draft = { firstName, lastName, publicNickname, address1, bio, gender, preferredLanguage, currency };
       localStorage.setItem(`profile_draft_${user.uid}`, JSON.stringify(draft));
     }
-  }, [firstName, lastName, publicNickname, address1, bio, user?.uid, mounted]);
+  }, [firstName, lastName, publicNickname, address1, bio, gender, preferredLanguage, currency, user?.uid, mounted]);
 
   const userRef = useMemoFirebase(() => {
     if (!db || !user) return null;

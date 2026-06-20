@@ -53,6 +53,30 @@ function SellerManageContent() {
   const [isSubscribing, setIsSubscribing] = useState(false);
   const [isRequestingNegotiation, setIsRequestingNegotiation] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  // Hold Protocol: Load Draft
+  useEffect(() => {
+    setMounted(true);
+    if (user?.uid) {
+      const draft = localStorage.getItem(`shop_draft_${user.uid}`);
+      if (draft) {
+        try {
+          const parsed = JSON.parse(draft);
+          setShopName(prev => parsed.shopName || prev);
+          setShopDesc(prev => parsed.shopDesc || prev);
+        } catch (e) {}
+      }
+    }
+  }, [user]);
+
+  // Hold Protocol: Save Draft
+  useEffect(() => {
+    if (user?.uid && mounted) {
+      const draft = { shopName, shopDesc };
+      localStorage.setItem(`shop_draft_${user.uid}`, JSON.stringify(draft));
+    }
+  }, [shopName, shopDesc, user?.uid, mounted]);
 
   useEffect(() => {
     if (searchParams.get('success')) {
@@ -123,6 +147,10 @@ function SellerManageContent() {
         description: shopDesc,
         logoUrl: 'https://picsum.photos/seed/shop/200/200'
       }, { merge: true });
+      
+      // Clear draft on success
+      localStorage.removeItem(`shop_draft_${user.uid}`);
+      
       toast({ title: "Shop Updated", description: "Your virtual store is live. ✨" });
     } finally {
       setIsSaving(false);
@@ -232,7 +260,7 @@ function SellerManageContent() {
                 </div>
                 <Button className="w-full rounded-2xl h-16 gradient-bg font-black uppercase tracking-widest text-xs shadow-xl shadow-primary/20 gap-2" onClick={handleSaveShop} disabled={isSaving}>
                   {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                  Update Storefront
+                  Update Storefront & Save
                 </Button>
               </CardContent>
             </Card>

@@ -70,6 +70,32 @@ function AdvertiserManageContent() {
   const [targetCountry, setTargetCountry] = useState('GLOBAL');
   const [budget, setBudget] = useState('50');
   const [isCreating, setIsCreating] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  // Hold Protocol: Load Draft
+  useEffect(() => {
+    setMounted(true);
+    if (user?.uid) {
+      const draft = localStorage.getItem(`ad_draft_${user.uid}`);
+      if (draft) {
+        try {
+          const parsed = JSON.parse(draft);
+          setTitle(prev => parsed.title || prev);
+          setDescription(prev => parsed.description || prev);
+          setTargetUrl(prev => parsed.targetUrl || prev);
+          setBudget(prev => parsed.budget || prev);
+        } catch (e) {}
+      }
+    }
+  }, [user]);
+
+  // Hold Protocol: Save Draft
+  useEffect(() => {
+    if (user?.uid && mounted) {
+      const draft = { title, description, targetUrl, budget };
+      localStorage.setItem(`ad_draft_${user.uid}`, JSON.stringify(draft));
+    }
+  }, [title, description, targetUrl, budget, user?.uid, mounted]);
 
   useEffect(() => {
     if (searchParams.get('success')) {
@@ -140,6 +166,9 @@ function AdvertiserManageContent() {
         isFreeSellerAd: isSeller && amount === 0,
         timestamp: serverTimestamp(),
       });
+
+      // Clear draft on success
+      localStorage.removeItem(`ad_draft_${user.uid}`);
 
       if (amount > 0) {
         await createAdCampaignSession(amount, userCurrency, user.uid, title);
@@ -330,7 +359,7 @@ function AdvertiserManageContent() {
                   aria-label="Launch Ad Campaign"
                 >
                   {isCreating ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
-                  {!hasFullCommercialInfo ? 'Complete Profile to Launch' : (isSeller && budget === '0' ? 'Launch Free Ad' : 'Accept Liability & Launch')}
+                  {!hasFullCommercialInfo ? 'Complete Profile to Launch' : (isSeller && budget === '0' ? 'Launch Free Ad' : 'Accept Liability & Save')}
                 </Button>
               </CardContent>
             </Card>
