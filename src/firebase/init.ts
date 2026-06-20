@@ -7,8 +7,8 @@ import { getStorage, FirebaseStorage } from 'firebase/storage';
 import { firebaseConfig } from './config';
 
 /**
- * @fileOverview Core Firebase Initializer.
- * Only attempts to boot services if valid credentials (non-placeholder) are detected.
+ * @fileOverview Resilient Firebase Initializer.
+ * Transitions from null to active services as soon as credentials propagate.
  */
 export function initializeFirebase(): { 
   app: FirebaseApp | null; 
@@ -16,33 +16,27 @@ export function initializeFirebase(): {
   auth: Auth | null;
   storage: FirebaseStorage | null;
 } {
-  // SSR Safety
   if (typeof window === 'undefined') {
     return { app: null, db: null, auth: null, storage: null };
   }
 
-  // Final gate: Ensure we have a legitimate API key that isn't a placeholder name
-  const hasValidKey = firebaseConfig.apiKey && 
-                      firebaseConfig.apiKey.length > 20 && 
-                      !firebaseConfig.apiKey.includes("NEXT_PUBLIC_");
+  // Check if we have a structurally valid API key
+  const isKeyReady = firebaseConfig.apiKey && firebaseConfig.apiKey.length > 10;
 
-  if (!hasValidKey) {
-    console.warn("I Love U: Regional bridge is in standby. Waiting for secure credentials. ❤️");
+  if (!isKeyReady) {
+    console.warn("I Love U: Waiting for regional bridge credentials... ❤️");
     return { app: null, db: null, auth: null, storage: null };
   }
 
   try {
     const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
-    
-    // Initialize services
     const db = getFirestore(app);
     const auth = getAuth(app);
     const storage = getStorage(app);
     
-    console.log("I Love U: Regional bridge established successfully! ❤️");
     return { app, db, auth, storage };
   } catch (error: any) {
-    console.error("I Love U: Initialization ripple:", error);
+    console.error("I Love U: Regional bridge ripple:", error);
     return { app: null, db: null, auth: null, storage: null };
   }
 }
