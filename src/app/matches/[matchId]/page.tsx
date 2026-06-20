@@ -1,7 +1,6 @@
-
 'use client';
 
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect, useRef, use } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { 
@@ -10,7 +9,6 @@ import {
   Sparkles, 
   Loader2, 
   Camera, 
-  EyeOff, 
   Lock, 
   MapPin, 
   ShieldCheck, 
@@ -20,13 +18,13 @@ import {
   Users,
   HeartOff,
   Heart,
-  Star,
   Languages,
   Gift,
   Paperclip,
   FileIcon,
   Volume2,
-  Image as ImageIcon
+  Image as ImageIcon,
+  EyeOff
 } from 'lucide-react';
 import { 
   Popover, 
@@ -35,7 +33,7 @@ import {
 } from '@/components/ui/popover';
 import { useUser, useFirestore, useCollection, useDoc, useFirebaseStorage } from '@/firebase';
 import { collection, addDoc, query, orderBy, serverTimestamp, doc, updateDoc, writeBatch } from 'firebase/firestore';
-import { useParams, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { generateIcebreaker } from '@/ai/flows/generate-icebreaker-flow';
 import { moderateImage } from '@/ai/flows/moderate-image-flow';
@@ -68,9 +66,8 @@ const CHAT_SHORTCUTS = [
   { id: 'birthday', label: 'Birthday Moment', icon: Cake, description: 'Share a happy birthday memory.' }
 ];
 
-export default function ChatPage() {
-  const params = useParams();
-  const matchId = params?.matchId as string;
+export default function ChatPage({ params }: { params: Promise<{ matchId: string }> }) {
+  const { matchId } = use(params);
   const { user } = useUser();
   const db = useFirestore();
   const { uploadFile, isUploading: isStorageUploading } = useFirebaseStorage();
@@ -158,7 +155,7 @@ export default function ChatPage() {
     };
 
     decryptAll();
-  }, [messages, user]);
+  }, [messages, user, matchId]);
 
   useEffect(() => {
     if (scrollRef.current) {

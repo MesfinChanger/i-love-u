@@ -9,18 +9,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { 
-  CheckCircle2, 
   Store, 
-  Plus, 
-  Package, 
-  CreditCard, 
   Sparkles, 
   Loader2, 
-  TrendingUp, 
+  Package, 
+  CreditCard, 
   HeartHandshake,
   Percent,
-  Check,
-  IdCard,
   Save
 } from 'lucide-react';
 import { useUser, useFirestore, useDoc } from '@/firebase';
@@ -202,9 +197,10 @@ function SellerManageContent() {
                     {isSubscribing ? <Loader2 className="w-4 h-4 animate-spin" /> : "Scale with Pro"}
                   </Button>
                 </CardFooter>
-              </div>
+              </Card>
+            </div>
 
-              <div className="p-8 bg-slate-900 rounded-[3rem] text-white space-y-4 max-w-2xl mx-auto mt-12 shadow-2xl">
+            <div className="p-8 bg-slate-900 rounded-[3rem] text-white space-y-4 max-w-2xl mx-auto mt-12 shadow-2xl">
                <div className="flex items-center gap-3 text-primary justify-center">
                   <HeartHandshake className="w-8 h-8" />
                   <h3 className="font-black text-2xl uppercase tracking-tighter">Entrepreneur Support</h3>
