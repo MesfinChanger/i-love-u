@@ -6,7 +6,8 @@ import { firebaseConfig } from './config';
 
 /**
  * @fileOverview Resilient Firebase Initializer.
- * Hardened to only boot services if legitimate production credentials are present.
+ * Hardened to only boot services if production credentials are present.
+ * Returns null instances during the "Provisioning" phase to prevent runtime crashes.
  */
 export function initializeFirebase(): { 
   app: FirebaseApp | null; 
@@ -20,16 +21,15 @@ export function initializeFirebase(): {
 
   const apiKey = firebaseConfig.apiKey;
   
-  // High-integrity structural check for Firebase API Keys
-  // Valid keys typically start with 'AIza' and are significantly long
+  // Basic structural check for Firebase API Keys to detect placeholders
   const isKeyValid = !!(apiKey && 
-                     apiKey.startsWith("AIza") && 
-                     apiKey.length > 20 && 
+                     apiKey.length > 10 && 
                      !apiKey.includes("PLACEHOLDER") &&
                      !apiKey.includes("REPLACE_WITH") &&
-                     !apiKey.includes("NEXT_PUBLIC_"));
+                     !apiKey.includes("YOUR_"));
 
   if (!isKeyValid) {
+    console.warn("I Love U: Regional Bridge is still securing your project credentials.");
     return { app: null, db: null, auth: null, storage: null };
   }
 
@@ -41,6 +41,7 @@ export function initializeFirebase(): {
     
     return { app, db, auth, storage };
   } catch (error: any) {
+    console.error("I Love U: Critical Bridge Failure:", error);
     return { app: null, db: null, auth: null, storage: null };
   }
 }

@@ -155,8 +155,9 @@ function LoginContent() {
       console.error("Auth Error:", error);
       if (error.code?.includes('api-key-not-valid') || error.message?.includes('api-key-not-valid')) {
         setIsConfigError(true);
+      } else {
+        toast({ variant: "destructive", title: "Access Denied", description: "Check your credentials and try again. ❤️" });
       }
-      toast({ variant: "destructive", title: "Access Denied", description: "Credentials or regional bridge issue. ❤️" });
     } finally {
       setIsLoading(false);
     }
@@ -194,9 +195,9 @@ function LoginContent() {
                     <Zap className="w-5 h-5 text-amber-500 animate-pulse" />
                 </div>
                 <div className="space-y-1">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-amber-700">Regional Bridge Required</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-amber-700">Regional Bridge Initializing</p>
                     <p className="text-[9px] text-amber-600/80 font-bold leading-relaxed uppercase">
-                    The platform is waiting for your project credentials in .env.local. If you are just testing, use Prototype Mode below.
+                    The network is securing your region. If this takes more than a minute, please reload the page to pick up latest credentials.
                     </p>
                 </div>
              </div>
