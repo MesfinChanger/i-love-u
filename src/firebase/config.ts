@@ -7,7 +7,7 @@ const sanitizeEnv = (val: string | undefined, keyName: string): string => {
   if (!val) return "";
   const trimmed = val.trim();
   
-  // Reject literal placeholder strings, un-substituted environment variable names, or keys that don't look real
+  // Reject literal placeholder strings or un-substituted variable names
   if (
     trimmed === "" || 
     trimmed === "undefined" || 
@@ -16,10 +16,7 @@ const sanitizeEnv = (val: string | undefined, keyName: string): string => {
     trimmed === `process.env.${keyName}` ||
     trimmed.includes("PLACEHOLDER") ||
     trimmed.includes("YOUR_") ||
-    trimmed.includes("API_KEY") ||
-    trimmed.startsWith("<") ||
-    trimmed.startsWith("{") ||
-    trimmed.startsWith("[")
+    trimmed.startsWith("<")
   ) {
     return "";
   }
