@@ -146,7 +146,7 @@ function ProfileContent() {
   // Hierarchical Location Logic
   const availableRegions = useMemo(() => {
     const data = WORLD_LOCATIONS[country] || WORLD_LOCATIONS['DEFAULT'];
-    return data.regions;
+    return data.regions || [];
   }, [country]);
 
   const availableCities = useMemo(() => {
@@ -235,7 +235,7 @@ function ProfileContent() {
     }
     setIsSaving(true);
     try {
-      const locationHint = `${city || 'Unknown Community'}, ${COUNTRIES.find(c => c.code === country)?.name || 'Global'}`;
+      const locationHint = `${city || state || 'Unknown Community'}, ${COUNTRIES.find(c => c.code === country)?.name || 'Global'}`;
 
       await setDoc(doc(db, 'users', user.uid), {
         uid: user.uid, 
@@ -445,7 +445,11 @@ function ProfileContent() {
                         <SelectValue placeholder="Select Region" />
                       </SelectTrigger>
                       <SelectContent className="max-h-64 overflow-y-auto">
-                        {availableRegions.map(r => <SelectItem key={r.name} value={r.name}>{r.name}</SelectItem>)}
+                        {availableRegions.length > 0 ? (
+                          availableRegions.map(r => <SelectItem key={r.name} value={r.name}>{r.name}</SelectItem>)
+                        ) : (
+                          <SelectItem value="Other">Other / Not Listed</SelectItem>
+                        )}
                       </SelectContent>
                     </Select>
                   </div>

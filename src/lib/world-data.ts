@@ -81,85 +81,85 @@ export const WORLD_LOCATIONS: Record<string, { regions: { name: string, cities: 
   'ET': { // Ethiopia - Extended high-resolution administrative data
     regions: [
       { name: 'Addis Ababa', cities: ['Addis Ketema Wereda', 'Akaki Kality Wereda', 'Arada Wereda', 'Bole Wereda', 'Gullele Wereda', 'Kirkos Wereda', 'Kolfe Keranio Wereda', 'Lideta Wereda', 'Nifas Silk-Lafto Wereda', 'Yeka Wereda', 'Lemi Kura Wereda'] },
-      { name: 'Amhara', cities: ['Bahir Dar', 'Gondar', 'Dessie', 'Debre Birhan', 'Kombolcha', 'Debre Markos', 'Lalibela', 'Sekota', 'Woldiya', 'Motta', 'Enjibara', 'Debre Tabor'] },
-      { name: 'Oromia', cities: ['Adama', 'Jimma', 'Bishoftu', 'Shashemene', 'Burayu', 'Nekemte', 'Asella', 'Goba', 'Sebeta', 'Ambo', 'Chiro', 'Dukem', 'Metu', 'Waliso', 'Fiche'] },
-      { name: 'Tigray', cities: ['Mekele', 'Adigrat', 'Shire (Inda Selassie)', 'Axum', 'Humera', 'Alamata', 'Wukro', 'Adwa', 'Maychew', 'Sheraro'] },
-      { name: 'Sidama', cities: ['Hawassa', 'Yirgalem', 'Aleta Wendo', 'Leku', 'Benza', 'Daye', 'Hula', 'Irgalem'] },
-      { name: 'SNNPR', cities: ['Arba Minch', 'Hosanna', 'Dilla', 'Sodo (Wolaita)', 'Butajira', 'Jinka', 'Sawla', 'Bonga', 'Mizan Teferi', 'Worabe'] },
-      { name: 'Somali', cities: ['Jijiga', 'Gode', 'Degahabur', 'Kebri Dahar', 'Kebridahar', 'Shilavo', 'Warder'] },
-      { name: 'Afar', cities: ['Semera', 'Asaita', 'Logia', 'Dubti', 'Chifra', 'Gewane'] },
-      { name: 'Gambela', cities: ['Gambela City', 'Itang', 'Pugnido'] },
-      { name: 'Benishangul-Gumuz', cities: ['Assosa', 'Kamashi', 'Gilgel Beles'] },
-      { name: 'Harari', cities: ['Harar City'] },
-      { name: 'Dire Dawa', cities: ['Dire Dawa City'] }
+      { name: 'Amhara', cities: ['Bahir Dar', 'Gondar', 'Dessie', 'Debre Birhan', 'Kombolcha', 'Debre Markos', 'Lalibela', 'Sekota', 'Woldiya', 'Motta', 'Enjibara', 'Debre Tabor', 'Kobo', 'Showra Robit', 'Injibara', 'Bure', 'Finote Selam'] },
+      { name: 'Oromia', cities: ['Adama', 'Jimma', 'Bishoftu', 'Shashemene', 'Burayu', 'Nekemte', 'Asella', 'Goba', 'Sebeta', 'Ambo', 'Chiro', 'Dukem', 'Metu', 'Waliso', 'Fiche', 'Gimbi', 'Dembi Dolo', 'Robe', 'Bale Robe', 'Shambu', 'Bedele', 'Agaro'] },
+      { name: 'Tigray', cities: ['Mekele', 'Adigrat', 'Shire (Inda Selassie)', 'Axum', 'Humera', 'Alamata', 'Wukro', 'Adwa', 'Maychew', 'Sheraro', 'Abiy Addi', 'Adua', 'Edaga Hamus'] },
+      { name: 'Sidama', cities: ['Hawassa', 'Yirgalem', 'Aleta Wendo', 'Leku', 'Benza', 'Daye', 'Hula', 'Irgalem', 'Chuko', 'Dara', 'Wensho'] },
+      { name: 'SNNPR', cities: ['Arba Minch', 'Hosanna', 'Dilla', 'Sodo (Wolaita)', 'Butajira', 'Jinka', 'Sawla', 'Bonga', 'Mizan Teferi', 'Worabe', 'Tercha', 'Durame', 'Karati', 'Gidole'] },
+      { name: 'Somali', cities: ['Jijiga', 'Gode', 'Degahabur', 'Kebri Dahar', 'Kebridahar', 'Shilavo', 'Warder', 'Shinile', 'Fik', 'Hargele'] },
+      { name: 'Afar', cities: ['Semera', 'Asaita', 'Logia', 'Dubti', 'Chifra', 'Gewane', 'Awash Sebat Kilo', 'Ewa', 'Mille'] },
+      { name: 'Gambela', cities: ['Gambela City', 'Itang', 'Pugnido', 'Abobo', 'Lare', 'Jore'] },
+      { name: 'Benishangul-Gumuz', cities: ['Assosa', 'Kamashi', 'Gilgel Beles', 'Bambasi', 'Mendi', 'Bulen'] },
+      { name: 'Harari', cities: ['Harar City', 'Amir-Nur Wereda', 'Abadir Wereda', 'Shenkor Wereda'] },
+      { name: 'Dire Dawa', cities: ['Dire Dawa City', 'Gurgura Wereda'] }
     ]
   },
   'US': { // United States
     regions: [
-      { name: 'California', cities: ['Los Angeles', 'San Francisco', 'San Diego', 'Sacramento', 'San Jose', 'Oakland', 'Fresno', 'Long Beach', 'Irvine', 'Pasadena'] },
-      { name: 'New York', cities: ['New York City', 'Buffalo', 'Albany', 'Rochester', 'Yonkers', 'Syracuse', 'New Rochelle', 'Mount Vernon'] },
-      { name: 'Texas', cities: ['Houston', 'Austin', 'Dallas', 'San Antonio', 'Fort Worth', 'El Paso', 'Arlington', 'Corpus Christi', 'Plano'] },
-      { name: 'Florida', cities: ['Miami', 'Orlando', 'Tampa', 'Jacksonville', 'Tallahassee', 'Fort Lauderdale', 'St. Petersburg', 'Hialeah'] },
-      { name: 'Illinois', cities: ['Chicago', 'Aurora', 'Rockford', 'Joliet', 'Naperville', 'Springfield'] },
-      { name: 'Georgia', cities: ['Atlanta', 'Augusta', 'Columbus', 'Savannah', 'Athens'] }
+      { name: 'California', cities: ['Los Angeles', 'San Francisco', 'San Diego', 'Sacramento', 'San Jose', 'Oakland', 'Fresno', 'Long Beach', 'Irvine', 'Pasadena', 'Santa Barbara', 'Beverly Hills', 'Malibu', 'Santa Monica', 'Berkeley', 'Palo Alto'] },
+      { name: 'New York', cities: ['New York City', 'Buffalo', 'Albany', 'Rochester', 'Yonkers', 'Syracuse', 'New Rochelle', 'Mount Vernon', 'White Plains', 'Ithaca', 'Binghamton', 'Utica'] },
+      { name: 'Texas', cities: ['Houston', 'Austin', 'Dallas', 'San Antonio', 'Fort Worth', 'El Paso', 'Arlington', 'Corpus Christi', 'Plano', 'Laredo', 'Lubbock', 'Garland', 'Irving', 'Amarillo'] },
+      { name: 'Florida', cities: ['Miami', 'Orlando', 'Tampa', 'Jacksonville', 'Tallahassee', 'Fort Lauderdale', 'St. Petersburg', 'Hialeah', 'Gainesville', 'Key West', 'Boca Raton', 'Sarasota'] },
+      { name: 'Illinois', cities: ['Chicago', 'Aurora', 'Rockford', 'Joliet', 'Naperville', 'Springfield', 'Peoria', 'Elgin', 'Waukegan', 'Champaign', 'Bloomington'] },
+      { name: 'Georgia', cities: ['Atlanta', 'Augusta', 'Columbus', 'Savannah', 'Athens', 'Macon', 'Sandy Springs', 'Roswell', 'Alpharetta', 'Marietta'] }
     ]
   },
   'NG': { // Nigeria
     regions: [
-      { name: 'Lagos', cities: ['Ikeja', 'Lekki', 'Ikorodu', 'Epe', 'Badagry', 'Surulere', 'Agege', 'Mushin', 'Victoria Island', 'Ajah'] },
-      { name: 'Abuja', cities: ['Garki', 'Wuse', 'Asokoro', 'Maitama', 'Kuje', 'Gwagwalada', 'Bwari', 'Abaji'] },
-      { name: 'Kano', cities: ['Kano City', 'Wudil', 'Gwarzo', 'Bichi', 'Gaya', 'Rano'] },
-      { name: 'Rivers', cities: ['Port Harcourt', 'Obio-Akpor', 'Bonny', 'Eleme', 'Okrika'] },
-      { name: 'Oyo', cities: ['Ibadan', 'Ogbomosho', 'Oyo Town', 'Iseyin'] }
+      { name: 'Lagos', cities: ['Ikeja', 'Lekki', 'Ikorodu', 'Epe', 'Badagry', 'Surulere', 'Agege', 'Mushin', 'Victoria Island', 'Ajah', 'Yaba', 'Alimosho', 'Oshodi', 'Apapa'] },
+      { name: 'Abuja', cities: ['Garki', 'Wuse', 'Asokoro', 'Maitama', 'Kuje', 'Gwagwalada', 'Bwari', 'Abaji', 'Karu', 'Nyanya', 'Kubwa'] },
+      { name: 'Kano', cities: ['Kano City', 'Wudil', 'Gwarzo', 'Bichi', 'Gaya', 'Rano', 'Dambatta', 'Minjibir', 'Gezawa', 'Tofa'] },
+      { name: 'Rivers', cities: ['Port Harcourt', 'Obio-Akpor', 'Bonny', 'Eleme', 'Okrika', 'Degema', 'Ahoada', 'Omoku', 'Oyigbo'] },
+      { name: 'Oyo', cities: ['Ibadan', 'Ogbomosho', 'Oyo Town', 'Iseyin', 'Saki', 'Eruwa', 'Lanlate', 'Kisi'] }
     ]
   },
   'KE': { // Kenya
     regions: [
-      { name: 'Nairobi', cities: ['Westlands', 'Dagoretti', 'Kasarani', 'Kibra', 'Langata', 'Embakasi', 'Makadara', 'Mathare'] },
-      { name: 'Mombasa', cities: ['Island', 'Changamwe', 'Likoni', 'Kisauni', 'Nyali', 'Jomvu'] },
-      { name: 'Kisumu', cities: ['Kisumu Central', 'Kisumu West', 'Nyakach', 'Muhoroni', 'Seme'] },
-      { name: 'Kiambu', cities: ['Thika', 'Kiambu Town', 'Limuru', 'Kikuyu', 'Ruiru'] },
-      { name: 'Nakuru', cities: ['Nakuru City', 'Naivasha', 'Molo', 'Gilgil'] }
+      { name: 'Nairobi', cities: ['Westlands', 'Dagoretti', 'Kasarani', 'Kibra', 'Langata', 'Embakasi', 'Makadara', 'Mathare', 'Parklands', 'Karen', 'Runda', 'Lavington', 'Eastleigh'] },
+      { name: 'Mombasa', cities: ['Island', 'Changamwe', 'Likoni', 'Kisauni', 'Nyali', 'Jomvu', 'Mvita', 'Tudor', 'Bamburi', 'Shanzu'] },
+      { name: 'Kisumu', cities: ['Kisumu Central', 'Kisumu West', 'Nyakach', 'Muhoroni', 'Seme', 'Kisumu East', 'Nyang\'ande', 'Maseno'] },
+      { name: 'Kiambu', cities: ['Thika', 'Kiambu Town', 'Limuru', 'Kikuyu', 'Ruiru', 'Karuri', 'Githunguri', 'Gatundu'] },
+      { name: 'Nakuru', cities: ['Nakuru City', 'Naivasha', 'Molo', 'Gilgil', 'Njoro', 'Subukia', 'Bahati', 'Rongai'] }
     ]
   },
   'IN': { // India
     regions: [
-      { name: 'Maharashtra', cities: ['Mumbai', 'Pune', 'Nagpur', 'Nashik', 'Thane', 'Aurangabad', 'Solapur', 'Amravati'] },
-      { name: 'Karnataka', cities: ['Bengaluru', 'Mysuru', 'Hubballi', 'Mangaluru', 'Belagavi', 'Kalaburagi', 'Ballari'] },
-      { name: 'Delhi', cities: ['New Delhi', 'Old Delhi', 'Dwarka', 'Rohini', 'Saket', 'Vasant Kunj'] },
-      { name: 'Tamil Nadu', cities: ['Chennai', 'Coimbatore', 'Madurai', 'Tiruchirappalli', 'Salem'] },
-      { name: 'West Bengal', cities: ['Kolkata', 'Howrah', 'Durgapur', 'Asansol', 'Siliguri'] }
+      { name: 'Maharashtra', cities: ['Mumbai', 'Pune', 'Nagpur', 'Nashik', 'Thane', 'Aurangabad', 'Solapur', 'Amravati', 'Navi Mumbai', 'Kolhapur', 'Akola', 'Latur'] },
+      { name: 'Karnataka', cities: ['Bengaluru', 'Mysuru', 'Hubballi', 'Mangaluru', 'Belagavi', 'Kalaburagi', 'Ballari', 'Vijayapura', 'Shivamogga', 'Tumakuru'] },
+      { name: 'Delhi', cities: ['New Delhi', 'Old Delhi', 'Dwarka', 'Rohini', 'Saket', 'Vasant Kunj', 'Janakpuri', 'Laxmi Nagar', 'Connaught Place', 'Karol Bagh'] },
+      { name: 'Tamil Nadu', cities: ['Chennai', 'Coimbatore', 'Madurai', 'Tiruchirappalli', 'Salem', 'Tiruppur', 'Erode', 'Vellore', 'Thoothukudi', 'Nagercoil'] },
+      { name: 'West Bengal', cities: ['Kolkata', 'Howrah', 'Durgapur', 'Asansol', 'Siliguri', 'Maheshtala', 'Rajpur Sonarpur', 'Gopalpur', 'Bhatpara', 'Panihati'] }
     ]
   },
   'GB': { // United Kingdom
     regions: [
-      { name: 'England', cities: ['London', 'Birmingham', 'Manchester', 'Liverpool', 'Leeds', 'Sheffield', 'Bristol', 'Newcastle'] },
-      { name: 'Scotland', cities: ['Glasgow', 'Edinburgh', 'Aberdeen', 'Dundee', 'Inverness', 'Perth'] },
-      { name: 'Wales', cities: ['Cardiff', 'Swansea', 'Newport', 'Wrexham'] },
-      { name: 'Northern Ireland', cities: ['Belfast', 'Derry', 'Lisburn', 'Newry'] }
+      { name: 'England', cities: ['London', 'Birmingham', 'Manchester', 'Liverpool', 'Leeds', 'Sheffield', 'Bristol', 'Newcastle', 'Nottingham', 'Leicester', 'Southampton', 'Reading', 'Oxford', 'Cambridge'] },
+      { name: 'Scotland', cities: ['Glasgow', 'Edinburgh', 'Aberdeen', 'Dundee', 'Inverness', 'Perth', 'Stirling', 'Paisley', 'East Kilbride', 'Livingston'] },
+      { name: 'Wales', cities: ['Cardiff', 'Swansea', 'Newport', 'Wrexham', 'Barry', 'Neath', 'Bridgend', 'Llanelli', 'Merthyr Tydfil'] },
+      { name: 'Northern Ireland', cities: ['Belfast', 'Derry', 'Lisburn', 'Newry', 'Newtownabbey', 'Bangor', 'Castlereagh', 'Ballymena', 'Coleraine'] }
     ]
   },
   'CA': { // Canada
     regions: [
-      { name: 'Ontario', cities: ['Toronto', 'Ottawa', 'Mississauga', 'Hamilton', 'Brampton', 'London', 'Markham'] },
-      { name: 'Quebec', cities: ['Montreal', 'Quebec City', 'Laval', 'Gatineau', 'Longueuil', 'Sherbrooke'] },
-      { name: 'British Columbia', cities: ['Vancouver', 'Victoria', 'Surrey', 'Burnaby', 'Richmond', 'Kelowna'] },
-      { name: 'Alberta', cities: ['Calgary', 'Edmonton', 'Red Deer', 'Lethbridge'] }
+      { name: 'Ontario', cities: ['Toronto', 'Ottawa', 'Mississauga', 'Hamilton', 'Brampton', 'London', 'Markham', 'Vaughan', 'Kitchener', 'Windsor', 'Oakville', 'Burlington'] },
+      { name: 'Quebec', cities: ['Montreal', 'Quebec City', 'Laval', 'Gatineau', 'Longueuil', 'Sherbrooke', 'Saguenay', 'Levis', 'Trois-Rivières', 'Terrebonne'] },
+      { name: 'British Columbia', cities: ['Vancouver', 'Victoria', 'Surrey', 'Burnaby', 'Richmond', 'Kelowna', 'Abbotsford', 'Coquitlam', 'Nanaimo', 'Kamloops'] },
+      { name: 'Alberta', cities: ['Calgary', 'Edmonton', 'Red Deer', 'Lethbridge', 'St. Albert', 'Medicine Hat', 'Grande Prairie', 'Airdrie'] }
     ]
   },
   'BR': { // Brazil
     regions: [
-      { name: 'São Paulo', cities: ['São Paulo City', 'Campinas', 'Guarulhos', 'Santo André', 'São Bernardo do Campo'] },
-      { name: 'Rio de Janeiro', cities: ['Rio de Janeiro City', 'Niterói', 'São Gonçalo', 'Duque de Caxias'] },
-      { name: 'Minas Gerais', cities: ['Belo Horizonte', 'Uberlândia', 'Contagem', 'Juiz de Fora'] },
-      { name: 'Bahia', cities: ['Salvador', 'Feira de Santana', 'Vitória da Conquista'] }
+      { name: 'São Paulo', cities: ['São Paulo City', 'Campinas', 'Guarulhos', 'Santo André', 'São Bernardo do Campo', 'Osasco', 'Ribeirão Preto', 'Sorocaba', 'Santos', 'São José dos Campos'] },
+      { name: 'Rio de Janeiro', cities: ['Rio de Janeiro City', 'Niterói', 'São Gonçalo', 'Duque de Caxias', 'Nova Iguaçu', 'Belford Roxo', 'Campos dos Goytacazes', 'São João de Meriti'] },
+      { name: 'Minas Gerais', cities: ['Belo Horizonte', 'Uberlândia', 'Contagem', 'Juiz de Fora', 'Betim', 'Montes Claros', 'Ribeirão das Neves', 'Uberaba'] },
+      { name: 'Bahia', cities: ['Salvador', 'Feira de Santana', 'Vitória da Conquista', 'Camaçari', 'Itabuna', 'Juazeiro', 'Ilhéus', 'Lauro de Freitas'] }
     ]
   },
   'DEFAULT': {
     regions: [
-      { name: 'Capital Region', cities: ['Main City', 'North District', 'South District', 'Central Wereda'] },
-      { name: 'Coastal Region', cities: ['Port Village', 'Beach Town', 'Island District', 'Shoreline Wereda'] },
-      { name: 'Rural Region', cities: ['Agricultural Village', 'Mountain District', 'Forest Wereda', 'Highland Village'] }
+      { name: 'Capital Region', cities: ['Main City', 'North District', 'South District', 'Central Wereda', 'Sub-City Alpha', 'Sub-City Beta'] },
+      { name: 'Coastal Region', cities: ['Port Village', 'Beach Town', 'Island District', 'Shoreline Wereda', 'Marina Bay', 'Seaside Village'] },
+      { name: 'Rural Region', cities: ['Agricultural Village', 'Mountain District', 'Forest Wereda', 'Highland Village', 'River Valley', 'Green Pastures'] }
     ]
   }
 };
