@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -61,6 +60,7 @@ export default function DiscoverPage() {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const profiles = useMemo(() => {
+    // Only attempt to merge real data if we are mounted and have data
     const hasItems = mounted && discoveryItems && discoveryItems.length > 0;
     
     const baseProfiles = hasItems 
@@ -170,13 +170,21 @@ export default function DiscoverPage() {
 
   const handleNext = () => setCurrentIndex(prev => prev + 1);
 
+  // If loading real data and we've hydrated, show a stable loader
   if (mounted && usersLoading && db) return (
     <div className="flex flex-col min-h-screen items-center justify-center">
       <Loader2 className="w-10 h-10 animate-spin text-primary" />
     </div>
   );
 
-  if (mounted && !currentItem) return (
+  // Hydration mismatch guard for the final display
+  if (!mounted) return (
+    <div className="flex flex-col min-h-screen bg-muted/30 pb-24 items-center justify-center">
+       <Loader2 className="w-8 h-8 animate-spin text-primary opacity-20" />
+    </div>
+  );
+
+  if (!currentItem) return (
     <div className="flex flex-col min-h-screen bg-muted/30 pb-24 items-center justify-center p-8 text-center">
       <Header />
       <div className="space-y-4">

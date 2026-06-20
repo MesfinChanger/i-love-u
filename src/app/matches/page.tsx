@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useMemo, useState, useEffect, Suspense } from 'react';
@@ -37,6 +36,11 @@ function MatchesContent() {
   const { user } = useUser();
   const db = useFirestore();
   const { toast } = useToast();
+
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   
   const matchesQuery = useMemoFirebase(() => {
     if (!user || !db) return null;
@@ -85,6 +89,12 @@ function MatchesContent() {
       toast({ variant: "destructive", title: "Action Failed", description: "Could not decline invitation." });
     }
   };
+
+  if (!mounted) return (
+    <div className="flex flex-col min-h-screen bg-muted/30 items-center justify-center">
+       <Loader2 className="w-8 h-8 animate-spin text-primary opacity-20" />
+    </div>
+  );
 
   return (
     <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
