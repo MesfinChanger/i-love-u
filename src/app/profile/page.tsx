@@ -30,6 +30,8 @@ import {
   UserCircle,
   Plus,
   Trash2,
+  Video,
+  PlayCircle,
   Image as ImageIcon
 } from 'lucide-react';
 import { 
@@ -66,13 +68,9 @@ function ProfileContent() {
   const galleryInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const additionalInputRef = useRef<HTMLInputElement>(null);
+  const publicVideoInputRef = useRef<HTMLInputElement>(null);
 
-  const userRef = useMemoFirebase(() => {
-    if (!db || !user) return null;
-    return doc(db, 'users', user.uid);
-  }, [db, user]);
-
-  const { data: profileData, loading: profileLoading } = useDoc(userRef);
+  const [mounted, setMounted] = useState(false);
 
   // Identity Fields
   const [firstName, setFirstName] = useState('');
@@ -80,6 +78,7 @@ function ProfileContent() {
   const [birthdate, setBirthdate] = useState('');
   const [photoUrl, setPhotoUrl] = useState('');
   const [additionalPhotoUrls, setAdditionalPhotoUrls] = useState<string[]>([]);
+  const [publicVideoUrl, setPublicVideoUrl] = useState('');
   
   // Address Fields
   const [address1, setAddress1] = useState('');
@@ -105,6 +104,18 @@ function ProfileContent() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploadingGallery, setIsUploadingGallery] = useState(false);
+  const [isUploadingVideo, setIsUploadingVideo] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const userRef = useMemoFirebase(() => {
+    if (!db || !user) return null;
+    return doc(db, 'users', user.uid);
+  }, [db, user]);
+
+  const { data: profileData, loading: profileLoading } = useDoc(userRef);
 
   useEffect(() => {
     if (profileData) {
@@ -113,6 +124,7 @@ function ProfileContent() {
       setBirthdate(profileData.birthdate || '');
       setPhotoUrl(profileData.photoUrl || '');
       setAdditionalPhotoUrls(profileData.additionalPhotoUrls || []);
+      setPublicVideoUrl(profileData.publicVideoUrl || '');
       setAddress1(profileData.address1 || '');
       setAddress2(profileData.address2 || '');
       setCity(profileData.city || '');
@@ -178,6 +190,23 @@ function ProfileContent() {
     }
   };
 
+  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+
+    setIsUploadingVideo(true);
+    try {
+      const path = `profiles/${user.uid}/highlight_video`;
+      const url = await uploadFile(path, file);
+      setPublicVideoUrl(url);
+      toast({ title: "Video Secured", description: "Your public highlight is live! ✨" });
+    } catch (error) {
+      toast({ variant: "destructive", title: "Upload Failed", description: "Could not upload video." });
+    } finally {
+      setIsUploadingVideo(false);
+    }
+  };
+
   const removeGalleryPhoto = (url: string) => {
     setAdditionalPhotoUrls(prev => prev.filter(p => p !== url));
   };
@@ -203,6 +232,7 @@ function ProfileContent() {
         birthdate, 
         photoUrl,
         additionalPhotoUrls,
+        publicVideoUrl,
         age: userAge, 
         gender, 
         bio, 
@@ -226,6 +256,7 @@ function ProfileContent() {
         bio, 
         publicNickname: publicNickname || "Mystery Heart", 
         publicPhotoUrl: isPhotoPublic ? photoUrl || null : null,
+        publicVideoUrl: isPhotoPublic ? publicVideoUrl || null : null,
         additionalPhotoUrls: isPhotoPublic ? additionalPhotoUrls : [],
         country, 
         updatedAt: serverTimestamp()
@@ -252,7 +283,11 @@ function ProfileContent() {
     }
   };
 
-  if (profileLoading) return <div className="flex items-center justify-center min-h-screen"><Loader2 className="animate-spin text-primary" /></div>;
+  if (!mounted || profileLoading) return (
+    <div className="flex flex-col min-h-screen items-center justify-center bg-white">
+       <Loader2 className="w-10 h-10 animate-spin text-primary" />
+    </div>
+  );
 
   const isProtocolComplete = isAgeVerified && isRespectful && isHuman;
 
@@ -300,7 +335,7 @@ function ProfileContent() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={() => signOut(auth)} className="h-9 px-4 text-[9px] font-black uppercase rounded-full">Sign Out</Button>
+            <Button variant="outline" size="sm" onClick={() => signOut(auth!)} className="h-9 px-4 text-[9px] font-black uppercase rounded-full">Sign Out</Button>
             <Button 
               size="sm"
               onClick={handleSave} 
@@ -455,6 +490,24 @@ function ProfileContent() {
                         </div>
                      </div>
                      <Switch checked={isPhotoPublic} onCheckedChange={setIsPhotoPublic} />
+                  </div>
+
+                  {/* Highlight Video Section */}
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between px-1">
+                      <Label className="text-[9px] font-black uppercase tracking-widest opacity-60">Public Highlight Video</Label>
+                      <input type="file" ref={publicVideoInputRef} className="hidden" accept="video/*" onChange={handleVideoUpload} />
+                      <Button variant="ghost" size="sm" onClick={() => publicVideoInputRef.current?.click()} disabled={isUploadingVideo} className="text-primary gap-1.5 h-8 px-4 bg-primary/5 rounded-full text-[9px] font-black uppercase">
+                        {isUploadingVideo ? <Loader2 className="w-3 h-3 animate-spin" /> : <Video className="w-3 h-3" />}
+                        {publicVideoUrl ? 'Change Video' : 'Add Video'}
+                      </Button>
+                    </div>
+                    {publicVideoUrl && (
+                      <div className="relative aspect-video rounded-2xl overflow-hidden bg-black shadow-lg">
+                        <video src={publicVideoUrl} controls className="w-full h-full" />
+                        <button onClick={() => setPublicVideoUrl('')} className="absolute top-2 right-2 bg-black/60 text-white p-2 rounded-full"><Trash2 className="w-4 h-4" /></button>
+                      </div>
+                    )}
                   </div>
 
                   {/* Photo Gallery Section */}

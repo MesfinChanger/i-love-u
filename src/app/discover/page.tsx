@@ -16,6 +16,7 @@ import {
   Ghost, 
   Star, 
   Send, 
+  PlayCircle,
   ChevronLeft, 
   ChevronRight 
 } from 'lucide-react';
@@ -54,14 +55,12 @@ export default function DiscoverPage() {
   const { data: myProfile } = useDoc(userRef);
 
   const discoveryQuery = useMemoFirebase(() => {
-    // Only query if we have a user, as security rules require authentication
     if (!db || !user) return null;
     return query(collection(db, 'publicProfiles'));
   }, [db, user]);
   const { data: discoveryItems, loading: usersLoading } = useCollection(discoveryQuery);
 
   const adsQuery = useMemoFirebase(() => {
-    // Only query if we have a user, as security rules require authentication
     if (!db || !user) return null;
     return query(collection(db, 'ads'), where('status', '==', 'active'));
   }, [db, user]);
@@ -81,6 +80,7 @@ export default function DiscoverPage() {
           id: u.uid,
           name: u.publicNickname || "Mystery Heart", 
           publicPhotoUrl: u.publicPhotoUrl || null,
+          publicVideoUrl: u.publicVideoUrl || null,
           additionalPhotoUrls: u.additionalPhotoUrls || [],
           interests: u.interests || [],
           culturalInterests: u.culturalInterests || [],
@@ -93,6 +93,7 @@ export default function DiscoverPage() {
             id: 'mock-1',
             name: 'Amina',
             publicPhotoUrl: PlaceHolderImages.find(img => img.id === 'user-2')?.imageUrl,
+            publicVideoUrl: null,
             additionalPhotoUrls: [
               "https://picsum.photos/seed/africa-1/800/1200",
               "https://picsum.photos/seed/africa-2/800/1200"
@@ -107,6 +108,7 @@ export default function DiscoverPage() {
             id: 'mock-2',
             name: 'Yuki',
             publicPhotoUrl: PlaceHolderImages.find(img => img.id === 'user-1')?.imageUrl,
+            publicVideoUrl: null,
             additionalPhotoUrls: [
                "https://picsum.photos/seed/japan-1/800/1200"
             ],
@@ -114,17 +116,6 @@ export default function DiscoverPage() {
             culturalInterests: ['Japanese Tea Ceremony'],
             bio: "Looking for a soul to share a quiet sunset with.",
             locationHint: "Tokyo, JP",
-            type: 'profile'
-          },
-          {
-            id: 'mock-3',
-            name: 'Elena',
-            publicPhotoUrl: PlaceHolderImages.find(img => img.id === 'user-3')?.imageUrl,
-            additionalPhotoUrls: [],
-            interests: ['Architecture', 'Pasta', 'Piano'],
-            culturalInterests: ['Renaissance Art'],
-            bio: "Building dreams and finding love in small moments.",
-            locationHint: "Rome, IT",
             type: 'profile'
           }
         ];
@@ -248,8 +239,12 @@ export default function DiscoverPage() {
     );
   }
 
-  const photos = currentItem.publicPhotoUrl ? [currentItem.publicPhotoUrl, ...(currentItem.additionalPhotoUrls || [])] : [];
-  const hasMultiplePhotos = photos.length > 1;
+  const mediaItems = [];
+  if (currentItem.publicVideoUrl) mediaItems.push({ type: 'video', url: currentItem.publicVideoUrl });
+  if (currentItem.publicPhotoUrl) mediaItems.push({ type: 'image', url: currentItem.publicPhotoUrl });
+  (currentItem.additionalPhotoUrls || []).forEach((url: string) => mediaItems.push({ type: 'image', url }));
+
+  const hasMultipleMedia = mediaItems.length > 1;
 
   return (
     <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
@@ -257,28 +252,40 @@ export default function DiscoverPage() {
       <main className="flex-grow flex flex-col items-center justify-center p-4">
         <div className="w-full max-w-md flex flex-col items-center">
           <Card className="w-full relative h-[calc(100vh-18rem)] overflow-hidden border-none shadow-2xl rounded-[2.5rem] bg-white p-0 flex flex-col">
-            {photos.length > 0 ? (
+            {mediaItems.length > 0 ? (
               <Carousel className="w-full h-full">
                 <CarouselContent className="h-full">
-                  {photos.map((url, idx) => (
+                  {mediaItems.map((item, idx) => (
                     <CarouselItem key={idx} className="relative h-[calc(100vh-18rem)]">
-                      <Image 
-                        src={url} 
-                        alt={`${currentItem.name} ${idx + 1}`} 
-                        fill 
-                        className="object-cover" 
-                        priority={idx === 0}
-                      />
+                      {item.type === 'video' ? (
+                         <div className="relative w-full h-full bg-black">
+                            <video src={item.url} autoPlay loop muted playsInline className="w-full h-full object-cover" />
+                            <div className="absolute top-8 right-8 z-20">
+                               <Badge className="bg-primary/20 text-white backdrop-blur-md border-none px-3 h-7 flex items-center gap-1.5 uppercase font-black text-[8px] tracking-widest">
+                                  <PlayCircle className="w-3 h-3" />
+                                  Highlight
+                               </Badge>
+                            </div>
+                         </div>
+                      ) : (
+                        <Image 
+                          src={item.url} 
+                          alt={`${currentItem.name} ${idx + 1}`} 
+                          fill 
+                          className="object-cover" 
+                          priority={idx === 0}
+                        />
+                      )}
                       {/* Photo Index Indicator */}
                       <div className="absolute top-8 left-0 right-0 flex justify-center gap-1.5 z-20">
-                         {photos.map((_, i) => (
+                         {mediaItems.map((_, i) => (
                            <div key={i} className={cn("h-1 rounded-full transition-all", idx === i ? "w-8 bg-white" : "w-2 bg-white/40")} />
                          ))}
                       </div>
                     </CarouselItem>
                   ))}
                 </CarouselContent>
-                {hasMultiplePhotos && (
+                {hasMultipleMedia && (
                   <>
                     <CarouselPrevious className="left-4 bg-black/20 border-none text-white hover:bg-black/40 h-10 w-10" />
                     <CarouselNext className="right-4 bg-black/20 border-none text-white hover:bg-black/40 h-10 w-10" />
@@ -360,7 +367,7 @@ export default function DiscoverPage() {
             </Button>
             <Button className="w-full max-w-[120px] h-14 rounded-full shadow-xl font-black uppercase text-[9px] gradient-bg hover:scale-105 transition-transform gap-2" onClick={() => handleAction('date')}>
               <Heart className="w-3 h-3 fill-current" />
-              Spark
+              Spark Love
             </Button>
           </div>
         </div>

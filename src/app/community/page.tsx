@@ -20,6 +20,8 @@ import {
   Paperclip,
   FileIcon,
   Volume2,
+  Video,
+  PlayCircle,
   Image as ImageIcon
 } from 'lucide-react';
 import { 
@@ -47,14 +49,21 @@ export default function CommunityPage() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const [mounted, setMounted] = useState(false);
   const [newMessage, setNewMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setSelectedImagePreview] = useState<string | null>(null);
+  const [selectedVideo, setSelectedVideo] = useState<File | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [speakingIds, setSpeakingIds] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const userRef = useMemoFirebase(() => {
     if (!db || !user) return null;
@@ -63,7 +72,6 @@ export default function CommunityPage() {
   const { data: myProfile } = useDoc(userRef);
 
   const communityQuery = useMemoFirebase(() => {
-    // Only query if we have a user, as security rules require authentication
     if (!db || !user) return null;
     return query(
       collection(db, 'communityMessages'),
@@ -84,10 +92,21 @@ export default function CommunityPage() {
     const file = e.target.files?.[0];
     if (file) {
       setSelectedImage(file);
+      setSelectedVideo(null);
       setSelectedFile(null);
       const reader = new FileReader();
       reader.onloadend = () => setSelectedImagePreview(reader.result as string);
       reader.readAsDataURL(file);
+    }
+  };
+
+  const handleVideoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedVideo(file);
+      setSelectedImage(null);
+      setSelectedImagePreview(null);
+      setSelectedFile(null);
     }
   };
 
@@ -97,6 +116,7 @@ export default function CommunityPage() {
       setSelectedFile(file);
       setSelectedImage(null);
       setSelectedImagePreview(null);
+      setSelectedVideo(null);
     }
   };
 
@@ -120,11 +140,12 @@ export default function CommunityPage() {
 
   const handleSendMessage = async (e?: React.FormEvent) => {
     e?.preventDefault();
-    if ((!newMessage.trim() && !selectedImage && !selectedFile) || !user || !db || isSending) return;
+    if ((!newMessage.trim() && !selectedImage && !selectedVideo && !selectedFile) || !user || !db || isSending) return;
 
     setIsSending(true);
     try {
       let imageUrl = null;
+      let videoUrl = null;
       let fileUrl = null;
       let fileName = null;
       let isSensitive = false;
@@ -149,6 +170,10 @@ export default function CommunityPage() {
         isSensitive = imageModeration.isSensitive;
       }
 
+      if (selectedVideo) {
+        videoUrl = await uploadFile(`community_videos/${Date.now()}-${selectedVideo.name}`, selectedVideo);
+      }
+
       if (selectedFile) {
         fileUrl = await uploadFile(`community_files/${Date.now()}-${selectedFile.name}`, selectedFile);
         fileName = selectedFile.name;
@@ -159,6 +184,7 @@ export default function CommunityPage() {
         senderNickname: myProfile?.publicNickname || "Mystery Heart",
         text: newMessage,
         imageUrl: imageUrl,
+        videoUrl: videoUrl,
         fileUrl: fileUrl,
         fileName: fileName,
         isSensitive: isSensitive,
@@ -168,6 +194,7 @@ export default function CommunityPage() {
       setNewMessage('');
       setSelectedImage(null);
       setSelectedImagePreview(null);
+      setSelectedVideo(null);
       setSelectedFile(null);
     } catch (error) {
       toast({ variant: "destructive", title: "Error", description: "Could not post to wall." });
@@ -175,6 +202,12 @@ export default function CommunityPage() {
       setIsSending(false);
     }
   };
+
+  if (!mounted) return (
+    <div className="flex flex-col min-h-screen items-center justify-center bg-white">
+       <Loader2 className="w-10 h-10 animate-spin text-primary opacity-20" />
+    </div>
+  );
 
   return (
     <div className="flex flex-col h-[100dvh] bg-muted/30 overflow-hidden">
@@ -223,6 +256,11 @@ export default function CommunityPage() {
                       )}
                     </div>
                   )}
+                  {msg.videoUrl && (
+                    <div className="relative w-full aspect-video min-w-[200px] overflow-hidden rounded-2xl bg-black shadow-inner">
+                       <video src={msg.videoUrl} controls className="w-full h-full" playsInline />
+                    </div>
+                  )}
                   {msg.fileUrl && (
                     <div className={cn("flex items-center gap-3 p-3 rounded-xl border border-dashed", isMe ? "bg-white/10 border-white/20" : "bg-muted/30 border-primary/10")}>
                        <FileIcon className="w-5 h-5 shrink-0" />
@@ -256,12 +294,18 @@ export default function CommunityPage() {
       </main>
 
       <footer className="p-4 bg-white/80 backdrop-blur-xl border-t pb-24 shrink-0 space-y-3">
-        {(imagePreview || selectedFile) && (
+        {(imagePreview || selectedVideo || selectedFile) && (
           <div className="flex items-center gap-3 animate-in zoom-in-95">
             {imagePreview ? (
               <div className="relative w-20 h-20 rounded-xl overflow-hidden border-2 border-primary/20">
                 <Image src={imagePreview} alt="Preview" fill className="object-cover" />
                 <button onClick={() => { setSelectedImage(null); setSelectedImagePreview(null); }} className="absolute top-0 right-0 bg-black/50 text-white p-1 rounded-bl-xl"><EyeOff className="w-3 h-3" /></button>
+              </div>
+            ) : selectedVideo ? (
+              <div className="bg-slate-900 p-3 rounded-xl flex items-center gap-3 border border-primary/20">
+                 <PlayCircle className="w-4 h-4 text-primary" />
+                 <span className="text-[10px] text-white font-bold truncate max-w-[120px]">{selectedVideo.name}</span>
+                 <button onClick={() => setSelectedVideo(null)} className="text-white/40 hover:text-white"><EyeOff className="w-3 h-3" /></button>
               </div>
             ) : selectedFile ? (
               <div className="bg-muted/50 p-3 rounded-xl flex items-center gap-3 border border-primary/10">
@@ -275,6 +319,7 @@ export default function CommunityPage() {
         <form onSubmit={handleSendMessage} className="flex gap-2">
           <input type="file" ref={galleryInputRef} className="hidden" accept="image/*" onChange={handleImageSelect} />
           <input type="file" ref={cameraInputRef} className="hidden" accept="image/*" capture="user" onChange={handleImageSelect} />
+          <input type="file" ref={videoInputRef} className="hidden" accept="video/*" onChange={handleVideoSelect} />
           <input type="file" ref={fileInputRef} className="hidden" onChange={handleFileSelect} />
           
           <Popover>
@@ -293,6 +338,10 @@ export default function CommunityPage() {
                    <ImageIcon className="w-4 h-4 text-primary" />
                    <span className="font-bold text-xs uppercase tracking-tight">Gallery</span>
                 </Button>
+                <Button variant="ghost" size="sm" onClick={() => videoInputRef.current?.click()} className="justify-start gap-3 rounded-xl py-5 h-auto">
+                   <Video className="w-4 h-4 text-primary" />
+                   <span className="font-bold text-xs uppercase tracking-tight">Video</span>
+                </Button>
                 <Button variant="ghost" size="sm" onClick={() => fileInputRef.current?.click()} className="justify-start gap-3 rounded-xl py-5 h-auto border-t border-muted/50 mt-1">
                    <Paperclip className="w-4 h-4 text-primary" />
                    <span className="font-bold text-xs uppercase tracking-tight">Big File</span>
@@ -308,7 +357,7 @@ export default function CommunityPage() {
             className="rounded-2xl bg-muted/40 border-none h-12 px-6 font-bold text-sm"
             disabled={isSending}
           />
-          <Button type="submit" size="icon" className="rounded-xl h-12 w-12 gradient-bg shrink-0 shadow-lg" disabled={(!newMessage.trim() && !selectedImage && !selectedFile) || isSending}>
+          <Button type="submit" size="icon" className="rounded-xl h-12 w-12 gradient-bg shrink-0 shadow-lg" disabled={(!newMessage.trim() && !selectedImage && !selectedVideo && !selectedFile) || isSending}>
             {isSending || isStorageUploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
           </Button>
         </form>

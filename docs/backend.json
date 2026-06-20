@@ -19,6 +19,7 @@
         "culturalInterests": { "type": "array", "items": { "type": "string" } },
         "photoUrl": { "type": "string" },
         "additionalPhotoUrls": { "type": "array", "items": { "type": "string" } },
+        "publicVideoUrl": { "type": "string", "description": "URL to a public profile highlight video." },
         "address1": { "type": "string" },
         "address2": { "type": "string" },
         "city": { "type": "string" },
@@ -49,6 +50,7 @@
         "locationHint": { "type": "string" },
         "publicNickname": { "type": "string" },
         "publicPhotoUrl": { "type": "string" },
+        "publicVideoUrl": { "type": "string" },
         "additionalPhotoUrls": { "type": "array", "items": { "type": "string" } },
         "country": { "type": "string" },
         "birthMonthDay": { "type": "string", "description": "Month and Day of birth only for privacy." }
@@ -125,6 +127,7 @@
         "senderNickname": { "type": "string" },
         "text": { "type": "string" },
         "imageUrl": { "type": "string" },
+        "videoUrl": { "type": "string" },
         "fileUrl": { "type": "string" },
         "fileName": { "type": "string" },
         "isSensitive": { "type": "boolean" },
