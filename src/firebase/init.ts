@@ -20,13 +20,12 @@ export function initializeFirebase(): {
     return { app: null, db: null, auth: null, storage: null };
   }
 
-  // Check if we have a structurally valid API key
+  // A valid Firebase API key is required and should not be a placeholder variable name
   const isKeyReady = firebaseConfig.apiKey && 
-                     firebaseConfig.apiKey.length > 20 && 
+                     firebaseConfig.apiKey.length > 10 && 
                      !firebaseConfig.apiKey.includes("NEXT_PUBLIC_");
 
   if (!isKeyReady) {
-    console.warn("I Love U: Regional bridge standby - waiting for valid credentials... ❤️");
     return { app: null, db: null, auth: null, storage: null };
   }
 

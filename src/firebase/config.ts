@@ -7,12 +7,12 @@ const sanitizeEnv = (val: string | undefined, keyName: string): string => {
   if (!val) return "";
   const trimmed = val.trim();
   
-  // Explicitly filter out known placeholder patterns or un-substituted variables
+  // Explicitly filter out placeholder patterns or un-substituted variables
   if (
     trimmed === "" || 
     trimmed === "undefined" || 
     trimmed === "null" || 
-    trimmed === keyName || // Matches "NEXT_PUBLIC_FIREBASE_API_KEY"
+    trimmed === keyName || // Matches literal string "NEXT_PUBLIC_FIREBASE_API_KEY"
     trimmed.includes("PLACEHOLDER") ||
     trimmed.startsWith("<") ||
     trimmed.startsWith("{")
