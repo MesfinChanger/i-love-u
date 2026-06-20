@@ -1,5 +1,3 @@
-'use client';
-
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
 import { getFirestore, Firestore } from 'firebase/firestore';
 import { getAuth, Auth } from 'firebase/auth';
@@ -24,7 +22,6 @@ export function initializeFirebase(): {
   const apiKey = firebaseConfig.apiKey;
   
   // Standard Firebase API keys start with "AIza" and are roughly 39-40 chars long.
-  // We check for presence and prefix to ensure the bridge is ready.
   const isKeyReady = apiKey && 
                      apiKey.startsWith("AIza") && 
                      apiKey.length > 20;
