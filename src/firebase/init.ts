@@ -8,7 +8,7 @@ import { firebaseConfig } from './config';
 
 /**
  * @fileOverview Core Firebase Initializer.
- * Separated to prevent circular dependencies in the barrel file.
+ * Separated to prevent circular dependencies and handle initialization ripples.
  */
 export function initializeFirebase(): { 
   app: FirebaseApp | null; 
@@ -21,10 +21,11 @@ export function initializeFirebase(): {
     return { app: null, db: null, auth: null, storage: null };
   }
 
-  // Check if we have a valid-looking API key
+  // Strict key validation to prevent SDK crashes with placeholders or invalid keys
   const hasValidKey = firebaseConfig.apiKey && 
-                      firebaseConfig.apiKey.length > 10 && 
-                      !firebaseConfig.apiKey.includes('YOUR_');
+                      firebaseConfig.apiKey.length > 20 && 
+                      !firebaseConfig.apiKey.includes('YOUR_') &&
+                      !firebaseConfig.apiKey.includes('NEXT_PUBLIC_');
 
   if (!hasValidKey) {
     console.warn("I Love U: Regional bridge waiting for valid credentials...");
@@ -34,10 +35,14 @@ export function initializeFirebase(): {
   try {
     const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
     
-    // Initialize services with safety guards
-    const db = getFirestore(app);
-    const auth = getAuth(app);
-    const storage = getStorage(app);
+    // Initialize services independently to isolate failures
+    let db: Firestore | null = null;
+    let auth: Auth | null = null;
+    let storage: FirebaseStorage | null = null;
+
+    try { db = getFirestore(app); } catch (e) { console.warn("Firestore init ripple:", e); }
+    try { auth = getAuth(app); } catch (e) { console.warn("Auth init ripple:", e); }
+    try { storage = getStorage(app); } catch (e) { console.warn("Storage init ripple:", e); }
     
     return { app, db, auth, storage };
   } catch (error) {

@@ -2,11 +2,11 @@
 
 /**
  * @fileOverview Firebase Barrel File.
- * Re-exports everything needed for the app, including hooks and providers.
+ * Explicitly re-exports components to ensure stable module resolution in Next.js.
  */
 
 export * from './provider';
-export * from './client-provider';
+export { FirebaseClientProvider } from './client-provider';
 export * from './auth/use-user';
 export * from './firestore/use-collection';
 export * from './firestore/use-doc';
