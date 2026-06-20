@@ -12,12 +12,8 @@ import {
   Volume2,
   VolumeX,
   Loader2,
-  RefreshCw,
-  Search,
-  UserCheck,
-  Globe,
   Ghost,
-  CameraOff
+  Star
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
@@ -63,7 +59,6 @@ export default function DiscoverPage() {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const profiles = useMemo(() => {
-    // Gate with mounted to ensure the first client render matches the server (mock profiles)
     const hasItems = mounted && discoveryItems && discoveryItems.length > 0;
     
     const baseProfiles = hasItems 
@@ -178,7 +173,6 @@ export default function DiscoverPage() {
 
   const handleNext = () => setCurrentIndex(prev => prev + 1);
 
-  // Use mounted guard to prevent hydration mismatch for the loading state
   if (mounted && usersLoading && db) return (
     <div className="flex flex-col min-h-screen items-center justify-center">
       <Loader2 className="w-10 h-10 animate-spin text-primary" />
@@ -203,24 +197,24 @@ export default function DiscoverPage() {
     return (
       <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
         <Header />
-        <main className="flex-grow flex items-center justify-center p-4">
-          <Card className={cn("w-full max-w-md relative aspect-[3/4] overflow-hidden border-none shadow-2xl rounded-[3.5rem] text-white", isVideo ? "bg-black" : "bg-gradient-to-br from-indigo-900 to-slate-900")}>
+        <main className="flex-grow flex flex-col items-center justify-center p-4">
+          <Card className={cn("w-full max-w-md relative h-[calc(100vh-18rem)] overflow-hidden border-none shadow-2xl rounded-[2.5rem] text-white", isVideo ? "bg-black" : "bg-gradient-to-br from-indigo-900 to-slate-900")}>
             {isVideo && currentItem.videoUrl && (
               <div className="absolute inset-0">
                 <video src={currentItem.videoUrl} autoPlay loop muted={isMuted} playsInline className="w-full h-full object-cover opacity-60" />
-                <Button variant="ghost" size="icon" className="absolute top-8 right-8 z-20 bg-black/40 text-white" onClick={() => setIsMuted(!isMuted)}>
+                <Button variant="ghost" size="icon" className="absolute top-6 right-6 z-20 bg-black/40 text-white" onClick={() => setIsMuted(!isMuted)}>
                   {isMuted ? <VolumeX /> : <Volume2 />}
                 </Button>
               </div>
             )}
-            <div className="relative z-10 p-12 flex flex-col h-full justify-between">
+            <div className="relative z-10 p-10 flex flex-col h-full justify-between">
               <Badge className="w-fit bg-blue-500/20 text-white font-black text-[9px] uppercase tracking-widest px-4 h-8 flex items-center">SPONSORED</Badge>
-              <div className="space-y-6">
-                <h2 className="text-4xl font-black tracking-tighter leading-none">{currentItem.title}</h2>
-                <p className="text-white/70 line-clamp-4 text-sm leading-relaxed">{currentItem.description}</p>
-                <div className="space-y-3">
-                  <Button className="w-full h-14 rounded-2xl bg-white text-blue-900 font-black uppercase tracking-tight" onClick={() => window.open(currentItem.targetUrl)}>Explore Now</Button>
-                  <Button variant="ghost" className="w-full text-white/40 hover:text-white" onClick={handleNext}>Skip</Button>
+              <div className="space-y-4">
+                <h2 className="text-3xl font-black tracking-tighter leading-none">{currentItem.title}</h2>
+                <p className="text-white/70 line-clamp-3 text-sm leading-relaxed">{currentItem.description}</p>
+                <div className="space-y-3 pt-4">
+                  <Button className="w-full h-12 rounded-xl bg-white text-blue-900 font-black uppercase tracking-tight text-xs" onClick={() => window.open(currentItem.targetUrl)}>Explore Now</Button>
+                  <Button variant="ghost" className="w-full text-white/40 hover:text-white text-[10px] uppercase font-bold" onClick={handleNext}>Skip ad</Button>
                 </div>
               </div>
             </div>
@@ -236,14 +230,14 @@ export default function DiscoverPage() {
   return (
     <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
       <Header />
-      <main className="flex-grow flex items-center justify-center p-4">
-        <div className="w-full max-w-md relative aspect-[3/4]">
+      <main className="flex-grow flex flex-col items-center justify-center p-4">
+        <div className="w-full max-w-md flex flex-col items-center">
           {mounted && !db && (
-            <div className="absolute -top-12 left-0 right-0 flex justify-center z-30">
+            <div className="mb-4">
                <Badge className="bg-amber-500 text-white font-black uppercase text-[8px] tracking-widest px-4 py-1.5 shadow-xl animate-bounce">Prototype Mode Active</Badge>
             </div>
           )}
-          <Card className="absolute inset-0 overflow-hidden border-none shadow-2xl rounded-[3.5rem] bg-white p-0 flex flex-col justify-between">
+          <Card className="w-full relative h-[calc(100vh-18rem)] overflow-hidden border-none shadow-2xl rounded-[2.5rem] bg-white p-0 flex flex-col">
             {isRevealed && currentItem ? (
               <div className="relative h-full w-full">
                 <Image 
@@ -253,21 +247,21 @@ export default function DiscoverPage() {
                   className="object-cover" 
                   priority
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 p-10 space-y-4 text-white">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-8 space-y-3 text-white">
                   <div className="flex justify-between items-end">
                     <div>
-                      <h2 className="text-4xl font-black tracking-tighter">{currentItem.name}</h2>
-                      <div className="flex items-center gap-2 text-xs font-bold text-white/60 uppercase tracking-widest mt-1">
-                        <MapPin className="w-3.5 h-3.5" /> {currentItem.locationHint}
+                      <h2 className="text-3xl font-black tracking-tighter">{currentItem.name}</h2>
+                      <div className="flex items-center gap-2 text-[10px] font-bold text-white/60 uppercase tracking-widest mt-1">
+                        <MapPin className="w-3 h-3" /> {currentItem.locationHint}
                       </div>
                     </div>
-                    <Badge className="bg-primary text-white border-none font-black text-[9px] uppercase h-8 px-4">Revealed Heart</Badge>
+                    <Badge className="bg-primary text-white border-none font-black text-[8px] uppercase h-7 px-3">Revealed Heart</Badge>
                   </div>
-                  <p className="italic text-lg text-white/90 leading-relaxed font-medium">"{currentItem.bio}"</p>
-                  <div className="flex flex-wrap gap-2 pt-2">
-                    {currentItem.interests.map((tag: string) => (
-                      <Badge key={tag} className="bg-white/10 text-white backdrop-blur-md border-none px-3 py-1.5 rounded-xl font-bold text-[9px]">
+                  <p className="italic text-sm text-white/90 leading-relaxed font-medium line-clamp-2">"{currentItem.bio}"</p>
+                  <div className="flex flex-wrap gap-1.5 pt-1">
+                    {currentItem.interests.slice(0, 3).map((tag: string) => (
+                      <Badge key={tag} className="bg-white/10 text-white backdrop-blur-md border-none px-2.5 py-1 rounded-lg font-bold text-[8px]">
                         {tag}
                       </Badge>
                     ))}
@@ -275,35 +269,30 @@ export default function DiscoverPage() {
                 </div>
               </div>
             ) : currentItem ? (
-              <div className="p-10 flex flex-col h-full justify-between">
-                <div className="space-y-8">
+              <div className="p-8 flex flex-col h-full justify-between">
+                <div className="space-y-6">
                   <div className="flex justify-between items-start">
-                    <div className="w-20 h-20 bg-primary/5 rounded-[2rem] flex items-center justify-center border-2 border-dashed border-primary/20">
-                      <Heart className="w-10 h-10 text-primary/20 fill-primary/10 animate-pulse" />
+                    <div className="w-16 h-16 bg-primary/5 rounded-[1.5rem] flex items-center justify-center border-2 border-dashed border-primary/20">
+                      <Heart className="w-8 h-8 text-primary/20 fill-primary/10 animate-pulse" />
                     </div>
-                    <Badge variant="outline" className="h-8 px-4 rounded-full border-primary/10 text-primary font-black uppercase tracking-widest text-[9px]">
+                    <Badge variant="outline" className="h-7 px-3 rounded-full border-primary/10 text-primary font-black uppercase tracking-widest text-[8px]">
                       Mystery Connection
                     </Badge>
                   </div>
 
-                  <div className="space-y-4">
-                    <h2 className="text-4xl font-black tracking-tighter text-slate-900">{currentItem.name}</h2>
-                    <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-widest">
-                      <MapPin className="w-3.5 h-3.5" /> {currentItem.locationHint}
+                  <div className="space-y-3">
+                    <h2 className="text-3xl font-black tracking-tighter text-slate-900">{currentItem.name}</h2>
+                    <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                      <MapPin className="w-3 h-3" /> {currentItem.locationHint}
                     </div>
-                    <p className="italic text-xl text-slate-700 leading-relaxed font-medium">"{currentItem.bio}"</p>
+                    <p className="italic text-base text-slate-700 leading-relaxed font-medium">"{currentItem.bio}"</p>
                   </div>
 
-                  <div className="space-y-3">
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60">Interests & Vibe</p>
-                    <div className="flex flex-wrap gap-2">
+                  <div className="space-y-2">
+                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-primary/60">Interests & Vibe</p>
+                    <div className="flex flex-wrap gap-1.5">
                       {currentItem.interests.map((tag: string) => (
-                        <Badge key={tag} className="bg-slate-100 text-slate-600 hover:bg-slate-200 border-none px-3 py-1.5 rounded-xl font-bold text-[10px]">
-                          {tag}
-                        </Badge>
-                      ))}
-                      {currentItem.culturalInterests.map((tag: string) => (
-                        <Badge key={tag} className="bg-blue-50 text-blue-600 hover:bg-blue-100 border-none px-3 py-1.5 rounded-xl font-bold text-[10px]">
+                        <Badge key={tag} className="bg-slate-100 text-slate-600 border-none px-2.5 py-1 rounded-lg font-bold text-[9px]">
                           {tag}
                         </Badge>
                       ))}
@@ -311,26 +300,26 @@ export default function DiscoverPage() {
                   </div>
                 </div>
 
-                <div className="bg-primary/5 p-6 rounded-3xl border border-primary/10">
+                <div className="bg-primary/5 p-5 rounded-2xl border border-primary/10">
                    <div className="flex items-center gap-2 text-primary mb-1">
-                     <Lock className="w-4 h-4" />
-                     <span className="text-[10px] font-black uppercase tracking-widest">Privacy Shield Active</span>
+                     <Lock className="w-3 h-3" />
+                     <span className="text-[8px] font-black uppercase tracking-widest">Privacy Shield Active</span>
                    </div>
-                   <p className="text-[9px] text-muted-foreground font-medium italic">Full identity will be revealed only after a mutual connection.</p>
+                   <p className="text-[8px] text-muted-foreground font-medium italic">Full identity will be revealed only after a mutual connection.</p>
                 </div>
               </div>
             ) : null}
           </Card>
           
-          <div className="absolute -bottom-24 left-0 right-0 flex justify-center gap-4">
-            <Button variant="outline" size="icon" className="w-16 h-16 rounded-full bg-white text-slate-400 hover:text-red-500 border-none shadow-xl transition-all hover:scale-110" onClick={handleNext}>
+          <div className="relative mt-8 flex justify-center gap-4 w-full px-4">
+            <Button variant="outline" size="icon" className="w-14 h-14 rounded-full bg-white text-slate-400 hover:text-red-500 border-none shadow-xl transition-all hover:scale-110 shrink-0" onClick={handleNext}>
               <X className="w-6 h-6" />
             </Button>
-            <Button className="w-28 h-16 rounded-full bg-white text-blue-600 shadow-xl font-black uppercase text-[10px] border-none hover:bg-blue-50" onClick={() => handleAction('friend')}>
+            <Button className="w-full max-w-[100px] h-14 rounded-full bg-white text-blue-600 shadow-xl font-black uppercase text-[9px] border-none hover:bg-blue-50" onClick={() => handleAction('friend')}>
               Connect
             </Button>
-            <Button className="w-28 h-16 rounded-full shadow-xl font-black uppercase text-[10px] gradient-bg hover:scale-105 transition-transform" onClick={() => handleAction('date')}>
-              Spark
+            <Button className="w-full max-w-[120px] h-14 rounded-full shadow-xl font-black uppercase text-[9px] gradient-bg hover:scale-105 transition-transform" onClick={() => handleAction('date')}>
+              Spark Love
             </Button>
           </div>
         </div>
