@@ -4,10 +4,26 @@ import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Heart, Globe, ArrowRight, Zap, Briefcase, ShieldCheck, Sparkles } from 'lucide-react';
+import { 
+  Heart, 
+  Globe, 
+  ArrowRight, 
+  Zap, 
+  Briefcase, 
+  ShieldCheck, 
+  Sparkles,
+  Languages
+} from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { cn } from '@/lib/utils';
+import { useTranslation } from '@/components/providers/LanguageProvider';
 
 const LOVE_TRANSLATIONS = [
   { lang: "English", text: "I Love U", icon: "❤️" },
@@ -17,8 +33,16 @@ const LOVE_TRANSLATIONS = [
   { lang: "Swahili", text: "Nakupenda", icon: "🦓" }
 ];
 
+const SUPPORTED_LANGUAGES = [
+  { name: 'English', native: 'English' },
+  { name: 'Spanish', native: 'Español' },
+  { name: 'French', native: 'Français' },
+  { name: 'Swahili', native: 'Kiswahili' }
+];
+
 export default function Home() {
   const dynamicImages = useMemo(() => PlaceHolderImages.filter(img => img.id.startsWith('user-')), []);
+  const { language, setLanguage } = useTranslation();
   
   const [langIndex, setLangIndex] = useState(0);
   const [imageIndex, setImageIndex] = useState(0);
@@ -45,14 +69,37 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen bg-white overflow-x-hidden">
-      <header className="fixed top-0 z-50 w-full bg-white/5 backdrop-blur-xl">
+      <header className="fixed top-0 z-50 w-full bg-white/5 backdrop-blur-xl border-b border-white/10">
         <div className="container mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <Heart className="w-10 h-10 fill-primary text-primary animate-heartbeat" />
             <span className="font-black text-[16px] tracking-[0.5em] text-primary uppercase ml-1">I LOVE YOU</span>
           </div>
           <div className="flex items-center gap-4">
-            <Link href="/login" className="text-[10px] font-black uppercase tracking-widest text-white/60 hover:text-white transition-colors">Login</Link>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="text-white/80 hover:text-white hover:bg-white/10 w-10 h-10 rounded-full transition-colors" aria-label="Select Language">
+                  <Languages className="w-5 h-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-48 rounded-2xl p-2 border-none shadow-2xl mr-4" align="end">
+                {SUPPORTED_LANGUAGES.map((lang) => (
+                  <DropdownMenuItem 
+                    key={lang.name} 
+                    onClick={() => setLanguage(lang.name)}
+                    className={cn(
+                      "rounded-xl py-3 px-4 font-bold text-xs uppercase tracking-wider cursor-pointer transition-colors",
+                      language === lang.name ? "bg-primary/10 text-primary" : "hover:bg-muted"
+                    )}
+                  >
+                    <span className="flex-grow">{lang.name}</span>
+                    <span className="text-[10px] opacity-40 font-medium">{lang.native}</span>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <Link href="/login" className="text-[10px] font-black uppercase tracking-widest text-white/60 hover:text-white transition-colors hidden sm:block">Login</Link>
             <Button size="sm" className="rounded-full h-10 px-6 gradient-bg font-black uppercase text-[9px] tracking-widest shadow-xl border border-white/10" asChild>
               <Link href="/login">Launch</Link>
             </Button>
