@@ -2,7 +2,7 @@
 
 /**
  * @fileOverview Firebase Barrel File.
- * Explicitly re-exports components to ensure stable module resolution in Next.js 15.
+ * Explicitly re-exports components to resolve "ChunkLoadError" and stable resolution.
  */
 
 import { 

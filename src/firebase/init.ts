@@ -8,8 +8,8 @@ import { firebaseConfig } from './config';
 
 /**
  * @fileOverview Resilient Firebase Initializer.
- * Only boots services when a legitimate, provisioned API key is detected.
- * This prevents runtime crashes while the cloud environment is initializing.
+ * Strictly gates initialization to prevent "Invalid API Key" crashes while
+ * credentials are still propagating in the cloud project.
  */
 export function initializeFirebase(): { 
   app: FirebaseApp | null; 
@@ -23,14 +23,15 @@ export function initializeFirebase(): {
 
   const apiKey = firebaseConfig.apiKey;
   
-  // High-integrity key check: Real Firebase keys typically start with "AIza" 
-  // and are approximately 39-40 characters long.
+  // Standard Firebase API keys start with "AIza" and are roughly 39-40 chars long.
+  // We check for presence and prefix to ensure the bridge is ready.
   const isKeyReady = apiKey && 
                      apiKey.startsWith("AIza") && 
-                     apiKey.length > 30;
+                     apiKey.length > 20;
 
   if (!isKeyReady) {
-    // Platform is in "Regional Bridge Initializing" mode
+    // Platform is in "Regional Bridge Initializing" mode.
+    // We return nulls to trigger the UI's built-in safety standbys.
     return { app: null, db: null, auth: null, storage: null };
   }
 
@@ -42,7 +43,7 @@ export function initializeFirebase(): {
     
     return { app, db, auth, storage };
   } catch (error: any) {
-    console.error("I Love U: Regional bridge initialization ripple:", error);
+    console.warn("I Love U: Regional bridge standby due to init ripple:", error.message);
     return { app: null, db: null, auth: null, storage: null };
   }
 }

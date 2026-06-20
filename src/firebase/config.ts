@@ -1,21 +1,22 @@
 /**
  * @fileOverview Standardized Firebase configuration for the Prosperity Revolution.
- * Optimized for resilience during platform provisioning.
+ * Hardened to reject un-substituted placeholders from various build environments.
  */
 
 const sanitizeEnv = (val: string | undefined, keyName: string): string => {
   if (!val) return "";
   const trimmed = val.trim();
   
-  // Explicitly filter out placeholder patterns or un-substituted variables
+  // Aggressively filter common placeholder patterns or literal env variable names
   if (
     trimmed === "" || 
     trimmed === "undefined" || 
     trimmed === "null" || 
-    trimmed === keyName || // Matches literal string "NEXT_PUBLIC_FIREBASE_API_KEY"
+    trimmed === keyName || 
     trimmed.includes("PLACEHOLDER") ||
     trimmed.startsWith("<") ||
-    trimmed.startsWith("{")
+    trimmed.startsWith("{") ||
+    trimmed.includes("YOUR_")
   ) {
     return "";
   }
