@@ -53,7 +53,7 @@ function LoginContent() {
   const [isLoading, setIsLoading] = useState(false);
   const [isConfigError, setIsConfigError] = useState(false);
 
-  // Mandatory Security Protocols
+  // Mandatory Security Protocols (Optional for standard registration per latest mission update)
   const [isAgeVerified, setIsAgeVerified] = useState(false);
   const [isRespectful, setIsRespectful] = useState(false);
   const [isHuman, setIsHuman] = useState(false);
@@ -65,14 +65,7 @@ function LoginContent() {
     }
   }, [user, authLoading, router]);
 
-  const isProtocolComplete = isAgeVerified && isRespectful && isHuman;
-
   const handleGuestJoin = async () => {
-    if (!isProtocolComplete) {
-      toast({ variant: "destructive", title: "Protocol Required", description: "Complete the security confirmations first. ❤️" });
-      return;
-    }
-    
     if (!auth) {
       setIsConfigError(true);
       return;
@@ -111,7 +104,7 @@ function LoginContent() {
   };
 
   const handleAuth = async () => {
-    if (!email || !password || !isProtocolComplete) return;
+    if (!email || !password) return;
     
     if (!auth) {
       setIsConfigError(true);
@@ -302,10 +295,10 @@ function LoginContent() {
               <div className="space-y-4">
                 <Button 
                   onClick={handleAuth} 
-                  disabled={isLoading || !isProtocolComplete || !email || !password || !auth || isConfigError} 
+                  disabled={isLoading || !email || !password || !auth || isConfigError} 
                   className={cn(
                     "w-full h-20 rounded-[2rem] font-black uppercase tracking-[0.3em] text-sm shadow-xl active:scale-95 transition-all",
-                    (!isProtocolComplete || !auth || isConfigError) ? "bg-slate-200 text-slate-400" : "gradient-bg"
+                    (!auth || isConfigError) ? "bg-slate-200 text-slate-400" : "gradient-bg"
                   )}
                 >
                   {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : mode === 'signin' ? t('login.launch') : t('login.joinRevolution')}
@@ -319,7 +312,7 @@ function LoginContent() {
                     </div>
                     <Button 
                       onClick={handleGuestJoin}
-                      disabled={isLoading || !isProtocolComplete || !auth || isConfigError}
+                      disabled={isLoading || !auth || isConfigError}
                       variant="outline"
                       className="w-full h-16 rounded-2xl border-2 border-slate-100 font-black uppercase tracking-[0.2em] text-[10px] text-slate-400 hover:bg-primary/5 hover:text-primary hover:border-primary/20 transition-all gap-3"
                     >

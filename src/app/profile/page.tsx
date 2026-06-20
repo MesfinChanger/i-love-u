@@ -165,6 +165,10 @@ function ProfileContent() {
     }
   }, [profileData]);
 
+  // Commercial Restriction Logic
+  const isCommercialUser = profileData?.isSeller || profileData?.isAdvertiser;
+  const isProtocolComplete = !isCommercialUser || (isAgeVerified && isRespectful && isHuman);
+
   // Hierarchical Location Logic
   const availableStates = useMemo(() => {
     const data = WORLD_LOCATIONS[country] || WORLD_LOCATIONS['DEFAULT'];
@@ -246,10 +250,13 @@ function ProfileContent() {
 
   const handleSave = async () => {
     if (!user || !db || isSaving) return;
-    if (!isAgeVerified || !isRespectful || !isHuman) {
-      toast({ variant: "destructive", title: "Protocol Required", description: "Complete the Security tab first." });
+    
+    // Restriction only for sellers/advertisers
+    if (isCommercialUser && (!isAgeVerified || !isRespectful || !isHuman)) {
+      toast({ variant: "destructive", title: "Protocol Required", description: "Commercial users must complete the Security tab." });
       return;
     }
+
     const userAge = calculateAge(birthdate);
     if (birthdate && userAge < 18) {
       toast({ variant: "destructive", title: "Age Requirement", description: "You must be 18+ to join." });
@@ -325,8 +332,6 @@ function ProfileContent() {
        <Loader2 className="w-10 h-10 animate-spin text-primary" />
     </div>
   );
-
-  const isProtocolComplete = isAgeVerified && isRespectful && isHuman;
 
   return (
     <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
@@ -405,7 +410,7 @@ function ProfileContent() {
             <TabsTrigger value="security" className="flex-1 rounded-xl text-[9px] font-black uppercase tracking-widest relative gap-1.5 group data-[state=active]:text-primary">
               <ShieldCheck className="w-3.5 h-3.5" />
               Security
-              {!isProtocolComplete && <div className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full animate-pulse border-2 border-white" />}
+              {isCommercialUser && !isProtocolComplete && <div className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full animate-pulse border-2 border-white" />}
               <Save className="w-2.5 h-2.5 ml-auto opacity-20 group-data-[state=active]:opacity-100 transition-opacity" />
             </TabsTrigger>
           </TabsList>
@@ -685,12 +690,20 @@ function ProfileContent() {
                     </div>
                 </div>
                 
-                <div className="p-5 bg-slate-900 rounded-2xl flex items-center gap-4 shadow-lg border border-primary/20">
-                  <Lock className="w-6 h-6 text-primary shrink-0" />
-                  <p className="text-[9px] text-white/80 italic uppercase tracking-widest font-black leading-relaxed">
-                    Account saving is locked until all security protocols are confirmed.
+                {isCommercialUser && (
+                  <div className="p-5 bg-slate-900 rounded-2xl flex items-center gap-4 shadow-lg border border-primary/20">
+                    <Lock className="w-6 h-6 text-primary shrink-0" />
+                    <p className="text-[9px] text-white/80 italic uppercase tracking-widest font-black leading-relaxed">
+                      Account saving is locked for Commercial Users until all security protocols are confirmed.
+                    </p>
+                  </div>
+                )}
+                
+                {!isCommercialUser && (
+                  <p className="text-[9px] text-muted-foreground text-center italic font-medium px-4">
+                    Commitment to our security protocols helps us reach every village with love. ✨
                   </p>
-                </div>
+                )}
               </div>
             </Card>
           </TabsContent>
