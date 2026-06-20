@@ -8,7 +8,7 @@ import { firebaseConfig } from './config';
 
 /**
  * @fileOverview Core Firebase Initializer.
- * Separated to prevent circular dependencies and handle initialization ripples.
+ * Resilient to missing or partially provisioned environment variables.
  */
 export function initializeFirebase(): { 
   app: FirebaseApp | null; 
@@ -21,32 +21,27 @@ export function initializeFirebase(): {
     return { app: null, db: null, auth: null, storage: null };
   }
 
-  // Strict key validation to prevent SDK crashes with placeholders or invalid keys
-  const hasValidKey = firebaseConfig.apiKey && 
-                      firebaseConfig.apiKey.length > 20 && 
-                      !firebaseConfig.apiKey.includes('YOUR_') &&
-                      !firebaseConfig.apiKey.includes('NEXT_PUBLIC_');
+  // Basic validation to prevent SDK from crashing on empty strings
+  const hasApiKey = firebaseConfig.apiKey && 
+                    firebaseConfig.apiKey !== "" && 
+                    !firebaseConfig.apiKey.startsWith("NEXT_PUBLIC_");
 
-  if (!hasValidKey) {
-    console.warn("I Love U: Regional bridge waiting for valid credentials...");
+  if (!hasApiKey) {
+    console.warn("I Love U: Firebase credentials not detected. Regional bridge is on standby.");
     return { app: null, db: null, auth: null, storage: null };
   }
 
   try {
     const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
     
-    // Initialize services independently to isolate failures
-    let db: Firestore | null = null;
-    let auth: Auth | null = null;
-    let storage: FirebaseStorage | null = null;
-
-    try { db = getFirestore(app); } catch (e) { console.warn("Firestore init ripple:", e); }
-    try { auth = getAuth(app); } catch (e) { console.warn("Auth init ripple:", e); }
-    try { storage = getStorage(app); } catch (e) { console.warn("Storage init ripple:", e); }
+    // Initialize services
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+    const storage = getStorage(app);
     
     return { app, db, auth, storage };
   } catch (error) {
-    console.error("I Love U: Platform initialization failure:", error);
+    console.error("I Love U: Platform initialization ripple:", error);
     return { app: null, db: null, auth: null, storage: null };
   }
 }

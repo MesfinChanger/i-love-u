@@ -16,10 +16,10 @@ export function useUser() {
   useEffect(() => {
     // If auth is not yet available, we wait in loading state
     if (!auth) {
-      // Small timeout to allow platform a moment to initialize
+      // Small timeout to prevent permanent hang
       const timer = setTimeout(() => {
-        if (!auth) setLoading(false);
-      }, 3000);
+        setLoading(false);
+      }, 5000);
       return () => clearTimeout(timer);
     }
 
@@ -28,13 +28,13 @@ export function useUser() {
         setUser(firebaseUser);
         setLoading(false);
       }, (error) => {
-        console.error("I Love U: Auth observer error:", error);
+        console.error("I Love U: Auth observer ripple:", error);
         setLoading(false);
       });
       
       return () => unsubscribe();
     } catch (e) {
-      console.warn("I Love U: Auth listener subscription failed:", e);
+      console.warn("I Love U: Auth listener subscription pending:", e);
       setLoading(false);
     }
   }, [auth]);
