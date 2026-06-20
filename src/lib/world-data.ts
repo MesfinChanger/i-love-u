@@ -1,4 +1,3 @@
-
 /**
  * @fileOverview Comprehensive global data for the Prosperity Revolution.
  * Includes ISO countries, world languages, global currencies, and hierarchical locations.
@@ -66,20 +65,21 @@ export const COUNTRIES = [
   { code: 'ES', name: 'Spain' }, { code: 'LK', name: 'Sri Lanka' }, { code: 'SD', name: 'Sudan' },
   { code: 'SR', name: 'Suriname' }, { code: 'SZ', name: 'Swaziland' }, { code: 'SE', name: 'Sweden' },
   { code: 'CH', name: 'Switzerland' }, { code: 'SY', name: 'Syria' }, { code: 'TW', name: 'Taiwan' },
-  { code: 'TJ', name: 'Tajikistan' }, { code: 'TZ', name: 'Tanzania' }, { code: 'TH', name: 'Thailand' },
-  { code: 'TL', name: 'Timor-Leste' }, { code: 'TG', name: 'Togo' }, { code: 'TK', name: 'Tokelau' },
-  { code: 'TO', name: 'Tonga' }, { code: 'TT', name: 'Trinidad and Tobago' }, { code: 'TN', name: 'Tunisia' },
-  { code: 'TR', name: 'Turkey' }, { code: 'TM', name: 'Turkmenistan' }, { code: 'TV', name: 'Tuvalu' },
-  { code: 'UG', name: 'Uganda' }, { code: 'UA', name: 'Ukraine' }, { code: 'AE', name: 'United Arab Emirates' },
-  { code: 'GB', name: 'United Kingdom' }, { code: 'US', name: 'United States' }, { code: 'UY', name: 'Uruguay' },
-  { code: 'UZ', name: 'Uzbekistan' }, { code: 'VU', name: 'Vanuatu' }, { code: 'VE', name: 'Venezuela' },
-  { code: 'VN', name: 'Vietnam' }, { code: 'VG', name: 'Virgin Islands, British' }, { code: 'VI', name: 'Virgin Islands, U.S.' },
-  { code: 'YE', name: 'Yemen' }, { code: 'ZM', name: 'Zambia' }, { code: 'ZW', name: 'Zimbabwe' }
+  { code: 'TJ', name: 'Tajikistan' }, { code: 'TZ', name: 'Tanzania' }, { code: 'TZ', name: 'Tanzania' },
+  { code: 'TH', name: 'Thailand' }, { code: 'TL', name: 'Timor-Leste' }, { code: 'TG', name: 'Togo' },
+  { code: 'TK', name: 'Tokelau' }, { code: 'TO', name: 'Tonga' }, { code: 'TT', name: 'Trinidad and Tobago' },
+  { code: 'TN', name: 'Tunisia' }, { code: 'TR', name: 'Turkey' }, { code: 'TM', name: 'Turkmenistan' },
+  { code: 'TV', name: 'Tuvalu' }, { code: 'UG', name: 'Uganda' }, { code: 'UA', name: 'Ukraine' },
+  { code: 'AE', name: 'United Arab Emirates' }, { code: 'GB', name: 'United Kingdom' }, { code: 'US', name: 'United States' },
+  { code: 'UY', name: 'Uruguay' }, { code: 'UZ', name: 'Uzbekistan' }, { code: 'VU', name: 'Vanuatu' },
+  { code: 'VE', name: 'Venezuela' }, { code: 'VN', name: 'Vietnam' }, { code: 'VG', name: 'Virgin Islands, British' },
+  { code: 'VI', name: 'Virgin Islands, U.S.' }, { code: 'YE', name: 'Yemen' }, { code: 'ZM', name: 'Zambia' },
+  { code: 'ZW', name: 'Zimbabwe' }
 ];
 
-export const WORLD_LOCATIONS: Record<string, { regions: { name: string, cities: string[] }[] }> = {
+export const WORLD_LOCATIONS: Record<string, { states: { name: string, cities: string[] }[] }> = {
   'ET': { // Ethiopia - Extended high-resolution administrative data
-    regions: [
+    states: [
       { name: 'Addis Ababa', cities: ['Addis Ketema Wereda', 'Akaki Kality Wereda', 'Arada Wereda', 'Bole Wereda', 'Gullele Wereda', 'Kirkos Wereda', 'Kolfe Keranio Wereda', 'Lideta Wereda', 'Nifas Silk-Lafto Wereda', 'Yeka Wereda', 'Lemi Kura Wereda'] },
       { name: 'Amhara', cities: ['Bahir Dar', 'Gondar', 'Dessie', 'Debre Birhan', 'Kombolcha', 'Debre Markos', 'Lalibela', 'Sekota', 'Woldiya', 'Motta', 'Enjibara', 'Debre Tabor', 'Kobo', 'Showra Robit', 'Injibara', 'Bure', 'Finote Selam'] },
       { name: 'Oromia', cities: ['Adama', 'Jimma', 'Bishoftu', 'Shashemene', 'Burayu', 'Nekemte', 'Asella', 'Goba', 'Sebeta', 'Ambo', 'Chiro', 'Dukem', 'Metu', 'Waliso', 'Fiche', 'Gimbi', 'Dembi Dolo', 'Robe', 'Bale Robe', 'Shambu', 'Bedele', 'Agaro'] },
@@ -95,7 +95,7 @@ export const WORLD_LOCATIONS: Record<string, { regions: { name: string, cities: 
     ]
   },
   'US': { // United States
-    regions: [
+    states: [
       { name: 'California', cities: ['Los Angeles', 'San Francisco', 'San Diego', 'Sacramento', 'San Jose', 'Oakland', 'Fresno', 'Long Beach', 'Irvine', 'Pasadena', 'Santa Barbara', 'Beverly Hills', 'Malibu', 'Santa Monica', 'Berkeley', 'Palo Alto'] },
       { name: 'New York', cities: ['New York City', 'Buffalo', 'Albany', 'Rochester', 'Yonkers', 'Syracuse', 'New Rochelle', 'Mount Vernon', 'White Plains', 'Ithaca', 'Binghamton', 'Utica'] },
       { name: 'Texas', cities: ['Houston', 'Austin', 'Dallas', 'San Antonio', 'Fort Worth', 'El Paso', 'Arlington', 'Corpus Christi', 'Plano', 'Laredo', 'Lubbock', 'Garland', 'Irving', 'Amarillo'] },
@@ -105,7 +105,7 @@ export const WORLD_LOCATIONS: Record<string, { regions: { name: string, cities: 
     ]
   },
   'NG': { // Nigeria
-    regions: [
+    states: [
       { name: 'Lagos', cities: ['Ikeja', 'Lekki', 'Ikorodu', 'Epe', 'Badagry', 'Surulere', 'Agege', 'Mushin', 'Victoria Island', 'Ajah', 'Yaba', 'Alimosho', 'Oshodi', 'Apapa'] },
       { name: 'Abuja', cities: ['Garki', 'Wuse', 'Asokoro', 'Maitama', 'Kuje', 'Gwagwalada', 'Bwari', 'Abaji', 'Karu', 'Nyanya', 'Kubwa'] },
       { name: 'Kano', cities: ['Kano City', 'Wudil', 'Gwarzo', 'Bichi', 'Gaya', 'Rano', 'Dambatta', 'Minjibir', 'Gezawa', 'Tofa'] },
@@ -114,7 +114,7 @@ export const WORLD_LOCATIONS: Record<string, { regions: { name: string, cities: 
     ]
   },
   'KE': { // Kenya
-    regions: [
+    states: [
       { name: 'Nairobi', cities: ['Westlands', 'Dagoretti', 'Kasarani', 'Kibra', 'Langata', 'Embakasi', 'Makadara', 'Mathare', 'Parklands', 'Karen', 'Runda', 'Lavington', 'Eastleigh'] },
       { name: 'Mombasa', cities: ['Island', 'Changamwe', 'Likoni', 'Kisauni', 'Nyali', 'Jomvu', 'Mvita', 'Tudor', 'Bamburi', 'Shanzu'] },
       { name: 'Kisumu', cities: ['Kisumu Central', 'Kisumu West', 'Nyakach', 'Muhoroni', 'Seme', 'Kisumu East', 'Nyang\'ande', 'Maseno'] },
@@ -123,7 +123,7 @@ export const WORLD_LOCATIONS: Record<string, { regions: { name: string, cities: 
     ]
   },
   'IN': { // India
-    regions: [
+    states: [
       { name: 'Maharashtra', cities: ['Mumbai', 'Pune', 'Nagpur', 'Nashik', 'Thane', 'Aurangabad', 'Solapur', 'Amravati', 'Navi Mumbai', 'Kolhapur', 'Akola', 'Latur'] },
       { name: 'Karnataka', cities: ['Bengaluru', 'Mysuru', 'Hubballi', 'Mangaluru', 'Belagavi', 'Kalaburagi', 'Ballari', 'Vijayapura', 'Shivamogga', 'Tumakuru'] },
       { name: 'Delhi', cities: ['New Delhi', 'Old Delhi', 'Dwarka', 'Rohini', 'Saket', 'Vasant Kunj', 'Janakpuri', 'Laxmi Nagar', 'Connaught Place', 'Karol Bagh'] },
@@ -132,7 +132,7 @@ export const WORLD_LOCATIONS: Record<string, { regions: { name: string, cities: 
     ]
   },
   'GB': { // United Kingdom
-    regions: [
+    states: [
       { name: 'England', cities: ['London', 'Birmingham', 'Manchester', 'Liverpool', 'Leeds', 'Sheffield', 'Bristol', 'Newcastle', 'Nottingham', 'Leicester', 'Southampton', 'Reading', 'Oxford', 'Cambridge'] },
       { name: 'Scotland', cities: ['Glasgow', 'Edinburgh', 'Aberdeen', 'Dundee', 'Inverness', 'Perth', 'Stirling', 'Paisley', 'East Kilbride', 'Livingston'] },
       { name: 'Wales', cities: ['Cardiff', 'Swansea', 'Newport', 'Wrexham', 'Barry', 'Neath', 'Bridgend', 'Llanelli', 'Merthyr Tydfil'] },
@@ -140,7 +140,7 @@ export const WORLD_LOCATIONS: Record<string, { regions: { name: string, cities: 
     ]
   },
   'CA': { // Canada
-    regions: [
+    states: [
       { name: 'Ontario', cities: ['Toronto', 'Ottawa', 'Mississauga', 'Hamilton', 'Brampton', 'London', 'Markham', 'Vaughan', 'Kitchener', 'Windsor', 'Oakville', 'Burlington'] },
       { name: 'Quebec', cities: ['Montreal', 'Quebec City', 'Laval', 'Gatineau', 'Longueuil', 'Sherbrooke', 'Saguenay', 'Levis', 'Trois-Rivières', 'Terrebonne'] },
       { name: 'British Columbia', cities: ['Vancouver', 'Victoria', 'Surrey', 'Burnaby', 'Richmond', 'Kelowna', 'Abbotsford', 'Coquitlam', 'Nanaimo', 'Kamloops'] },
@@ -148,7 +148,7 @@ export const WORLD_LOCATIONS: Record<string, { regions: { name: string, cities: 
     ]
   },
   'BR': { // Brazil
-    regions: [
+    states: [
       { name: 'São Paulo', cities: ['São Paulo City', 'Campinas', 'Guarulhos', 'Santo André', 'São Bernardo do Campo', 'Osasco', 'Ribeirão Preto', 'Sorocaba', 'Santos', 'São José dos Campos'] },
       { name: 'Rio de Janeiro', cities: ['Rio de Janeiro City', 'Niterói', 'São Gonçalo', 'Duque de Caxias', 'Nova Iguaçu', 'Belford Roxo', 'Campos dos Goytacazes', 'São João de Meriti'] },
       { name: 'Minas Gerais', cities: ['Belo Horizonte', 'Uberlândia', 'Contagem', 'Juiz de Fora', 'Betim', 'Montes Claros', 'Ribeirão das Neves', 'Uberaba'] },
@@ -156,7 +156,7 @@ export const WORLD_LOCATIONS: Record<string, { regions: { name: string, cities: 
     ]
   },
   'DEFAULT': {
-    regions: [
+    states: [
       { name: 'Capital Region', cities: ['Main City', 'North District', 'South District', 'Central Wereda', 'Sub-City Alpha', 'Sub-City Beta'] },
       { name: 'Coastal Region', cities: ['Port Village', 'Beach Town', 'Island District', 'Shoreline Wereda', 'Marina Bay', 'Seaside Village'] },
       { name: 'Rural Region', cities: ['Agricultural Village', 'Mountain District', 'Forest Wereda', 'Highland Village', 'River Valley', 'Green Pastures'] }

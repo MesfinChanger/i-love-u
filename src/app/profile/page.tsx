@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, Suspense, useRef, useMemo } from 'react';
@@ -84,7 +83,7 @@ function ProfileContent() {
   const [address1, setAddress1] = useState('');
   const [address2, setAddress2] = useState('');
   const [city, setCity] = useState(''); // Used for City / Village / District / Wereda
-  const [state, setState] = useState(''); // Used for State / Province / Region
+  const [state, setState] = useState(''); // Used for State / Province
   const [country, setCountry] = useState('US');
 
   // Vibe Fields
@@ -144,15 +143,15 @@ function ProfileContent() {
   }, [profileData]);
 
   // Hierarchical Location Logic
-  const availableRegions = useMemo(() => {
+  const availableStates = useMemo(() => {
     const data = WORLD_LOCATIONS[country] || WORLD_LOCATIONS['DEFAULT'];
-    return data.regions || [];
+    return data.states || [];
   }, [country]);
 
   const availableCities = useMemo(() => {
-    const region = availableRegions.find(r => r.name === state);
-    return region ? region.cities : [];
-  }, [state, availableRegions]);
+    const stateObj = availableStates.find(s => s.name === state);
+    return stateObj ? stateObj.cities : [];
+  }, [state, availableStates]);
 
   const calculateAge = (bday: string) => {
     if (!bday) return 0;
@@ -439,14 +438,14 @@ function ProfileContent() {
 
                 <div className="grid sm:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1">State / Province / Region</Label>
+                    <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1">State / Province</Label>
                     <Select value={state} onValueChange={(v) => { setState(v); setCity(''); }}>
                       <SelectTrigger className="h-12 text-sm rounded-xl font-bold bg-muted/30 border-none px-4">
-                        <SelectValue placeholder="Select Region" />
+                        <SelectValue placeholder="Select State" />
                       </SelectTrigger>
                       <SelectContent className="max-h-64 overflow-y-auto">
-                        {availableRegions.length > 0 ? (
-                          availableRegions.map(r => <SelectItem key={r.name} value={r.name}>{r.name}</SelectItem>)
+                        {availableStates.length > 0 ? (
+                          availableStates.map(s => <SelectItem key={s.name} value={s.name}>{s.name}</SelectItem>)
                         ) : (
                           <SelectItem value="Other">Other / Not Listed</SelectItem>
                         )}
