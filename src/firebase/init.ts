@@ -30,7 +30,6 @@ export function initializeFirebase(): {
                      !apiKey.includes("NEXT_PUBLIC_"));
 
   if (!isKeyValid) {
-    console.warn("I Love U: Firebase credentials missing or invalid. Regional Bridge in standby. Launch prototype via Login page if needed.");
     return { app: null, db: null, auth: null, storage: null };
   }
 
@@ -40,10 +39,8 @@ export function initializeFirebase(): {
     const auth = getAuth(app);
     const storage = getStorage(app);
     
-    console.log("I Love U: Regional Bridge Secured. Prosperity Network Online. ❤️");
     return { app, db, auth, storage };
   } catch (error: any) {
-    console.warn("I Love U: Initialization standby. Waiting for regional credentials.", error.message);
     return { app: null, db: null, auth: null, storage: null };
   }
 }

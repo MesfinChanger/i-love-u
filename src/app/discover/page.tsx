@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -29,6 +28,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 export default function DiscoverPage() {
   const { user } = useUser();
@@ -41,7 +41,6 @@ export default function DiscoverPage() {
   }, [db, user]);
   const { data: myProfile } = useDoc(userRef);
 
-  // We query publicProfiles instead of users for privacy
   const discoveryQuery = useMemoFirebase(() => {
     if (!db) return null;
     return query(collection(db, 'publicProfiles'));
@@ -59,18 +58,54 @@ export default function DiscoverPage() {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const profiles = useMemo(() => {
-    const baseProfiles = (discoveryItems || [])
-      .filter((u: any) => u.uid !== user?.uid)
-      .map((u: any) => ({
-        id: u.uid,
-        name: u.publicNickname || "Mystery Heart", 
-        publicPhotoUrl: u.publicPhotoUrl || null,
-        interests: u.interests || [],
-        culturalInterests: u.culturalInterests || [],
-        bio: u.bio || "Sharing culture and looking for sparks.",
-        locationHint: u.locationHint || "Global Community",
-        type: 'profile'
-      }));
+    // If no DB or no items, return mock profiles for Prototype Mode
+    const hasItems = discoveryItems && discoveryItems.length > 0;
+    
+    const baseProfiles = hasItems 
+      ? (discoveryItems || [])
+        .filter((u: any) => u.uid !== user?.uid)
+        .map((u: any) => ({
+          id: u.uid,
+          name: u.publicNickname || "Mystery Heart", 
+          publicPhotoUrl: u.publicPhotoUrl || null,
+          interests: u.interests || [],
+          culturalInterests: u.culturalInterests || [],
+          bio: u.bio || "Sharing culture and looking for sparks.",
+          locationHint: u.locationHint || "Global Community",
+          type: 'profile'
+        }))
+      : [
+          {
+            id: 'mock-1',
+            name: 'Amina',
+            publicPhotoUrl: PlaceHolderImages.find(img => img.id === 'user-2')?.imageUrl,
+            interests: ['Textiles', 'Tea', 'Hiking'],
+            culturalInterests: ['Swahili History'],
+            bio: "Exploring the intersection of art and nature.",
+            locationHint: "Nairobi, KE",
+            type: 'profile'
+          },
+          {
+            id: 'mock-2',
+            name: 'Yuki',
+            publicPhotoUrl: PlaceHolderImages.find(img => img.id === 'user-1')?.imageUrl,
+            interests: ['Coding', 'Origami', 'Jazz'],
+            culturalInterests: ['Japanese Tea Ceremony'],
+            bio: "Looking for a soul to share a quiet sunset with.",
+            locationHint: "Tokyo, JP",
+            type: 'profile'
+          },
+          {
+            id: 'mock-3',
+            name: 'Elena',
+            publicPhotoUrl: PlaceHolderImages.find(img => img.id === 'user-3')?.imageUrl,
+            interests: ['Architecture', 'Pasta', 'Piano'],
+            culturalInterests: ['Renaissance Art'],
+            bio: "Building dreams and finding love in small moments.",
+            locationHint: "Rome, IT",
+            type: 'profile'
+          }
+        ];
 
     const adItems = (activeAds || [])
       .filter((ad: any) => {
@@ -102,9 +137,14 @@ export default function DiscoverPage() {
   const currentItem = profiles[currentIndex];
 
   const handleAction = async (type: 'friend' | 'date') => {
-    if (!user || !db || !currentItem || currentItem.type === 'ad') return;
+    if (!user || !db || !currentItem || currentItem.type === 'ad' || currentItem.id.startsWith('mock')) {
+      if (currentItem?.id.startsWith('mock')) {
+        toast({ title: "Prototype Connection!", description: "In real mode, this would spark a secure journey. ✨" });
+        handleNext();
+      }
+      return;
+    }
 
-    // Use deterministic Match ID: smallerUid_largerUid
     const uids = [user.uid, currentItem.id].sort();
     const matchId = uids.join('_');
 
@@ -118,18 +158,13 @@ export default function DiscoverPage() {
 
     try {
       await setDoc(doc(db, 'matches', matchId), matchData);
-
       if (type === 'date') {
         await setDoc(doc(db, 'users', user.uid), {
           relationshipStatus: 'dating',
           partnerId: currentItem.id
         }, { merge: true });
       }
-
-      toast({ 
-        title: "Connection Allowed!", 
-        description: "You have both allowed each other. Full Identity revealed in Chat! ✨" 
-      });
+      toast({ title: "Connection Allowed!", description: "Full Identity revealed in Chat! ✨" });
       handleNext();
     } catch (e) {
       toast({ variant: "destructive", title: "Action Failed", description: "Respectful connection could not be made." });
@@ -138,7 +173,7 @@ export default function DiscoverPage() {
 
   const handleNext = () => setCurrentIndex(prev => prev + 1);
 
-  if (usersLoading) return (
+  if (usersLoading && db) return (
     <div className="flex flex-col min-h-screen items-center justify-center">
       <Loader2 className="w-10 h-10 animate-spin text-primary" />
     </div>
@@ -190,18 +225,23 @@ export default function DiscoverPage() {
     );
   }
 
-  const isRevealed = currentItem.publicPhotoUrl !== null;
+  const isRevealed = currentItem.publicPhotoUrl !== null && currentItem.publicPhotoUrl !== undefined;
 
   return (
     <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
       <Header />
       <main className="flex-grow flex items-center justify-center p-4">
         <div className="w-full max-w-md relative aspect-[3/4]">
+          {!db && (
+            <div className="absolute -top-12 left-0 right-0 flex justify-center z-30">
+               <Badge className="bg-amber-500 text-white font-black uppercase text-[8px] tracking-widest px-4 py-1.5 shadow-xl animate-bounce">Prototype Mode Active</Badge>
+            </div>
+          )}
           <Card className="absolute inset-0 overflow-hidden border-none shadow-2xl rounded-[3.5rem] bg-white p-0 flex flex-col justify-between">
             {isRevealed ? (
               <div className="relative h-full w-full">
                 <Image 
-                  src={currentItem.publicPhotoUrl} 
+                  src={currentItem.publicPhotoUrl!} 
                   alt={currentItem.name} 
                   fill 
                   className="object-cover" 
