@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -6,16 +5,18 @@ import { usePathname } from 'next/navigation';
 import { Sparkles, Heart, User, ShoppingBag, Globe2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { useTranslation } from './providers/LanguageProvider';
 
 export function BottomNav() {
   const pathname = usePathname();
+  const { t } = useTranslation();
 
   const navItems = [
-    { href: '/discover', icon: Sparkles, label: 'Discover' },
-    { href: '/community', icon: Globe2, label: 'Global' },
-    { href: '/matches', icon: Heart, label: 'Matches' },
-    { href: '/shop', icon: ShoppingBag, label: 'Shop' },
-    { href: '/profile', icon: User, label: 'Profile' },
+    { href: '/discover', icon: Sparkles, label: t('nav.discover') },
+    { href: '/community', icon: Globe2, label: t('nav.global') },
+    { href: '/matches', icon: Heart, label: t('nav.matches') },
+    { href: '/shop', icon: ShoppingBag, label: t('nav.shop') },
+    { href: '/profile', icon: User, label: t('nav.profile') },
   ];
 
   return (

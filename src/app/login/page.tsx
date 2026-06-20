@@ -33,6 +33,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { cn } from '@/lib/utils';
 import { generateKeyPair } from '@/lib/crypto';
 import { COUNTRIES } from '@/lib/world-data';
+import { useTranslation } from '@/components/providers/LanguageProvider';
 
 function LoginContent() {
   const auth = useAuth();
@@ -40,6 +41,7 @@ function LoginContent() {
   const { user, loading: authLoading } = useUser();
   const router = useRouter();
   const { toast } = useToast();
+  const { t, language } = useTranslation();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -91,6 +93,7 @@ function LoginContent() {
           isAgeVerified,
           isRespectful,
           isHuman,
+          preferredLanguage: language,
           createdAt: serverTimestamp()
         }, { merge: true });
       }
@@ -137,6 +140,7 @@ function LoginContent() {
             isAgeVerified,
             isRespectful,
             isHuman,
+            preferredLanguage: language,
             createdAt: serverTimestamp()
           }, { merge: true });
         }
@@ -177,8 +181,8 @@ function LoginContent() {
           <div className="flex flex-col items-center justify-center gap-6">
             <Heart className="w-16 h-16 fill-primary text-primary" />
             <div className="space-y-2">
-              <h1 className="font-black text-3xl tracking-[0.6em] text-primary uppercase ml-[0.6em]">I LOVE U</h1>
-              <p className="text-[10px] font-bold uppercase tracking-[0.5em] text-slate-300">PROSPERITY REVOLUTION</p>
+              <h1 className="font-black text-3xl tracking-[0.6em] text-primary uppercase ml-[0.6em]">{t('login.title')}</h1>
+              <p className="text-[10px] font-bold uppercase tracking-[0.5em] text-slate-300">{t('login.subtitle')}</p>
             </div>
           </div>
         </div>
@@ -211,36 +215,36 @@ function LoginContent() {
           <div className="bg-primary/5 p-8 border-b border-primary/10">
              <div className="flex items-center justify-center gap-2 mb-6">
                 <ShieldCheck className="w-5 h-5 text-primary" />
-                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Global Security Protocol</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">{t('login.protocol')}</p>
              </div>
              <div className="flex flex-col gap-4 max-w-[280px] mx-auto">
                 <div className="flex items-center space-x-3 cursor-pointer group" onClick={() => setIsAgeVerified(!isAgeVerified)}>
                    <div className={cn("w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all", isAgeVerified ? "border-primary bg-primary" : "border-slate-200")}>
                      {isAgeVerified && <CheckCircle2 className="w-4 h-4 text-white" />}
                    </div>
-                   <span className={cn("text-[10px] font-black uppercase tracking-widest transition-colors", isAgeVerified ? "text-primary" : "text-slate-400")}>I am 18+ years old</span>
+                   <span className={cn("text-[10px] font-black uppercase tracking-widest transition-colors", isAgeVerified ? "text-primary" : "text-slate-400")}>{t('login.ageVerify')}</span>
                 </div>
                 
                 <div className="flex items-center space-x-3 cursor-pointer group" onClick={() => setIsRespectful(!isRespectful)}>
                    <div className={cn("w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all", isRespectful ? "border-primary bg-primary" : "border-slate-200")}>
                      {isRespectful && <CheckCircle2 className="w-4 h-4 text-white" />}
                    </div>
-                   <span className={cn("text-[10px] font-black uppercase tracking-widest transition-colors", isRespectful ? "text-primary" : "text-slate-400")}>Respect is Mandatory</span>
+                   <span className={cn("text-[10px] font-black uppercase tracking-widest transition-colors", isRespectful ? "text-primary" : "text-slate-400")}>{t('login.respectVerify')}</span>
                 </div>
                 
                 <div className="flex items-center space-x-3 cursor-pointer group" onClick={() => setIsHuman(!isHuman)}>
                    <div className={cn("w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all", isHuman ? "border-primary bg-primary" : "border-slate-200")}>
                      {isHuman && <CheckCircle2 className="w-4 h-4 text-white" />}
                    </div>
-                   <span className={cn("text-[10px] font-black uppercase tracking-widest transition-colors", isHuman ? "text-primary" : "text-slate-400")}>Verify Human Status</span>
+                   <span className={cn("text-[10px] font-black uppercase tracking-widest transition-colors", isHuman ? "text-primary" : "text-slate-400")}>{t('login.humanVerify')}</span>
                 </div>
              </div>
           </div>
 
           <Tabs value={mode} onValueChange={(v) => setMode(v as 'signin' | 'signup')} className="w-full">
             <TabsList className="w-full grid grid-cols-2 h-16 bg-white p-1 border-b">
-              <TabsTrigger value="signin" className="rounded-t-[1.5rem] text-[11px] font-black uppercase tracking-[0.2em]">Sign In</TabsTrigger>
-              <TabsTrigger value="signup" className="rounded-t-[1.5rem] text-[11px] font-black uppercase tracking-[0.2em]">Join</TabsTrigger>
+              <TabsTrigger value="signin" className="rounded-t-[1.5rem] text-[11px] font-black uppercase tracking-[0.2em]">{t('login.signIn')}</TabsTrigger>
+              <TabsTrigger value="signup" className="rounded-t-[1.5rem] text-[11px] font-black uppercase tracking-[0.2em]">{t('login.join')}</TabsTrigger>
             </TabsList>
             
             <CardContent className="p-10 space-y-8">
@@ -304,7 +308,7 @@ function LoginContent() {
                     (!isProtocolComplete || !auth || isConfigError) ? "bg-slate-200 text-slate-400" : "gradient-bg"
                   )}
                 >
-                  {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : mode === 'signin' ? 'Launch' : 'Join Revolution'}
+                  {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : mode === 'signin' ? t('login.launch') : t('login.joinRevolution')}
                 </Button>
 
                 {mode === 'signup' && (
@@ -320,7 +324,7 @@ function LoginContent() {
                       className="w-full h-16 rounded-2xl border-2 border-slate-100 font-black uppercase tracking-[0.2em] text-[10px] text-slate-400 hover:bg-primary/5 hover:text-primary hover:border-primary/20 transition-all gap-3"
                     >
                       <Sparkles className="w-4 h-4" />
-                      Launch as Guest
+                      {t('login.guest')}
                     </Button>
                   </div>
                 )}
