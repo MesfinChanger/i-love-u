@@ -2,13 +2,14 @@
 
 /**
  * @fileOverview Firebase Barrel File.
- * Standardized entry point for all Firebase functionality.
+ * Re-exports everything needed for the app, including hooks and providers.
  */
 
-export { initializeFirebase } from './init';
+export * from './provider';
+export * from './client-provider';
 export * from './auth/use-user';
 export * from './firestore/use-collection';
 export * from './firestore/use-doc';
 export * from './storage/use-storage';
-export * from './provider';
-export * from './client-provider';
+export { initializeFirebase } from './init';
+export { useMemoFirebase } from './use-memo-firebase';

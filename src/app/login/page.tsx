@@ -106,7 +106,7 @@ function LoginContent() {
       router.push('/discover');
     } catch (error: any) {
       console.error("Auth Error:", error);
-      let message = "Check your phrase or join the revolution. ❤️";
+      let message = "Check your credentials or join the revolution. ❤️";
       
       const errString = error?.message?.toLowerCase() || "";
       if (errString.includes('api-key-not-valid')) {

@@ -8,7 +8,7 @@ import { firebaseConfig } from './config';
 
 /**
  * @fileOverview Core Firebase Initializer.
- * Separated from index.ts to prevent circular dependencies with providers.
+ * Separated to prevent circular dependencies in the barrel file.
  */
 export function initializeFirebase(): { 
   app: FirebaseApp | null; 
@@ -16,29 +16,32 @@ export function initializeFirebase(): {
   auth: Auth | null;
   storage: FirebaseStorage | null;
 } {
+  // SSR Safety
   if (typeof window === 'undefined') {
     return { app: null, db: null, auth: null, storage: null };
   }
 
-  if (!firebaseConfig.apiKey) {
-    console.warn("I Love U: Regional bridge waiting for credentials...");
+  // Check if we have a valid-looking API key
+  const hasValidKey = firebaseConfig.apiKey && 
+                      firebaseConfig.apiKey.length > 10 && 
+                      !firebaseConfig.apiKey.includes('YOUR_');
+
+  if (!hasValidKey) {
+    console.warn("I Love U: Regional bridge waiting for valid credentials...");
     return { app: null, db: null, auth: null, storage: null };
   }
 
   try {
     const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
     
-    let db: Firestore | null = null;
-    let auth: Auth | null = null;
-    let storage: FirebaseStorage | null = null;
-
-    try { db = getFirestore(app); } catch (e) { console.error("Firestore init failed:", e); }
-    try { auth = getAuth(app); } catch (e) { console.error("Auth init failed:", e); }
-    try { storage = getStorage(app); } catch (e) { console.error("Storage init failed:", e); }
+    // Initialize services with safety guards
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+    const storage = getStorage(app);
     
     return { app, db, auth, storage };
   } catch (error) {
-    console.error("I Love U: Core Platform initialization failure:", error);
+    console.error("I Love U: Platform initialization failure:", error);
     return { app: null, db: null, auth: null, storage: null };
   }
 }

@@ -1,13 +1,13 @@
-/**
- * @fileOverview Client-side Firebase Provider.
- * Imports initialization logic from init.ts to avoid barrel circularity.
- */
 'use client';
 
 import React, { useMemo } from 'react';
 import { initializeFirebase } from './init';
 import { FirebaseProvider } from './provider';
 
+/**
+ * @fileOverview Client-side Firebase Provider.
+ * Initializes Firebase instances exactly once on the client.
+ */
 export function FirebaseClientProvider({ children }: { children: React.ReactNode }) {
   const instances = useMemo(() => initializeFirebase(), []);
   
