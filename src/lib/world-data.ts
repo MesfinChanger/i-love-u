@@ -77,7 +77,7 @@ export const COUNTRIES = [
 ];
 
 export const WORLD_LOCATIONS: Record<string, { states: { name: string, cities: string[] }[] }> = {
-  'ET': { // Ethiopia - High-resolution administrative data
+  'ET': { 
     states: [
       { name: 'Addis Ababa', cities: ['Addis Ketema Wereda', 'Akaki Kality Wereda', 'Arada Wereda', 'Bole Wereda', 'Gullele Wereda', 'Kirkos Wereda', 'Kolfe Keranio Wereda', 'Lideta Wereda', 'Nifas Silk-Lafto Wereda', 'Yeka Wereda', 'Lemi Kura Wereda'] },
       { name: 'Amhara', cities: ['Bahir Dar', 'Gondar', 'Dessie', 'Debre Birhan', 'Kombolcha', 'Debre Markos', 'Lalibela', 'Sekota', 'Woldiya', 'Motta', 'Enjibara', 'Debre Tabor', 'Kobo', 'Showra Robit', 'Injibara', 'Bure', 'Finote Selam'] },
@@ -93,7 +93,7 @@ export const WORLD_LOCATIONS: Record<string, { states: { name: string, cities: s
       { name: 'Dire Dawa', cities: ['Dire Dawa City', 'Gurgura Wereda'] }
     ]
   },
-  'US': { // All 50 United States with robust city lists
+  'US': { 
     states: [
       { name: 'Alabama', cities: ['Birmingham', 'Montgomery', 'Mobile', 'Huntsville', 'Tuscaloosa', 'Hoover', 'Dothan', 'Auburn', 'Decatur', 'Madison'] },
       { name: 'Alaska', cities: ['Anchorage', 'Fairbanks', 'Juneau', 'Sitka', 'Ketchikan', 'Wasilla', 'Kenai', 'Kodiak', 'Bethel', 'Palmer'] },
@@ -135,9 +135,10 @@ export const WORLD_LOCATIONS: Record<string, { states: { name: string, cities: s
         'Portland', 'Salem', 'Eugene', 'Gresham', 'Hillsboro', 'Beaverton', 'Bend', 'Medford', 'Springfield', 'Corvallis',
         'Albany', 'Tigard', 'Lake Oswego', 'Keizer', 'Grants Pass', 'Oregon City', 'McMinnville', 'Redmond', 'Tualatin', 'West Linn',
         'Woodburn', 'Newberg', 'Roseburg', 'Forest Grove', 'Wilsonville', 'Klamath Falls', 'Ashland', 'Milwaukie', 'Sherwood', 'Central Point',
-        'Hermiston', 'Canby', 'Lebanon', 'Dallas', 'Troutdale', 'Happy Valley', 'Coos Bay', 'Pendleton', 'St. Helens', 'The Dalles',
-        'Baker City', 'Ontario', 'Astoria', 'Prineville', 'Lincoln City', 'Sandy', 'Independence', 'Monmouth', 'Cottage Grove', 'Madras',
-        'Seaside', 'Junction City', 'Brookings', 'Silverton', 'Talent', 'Phoenix', 'Sweet Home', 'Stayton'
+        'Hermiston', 'Canby', 'Lebanon', 'Dallas', 'Troutdale', 'Happy Valley', 'Clackamas', 'Sunnyside', 'Oak Grove', 'Gladstone',
+        'Damascus', 'Boring', 'Estacada', 'Molalla', 'Coos Bay', 'Pendleton', 'St. Helens', 'The Dalles', 'Baker City', 'Ontario', 
+        'Astoria', 'Prineville', 'Lincoln City', 'Sandy', 'Independence', 'Monmouth', 'Cottage Grove', 'Madras', 'Seaside', 
+        'Junction City', 'Brookings', 'Silverton', 'Talent', 'Phoenix', 'Sweet Home', 'Stayton'
       ] },
       { name: 'Pennsylvania', cities: ['Philadelphia', 'Pittsburgh', 'Allentown', 'Erie', 'Reading', 'Scranton', 'Bethlehem', 'Lancaster', 'Harrisburg', 'Altoona'] },
       { name: 'Rhode Island', cities: ['Providence', 'Cranston', 'Warwick', 'Pawtucket', 'East Providence', 'Woonsocket', 'Cumberland', 'Coventry', 'North Providence', 'South Kingstown'] },
@@ -154,7 +155,7 @@ export const WORLD_LOCATIONS: Record<string, { states: { name: string, cities: s
       { name: 'Wyoming', cities: ['Cheyenne', 'Casper', 'Laramie', 'Gillette', 'Rock Springs', 'Sheridan', 'Green River', 'Evanston', 'Riverton', 'Jackson'] }
     ]
   },
-  'NG': { // Nigeria
+  'NG': { 
     states: [
       { name: 'Lagos', cities: ['Ikeja', 'Lekki', 'Ikorodu', 'Epe', 'Badagry', 'Surulere', 'Agege', 'Mushin', 'Victoria Island', 'Ajah', 'Yaba', 'Alimosho', 'Oshodi', 'Apapa'] },
       { name: 'Abuja', cities: ['Garki', 'Wuse', 'Asokoro', 'Maitama', 'Kuje', 'Gwagwalada', 'Bwari', 'Abaji', 'Karu', 'Nyanya', 'Kubwa'] },
@@ -163,7 +164,7 @@ export const WORLD_LOCATIONS: Record<string, { states: { name: string, cities: s
       { name: 'Oyo', cities: ['Ibadan', 'Ogbomosho', 'Oyo Town', 'Iseyin', 'Saki', 'Eruwa', 'Lanlate', 'Kisi'] }
     ]
   },
-  'KE': { // Kenya
+  'KE': { 
     states: [
       { name: 'Nairobi', cities: ['Westlands', 'Dagoretti', 'Kasarani', 'Kibra', 'Langata', 'Embakasi', 'Makadara', 'Mathare', 'Parklands', 'Karen', 'Runda', 'Lavington', 'Eastleigh'] },
       { name: 'Mombasa', cities: ['Island', 'Changamwe', 'Likoni', 'Kisauni', 'Nyali', 'Jomvu', 'Mvita', 'Tudor', 'Bamburi', 'Shanzu'] },
@@ -172,7 +173,7 @@ export const WORLD_LOCATIONS: Record<string, { states: { name: string, cities: s
       { name: 'Nakuru', cities: ['Nakuru City', 'Naivasha', 'Molo', 'Gilgil', 'Njoro', 'Subukia', 'Bahati', 'Rongai'] }
     ]
   },
-  'IN': { // India
+  'IN': { 
     states: [
       { name: 'Maharashtra', cities: ['Mumbai', 'Pune', 'Nagpur', 'Nashik', 'Thane', 'Aurangabad', 'Solapur', 'Amravati', 'Navi Mumbai', 'Kolhapur', 'Akola', 'Latur'] },
       { name: 'Karnataka', cities: ['Bengaluru', 'Mysuru', 'Hubballi', 'Mangaluru', 'Belagavi', 'Kalaburagi', 'Ballari', 'Vijayapura', 'Shivamogga', 'Tumakuru'] },
@@ -181,7 +182,7 @@ export const WORLD_LOCATIONS: Record<string, { states: { name: string, cities: s
       { name: 'West Bengal', cities: ['Kolkata', 'Howrah', 'Durgapur', 'Asansol', 'Siliguri', 'Maheshtala', 'Rajpur Sonarpur', 'Gopalpur', 'Bhatpara', 'Panihati'] }
     ]
   },
-  'GB': { // United Kingdom
+  'GB': { 
     states: [
       { name: 'England', cities: ['London', 'Birmingham', 'Manchester', 'Liverpool', 'Leeds', 'Sheffield', 'Bristol', 'Newcastle', 'Nottingham', 'Leicester', 'Southampton', 'Reading', 'Oxford', 'Cambridge'] },
       { name: 'Scotland', cities: ['Glasgow', 'Edinburgh', 'Aberdeen', 'Dundee', 'Inverness', 'Perth', 'Stirling', 'Paisley', 'East Kilbride', 'Livingston'] },
@@ -189,7 +190,7 @@ export const WORLD_LOCATIONS: Record<string, { states: { name: string, cities: s
       { name: 'Northern Ireland', cities: ['Belfast', 'Derry', 'Lisburn', 'Newry', 'Newtownabbey', 'Bangor', 'Castlereagh', 'Ballymena', 'Coleraine'] }
     ]
   },
-  'CA': { // Canada
+  'CA': { 
     states: [
       { name: 'Ontario', cities: ['Toronto', 'Ottawa', 'Mississauga', 'Hamilton', 'Brampton', 'London', 'Markham', 'Vaughan', 'Kitchener', 'Windsor', 'Oakville', 'Burlington'] },
       { name: 'Quebec', cities: ['Montreal', 'Quebec City', 'Laval', 'Gatineau', 'Longueuil', 'Sherbrooke', 'Saguenay', 'Levis', 'Trois-Rivières', 'Terrebonne'] },
@@ -197,7 +198,7 @@ export const WORLD_LOCATIONS: Record<string, { states: { name: string, cities: s
       { name: 'Alberta', cities: ['Calgary', 'Edmonton', 'Red Deer', 'Lethbridge', 'St. Albert', 'Medicine Hat', 'Grande Prairie', 'Airdrie'] }
     ]
   },
-  'BR': { // Brazil
+  'BR': { 
     states: [
       { name: 'São Paulo', cities: ['São Paulo City', 'Campinas', 'Guarulhos', 'Santo André', 'São Bernardo do Campo', 'Osasco', 'Ribeirão Preto', 'Sorocaba', 'Santos', 'São José dos Campos'] },
       { name: 'Rio de Janeiro', cities: ['Rio de Janeiro City', 'Niterói', 'São Gonçalo', 'Duque de Caxias', 'Nova Iguaçu', 'Belford Roxo', 'Camppos dos Goytacazes', 'São João de Meriti'] },
