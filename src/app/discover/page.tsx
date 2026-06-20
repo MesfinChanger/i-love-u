@@ -238,7 +238,7 @@ export default function DiscoverPage() {
       <Header />
       <main className="flex-grow flex items-center justify-center p-4">
         <div className="w-full max-w-md relative aspect-[3/4]">
-          {!db && (
+          {mounted && !db && (
             <div className="absolute -top-12 left-0 right-0 flex justify-center z-30">
                <Badge className="bg-amber-500 text-white font-black uppercase text-[8px] tracking-widest px-4 py-1.5 shadow-xl animate-bounce">Prototype Mode Active</Badge>
             </div>
