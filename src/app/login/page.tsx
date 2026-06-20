@@ -50,6 +50,7 @@ function LoginContent() {
   
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
   const [isLoading, setIsLoading] = useState(false);
+  const [isConfigError, setIsConfigError] = useState(false);
 
   // Mandatory Security Protocols
   const [isAgeVerified, setIsAgeVerified] = useState(false);
@@ -111,6 +112,7 @@ function LoginContent() {
       const errString = error?.message?.toLowerCase() || "";
       if (errString.includes('api-key-not-valid') || errString.includes('invalid-api-key')) {
         message = "Regional configuration ripple detected. Please reload the page to refresh your secure bridge. ✨";
+        setIsConfigError(true);
       } else if (error.code === 'auth/email-already-in-use') {
         message = "This email is already part of the revolution. Please sign in.";
       } else if (error.code === 'auth/weak-password') {
@@ -143,7 +145,7 @@ function LoginContent() {
           </div>
         </div>
 
-        {!auth && (
+        {(!auth || isConfigError) && (
           <div className="bg-amber-50 border border-amber-200 p-6 rounded-[2.5rem] flex items-start gap-4 mb-6 animate-in slide-in-from-top-4">
              <div className="w-10 h-10 rounded-2xl bg-white flex items-center justify-center shadow-sm">
                 <Zap className="w-5 h-5 text-amber-500 animate-pulse" />
@@ -242,10 +244,10 @@ function LoginContent() {
               <div className="pt-4">
                 <Button 
                   onClick={handleAuth} 
-                  disabled={isLoading || !isProtocolComplete || !email || !password} 
+                  disabled={isLoading || !isProtocolComplete || !email || !password || !auth} 
                   className={cn(
                     "w-full h-20 rounded-[2rem] font-black uppercase tracking-[0.3em] text-sm shadow-[0_20px_40px_-10px_rgba(255,51,102,0.4)] active:scale-95 transition-all",
-                    (!isProtocolComplete) ? "bg-slate-200 text-slate-400" : "gradient-bg"
+                    (!isProtocolComplete || !auth) ? "bg-slate-200 text-slate-400" : "gradient-bg"
                   )}
                 >
                   {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : mode === 'signin' ? 'Launch' : 'Join Revolution'}

@@ -9,6 +9,7 @@ import { firebaseConfig } from './config';
 /**
  * @fileOverview Core Firebase Initializer.
  * Resilient to missing or partially provisioned environment variables.
+ * Prevents initialization with invalid or placeholder API keys.
  */
 export function initializeFirebase(): { 
   app: FirebaseApp | null; 
@@ -21,20 +22,20 @@ export function initializeFirebase(): {
     return { app: null, db: null, auth: null, storage: null };
   }
 
-  // Basic validation to prevent SDK from crashing on empty strings
-  const hasApiKey = firebaseConfig.apiKey && 
-                    firebaseConfig.apiKey !== "" && 
-                    !firebaseConfig.apiKey.startsWith("NEXT_PUBLIC_");
+  // Basic validation to prevent SDK from crashing on invalid keys.
+  // Standard Firebase keys are usually 39 characters. We check for a minimum length
+  // to ensure we aren't passing empty strings or short placeholders.
+  const isKeyValid = firebaseConfig.apiKey && firebaseConfig.apiKey.length > 20;
 
-  if (!hasApiKey) {
-    console.warn("I Love U: Firebase credentials not detected. Regional bridge is on standby.");
+  if (!isKeyValid) {
+    console.warn("I Love U: Firebase credentials not detected or invalid. Regional bridge is on standby.");
     return { app: null, db: null, auth: null, storage: null };
   }
 
   try {
     const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
     
-    // Initialize services
+    // Initialize services individually with fallback
     const db = getFirestore(app);
     const auth = getAuth(app);
     const storage = getStorage(app);
