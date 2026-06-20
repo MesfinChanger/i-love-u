@@ -41,7 +41,12 @@ function ShopContent() {
     }
   }, [searchParams, toast]);
 
-  const { data: dbProducts } = useCollection(query(collection(db, 'global_products')));
+  const productsQuery = useMemoFirebase(() => {
+    if (!db) return null;
+    return query(collection(db, 'global_products'));
+  }, [db]);
+
+  const { data: dbProducts } = useCollection(productsQuery);
 
   const mockProducts = [
     { id: '1', name: 'Premium Roses', price: 29.99, category: 'Flowers', imageUrl: 'https://picsum.photos/seed/roses/300/300' },
