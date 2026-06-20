@@ -26,33 +26,33 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur-md" role="banner">
-      <div className="container mx-auto px-4 h-14 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 group" aria-label="I Love U Home">
-          <div className="relative shiny-icon p-1 rounded-lg bg-primary/5">
-            <Heart className="w-6 h-6 fill-primary text-primary transition-transform group-hover:scale-110 animate-heartbeat" aria-hidden="true" />
+      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+        <Link href="/" className="flex items-center gap-3 group" aria-label="I Love U Home">
+          <div className="relative shiny-icon p-1.5 rounded-xl bg-primary/5">
+            <Heart className="w-8 h-8 fill-primary text-primary transition-transform group-hover:scale-110 animate-heartbeat" aria-hidden="true" />
           </div>
-          <div className="flex flex-col leading-none">
-            <span className="font-black text-xs tracking-tighter text-primary uppercase">I LOVE</span>
-            <span className="font-black text-[3px] tracking-[0.4em] text-muted-foreground ml-0.5 uppercase">YOU</span>
+          <div className="flex flex-col leading-[0.8]">
+            <span className="font-black text-lg tracking-tighter text-primary uppercase">I LOVE</span>
+            <span className="font-black text-[5px] tracking-[0.6em] text-muted-foreground ml-1 uppercase">YOU</span>
           </div>
         </Link>
         
         <div className="flex items-center gap-1">
           <DonationDialog />
           
-          <Button variant="ghost" size="icon" onClick={triggerAssistant} className="text-primary/60 hover:text-primary w-9 h-9" aria-label="Ask Spark Guide">
+          <Button variant="ghost" size="icon" onClick={triggerAssistant} className="text-primary/60 hover:text-primary w-10 h-10" aria-label="Ask Spark Guide">
             <CircleHelp className="w-5 h-5" aria-hidden="true" />
           </Button>
 
-          <Button variant="ghost" size="icon" asChild className="text-muted-foreground w-9 h-9" aria-label="Search profiles">
-            <Link href="/search"><Search className="w-4 h-4" aria-hidden="true" /></Link>
+          <Button variant="ghost" size="icon" asChild className="text-muted-foreground w-10 h-10" aria-label="Search profiles">
+            <Link href="/search"><Search className="w-5 h-5" aria-hidden="true" /></Link>
           </Button>
 
           {/* Notification Center */}
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="text-muted-foreground relative w-9 h-9" aria-label="View notifications">
-                <Bell className="w-4 h-4" aria-hidden="true" />
+              <Button variant="ghost" size="icon" className="text-muted-foreground relative w-10 h-10" aria-label="View notifications">
+                <Bell className="w-5 h-5" aria-hidden="true" />
                 {hasNotifications && (
                   <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-primary rounded-full border-2 border-white animate-pulse" aria-hidden="true" />
                 )}

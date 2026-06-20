@@ -46,14 +46,14 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen bg-white overflow-x-hidden">
       <header className="fixed top-0 z-50 w-full bg-white/5 backdrop-blur-xl">
-        <div className="container mx-auto px-6 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
-            <Heart className="w-3.5 h-3.5 fill-primary text-primary animate-heartbeat" />
-            <span className="font-black text-[8px] tracking-[0.4em] text-primary uppercase">I LOVE U</span>
+        <div className="container mx-auto px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <Heart className="w-6 h-6 fill-primary text-primary animate-heartbeat" />
+            <span className="font-black text-[12px] tracking-[0.5em] text-primary uppercase ml-1">I LOVE U</span>
           </div>
           <div className="flex items-center gap-4">
-            <Link href="/login" className="text-[8px] font-black uppercase tracking-widest text-white/60 hover:text-white transition-colors">Login</Link>
-            <Button size="sm" className="rounded-full h-8 px-4 gradient-bg font-black uppercase text-[7px] tracking-widest shadow-xl border border-white/10" asChild>
+            <Link href="/login" className="text-[10px] font-black uppercase tracking-widest text-white/60 hover:text-white transition-colors">Login</Link>
+            <Button size="sm" className="rounded-full h-10 px-6 gradient-bg font-black uppercase text-[9px] tracking-widest shadow-xl border border-white/10" asChild>
               <Link href="/login">Launch</Link>
             </Button>
           </div>
@@ -167,8 +167,8 @@ export default function Home() {
       <footer className="py-24 border-t bg-slate-50 relative z-10">
         <div className="container mx-auto px-6 text-center">
           <div className="flex items-center justify-center gap-3 mb-10 opacity-70">
-            <Heart className="w-4 h-4 fill-primary text-primary" />
-            <span className="font-black text-[10px] tracking-[0.4em] text-primary uppercase">I LOVE U</span>
+            <Heart className="w-6 h-6 fill-primary text-primary" />
+            <span className="font-black text-[12px] tracking-[0.4em] text-primary uppercase">I LOVE U</span>
           </div>
           <p className="font-black text-[10px] tracking-[0.3em] mb-4 uppercase text-slate-400">© {currentYear || 'Prosperity Revolution'} • Reaching Every Heart</p>
           <p className="text-[9px] font-bold italic uppercase tracking-widest opacity-40 text-slate-400">Respect & Love is Mandatory ❤️ Eliminating Poverty Globally</p>
