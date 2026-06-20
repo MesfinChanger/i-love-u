@@ -7,12 +7,18 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  // In Next.js 15, allowedDevOrigins is handled at the top level of experimental or top level depending on sub-version.
+  // Standardizing here to prevent validation errors.
   experimental: {
-    allowedDevOrigins: [
-      '6000-firebase-studio-1781669153012.cluster-xuuc5xf5uvgp6xje3qbpsmzu3o.cloudworkstations.dev',
-      'localhost:9002'
-    ],
+    // Some versions of Next.js 15 moved this or made it strict. 
+    // We remove it from the experimental block if it causes errors, 
+    // but typically it's allowedDevOrigins: [...] at the top level for workstation safety.
   },
+  // Workstation safety configuration
+  allowedDevOrigins: [
+    '6000-firebase-studio-1781669153012.cluster-xuuc5xf5uvgp6xje3qbpsmzu3o.cloudworkstations.dev',
+    'localhost:9002'
+  ],
   images: {
     remotePatterns: [
       {

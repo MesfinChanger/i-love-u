@@ -16,7 +16,8 @@ const sanitizeEnv = (val: string | undefined, keyName: string): string => {
     trimmed.includes("PLACEHOLDER") ||
     trimmed.startsWith("<") ||
     trimmed.startsWith("{") ||
-    trimmed.includes("YOUR_")
+    trimmed.includes("YOUR_") ||
+    trimmed === `process.env.${keyName}`
   ) {
     return "";
   }
