@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useMemo, useEffect, useRef } from 'react';
-import { Header } from '@/components/Header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { 
@@ -13,7 +12,6 @@ import {
   EyeOff, 
   Lock, 
   MapPin, 
-  ExternalLink, 
   ShieldCheck, 
   Cake, 
   TreePine, 
@@ -51,7 +49,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Tooltip, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 
 const CHAT_SHORTCUTS = [
   { id: 'teachable', label: 'Teachable Pic', icon: BookOpen, description: 'Share a skill or a piece of your culture.' },
@@ -60,7 +58,8 @@ const CHAT_SHORTCUTS = [
 ];
 
 export default function ChatPage() {
-  const { matchId } = useParams();
+  const params = useParams();
+  const matchId = params?.matchId as string;
   const { user } = useUser();
   const db = useFirestore();
   const { uploadFile, isUploading: isStorageUploading } = useFirebaseStorage();
@@ -86,9 +85,9 @@ export default function ChatPage() {
 
   const matchRef = useMemoFirebase(() => {
     if (!db || !matchId) return null;
-    return doc(db, 'matches', String(matchId));
+    return doc(db, 'matches', matchId);
   }, [db, matchId]);
-  const { data: matchData } = useDoc(matchRef);
+  const { data: matchData, loading: matchLoading } = useDoc(matchRef);
 
   const partnerId = useMemo(() => {
     return matchData?.userIds?.find((id: string) => id !== user?.uid);
@@ -101,13 +100,14 @@ export default function ChatPage() {
   const { data: partnerProfile } = useDoc(partnerRef);
 
   const matchInfo = useMemo(() => {
-    const idParts = String(matchId).split('_');
+    if (!matchId) return { name: "...", photoUrl: null, interests: [] };
+    const idParts = matchId.split('_');
     const idNum = idParts.length > 1 ? parseInt(idParts[1].substring(0, 5), 36) || 0 : 0;
     const userImages = PlaceHolderImages.filter(img => img.id.startsWith('user-'));
     const img = userImages[idNum % userImages.length] || userImages[0];
     
     return {
-      name: partnerProfile?.displayName || "Mystery Heart",
+      name: partnerProfile?.displayName || partnerProfile?.publicNickname || "Mystery Heart",
       photoUrl: partnerProfile?.photoUrl || img?.imageUrl,
       interests: partnerProfile?.interests || ['Happiness', 'Respect', 'Love']
     };
@@ -116,12 +116,12 @@ export default function ChatPage() {
   const messagesQuery = useMemoFirebase(() => {
     if (!db || !matchId) return null;
     return query(
-      collection(db, 'matches', String(matchId), 'messages'),
+      collection(db, 'matches', matchId, 'messages'),
       orderBy('timestamp', 'asc')
     );
   }, [db, matchId]);
 
-  const { data: messages, loading } = useCollection(messagesQuery);
+  const { data: messages, loading: messagesLoading } = useCollection(messagesQuery);
 
   useEffect(() => {
     const decryptAll = async () => {
@@ -145,6 +145,12 @@ export default function ChatPage() {
 
     decryptAll();
   }, [messages, user]);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages]);
 
   const handleSendMessage = async (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -171,7 +177,7 @@ export default function ChatPage() {
         encryptedText = await encryptText(newMessage, partnerPubKey);
       }
 
-      addDoc(collection(db, 'matches', String(matchId), 'messages'), {
+      await addDoc(collection(db, 'matches', matchId, 'messages'), {
         senderId: user.uid,
         text: partnerPubKey ? "[Encrypted Content]" : newMessage,
         encryptedText: encryptedText,
@@ -200,7 +206,7 @@ export default function ChatPage() {
         targetLanguage: myProfile?.preferredLanguage || 'English'
       });
       
-      await updateDoc(doc(db, 'matches', String(matchId), 'messages', msgId), {
+      await updateDoc(doc(db, 'matches', matchId, 'messages', msgId), {
         [`translations.${myProfile?.preferredLanguage || 'English'}`]: result.translatedText
       });
     } catch (error) {
@@ -227,7 +233,7 @@ export default function ChatPage() {
         const fileName = `${Date.now()}-${file.name}`;
         const cloudUrl = await uploadFile(`matches/${matchId}/${fileName}`, file);
 
-        addDoc(collection(db, 'matches', String(matchId), 'messages'), {
+        await addDoc(collection(db, 'matches', matchId, 'messages'), {
           senderId: user.uid,
           imageUrl: cloudUrl,
           isSensitive: moderation.isSensitive,
@@ -251,7 +257,7 @@ export default function ChatPage() {
     setIsUnconnecting(true);
     try {
       const batch = writeBatch(db);
-      batch.update(doc(db, 'matches', String(matchId)), {
+      batch.update(doc(db, 'matches', matchId), {
         status: 'unmatched',
         unmatchedAt: serverTimestamp(),
         unmatchedBy: user.uid
@@ -275,7 +281,7 @@ export default function ChatPage() {
     if (!user || !db || !matchId || !witnessUid) return;
     setIsInvitingWitness(true);
     try {
-      await updateDoc(doc(db, 'matches', String(matchId)), { witnessId: witnessUid, witnessStatus: 'pending' });
+      await updateDoc(doc(db, 'matches', matchId), { witnessId: witnessUid, witnessStatus: 'pending' });
       toast({ title: "Witness Invited", description: "A trusted third party has been invited to vouch for your relationship! ✨" });
       setWitnessUid('');
     } catch (e) {
@@ -301,18 +307,28 @@ export default function ChatPage() {
     }
   };
 
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
-  }, [messages]);
+  if (matchLoading) return (
+    <div className="flex flex-col h-[100dvh] items-center justify-center bg-white">
+      <Loader2 className="w-10 h-10 animate-spin text-primary opacity-20" />
+      <p className="text-[10px] font-black uppercase tracking-widest text-primary/40 mt-4">Opening Room...</p>
+    </div>
+  );
+
+  if (!matchData && !matchLoading) return (
+    <div className="flex flex-col h-[100dvh] items-center justify-center bg-muted/30 p-8 text-center">
+      <Lock className="w-12 h-12 text-muted-foreground opacity-20 mb-4" />
+      <h2 className="text-2xl font-black tracking-tighter">Room Disconnected</h2>
+      <p className="text-muted-foreground mt-2 max-w-xs mx-auto">The sacred space for this connection could not be opened. It may have been ended respectfully.</p>
+      <Button variant="outline" className="mt-8 rounded-2xl font-black uppercase tracking-widest text-[10px]" onClick={() => router.push('/matches')}>Back to Hearts</Button>
+    </div>
+  );
 
   const isDatingMatch = matchData?.type === 'date';
   const partnerExactLoc = partnerProfile?.exactLocation;
   const isWitnessed = matchData?.witnessStatus === 'confirmed';
 
   return (
-    <div className={cn("flex flex-col h-screen", isDatingMatch ? "bg-accent/30" : "bg-white")}>
+    <div className={cn("flex flex-col h-[100dvh] overflow-hidden", isDatingMatch ? "bg-accent/30" : "bg-white")}>
       <header className="flex items-center gap-4 px-4 h-14 border-b shrink-0 bg-white/80 backdrop-blur-md z-20 shadow-sm" role="banner">
         <Button variant="ghost" size="icon" onClick={() => router.back()} aria-label="Go back to matches list" className="rounded-full w-9 h-9">
           <ChevronLeft className="w-5 h-5" aria-hidden="true" />
@@ -320,7 +336,7 @@ export default function ChatPage() {
         
         <div className="relative">
           <Avatar className="w-10 h-10 border-2 border-primary/20 shadow-lg">
-            <AvatarImage src={matchInfo.photoUrl} className="object-cover" alt="" />
+            <AvatarImage src={matchInfo.photoUrl || undefined} className="object-cover" alt="" />
             <AvatarFallback>{matchInfo.name[0]}</AvatarFallback>
           </Avatar>
           {isDatingMatch && (
@@ -344,7 +360,7 @@ export default function ChatPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 shrink-0">
           {isDatingMatch && (
             <AlertDialog>
               <AlertDialogTrigger asChild>
@@ -378,7 +394,7 @@ export default function ChatPage() {
             </AlertDialog>
           )}
 
-          <Button variant="ghost" size="sm" onClick={handleIcebreaker} disabled={isGenerating} className="text-primary gap-1 font-black text-[9px] uppercase tracking-widest h-9 px-3 bg-primary/5 rounded-full">
+          <Button variant="ghost" size="sm" onClick={handleIcebreaker} disabled={isGenerating} className="text-primary gap-1 font-black text-[9px] uppercase tracking-widest h-9 px-3 bg-primary/5 rounded-full hidden sm:flex">
             {isGenerating ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
             AI Spark
           </Button>
@@ -406,7 +422,7 @@ export default function ChatPage() {
       </header>
 
       {isDatingMatch && (
-        <div className="bg-red-50/80 backdrop-blur-sm border-b border-red-100 p-2 px-4 flex items-center justify-between z-10">
+        <div className="bg-red-50/80 backdrop-blur-sm border-b border-red-100 p-2 px-4 flex items-center justify-between z-10 shrink-0">
           <div className="flex items-center gap-2">
             <MapPin className="w-3.5 h-3.5 text-red-500 animate-pulse" />
             <p className="text-[9px] font-black text-red-700 uppercase tracking-widest">GPS Accountability Active</p>
@@ -427,7 +443,7 @@ export default function ChatPage() {
            </p>
         </div>
 
-        {loading ? (
+        {messagesLoading ? (
           <div className="flex justify-center py-20"><Loader2 className="w-10 h-10 animate-spin text-primary opacity-20" /></div>
         ) : (
           messages?.map((msg: any, i) => {
@@ -479,7 +495,7 @@ export default function ChatPage() {
         )}
       </main>
 
-      <footer className="p-4 border-t pb-8 bg-white/80 backdrop-blur-xl z-20">
+      <footer className="p-4 border-t pb-8 bg-white/80 backdrop-blur-xl z-20 shrink-0">
         <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-3 mb-1">
            <TooltipProvider>
              {CHAT_SHORTCUTS.map((shortcut) => (
