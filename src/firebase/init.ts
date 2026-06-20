@@ -24,18 +24,12 @@ export function initializeFirebase(): {
   // Valid keys typically start with 'AIza' and are significantly long
   const isKeyValid = apiKey && 
                      apiKey.startsWith("AIza") && 
-                     apiKey.length > 20 && // Relaxed slightly for prototyping
-                     !apiKey.includes("NEXT_PUBLIC") &&
+                     apiKey.length > 20 && 
                      !apiKey.includes("PLACEHOLDER") &&
                      !apiKey.includes("REPLACE_WITH");
 
   if (!isKeyValid) {
-    // Log diagnostics to help the developer understand why initialization is skipped
-    if (!apiKey) {
-      console.warn("I Love U: Firebase API Key is missing. Regional Bridge in standby.");
-    } else {
-      console.warn("I Love U: Firebase API Key failed integrity check. Ensure it is a valid AIza... key.");
-    }
+    console.warn("I Love U: Firebase credentials missing. Regional Bridge in standby. Launch prototype via Login page if needed.");
     return { app: null, db: null, auth: null, storage: null };
   }
 

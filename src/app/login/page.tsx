@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect, Suspense } from 'react';
@@ -25,8 +24,8 @@ import {
   CheckCircle2,
   Zap,
   RefreshCw,
-  UserSecret,
-  Sparkles
+  Sparkles,
+  ArrowRight
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
@@ -85,8 +84,6 @@ function LoginContent() {
     setIsLoading(true);
     try {
       const res = await signInAnonymously(auth);
-      
-      // Generate E2EE Key for Guest Privacy
       const { publicKey, privateKey } = await generateKeyPair();
       localStorage.setItem(`spark_priv_${res.user.uid}`, privateKey);
 
@@ -105,9 +102,11 @@ function LoginContent() {
 
       toast({ title: "Welcome, Guest!", description: "Joined as a mysterious heart. ❤️" });
       router.push('/discover');
-    } catch (e) {
-      console.error(e);
-      toast({ variant: "destructive", title: "Access Denied", description: "Could not launch guest access." });
+    } catch (e: any) {
+      if (e.message?.includes('api-key-not-valid')) {
+        setIsConfigError(true);
+      }
+      toast({ variant: "destructive", title: "Access Denied", description: "Regional bridge error. Try Prototype Mode." });
     } finally {
       setIsLoading(false);
     }
@@ -117,11 +116,6 @@ function LoginContent() {
     if (!email || !password || !isProtocolComplete) return;
     
     if (!auth) {
-      toast({ 
-        variant: "destructive", 
-        title: "Regional Bridge Standby", 
-        description: "The platform is still securing your region. Please reload in a moment. ❤️" 
-      });
       setIsConfigError(true);
       return;
     }
@@ -159,16 +153,18 @@ function LoginContent() {
       router.push('/discover');
     } catch (error: any) {
       console.error("Auth Error:", error);
-      let message = "Check your credentials or join the revolution. ❤️";
-      
       if (error.code?.includes('api-key-not-valid')) {
         setIsConfigError(true);
       }
-
-      toast({ variant: "destructive", title: "Access Denied", description: message });
+      toast({ variant: "destructive", title: "Access Denied", description: "Credentials or regional bridge issue. ❤️" });
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const launchPrototype = () => {
+    toast({ title: "Launching Prototype", description: "Entering the mission area without live data connection. ❤️" });
+    router.push('/discover');
   };
 
   if (authLoading) return <div className="flex items-center justify-center min-h-screen"><Loader2 className="animate-spin text-primary" /></div>;
@@ -192,17 +188,24 @@ function LoginContent() {
         </div>
 
         {(!auth || isConfigError) && (
-          <div className="bg-amber-50 border border-amber-200 p-6 rounded-[2.5rem] flex items-start gap-4 mb-6 animate-in slide-in-from-top-4">
-             <div className="w-10 h-10 rounded-2xl bg-white flex items-center justify-center shadow-sm">
-                <Zap className="w-5 h-5 text-amber-500 animate-pulse" />
+          <div className="bg-amber-50 border border-amber-200 p-6 rounded-[2.5rem] space-y-4 mb-6 animate-in slide-in-from-top-4">
+             <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-2xl bg-white flex items-center justify-center shadow-sm shrink-0">
+                    <Zap className="w-5 h-5 text-amber-500 animate-pulse" />
+                </div>
+                <div className="space-y-1">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-amber-700">Regional Bridge Initializing</p>
+                    <p className="text-[9px] text-amber-600/80 font-bold leading-relaxed uppercase">
+                    The network is securing your region. If this takes more than a minute, please reload or use Prototype Mode.
+                    </p>
+                </div>
              </div>
-             <div className="space-y-1">
-                <p className="text-[10px] font-black uppercase tracking-widest text-amber-700">Regional Bridge Initializing</p>
-                <p className="text-[9px] text-amber-600/80 font-bold leading-relaxed uppercase">
-                  The network is securing your region. If this takes more than a minute, please reload the page to pick up latest credentials.
-                </p>
-                <Button variant="link" className="p-0 h-auto text-[9px] font-black uppercase text-amber-700 underline" onClick={() => window.location.reload()}>
-                  <RefreshCw className="w-2.5 h-2.5 mr-1" /> Reload Connection
+             <div className="grid grid-cols-2 gap-3 pt-2">
+                <Button variant="outline" className="h-10 rounded-xl text-[9px] font-black uppercase border-amber-200 text-amber-700 hover:bg-amber-100" onClick={() => window.location.reload()}>
+                    <RefreshCw className="w-3 h-3 mr-1.5" /> Reload
+                </Button>
+                <Button className="h-10 rounded-xl text-[9px] font-black uppercase bg-slate-900 text-white hover:bg-black" onClick={launchPrototype}>
+                    <ArrowRight className="w-3 h-3 mr-1.5" /> Prototype Mode
                 </Button>
              </div>
           </div>
