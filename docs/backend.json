@@ -130,6 +130,17 @@
         "isSensitive": { "type": "boolean" },
         "timestamp": { "type": "string", "format": "date-time" }
       }
+    },
+    "Product": {
+      "title": "Gift Product",
+      "description": "Item available in the marketplace.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "price": { "type": "number" },
+        "category": { "type": "string" },
+        "imageUrl": { "type": "string" }
+      }
     }
   },
   "auth": {
@@ -142,6 +153,9 @@
     "/matches/{matchId}": { "schema": "Match", "description": "Active connections" },
     "/matches/{matchId}/messages/{messageId}": { "schema": "Message", "description": "Moderated chat history" },
     "/ads/{adId}": { "schema": "AdCampaign", "description": "Sponsored discovery ads" },
-    "/communityMessages/{messageId}": { "schema": "CommunityMessage", "description": "Global moderated feed" }
+    "/communityMessages/{messageId}": { "schema": "CommunityMessage", "description": "Global moderated feed" },
+    "/global_products/{productId}": { "schema": "Product", "description": "Gift inventory" },
+    "/shops/{shopId}": { "schema": "object", "description": "Seller storefronts" },
+    "/config/pricing": { "schema": "object", "description": "Global price settings" }
   }
 }

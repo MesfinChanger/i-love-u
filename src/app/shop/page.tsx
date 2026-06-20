@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
@@ -25,6 +26,11 @@ function ShopContent() {
   const searchParams = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
   const [isPurchasing, setIsPurchasing] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const userRef = useMemoFirebase(() => {
     if (!db || !user) return null;
@@ -42,11 +48,11 @@ function ShopContent() {
   }, [searchParams, toast]);
 
   const productsQuery = useMemoFirebase(() => {
-    if (!db) return null;
+    if (!db || !user) return null;
     return query(collection(db, 'global_products'));
-  }, [db]);
+  }, [db, user]);
 
-  const { data: dbProducts } = useCollection(productsQuery);
+  const { data: dbProducts, loading: productsLoading } = useCollection(productsQuery);
 
   const mockProducts = [
     { id: '1', name: 'Premium Roses', price: 29.99, category: 'Flowers', imageUrl: 'https://picsum.photos/seed/roses/300/300' },
@@ -77,6 +83,10 @@ function ShopContent() {
       setIsPurchasing(null);
     }
   };
+
+  if (!mounted) return (
+    <div className="flex items-center justify-center min-h-screen"><Loader2 className="animate-spin text-primary" /></div>
+  );
 
   return (
     <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
