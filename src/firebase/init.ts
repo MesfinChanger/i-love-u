@@ -8,7 +8,8 @@ import { firebaseConfig } from './config';
 
 /**
  * @fileOverview Resilient Firebase Initializer.
- * Transitions from null to active services as soon as credentials propagate.
+ * Only boots services when a legitimate, provisioned API key is detected.
+ * This prevents runtime crashes while the cloud environment is initializing.
  */
 export function initializeFirebase(): { 
   app: FirebaseApp | null; 
@@ -20,12 +21,16 @@ export function initializeFirebase(): {
     return { app: null, db: null, auth: null, storage: null };
   }
 
-  // A valid Firebase API key is required and should not be a placeholder variable name
-  const isKeyReady = firebaseConfig.apiKey && 
-                     firebaseConfig.apiKey.length > 10 && 
-                     !firebaseConfig.apiKey.includes("NEXT_PUBLIC_");
+  const apiKey = firebaseConfig.apiKey;
+  
+  // High-integrity key check: Real Firebase keys typically start with "AIza" 
+  // and are approximately 39-40 characters long.
+  const isKeyReady = apiKey && 
+                     apiKey.startsWith("AIza") && 
+                     apiKey.length > 30;
 
   if (!isKeyReady) {
+    // Platform is in "Regional Bridge Initializing" mode
     return { app: null, db: null, auth: null, storage: null };
   }
 

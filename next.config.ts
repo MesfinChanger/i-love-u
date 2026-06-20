@@ -8,10 +8,6 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  experimental: {
-    // Allow the workstation domain for stable HMR and cross-origin requests in the preview environment
-    allowedDevOrigins: ['*.cloudworkstations.dev', 'localhost:9002'],
-  },
   images: {
     remotePatterns: [
       {
