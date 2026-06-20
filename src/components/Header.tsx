@@ -48,7 +48,23 @@ const SUPPORTED_LANGUAGES = [
   { name: 'English', native: 'English' },
   { name: 'Spanish', native: 'Español' },
   { name: 'French', native: 'Français' },
-  { name: 'Swahili', native: 'Kiswahili' }
+  { name: 'Swahili', native: 'Kiswahili' },
+  { name: 'Amharic', native: 'አማርኛ' },
+  { name: 'Arabic', native: 'العربية' },
+  { name: 'Bengali', native: 'বাংলা' },
+  { name: 'Chinese (Simplified)', native: '简体中文' },
+  { name: 'Dutch', native: 'Nederlands' },
+  { name: 'German', native: 'Deutsch' },
+  { name: 'Hindi', native: 'हिन्दी' },
+  { name: 'Indonesian', native: 'Bahasa Indonesia' },
+  { name: 'Italian', native: 'Italiano' },
+  { name: 'Japanese', native: '日本語' },
+  { name: 'Korean', native: '한국어' },
+  { name: 'Portuguese', native: 'Português' },
+  { name: 'Russian', native: 'Русский' },
+  { name: 'Turkish', native: 'Türkçe' },
+  { name: 'Urdu', native: 'اردو' },
+  { name: 'Vietnamese', native: 'Tiếng Việt' }
 ];
 
 /**
@@ -160,7 +176,7 @@ export function Header() {
                           </div>
                         </button>
                      </DropdownMenuTrigger>
-                     <DropdownMenuContent className="w-56 rounded-2xl p-2 border-none shadow-2xl" side="right" align="end">
+                     <DropdownMenuContent className="w-56 rounded-2xl p-2 border-none shadow-2xl max-h-80 overflow-y-auto" side="right" align="end">
                         {SUPPORTED_LANGUAGES.map((lang) => (
                           <DropdownMenuItem 
                             key={lang.name} 
@@ -209,7 +225,7 @@ export function Header() {
                 <Languages className="w-5 h-5" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-48 rounded-2xl p-2 border-none shadow-2xl mr-4" align="end">
+            <DropdownMenuContent className="w-48 rounded-2xl p-2 border-none shadow-2xl mr-4 max-h-80 overflow-y-auto" align="end">
               {SUPPORTED_LANGUAGES.map((lang) => (
                 <DropdownMenuItem 
                   key={lang.name} 
