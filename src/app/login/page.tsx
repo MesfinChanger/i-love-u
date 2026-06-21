@@ -26,7 +26,8 @@ import {
   Zap,
   RefreshCw,
   Sparkles,
-  ArrowRight
+  ArrowRight,
+  AlertCircle
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
@@ -54,7 +55,7 @@ function LoginContent() {
   const [isLoading, setIsLoading] = useState(false);
   const [isConfigError, setIsConfigError] = useState(false);
 
-  // Mandatory Security Protocols (Optional for standard registration per latest mission update)
+  // Mandatory Security Protocols
   const [isAgeVerified, setIsAgeVerified] = useState(false);
   const [isRespectful, setIsRespectful] = useState(false);
   const [isHuman, setIsHuman] = useState(false);
@@ -106,7 +107,15 @@ function LoginContent() {
   };
 
   const handleAuth = async () => {
-    if (!email || !password) return;
+    // 1. Client-Side Validation
+    if (!email) {
+      toast({ variant: "destructive", title: "Missing Email", description: "Please enter your email to continue. ✨" });
+      return;
+    }
+    if (!password) {
+      toast({ variant: "destructive", title: "Missing Secure Phrase", description: "A password is required for your security. ❤️" });
+      return;
+    }
     
     if (!auth) {
       setIsConfigError(true);
@@ -117,7 +126,7 @@ function LoginContent() {
     try {
       if (mode === 'signup') {
         if (!country) {
-          toast({ variant: "destructive", title: "Origin Required", description: "Select your country to join." });
+          toast({ variant: "destructive", title: "Origin Required", description: "Please select your country to join the revolution. 🌍" });
           setIsLoading(false);
           return;
         }
@@ -148,11 +157,46 @@ function LoginContent() {
         router.push('/discover');
       }
     } catch (error: any) {
-      console.error("Auth Error:", error);
+      console.error("Auth Error:", error.code);
+      
+      let message = "Check your credentials and try again. ❤️";
+      let title = "Access Ripple";
+
+      switch (error.code) {
+        case 'auth/invalid-credential':
+          title = "Incorrect Credentials";
+          message = "The email or secure phrase provided does not match our records.";
+          break;
+        case 'auth/user-not-found':
+          title = "Heart Not Found";
+          message = "No account exists with this email. Would you like to join the revolution instead?";
+          break;
+        case 'auth/wrong-password':
+          title = "Secure Phrase Error";
+          message = "The password provided is incorrect. Please try again or reset it.";
+          break;
+        case 'auth/email-already-in-use':
+          title = "Already a Member";
+          message = "This email is already associated with a heart in our network. Try signing in.";
+          break;
+        case 'auth/invalid-email':
+          title = "Email Format Error";
+          message = "Please enter a valid email address (e.g., name@example.com).";
+          break;
+        case 'auth/weak-password':
+          title = "Strength Required";
+          message = "For your safety, your secure phrase must be at least 6 characters long.";
+          break;
+        case 'auth/network-request-failed':
+          title = "Connection Interruption";
+          message = "A regional network ripple occurred. Please check your internet connection.";
+          break;
+      }
+
       if (error.code?.includes('api-key-not-valid') || error.message?.includes('api-key-not-valid')) {
         setIsConfigError(true);
       } else {
-        toast({ variant: "destructive", title: "Access Denied", description: "Check your credentials and try again. ❤️" });
+        toast({ variant: "destructive", title, description: message });
       }
     } finally {
       setIsLoading(false);
@@ -193,7 +237,7 @@ function LoginContent() {
                 <div className="space-y-1">
                     <p className="text-[10px] font-black uppercase tracking-widest text-amber-700">Regional Bridge Required</p>
                     <p className="text-[9px] text-amber-600/80 font-bold leading-relaxed uppercase">
-                    The platform is waiting for your project credentials in .env.local. If you are just testing, use Prototype Mode below.
+                    The platform is waiting for your project credentials (API Key, Project ID). If you are the owner, please check your environment variables.
                     </p>
                 </div>
              </div>
@@ -269,7 +313,8 @@ function LoginContent() {
                     type="email" 
                     value={email} 
                     onChange={(e) => setEmail(e.target.value)} 
-                    className="h-12 border-none border-b-2 border-slate-100 rounded-none px-0 font-bold text-base focus-visible:ring-0 focus-visible:border-primary transition-all" 
+                    placeholder="heart@example.com"
+                    className="h-12 border-none border-b-2 border-slate-100 rounded-none px-0 font-bold text-base focus-visible:ring-0 focus-visible:border-primary transition-all placeholder:text-slate-200" 
                   />
                 </div>
                 
@@ -287,7 +332,8 @@ function LoginContent() {
                       type={showPassword ? "text" : "password"} 
                       value={password} 
                       onChange={(e) => setPassword(e.target.value)} 
-                      className="h-12 border-none border-b-2 border-slate-100 rounded-none px-0 font-bold text-base focus-visible:ring-0 focus-visible:border-primary transition-all pr-12" 
+                      placeholder="Minimum 6 characters"
+                      className="h-12 border-none border-b-2 border-slate-100 rounded-none px-0 font-bold text-base focus-visible:ring-0 focus-visible:border-primary transition-all pr-12 placeholder:text-slate-200" 
                     />
                     <Button variant="ghost" size="icon" className="absolute right-0 bottom-2 text-slate-300 hover:text-primary transition-colors" onClick={() => setShowPassword(!showPassword)}>
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -299,7 +345,7 @@ function LoginContent() {
               <div className="space-y-4">
                 <Button 
                   onClick={handleAuth} 
-                  disabled={isLoading || !email || !password || !auth || isConfigError} 
+                  disabled={isLoading} 
                   className={cn(
                     "w-full h-20 rounded-[2rem] font-black uppercase tracking-[0.3em] text-sm shadow-xl active:scale-95 transition-all",
                     (!auth || isConfigError) ? "bg-slate-200 text-slate-400" : "gradient-bg"
@@ -316,7 +362,7 @@ function LoginContent() {
                     </div>
                     <Button 
                       onClick={handleGuestJoin}
-                      disabled={isLoading || !auth || isConfigError}
+                      disabled={isLoading}
                       variant="outline"
                       className="w-full h-16 rounded-2xl border-2 border-slate-100 font-black uppercase tracking-[0.2em] text-[10px] text-slate-400 hover:bg-primary/5 hover:text-primary hover:border-primary/20 transition-all gap-3"
                     >
