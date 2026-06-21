@@ -536,6 +536,8 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
             const textToShow = msg.encryptedText ? (decryptedMessages[msg.id] || "...") : msg.text;
             const translation = msg.translations?.[myProfile?.preferredLanguage || 'English'];
             const actualText = translation || textToShow;
+            const isMedia = !!(msg.imageUrl || msg.videoUrl || msg.fileUrl);
+            const senderName = isMe ? "You" : matchInfo.name;
 
             return (
               <div key={msg.id || i} className={`flex ${isMe ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 group`}>
@@ -572,6 +574,16 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
                            </div>
                            <Lock className="w-2.5 h-2.5" />
                         </div>
+                      </div>
+                    )}
+                    
+                    {/* Attribution footer for media items */}
+                    {isMedia && (
+                      <div className={cn("flex justify-between items-center mt-2 pt-1 border-t", isMe ? "border-white/10" : "border-slate-100")}>
+                        <span className="text-[8px] font-black uppercase opacity-60">{senderName}</span>
+                        <span className="text-[7px] opacity-30">
+                          {msg.timestamp ? new Date(msg.timestamp.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '...'}
+                        </span>
                       </div>
                     )}
                   </div>

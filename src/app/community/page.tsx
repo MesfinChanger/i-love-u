@@ -318,6 +318,7 @@ export default function CommunityPage() {
         ) : messages && messages.length > 0 ? (
           messages.map((msg: any, i) => {
             const isMe = msg.senderId === user?.uid;
+            const isMedia = !!(msg.imageUrl || msg.videoUrl || msg.fileUrl);
             return (
               <div key={msg.id || i} className={cn("flex flex-col gap-1 group", isMe ? "items-end" : "items-start")}>
                 <div className="flex items-center gap-2 px-2">
@@ -368,6 +369,16 @@ export default function CommunityPage() {
                             <span className="text-[8px] font-black uppercase">{t('community.listen')}</span>
                           </button>
                        </div>
+                    </div>
+                  )}
+
+                  {/* attribution footer for media or general clarity */}
+                  {isMedia && (
+                    <div className={cn("flex justify-between items-center mt-1 pt-1 border-t", isMe ? "border-white/10" : "border-slate-100")}>
+                       <span className="text-[8px] font-black uppercase opacity-40">{msg.senderNickname}</span>
+                       <span className="text-[7px] opacity-30">
+                          {msg.timestamp ? new Date(msg.timestamp.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '...'}
+                       </span>
                     </div>
                   )}
                 </div>
