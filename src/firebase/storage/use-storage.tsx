@@ -16,7 +16,7 @@ export function useFirebaseStorage() {
   const uploadFile = async (path: string, file: File | string, type: 'string' | 'file' = 'file') => {
     if (!storage) {
       console.error("Firebase Storage Ripple: Storage instance is null. Check NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET.");
-      throw new Error("Storage not initialized. Check your Google Cloud config.");
+      throw new Error("Storage not initialized. Check your project credentials.");
     }
 
     setIsUploading(true);
@@ -27,9 +27,13 @@ export function useFirebaseStorage() {
       
       if (type === 'string' && typeof file === 'string') {
         // Handle Base64 strings (data URLs)
-        await uploadString(storageRef, file, 'data_url');
+        const format = file.startsWith('data:image/') ? 'data_url' : 'base64';
+        await uploadString(storageRef, file, format);
       } else if (file instanceof File) {
-        await uploadBytes(storageRef, file);
+        // Modern binary upload
+        await uploadBytes(storageRef, file, {
+          contentType: file.type || 'application/octet-stream'
+        });
       } else {
         throw new Error("Invalid file format for upload.");
       }

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, Suspense, useRef, useMemo } from 'react';
@@ -72,6 +71,18 @@ import { LiveCamera } from '@/components/LiveCamera';
 
 const GENDERS = [{ value: 'male', label: 'Male' }, { value: 'female', label: 'Female' }];
 
+/**
+ * Utility to convert a File to a Data URI for AI moderation.
+ */
+const fileToDataUri = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+};
+
 function ProfileContent() {
   const { user } = useUser();
   const db = useFirestore();
@@ -124,6 +135,7 @@ function ProfileContent() {
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [isUploadingGallery, setIsUploadingGallery] = useState(false);
   const [isUploadingVideo, setIsUploadingVideo] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -201,86 +213,73 @@ function ProfileContent() {
   const handleLiveCapture = async (data: { url: string; file: File; type: 'image' | 'video' }) => {
     if (!user) return;
     
-    if (cameraTarget === 'avatar') {
-      try {
-        const moderation = await moderateImage({ photoDataUri: data.url });
-        if (moderation.isSensitive) {
-          toast({ variant: "destructive", title: "Policy Violation", description: "This image contains sensitive content. ❤️" });
-          return;
-        }
+    try {
+      if (cameraTarget === 'avatar') {
+        setIsUploadingAvatar(true);
         const url = await uploadFile(`profiles/${user.uid}/avatar`, data.file);
         setPhotoUrl(url);
-      } catch (e) {
-        const url = await uploadFile(`profiles/${user.uid}/avatar`, data.file);
-        setPhotoUrl(url);
-      }
-    } else if (cameraTarget === 'gallery') {
-      setIsUploadingGallery(true);
-      try {
+        setIsUploadingAvatar(false);
+      } else if (cameraTarget === 'gallery') {
+        setIsUploadingGallery(true);
         const url = await uploadFile(`profiles/${user.uid}/gallery_${Date.now()}`, data.file);
         setAdditionalPhotoUrls(prev => [...prev, url]);
-      } finally {
         setIsUploadingGallery(false);
-      }
-    } else if (cameraTarget === 'video') {
-      setIsUploadingVideo(true);
-      try {
+      } else if (cameraTarget === 'video') {
+        setIsUploadingVideo(true);
         const url = await uploadFile(`profiles/${user.uid}/highlight_video_${Date.now()}`, data.file);
         setPublicVideoUrl(url);
-      } finally {
         setIsUploadingVideo(false);
       }
+      toast({ title: "Media Secured", description: "Your live capture has been saved! ✨" });
+    } catch (e) {
+      toast({ variant: "destructive", title: "Upload Ripple", description: "Could not secure live capture. ❤️" });
+      setIsUploadingAvatar(false);
+      setIsUploadingGallery(false);
+      setIsUploadingVideo(false);
     }
-    
-    toast({ title: "Media Secured", description: "Your live capture has been saved! ✨" });
   };
 
-  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>, isGallery = false) => {
+  const handleMediaUpload = async (e: React.ChangeEvent<HTMLInputElement>, target: 'avatar' | 'gallery' | 'video') => {
     const file = e.target.files?.[0];
     if (!file || !user) return;
 
+    const setLoader = (val: boolean) => {
+      if (target === 'avatar') setIsUploadingAvatar(val);
+      if (target === 'gallery') setIsUploadingGallery(val);
+      if (target === 'video') setIsUploadingVideo(val);
+    };
+
+    setLoader(true);
     try {
-      if (isGallery) setIsUploadingGallery(true);
-      
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        const dataUri = reader.result as string;
+      // 1. Convert for moderation (if image)
+      if (file.type.startsWith('image/')) {
+        const dataUri = await fileToDataUri(file);
         try {
           const moderation = await moderateImage({ photoDataUri: dataUri });
-          
           if (moderation.isSensitive) {
-            toast({ variant: "destructive", title: "Respect Rule Violation", description: "This image was flagged by AI and cannot be used. ✨" });
-            if (isGallery) setIsUploadingGallery(false);
+            toast({ variant: "destructive", title: "Policy Violation", description: "This image contains sensitive content. ❤️" });
+            setLoader(false);
             return;
           }
-
-          const path = isGallery ? `profiles/${user.uid}/gallery_${Date.now()}` : `profiles/${user.uid}/avatar`;
-          const url = await uploadFile(path, file);
-          
-          if (isGallery) {
-            setAdditionalPhotoUrls(prev => [...prev, url]);
-            setIsUploadingGallery(false);
-          } else {
-            setPhotoUrl(url);
-          }
-          
-          toast({ title: "Photo Secured", description: "Your respectful image has been saved." });
-        } catch (modError) {
-          const path = isGallery ? `profiles/${user.uid}/gallery_${Date.now()}` : `profiles/${user.uid}/avatar`;
-          const url = await uploadFile(path, file);
-          if (isGallery) {
-            setAdditionalPhotoUrls(prev => [...prev, url]);
-            setIsUploadingGallery(false);
-          } else {
-            setPhotoUrl(url);
-          }
-          toast({ title: "Photo Saved", description: "Identity secured manually. ❤️" });
+        } catch (modErr) {
+          console.warn("AI Moderation Ripple deferred.");
         }
-      };
-      reader.readAsDataURL(file);
+      }
+
+      // 2. Upload to Cloud
+      const path = `profiles/${user.uid}/${target}_${Date.now()}`;
+      const url = await uploadFile(path, file);
+
+      // 3. Update Local State
+      if (target === 'avatar') setPhotoUrl(url);
+      if (target === 'gallery') setAdditionalPhotoUrls(prev => [...prev, url]);
+      if (target === 'video') setPublicVideoUrl(url);
+
+      toast({ title: "Media Saved", description: "Your respectful content is secured. ✨" });
     } catch (error) {
-      toast({ variant: "destructive", title: "Upload Ripple", description: "Could not process image." });
-      if (isGallery) setIsUploadingGallery(false);
+      toast({ variant: "destructive", title: "Upload Failed", description: "The platform could not secure your media right now." });
+    } finally {
+      setLoader(false);
     }
   };
 
@@ -414,7 +413,7 @@ function ProfileContent() {
                     <Avatar className="w-16 h-16 border-2 border-primary/20 shadow-lg">
                       <AvatarImage src={photoUrl} className="object-cover" />
                       <AvatarFallback className="bg-primary/5 text-primary">
-                        {isStorageUploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <User className="w-8 h-8" />}
+                        {isUploadingAvatar ? <Loader2 className="w-5 h-5 animate-spin" /> : <User className="w-8 h-8" />}
                       </AvatarFallback>
                     </Avatar>
                     <div className="absolute -bottom-1 -right-1 bg-primary text-white p-1 rounded-full border-2 border-white shadow-sm group-hover:scale-110 transition-transform">
@@ -440,7 +439,7 @@ function ProfileContent() {
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              <input type="file" ref={avatarGalleryInputRef} className="hidden" accept="image/*" onChange={(e) => handlePhotoUpload(e)} />
+              <input type="file" ref={avatarGalleryInputRef} className="hidden" accept="image/*" onChange={(e) => handleMediaUpload(e, 'avatar')} />
             </div>
             <div>
               <h1 className="text-xl font-black tracking-tighter flex items-center gap-2">
@@ -590,7 +589,7 @@ function ProfileContent() {
                   <div className="flex items-center justify-between p-6 bg-primary/5 rounded-2xl border border-primary/10">
                      <div className="flex items-center gap-4">
                         <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-primary shadow-sm border border-primary/5">
-                          {isStorageUploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <ShieldCheck className="w-5 h-5" />}
+                          <ShieldCheck className="w-5 h-5" />
                         </div>
                         <div>
                           <h4 className="font-black text-xs uppercase tracking-tight">Public Presence</h4>
@@ -621,7 +620,7 @@ function ProfileContent() {
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
-                      <input type="file" ref={galleryInputRef} className="hidden" accept="image/*" onChange={(e) => handlePhotoUpload(e, true)} />
+                      <input type="file" ref={galleryInputRef} className="hidden" accept="image/*" onChange={(e) => handleMediaUpload(e, 'gallery')} />
                     </div>
                     <div className="grid grid-cols-5 gap-2">
                        {additionalPhotoUrls.map((url, i) => (
@@ -661,7 +660,7 @@ function ProfileContent() {
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </div>
-                      <input type="file" ref={videoInputRef} className="hidden" accept="video/*" onChange={handlePhotoUpload} />
+                      <input type="file" ref={videoInputRef} className="hidden" accept="video/*" onChange={(e) => handleMediaUpload(e, 'video')} />
                     </div>
                     {publicVideoUrl && (
                       <div className="relative aspect-video rounded-2xl overflow-hidden bg-black shadow-lg group">
