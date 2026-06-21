@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, Suspense } from 'react';
@@ -86,13 +87,14 @@ function LoginContent() {
           isAgeVerified,
           isRespectful,
           isHuman,
+          policyAccepted: false,
           preferredLanguage: language,
           createdAt: serverTimestamp()
         }, { merge: true });
       }
 
-      toast({ title: "Welcome, Guest!", description: "Joined as a mysterious heart. ❤️" });
-      router.push('/discover');
+      toast({ title: "Welcome, Guest!", description: "Please review our sacred agreement. ❤️" });
+      router.push('/policy/agree');
     } catch (e: any) {
       if (e.message?.includes('api-key-not-valid')) {
         setIsConfigError(true);
@@ -133,16 +135,18 @@ function LoginContent() {
             isAgeVerified,
             isRespectful,
             isHuman,
+            policyAccepted: false,
             preferredLanguage: language,
             createdAt: serverTimestamp()
           }, { merge: true });
         }
 
-        toast({ title: "Welcome!", description: "Account created and secure keys generated. ❤️" });
+        toast({ title: "Welcome!", description: "Identity created. Now, let's align our values. ❤️" });
+        router.push('/policy/agree');
       } else {
         await signInWithEmailAndPassword(auth, email, password);
+        router.push('/discover');
       }
-      router.push('/discover');
     } catch (error: any) {
       console.error("Auth Error:", error);
       if (error.code?.includes('api-key-not-valid') || error.message?.includes('api-key-not-valid')) {

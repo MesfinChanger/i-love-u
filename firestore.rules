@@ -10,6 +10,10 @@ service cloud.firestore {
       return isAuthenticated() && request.auth.uid == userId;
     }
 
+    function hasAcceptedPolicy() {
+      return isAuthenticated() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.policyAccepted == true;
+    }
+
     // Helper to check if a match (any status) exists between two users
     function hasAnyMatch(uid1, uid2) {
       let matchId = uid1 < uid2 ? uid1 + "_" + uid2 : uid2 + "_" + uid1;
@@ -27,19 +31,20 @@ service cloud.firestore {
     // User Profiles - Strict privacy but allow viewing participants/witnesses
     match /users/{userId} {
       allow read: if isOwner(userId) || (isAuthenticated() && (hasAnyMatch(request.auth.uid, userId)));
+      // Allow write if owner. If it's a critical change, we could restrict it further.
       allow write: if isOwner(userId);
     }
 
     // Discovery Profiles - Minimal info for everyone
     match /publicProfiles/{userId} {
       allow read: if isAuthenticated();
-      allow write: if isOwner(userId);
+      allow write: if isOwner(userId) && hasAcceptedPolicy();
     }
 
     // Advertisements - Only creator can manage
     match /ads/{adId} {
       allow read: if isAuthenticated();
-      allow create: if isAuthenticated() && request.resource.data.advertiserId == request.auth.uid;
+      allow create: if isAuthenticated() && request.resource.data.advertiserId == request.auth.uid && hasAcceptedPolicy();
       allow update, delete: if isAuthenticated() && resource.data.advertiserId == request.auth.uid;
     }
 
@@ -51,18 +56,17 @@ service cloud.firestore {
 
     // Matches & E2EE Messages - Immutable for safety
     match /matches/{matchId} {
-      // Split list and get to allow Firestore to prove query correctness
       allow get: if isAuthenticated() && (request.auth.uid in resource.data.userIds || request.auth.uid == resource.data.witnessId);
       allow list: if isAuthenticated() && (request.auth.uid in resource.data.userIds);
       allow list: if isAuthenticated() && (request.auth.uid == resource.data.witnessId);
       
-      allow create: if isAuthenticated() && request.auth.uid in request.resource.data.userIds;
+      allow create: if isAuthenticated() && request.auth.uid in request.resource.data.userIds && hasAcceptedPolicy();
       allow update: if isAuthenticated() && (request.auth.uid in resource.data.userIds || request.auth.uid == resource.data.witnessId);
       allow delete: if false; 
 
       match /messages/{messageId} {
         allow read: if isParticipant(matchId);
-        allow create: if isParticipant(matchId);
+        allow create: if isParticipant(matchId) && hasAcceptedPolicy();
         allow update, delete: if false; 
       }
     }
@@ -70,7 +74,7 @@ service cloud.firestore {
     // Community Wall - Public moderated feed
     match /communityMessages/{messageId} {
       allow read: if isAuthenticated();
-      allow create: if isAuthenticated() && request.resource.data.senderId == request.auth.uid;
+      allow create: if isAuthenticated() && request.resource.data.senderId == request.auth.uid && hasAcceptedPolicy();
       allow update, delete: if false;
     }
 
@@ -82,7 +86,7 @@ service cloud.firestore {
 
     match /shops/{shopId} {
       allow read: if isAuthenticated();
-      allow write: if isAuthenticated() && (request.resource.data.ownerId == request.auth.uid || resource.data.ownerId == request.auth.uid);
+      allow write: if isAuthenticated() && (request.resource.data.ownerId == request.auth.uid || resource.data.ownerId == request.auth.uid) && hasAcceptedPolicy();
     }
 
     match /config/pricing {

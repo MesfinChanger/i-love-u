@@ -22,7 +22,8 @@ import {
   Volume2,
   Video,
   PlayCircle,
-  Image as ImageIcon
+  Image as ImageIcon,
+  ShieldAlert
 } from 'lucide-react';
 import { 
   Popover, 
@@ -40,6 +41,7 @@ import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
+import Link from 'next/link';
 
 export default function CommunityPage() {
   const { user } = useUser();
@@ -71,6 +73,8 @@ export default function CommunityPage() {
   }, [db, user]);
   const { data: myProfile } = useDoc(userRef);
 
+  const hasAcceptedPolicy = myProfile?.policyAccepted === true;
+
   const communityQuery = useMemoFirebase(() => {
     if (!db || !user) return null;
     return query(
@@ -89,6 +93,7 @@ export default function CommunityPage() {
   }, [messages]);
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!hasAcceptedPolicy) return;
     const file = e.target.files?.[0];
     if (file) {
       setSelectedImage(file);
@@ -101,6 +106,7 @@ export default function CommunityPage() {
   };
 
   const handleVideoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!hasAcceptedPolicy) return;
     const file = e.target.files?.[0];
     if (file) {
       setSelectedVideo(file);
@@ -111,6 +117,7 @@ export default function CommunityPage() {
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!hasAcceptedPolicy) return;
     const file = e.target.files?.[0];
     if (file) {
       setSelectedFile(file);
@@ -140,6 +147,10 @@ export default function CommunityPage() {
 
   const handleSendMessage = async (e?: React.FormEvent) => {
     e?.preventDefault();
+    if (!hasAcceptedPolicy) {
+      toast({ variant: "destructive", title: "Action Denied", description: "Agreement required to post. ✨" });
+      return;
+    }
     if ((!newMessage.trim() && !selectedImage && !selectedVideo && !selectedFile) || !user || !db || isSending) return;
 
     setIsSending(true);
@@ -213,6 +224,18 @@ export default function CommunityPage() {
     <div className="flex flex-col h-[100dvh] bg-muted/30 overflow-hidden">
       <Header />
       
+      {!hasAcceptedPolicy && (
+        <div className="bg-amber-100 border-b border-amber-200 px-4 py-2 flex items-center justify-between animate-in slide-in-from-top-2 shrink-0">
+           <div className="flex items-center gap-2 text-amber-800">
+              <ShieldAlert className="w-4 h-4" />
+              <p className="text-[10px] font-bold uppercase tracking-tight">View Only Mode Active</p>
+           </div>
+           <Link href="/policy/agree">
+              <Button size="sm" variant="ghost" className="h-7 text-[9px] font-black uppercase text-amber-900 hover:bg-amber-200">Agree to Interact</Button>
+           </Link>
+        </div>
+      )}
+
       <div className="bg-primary/5 border-b p-2 flex items-center justify-center gap-2 shrink-0">
          <ShieldCheck className="w-3.5 h-3.5 text-primary animate-pulse" />
          <p className="text-[9px] font-black uppercase tracking-widest text-primary/60">Global Moderation Active • Respect is Mandatory</p>
@@ -324,7 +347,7 @@ export default function CommunityPage() {
           
           <Popover>
             <PopoverTrigger asChild>
-              <Button type="button" variant="ghost" size="icon" className="rounded-xl h-12 w-12 bg-muted/40 text-muted-foreground">
+              <Button type="button" variant="ghost" size="icon" className="rounded-xl h-12 w-12 bg-muted/40 text-muted-foreground" disabled={!hasAcceptedPolicy}>
                 <Camera className="w-6 h-6" />
               </Button>
             </PopoverTrigger>
@@ -353,11 +376,11 @@ export default function CommunityPage() {
           <Input 
             value={newMessage} 
             onChange={e => setNewMessage(e.target.value)} 
-            placeholder="Share a respectful thought..." 
+            placeholder={hasAcceptedPolicy ? "Share a respectful thought..." : "Read-only: Agree to policy to post"} 
             className="rounded-2xl bg-muted/40 border-none h-12 px-6 font-bold text-sm"
-            disabled={isSending}
+            disabled={isSending || !hasAcceptedPolicy}
           />
-          <Button type="submit" size="icon" className="rounded-xl h-12 w-12 gradient-bg shrink-0 shadow-lg" disabled={(!newMessage.trim() && !selectedImage && !selectedVideo && !selectedFile) || isSending}>
+          <Button type="submit" size="icon" className="rounded-xl h-12 w-12 gradient-bg shrink-0 shadow-lg" disabled={(!newMessage.trim() && !selectedImage && !selectedVideo && !selectedFile) || isSending || !hasAcceptedPolicy}>
             {isSending || isStorageUploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
           </Button>
         </form>

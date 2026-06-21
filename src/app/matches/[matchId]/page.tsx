@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect, useRef, use } from 'react';
@@ -24,7 +25,8 @@ import {
   FileIcon,
   Volume2,
   Image as ImageIcon,
-  EyeOff
+  EyeOff,
+  ShieldAlert
 } from 'lucide-react';
 import { 
   Popover, 
@@ -59,6 +61,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
+import Link from 'next/link';
 
 const CHAT_SHORTCUTS = [
   { id: 'teachable', label: 'Teachable Pic', icon: BookOpen, description: 'Share a skill or a piece of your culture.' },
@@ -93,6 +96,8 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
     return doc(db, 'users', user.uid);
   }, [db, user]);
   const { data: myProfile } = useDoc(userRef);
+
+  const hasAcceptedPolicy = myProfile?.policyAccepted === true;
 
   const matchRef = useMemoFirebase(() => {
     if (!db || !matchId) return null;
@@ -165,6 +170,10 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
 
   const handleSendMessage = async (e?: React.FormEvent) => {
     e?.preventDefault();
+    if (!hasAcceptedPolicy) {
+      toast({ variant: "destructive", title: "Action Denied", description: "Agreement required to message. ✨" });
+      return;
+    }
     if (!newMessage.trim() || !user || !db || !matchId || isSending) return;
 
     setIsSending(true);
@@ -250,6 +259,7 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, isImage = false) => {
+    if (!hasAcceptedPolicy) return;
     const file = e.target.files?.[0];
     if (!file || !user || !db || !matchId) return;
 
@@ -331,6 +341,7 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
   };
 
   const handleIcebreaker = async () => {
+    if (!hasAcceptedPolicy) return;
     setIsGenerating(true);
     try {
       const result = await generateIcebreaker({
@@ -433,7 +444,7 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
             </AlertDialog>
           )}
 
-          <Button variant="ghost" size="sm" onClick={handleIcebreaker} disabled={isGenerating} className="text-primary gap-1 font-black text-[9px] uppercase tracking-widest h-9 px-3 bg-primary/5 rounded-full hidden sm:flex">
+          <Button variant="ghost" size="sm" onClick={handleIcebreaker} disabled={isGenerating || !hasAcceptedPolicy} className="text-primary gap-1 font-black text-[9px] uppercase tracking-widest h-9 px-3 bg-primary/5 rounded-full hidden sm:flex">
             {isGenerating ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
             AI Spark
           </Button>
@@ -459,6 +470,18 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
           </AlertDialog>
         </div>
       </header>
+
+      {!hasAcceptedPolicy && (
+        <div className="bg-amber-100 border-b border-amber-200 px-4 py-2 flex items-center justify-between animate-in slide-in-from-top-2 shrink-0">
+           <div className="flex items-center gap-2 text-amber-800">
+              <ShieldAlert className="w-4 h-4" />
+              <p className="text-[10px] font-bold uppercase tracking-tight">View Only Mode Active</p>
+           </div>
+           <Link href="/policy/agree">
+              <Button size="sm" variant="ghost" className="h-7 text-[9px] font-black uppercase text-amber-900 hover:bg-amber-200">Agree to Unlock Chat</Button>
+           </Link>
+        </div>
+      )}
 
       {isDatingMatch && (
         <div className="bg-red-50/80 backdrop-blur-sm border-b border-red-100 p-2 px-4 flex items-center justify-between z-10 shrink-0">
@@ -559,7 +582,7 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
              {CHAT_SHORTCUTS.map((shortcut) => (
                <Tooltip key={shortcut.id}>
                  <TooltipTrigger asChild>
-                    <Button variant="outline" size="sm" onClick={() => galleryInputRef.current?.click()} className="rounded-full shrink-0 h-9 gap-2 border-primary/10 text-primary hover:bg-primary/5 transition-all font-black text-[9px] uppercase tracking-widest px-4">
+                    <Button variant="outline" size="sm" onClick={() => galleryInputRef.current?.click()} className="rounded-full shrink-0 h-9 gap-2 border-primary/10 text-primary hover:bg-primary/5 transition-all font-black text-[9px] uppercase tracking-widest px-4" disabled={!hasAcceptedPolicy}>
                       <shortcut.icon className="w-3.5 h-3.5" />
                       {shortcut.label}
                     </Button>
@@ -567,7 +590,7 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
                  <TooltipContent className="rounded-xl bg-primary text-white p-3"><p className="text-[10px] font-bold uppercase tracking-widest">{shortcut.description}</p></TooltipContent>
                </Tooltip>
              ))}
-             <Button variant="outline" size="sm" onClick={() => router.push('/shop')} className="rounded-full shrink-0 h-9 gap-2 border-primary/10 text-primary hover:bg-primary/5 transition-all font-black text-[9px] uppercase tracking-widest px-4">
+             <Button variant="outline" size="sm" onClick={() => router.push('/shop')} className="rounded-full shrink-0 h-9 gap-2 border-primary/10 text-primary hover:bg-primary/5 transition-all font-black text-[9px] uppercase tracking-widest px-4" disabled={!hasAcceptedPolicy}>
                 <Gift className="w-3.5 h-3.5" />
                 Send Gift
              </Button>
@@ -581,7 +604,7 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
           
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="ghost" size="icon" className="rounded-xl shrink-0 bg-muted/40 h-12 w-12 text-muted-foreground" disabled={isSending || isStorageUploading}>
+              <Button variant="ghost" size="icon" className="rounded-xl shrink-0 bg-muted/40 h-12 w-12 text-muted-foreground" disabled={isSending || isStorageUploading || !hasAcceptedPolicy}>
                 {isStorageUploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Camera className="w-6 h-6" />}
               </Button>
             </PopoverTrigger>
@@ -604,8 +627,14 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
           </Popover>
 
           <form onSubmit={handleSendMessage} className="flex-grow flex gap-2">
-            <Input value={newMessage} onChange={e => setNewMessage(e.target.value)} placeholder="Respectful message..." className="rounded-2xl bg-muted/40 border-none h-12 px-6 font-bold text-base shadow-inner" disabled={isSending} />
-            <Button type="submit" size="icon" className="rounded-xl h-12 w-12 gradient-bg shrink-0 shadow-lg shadow-primary/20 active:scale-90 transition-transform" disabled={!newMessage.trim() || isSending}>
+            <Input 
+              value={newMessage} 
+              onChange={e => setNewMessage(e.target.value)} 
+              placeholder={hasAcceptedPolicy ? "Respectful message..." : "Agree to policy to chat"} 
+              className="rounded-2xl bg-muted/40 border-none h-12 px-6 font-bold text-base shadow-inner" 
+              disabled={isSending || !hasAcceptedPolicy} 
+            />
+            <Button type="submit" size="icon" className="rounded-xl h-12 w-12 gradient-bg shrink-0 shadow-lg shadow-primary/20 active:scale-90 transition-transform" disabled={!newMessage.trim() || isSending || !hasAcceptedPolicy}>
               {isSending ? <Loader2 className="w-5 h-5 animate-spin text-white" /> : <Send className="w-5 h-5 text-white" />}
             </Button>
           </form>

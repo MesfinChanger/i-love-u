@@ -49,6 +49,7 @@
         "isAgeVerified": { "type": "boolean", "default": false },
         "isRespectful": { "type": "boolean", "default": false },
         "isHuman": { "type": "boolean", "default": false },
+        "policyAccepted": { "type": "boolean", "default": false },
         "isAdmin": { "type": "boolean", "default": false }
       },
       "required": ["uid", "firstName", "lastName", "birthdate"]

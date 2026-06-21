@@ -18,7 +18,8 @@ import {
   Send, 
   PlayCircle,
   ChevronLeft, 
-  ChevronRight 
+  ChevronRight,
+  ShieldAlert
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
@@ -37,6 +38,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import Link from 'next/link';
 
 export default function DiscoverPage() {
   const { user } = useUser();
@@ -67,6 +69,8 @@ export default function DiscoverPage() {
   const { data: activeAds } = useCollection(adsQuery);
 
   const viewerCountry = myProfile?.country || 'GLOBAL';
+  const hasAcceptedPolicy = myProfile?.policyAccepted === true;
+  
   const [isMuted, setIsMuted] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -150,6 +154,15 @@ export default function DiscoverPage() {
   const currentItem = profiles[currentIndex];
 
   const handleAction = async (type: 'friend' | 'date') => {
+    if (!hasAcceptedPolicy) {
+      toast({
+        variant: "destructive",
+        title: "Interaction Locked",
+        description: "You must agree to our Mandatory Policy before sparking. ✨"
+      });
+      return;
+    }
+
     if (!user || !db || !currentItem || currentItem.type === 'ad' || currentItem.id.startsWith('mock')) {
       if (currentItem?.id.startsWith('mock')) {
         toast({ title: "Prototype Invitation!", description: "In real mode, this would send a secure invitation. ✨" });
@@ -249,6 +262,19 @@ export default function DiscoverPage() {
   return (
     <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
       <Header />
+      
+      {!hasAcceptedPolicy && (
+        <div className="bg-amber-100 border-b border-amber-200 px-4 py-2 flex items-center justify-between animate-in slide-in-from-top-2">
+           <div className="flex items-center gap-2 text-amber-800">
+              <ShieldAlert className="w-4 h-4" />
+              <p className="text-[10px] font-bold uppercase tracking-tight">View Only Mode Active</p>
+           </div>
+           <Link href="/policy/agree">
+              <Button size="sm" variant="ghost" className="h-7 text-[9px] font-black uppercase text-amber-900 hover:bg-amber-200">Agree to Unlock</Button>
+           </Link>
+        </div>
+      )}
+
       <main className="flex-grow flex flex-col items-center justify-center p-4">
         <div className="w-full max-w-md flex flex-col items-center">
           <Card className="w-full relative h-[calc(100vh-18rem)] overflow-hidden border-none shadow-2xl rounded-[2.5rem] bg-white p-0 flex flex-col">
@@ -361,11 +387,17 @@ export default function DiscoverPage() {
             <Button variant="outline" size="icon" className="w-14 h-14 rounded-full bg-white text-slate-400 hover:text-red-500 border-none shadow-xl transition-all hover:scale-110 shrink-0" onClick={handleNext}>
               <X className="w-6 h-6" />
             </Button>
-            <Button className="w-full max-w-[100px] h-14 rounded-full bg-white text-blue-600 shadow-xl font-black uppercase text-[9px] border-none hover:bg-blue-50 gap-2" onClick={() => handleAction('friend')}>
+            <Button 
+              className={cn("w-full max-w-[100px] h-14 rounded-full bg-white text-blue-600 shadow-xl font-black uppercase text-[9px] border-none hover:bg-blue-50 gap-2", !hasAcceptedPolicy && "opacity-40 cursor-not-allowed")} 
+              onClick={() => handleAction('friend')}
+            >
               <Send className="w-3 h-3" />
               Invite
             </Button>
-            <Button className="w-full max-w-[120px] h-14 rounded-full shadow-xl font-black uppercase text-[9px] gradient-bg hover:scale-105 transition-transform gap-2" onClick={() => handleAction('date')}>
+            <Button 
+              className={cn("w-full max-w-[120px] h-14 rounded-full shadow-xl font-black uppercase text-[9px] gradient-bg hover:scale-105 transition-transform gap-2", !hasAcceptedPolicy && "opacity-40 cursor-not-allowed")} 
+              onClick={() => handleAction('date')}
+            >
               <Heart className="w-3 h-3 fill-current" />
               Spark Love
             </Button>
