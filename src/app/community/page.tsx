@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
@@ -24,7 +25,8 @@ import {
   Image as ImageIcon,
   ShieldAlert,
   Zap,
-  X
+  X,
+  Trash2
 } from 'lucide-react';
 import { 
   Popover, 
@@ -32,7 +34,7 @@ import {
   PopoverTrigger 
 } from '@/components/ui/popover';
 import { useUser, useFirestore, useCollection, useDoc, useFirebaseStorage } from '@/firebase';
-import { collection, addDoc, query, orderBy, serverTimestamp, limit, doc } from 'firebase/firestore';
+import { collection, addDoc, query, orderBy, serverTimestamp, limit, doc, deleteDoc } from 'firebase/firestore';
 import { moderateText } from '@/ai/flows/moderate-text-flow';
 import { moderateImage } from '@/ai/flows/moderate-image-flow';
 import { textToSpeech } from '@/ai/flows/text-to-speech-flow';
@@ -71,6 +73,7 @@ export default function CommunityPage() {
   const [mounted, setMounted] = useState(false);
   const [newMessage, setNewMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
+  const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<{ file: File; url: string } | null>(null);
   const [selectedVideo, setSelectedVideo] = useState<{ file: File; url: string } | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -184,6 +187,19 @@ export default function CommunityPage() {
     }
   };
 
+  const handleDeletePost = async (id: string) => {
+    if (!db || isDeleting) return;
+    setIsDeleting(id);
+    try {
+      await deleteDoc(doc(db, 'communityMessages', id));
+      toast({ title: "Post Removed", description: "Your respectfully contribution has been cleared. ❤️" });
+    } catch (e) {
+      toast({ variant: "destructive", title: "Action Failed", description: "Could not remove post." });
+    } finally {
+      setIsDeleting(null);
+    }
+  };
+
   const handleSendMessage = async (e?: React.FormEvent) => {
     e?.preventDefault();
     if (!hasAcceptedPolicy) {
@@ -211,7 +227,6 @@ export default function CommunityPage() {
 
       if (selectedImage) {
         try {
-          // Resilient Protocol: Convert to Data URI for AI and moderate
           const photoDataUri = await fileToDataUri(selectedImage.file);
           const imageModeration = await moderateImage({ photoDataUri });
           
@@ -223,7 +238,6 @@ export default function CommunityPage() {
           imageUrl = await uploadFile(`community/${Date.now()}-${selectedImage.file.name}`, selectedImage.file);
           isSensitive = imageModeration.isSensitive;
         } catch (modErr) {
-          // Fail-Safe: Upload anyway if moderation ripples, but mark as potentially sensitive
           imageUrl = await uploadFile(`community/${Date.now()}-${selectedImage.file.name}`, selectedImage.file);
         }
       }
@@ -305,13 +319,18 @@ export default function CommunityPage() {
           messages.map((msg: any, i) => {
             const isMe = msg.senderId === user?.uid;
             return (
-              <div key={msg.id || i} className={cn("flex flex-col gap-1", isMe ? "items-end" : "items-start")}>
+              <div key={msg.id || i} className={cn("flex flex-col gap-1 group", isMe ? "items-end" : "items-start")}>
                 <div className="flex items-center gap-2 px-2">
                    <span className="text-[9px] font-black uppercase text-muted-foreground truncate max-w-[120px]">{msg.senderNickname}</span>
                    <span className="text-[7px] text-muted-foreground/40 shrink-0">{msg.timestamp ? new Date(msg.timestamp.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '...'}</span>
+                   {isMe && (
+                     <button onClick={() => handleDeletePost(msg.id)} className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-red-500">
+                        {isDeleting === msg.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />}
+                     </button>
+                   )}
                 </div>
                 <div className={cn(
-                  "max-w-[85%] px-4 py-3 rounded-[1.8rem] text-sm font-medium shadow-sm transition-all flex flex-col gap-3",
+                  "max-w-[85%] px-4 py-3 rounded-[1.8rem] text-sm font-medium shadow-sm transition-all flex flex-col gap-3 relative",
                   isMe ? "bg-primary text-white rounded-tr-none" : "bg-white text-slate-800 rounded-tl-none border"
                 )}>
                   {msg.imageUrl && (

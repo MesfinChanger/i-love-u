@@ -44,6 +44,8 @@ service cloud.firestore {
       match /messages/{messageId} {
         allow read: if isMatchParticipant(matchId);
         allow create: if isMatchParticipant(matchId) && hasAcceptedPolicy();
+        // Allow user to delete their own messages
+        allow delete: if isMatchParticipant(matchId) && request.auth.uid == resource.data.senderId;
       }
 
       match /calls/{callId} {
@@ -80,6 +82,8 @@ service cloud.firestore {
     match /communityMessages/{messageId} {
       allow read: if isAuthenticated();
       allow create: if isAuthenticated() && hasAcceptedPolicy();
+      // Allow user to delete their own community posts
+      allow delete: if isAuthenticated() && request.auth.uid == resource.data.senderId;
     }
 
     // Feedback

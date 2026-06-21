@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect, useRef, use } from 'react';
@@ -28,7 +29,8 @@ import {
   ShieldAlert,
   Video,
   Zap,
-  X
+  X,
+  Trash2
 } from 'lucide-react';
 import { 
   Popover, 
@@ -36,7 +38,7 @@ import {
   PopoverTrigger 
 } from '@/components/ui/popover';
 import { useUser, useFirestore, useCollection, useDoc, useFirebaseStorage } from '@/firebase';
-import { collection, addDoc, query, orderBy, serverTimestamp, doc, updateDoc, writeBatch } from 'firebase/firestore';
+import { collection, addDoc, query, orderBy, serverTimestamp, doc, updateDoc, writeBatch, deleteDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { generateIcebreaker } from '@/ai/flows/generate-icebreaker-flow';
@@ -98,6 +100,7 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
   const [newMessage, setNewMessage] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const [isUnconnecting, setIsUnconnecting] = useState(false);
   const [isInvitingWitness, setIsInvitingWitness] = useState(false);
   const [witnessUid, setWitnessUid] = useState('');
@@ -224,6 +227,19 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
     }
   };
 
+  const handleDeleteMessage = async (id: string) => {
+    if (!db || !matchId || isDeleting) return;
+    setIsDeleting(id);
+    try {
+      await deleteDoc(doc(db, 'matches', matchId, 'messages', id));
+      toast({ title: "Message Retracted", description: "Cleared from sacred space. ❤️" });
+    } catch (e) {
+      toast({ variant: "destructive", title: "Action Denied", description: "Could not retract message." });
+    } finally {
+      setIsDeleting(null);
+    }
+  };
+
   const handleSendMessage = async (e?: React.FormEvent) => {
     e?.preventDefault();
     if (!hasAcceptedPolicy) {
@@ -277,7 +293,6 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
 
     try {
       if (data.type === 'image') {
-        // High-Quality Data URI for moderation
         const photoDataUri = data.url.startsWith('data:') ? data.url : await fileToDataUri(data.file);
         const moderation = await moderateImage({ photoDataUri });
         const cloudUrl = await uploadFile(`matches/${matchId}/${Date.now()}.jpg`, data.file);
@@ -523,40 +538,48 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
             const actualText = translation || textToShow;
 
             return (
-              <div key={msg.id || i} className={`flex ${isMe ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2`}>
-                <div className={cn("max-w-[85%] px-5 py-4 rounded-[2.2rem] text-sm leading-relaxed shadow-sm transition-all relative group", isMe ? 'bg-primary text-white rounded-tr-none' : 'bg-white text-foreground rounded-tl-none border')}>
-                  {msg.imageUrl ? (
-                     <div className="relative w-60 h-72 overflow-hidden rounded-[1.8rem] bg-muted shadow-inner">
-                        <Image src={msg.imageUrl} alt="Moment" fill className="object-cover" />
+              <div key={msg.id || i} className={`flex ${isMe ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 group`}>
+                <div className="flex flex-col gap-1 items-end max-w-[85%]">
+                   <div className={cn("px-5 py-4 rounded-[2.2rem] text-sm leading-relaxed shadow-sm transition-all relative", isMe ? 'bg-primary text-white rounded-tr-none' : 'bg-white text-foreground rounded-tl-none border')}>
+                    {msg.imageUrl ? (
+                       <div className="relative w-60 h-72 overflow-hidden rounded-[1.8rem] bg-muted shadow-inner">
+                          <Image src={msg.imageUrl} alt="Moment" fill className="object-cover" />
+                        </div>
+                    ) : msg.videoUrl ? (
+                      <div className="relative w-60 aspect-video rounded-2xl overflow-hidden bg-black">
+                         <video src={msg.videoUrl} controls className="w-full h-full" />
                       </div>
-                  ) : msg.videoUrl ? (
-                    <div className="relative w-60 aspect-video rounded-2xl overflow-hidden bg-black">
-                       <video src={msg.videoUrl} controls className="w-full h-full" />
-                    </div>
-                  ) : msg.fileUrl ? (
-                    <div className="flex items-center gap-4 bg-muted/20 p-4 rounded-2xl border border-dashed">
-                       <FileIcon className="w-6 h-6 text-primary" />
-                       <div className="min-w-0 flex-grow">
-                          <p className="font-bold text-xs truncate">{msg.fileName}</p>
-                          <p className="text-[8px] text-muted-foreground uppercase font-black">{(msg.fileSize / 1024 / 1024).toFixed(2)} MB</p>
-                       </div>
-                       <Button size="sm" variant="ghost" className="text-primary font-black text-[9px] uppercase" onClick={() => window.open(msg.fileUrl)}>Download</Button>
-                    </div>
-                  ) : (
-                    <div className="flex flex-col gap-2">
-                      <span className="font-semibold">{actualText}</span>
-                      <div className="flex items-center gap-3 mt-1 opacity-40 justify-end">
-                         <div className="flex items-center gap-2">
-                            {!isMe && !translation && textToShow !== "..." && (
-                              <button onClick={() => handleTranslate(msg.id, textToShow)} className="flex items-center gap-1 hover:text-primary"><Languages className="w-2.5 h-2.5" /><span className="text-[8px] font-black uppercase">Translate</span></button>
-                            )}
-                            {actualText && actualText !== "..." && (
-                               <button onClick={() => handleSpeak(msg.id, actualText)} className="flex items-center gap-1 hover:text-primary"><Volume2 className="w-2.5 h-2.5" /><span className="text-[8px] font-black uppercase">Listen</span></button>
-                            )}
+                    ) : msg.fileUrl ? (
+                      <div className="flex items-center gap-4 bg-muted/20 p-4 rounded-2xl border border-dashed">
+                         <FileIcon className="w-6 h-6 text-primary" />
+                         <div className="min-w-0 flex-grow">
+                            <p className="font-bold text-xs truncate">{msg.fileName}</p>
+                            <p className="text-[8px] text-muted-foreground uppercase font-black">{(msg.fileSize / 1024 / 1024).toFixed(2)} MB</p>
                          </div>
-                         <Lock className="w-2.5 h-2.5" />
+                         <Button size="sm" variant="ghost" className="text-primary font-black text-[9px] uppercase" onClick={() => window.open(msg.fileUrl)}>Download</Button>
                       </div>
-                    </div>
+                    ) : (
+                      <div className="flex flex-col gap-2">
+                        <span className="font-semibold">{actualText}</span>
+                        <div className="flex items-center gap-3 mt-1 opacity-40 justify-end">
+                           <div className="flex items-center gap-2">
+                              {!isMe && !translation && textToShow !== "..." && (
+                                <button onClick={() => handleTranslate(msg.id, textToShow)} className="flex items-center gap-1 hover:text-primary"><Languages className="w-2.5 h-2.5" /><span className="text-[8px] font-black uppercase">Translate</span></button>
+                              )}
+                              {actualText && actualText !== "..." && (
+                                 <button onClick={() => handleSpeak(msg.id, actualText)} className="flex items-center gap-1 hover:text-primary"><Volume2 className="w-2.5 h-2.5" /><span className="text-[8px] font-black uppercase">Listen</span></button>
+                              )}
+                           </div>
+                           <Lock className="w-2.5 h-2.5" />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  {isMe && (
+                    <button onClick={() => handleDeleteMessage(msg.id)} className="text-[8px] font-black uppercase text-muted-foreground/40 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 mr-4">
+                       {isDeleting === msg.id ? <Loader2 className="w-2 h-2 animate-spin" /> : <Trash2 className="w-2 h-2" />}
+                       Retract
+                    </button>
                   )}
                 </div>
               </div>

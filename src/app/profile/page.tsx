@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, Suspense, useRef, useMemo } from 'react';
@@ -41,7 +42,9 @@ import {
   Copy,
   CheckCircle2,
   Heart,
-  Zap
+  Zap,
+  RefreshCw,
+  X
 } from 'lucide-react';
 import { 
   DropdownMenu, 
@@ -283,6 +286,17 @@ function ProfileContent() {
 
   const removeGalleryPhoto = (url: string) => {
     setAdditionalPhotoUrls(prev => prev.filter(p => p !== url));
+    toast({ title: "Photo Removed", description: "Identity updated respectfully. ✨" });
+  };
+
+  const removeAvatar = () => {
+    setPhotoUrl('');
+    toast({ title: "Avatar Removed", description: "Profile photo cleared. ❤️" });
+  };
+
+  const removeVideo = () => {
+    setPublicVideoUrl('');
+    toast({ title: "Video Removed", description: "Highlight video cleared. ✨" });
   };
 
   const handleSave = async () => {
@@ -417,6 +431,12 @@ function ProfileContent() {
                     <ImageIcon className="w-4 h-4 text-primary" />
                     <span className="font-bold text-sm">Choose from Gallery</span>
                   </DropdownMenuItem>
+                  {photoUrl && (
+                    <DropdownMenuItem onClick={removeAvatar} className="rounded-xl gap-3 py-3 cursor-pointer text-red-500 hover:bg-red-50">
+                      <Trash2 className="w-4 h-4" />
+                      <span className="font-bold text-sm">Delete Identity Photo</span>
+                    </DropdownMenuItem>
+                  )}
                 </DropdownMenuContent>
               </DropdownMenu>
 
@@ -573,8 +593,8 @@ function ProfileContent() {
                           {isStorageUploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <ShieldCheck className="w-5 h-5" />}
                         </div>
                         <div>
-                          <h4 className="font-black text-xs uppercase tracking-tight">Public Photo</h4>
-                          <p className="text-[9px] text-muted-foreground italic font-medium">Toggle discovery visibility.</p>
+                          <h4 className="font-black text-xs uppercase tracking-tight">Public Presence</h4>
+                          <p className="text-[9px] text-muted-foreground italic font-medium">Toggle visibility in Discovery.</p>
                         </div>
                      </div>
                      <Switch checked={isPhotoPublic} onCheckedChange={setIsPhotoPublic} />
@@ -607,7 +627,7 @@ function ProfileContent() {
                        {additionalPhotoUrls.map((url, i) => (
                          <div key={i} className="relative aspect-square rounded-lg overflow-hidden border bg-muted group">
                            <Image src={url} alt={`Gallery ${i}`} fill className="object-cover" />
-                           <button onClick={() => removeGalleryPhoto(url)} className="absolute top-1 right-1 bg-black/50 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 className="w-3 h-3" /></button>
+                           <button onClick={() => removeGalleryPhoto(url)} className="absolute top-1 right-1 bg-black/60 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500"><X className="w-3 h-3" /></button>
                          </div>
                        ))}
                        {Array.from({ length: 5 - additionalPhotoUrls.length }).map((_, i) => (
@@ -621,30 +641,32 @@ function ProfileContent() {
                   <div className="space-y-4">
                     <div className="flex items-center justify-between px-1">
                       <Label className="text-[9px] font-black uppercase tracking-widest opacity-60">Public Highlight Video</Label>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" className="text-primary gap-1.5 h-8 px-4 bg-primary/5 rounded-full text-[9px] font-black uppercase">
-                            {isUploadingVideo ? <Loader2 className="w-3 h-3 animate-spin" /> : <Video className="w-3 h-3" />}
-                            Capture Moment
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="rounded-2xl p-2 border-none shadow-xl">
-                          <DropdownMenuItem onClick={() => { setCameraTarget('video'); setIsCameraOpen(true); }} className="rounded-xl gap-3 py-3 cursor-pointer">
-                            <Zap className="w-4 h-4 text-primary" />
-                            <span className="font-bold text-sm">Live Recording</span>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => videoInputRef.current?.click()} className="rounded-xl gap-3 py-3 cursor-pointer">
-                            <ImageIcon className="w-4 h-4 text-primary" />
-                            <span className="font-bold text-sm">Upload Video</span>
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      <div className="flex gap-2">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm" className="text-primary gap-1.5 h-8 px-4 bg-primary/5 rounded-full text-[9px] font-black uppercase">
+                              {isUploadingVideo ? <Loader2 className="w-3 h-3 animate-spin" /> : <Video className="w-3 h-3" />}
+                              Capture / Replace
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="rounded-2xl p-2 border-none shadow-xl">
+                            <DropdownMenuItem onClick={() => { setCameraTarget('video'); setIsCameraOpen(true); }} className="rounded-xl gap-3 py-3 cursor-pointer">
+                              <Zap className="w-4 h-4 text-primary" />
+                              <span className="font-bold text-sm">Live Recording</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => videoInputRef.current?.click()} className="rounded-xl gap-3 py-3 cursor-pointer">
+                              <ImageIcon className="w-4 h-4 text-primary" />
+                              <span className="font-bold text-sm">Upload Video</span>
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
                       <input type="file" ref={videoInputRef} className="hidden" accept="video/*" onChange={handlePhotoUpload} />
                     </div>
                     {publicVideoUrl && (
-                      <div className="relative aspect-video rounded-2xl overflow-hidden bg-black shadow-lg">
+                      <div className="relative aspect-video rounded-2xl overflow-hidden bg-black shadow-lg group">
                         <video src={publicVideoUrl} controls className="w-full h-full" />
-                        <button onClick={() => setPublicVideoUrl('')} className="absolute top-2 right-2 bg-black/60 text-white p-2 rounded-full"><Trash2 className="w-4 h-4" /></button>
+                        <button onClick={removeVideo} className="absolute top-4 right-4 bg-black/60 text-white p-2.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500 shadow-xl"><Trash2 className="w-5 h-5" /></button>
                       </div>
                     )}
                   </div>
