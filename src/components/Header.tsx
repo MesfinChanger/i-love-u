@@ -44,29 +44,7 @@ import { useTranslation } from './providers/LanguageProvider';
 import { useAuth } from '@/firebase';
 import { signOut } from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
-
-const SUPPORTED_LANGUAGES = [
-  { name: 'English', native: 'English' },
-  { name: 'Spanish', native: 'Español' },
-  { name: 'French', native: 'Français' },
-  { name: 'Swahili', native: 'Kiswahili' },
-  { name: 'Amharic', native: 'አማርኛ' },
-  { name: 'Arabic', native: 'العربية' },
-  { name: 'Bengali', native: 'বাংলা' },
-  { name: 'Chinese (Simplified)', native: '简体中文' },
-  { name: 'Dutch', native: 'Nederlands' },
-  { name: 'German', native: 'Deutsch' },
-  { name: 'Hindi', native: 'हिन्दी' },
-  { name: 'Indonesian', native: 'Bahasa Indonesia' },
-  { name: 'Italian', native: 'Italiano' },
-  { name: 'Japanese', native: '日本語' },
-  { name: 'Korean', native: '한국어' },
-  { name: 'Portuguese', native: 'Português' },
-  { name: 'Russian', native: 'Русский' },
-  { name: 'Turkish', native: 'Türkçe' },
-  { name: 'Urdu', native: 'اردو' },
-  { name: 'Vietnamese', native: 'Tiếng Việt' }
-];
+import { SUPPORTED_LANGUAGES } from '@/lib/world-data';
 
 /**
  * @fileOverview The platform header, featuring a vertical navigation menu and Notification Center.

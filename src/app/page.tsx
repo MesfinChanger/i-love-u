@@ -25,6 +25,7 @@ import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/components/providers/LanguageProvider';
+import { SUPPORTED_LANGUAGES } from '@/lib/world-data';
 
 const LOVE_TRANSLATIONS = [
   { lang: "English", text: "I Love U", icon: "❤️" },
@@ -32,29 +33,6 @@ const LOVE_TRANSLATIONS = [
   { lang: "French", text: "Je t'aime", icon: "✨" },
   { lang: "Japanese", text: "愛してる", icon: "🌸" },
   { lang: "Swahili", text: "Nakupenda", icon: "🦓" }
-];
-
-const SUPPORTED_LANGUAGES = [
-  { name: 'English', native: 'English' },
-  { name: 'Spanish', native: 'Español' },
-  { name: 'French', native: 'Français' },
-  { name: 'Swahili', native: 'Kiswahili' },
-  { name: 'Amharic', native: 'አማርኛ' },
-  { name: 'Arabic', native: 'العربية' },
-  { name: 'Bengali', native: 'বাংলা' },
-  { name: 'Chinese (Simplified)', native: '简体中文' },
-  { name: 'Dutch', native: 'Nederlands' },
-  { name: 'German', native: 'Deutsch' },
-  { name: 'Hindi', native: 'हिन्दी' },
-  { name: 'Indonesian', native: 'Bahasa Indonesia' },
-  { name: 'Italian', native: 'Italiano' },
-  { name: 'Japanese', native: '日本語' },
-  { name: 'Korean', native: '한국어' },
-  { name: 'Portuguese', native: 'Português' },
-  { name: 'Russian', native: 'Русский' },
-  { name: 'Turkish', native: 'Türkçe' },
-  { name: 'Urdu', native: 'اردو' },
-  { name: 'Vietnamese', native: 'Tiếng Việt' }
 ];
 
 export default function Home() {
@@ -84,6 +62,9 @@ export default function Home() {
     };
   }, [dynamicImages.length]);
 
+  const heroTitle = t('home.heroTitle') || "Spark Love. End Poverty.";
+  const metricTitle = t('home.metricTitle') || "Happiness is the Only Metric.";
+
   return (
     <div className="flex flex-col min-h-screen bg-white overflow-x-hidden">
       <header className="fixed top-0 z-50 w-full bg-white/5 backdrop-blur-xl border-b border-white/10">
@@ -95,13 +76,13 @@ export default function Home() {
           <div className="flex items-center gap-4">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="text-white/80 hover:text-white hover:bg-white/10 h-10 px-3 gap-2 rounded-full transition-colors" aria-label="Select Language">
-                  <Languages className="w-5 h-5" />
+                <Button variant="ghost" size="sm" className="text-white hover:text-white hover:bg-white/10 h-10 px-3 gap-2 rounded-full transition-colors bg-black/20 backdrop-blur-md" aria-label="Select Language">
+                  <Languages className="w-5 h-5 text-primary" />
                   <span className="text-[10px] font-black uppercase tracking-widest hidden sm:inline-block">{language}</span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-48 rounded-2xl p-2 border-none shadow-2xl mr-4 max-h-80 overflow-y-auto" align="end">
-                {SUPPORTED_LANGUAGES.map((lang) => (
+              <DropdownMenuContent className="w-56 rounded-2xl p-2 border-none shadow-2xl mr-4 max-h-80 overflow-y-auto" align="end">
+                {SUPPORTED_LANGUAGES && SUPPORTED_LANGUAGES.map((lang) => (
                   <DropdownMenuItem 
                     key={lang.name} 
                     onClick={() => setLanguage(lang.name)}
@@ -168,8 +149,8 @@ export default function Home() {
 
               <div className="space-y-8">
                 <h1 className="text-7xl lg:text-9xl font-black leading-[0.85] tracking-tighter text-white drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)]">
-                  {t('home.heroTitle').split('.').map((part, i) => (
-                    <span key={i}>{part}{i === 0 ? '.' : ''}<br/></span>
+                  {heroTitle.split('.').map((part, i) => (
+                    <span key={i}>{part}{i === 0 && part.trim() ? '.' : ''}<br/></span>
                   ))}
                 </h1>
                 <p className="text-2xl lg:text-3xl text-white/95 max-w-2xl leading-relaxed font-medium italic drop-shadow-lg">
@@ -210,7 +191,7 @@ export default function Home() {
             <div className="flex flex-col items-center text-center mb-32">
                <Badge className="mb-6 h-8 px-6 bg-primary/10 text-primary border-none text-[10px] font-black uppercase tracking-[0.3em]">{t('home.movementTitle')}</Badge>
                <h2 className="text-5xl lg:text-7xl font-black tracking-tighter uppercase leading-[0.9]">
-                 {t('home.metricTitle').split(' ').map((word, i) => (
+                 {metricTitle.split(' ').map((word, i) => (
                    <span key={i} className={word === 'Only' || word === 'Metric.' ? 'gradient-text' : ''}>{word}{' '}</span>
                  ))}
                </h2>

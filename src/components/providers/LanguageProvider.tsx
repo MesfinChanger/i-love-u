@@ -14,6 +14,8 @@ interface LanguageContextType {
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
+const LOCAL_STORAGE_KEY = 'iloveu_pref_lang';
+
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const { user } = useUser();
   const db = useFirestore();
@@ -26,34 +28,43 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const { data: profile } = useDoc(userRef);
   const [language, setInternalLanguage] = useState(DEFAULT_LANGUAGE);
 
+  // 1. Initial Load from LocalStorage or Browser
   useEffect(() => {
-    // 1. Try profile preference
-    if (profile?.preferredLanguage && TRANSLATIONS[profile.preferredLanguage]) {
-      setInternalLanguage(profile.preferredLanguage);
+    const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (saved) {
+      setInternalLanguage(saved);
       return;
     }
 
-    // 2. Try browser detection if not logged in or no preference
-    if (typeof window !== 'undefined' && !profile?.preferredLanguage) {
+    if (typeof window !== 'undefined') {
       const browserLang = navigator.language.split('-')[0];
       const langMap: Record<string, string> = {
         'es': 'Spanish',
         'fr': 'French',
         'sw': 'Swahili',
-        'ja': 'Japanese'
+        'ja': 'Japanese',
+        'ar': 'Arabic',
+        'zh': 'Chinese (Simplified)',
+        'hi': 'Hindi'
       };
       
       const detected = langMap[browserLang];
-      if (detected && TRANSLATIONS[detected]) {
+      if (detected) {
         setInternalLanguage(detected);
       }
+    }
+  }, []);
+
+  // 2. Sync from Profile (if logged in)
+  useEffect(() => {
+    if (profile?.preferredLanguage) {
+      setInternalLanguage(profile.preferredLanguage);
     }
   }, [profile]);
 
   const setLanguage = async (newLang: string) => {
-    if (!TRANSLATIONS[newLang]) return;
-    
     setInternalLanguage(newLang);
+    localStorage.setItem(LOCAL_STORAGE_KEY, newLang);
     
     // Save to Firestore if user is authenticated
     if (db && user) {
@@ -69,11 +80,17 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
   const t = (path: string) => {
     const keys = path.split('.');
-    let current = TRANSLATIONS[language] || TRANSLATIONS[DEFAULT_LANGUAGE];
+    // Try current language dictionary
+    let current = TRANSLATIONS[language];
+    
+    // If dictionary doesn't exist for this language, use English
+    if (!current) {
+      current = TRANSLATIONS[DEFAULT_LANGUAGE];
+    }
     
     for (const key of keys) {
       if (!current || current[key] === undefined) {
-        // Fallback to English if key missing in current language
+        // Fallback to English if key missing in current language dictionary
         let fallback = TRANSLATIONS[DEFAULT_LANGUAGE];
         for (const fKey of keys) {
           fallback = fallback?.[fKey];

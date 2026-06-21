@@ -229,6 +229,29 @@ export const LANGUAGES = [
   'Welsh', 'Xhosa', 'Yiddish', 'Yoruba', 'Zulu'
 ];
 
+export const SUPPORTED_LANGUAGES = [
+  { name: 'English', native: 'English' },
+  { name: 'Spanish', native: 'Español' },
+  { name: 'French', native: 'Français' },
+  { name: 'Swahili', native: 'Kiswahili' },
+  { name: 'Amharic', native: 'አማርኛ' },
+  { name: 'Arabic', native: 'العربية' },
+  { name: 'Bengali', native: 'বাংলা' },
+  { name: 'Chinese (Simplified)', native: '简体中文' },
+  { name: 'Dutch', native: 'Nederlands' },
+  { name: 'German', native: 'Deutsch' },
+  { name: 'Hindi', native: 'हिन्दी' },
+  { name: 'Indonesian', native: 'Bahasa Indonesia' },
+  { name: 'Italian', native: 'Italiano' },
+  { name: 'Japanese', native: '日本語' },
+  { name: 'Korean', native: '한국어' },
+  { name: 'Portuguese', native: 'Português' },
+  { name: 'Russian', native: 'Русский' },
+  { name: 'Turkish', native: 'Türkçe' },
+  { name: 'Urdu', native: 'اردو' },
+  { name: 'Vietnamese', native: 'Tiếng Việt' }
+];
+
 export const CURRENCIES = [
   { code: 'USD', symbol: '$', name: 'US Dollar' },
   { code: 'EUR', symbol: '€', name: 'Euro' },
