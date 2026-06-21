@@ -117,6 +117,7 @@ export default function CommunityPage() {
       setSelectedImage({ file, url });
       setSelectedVideo(null);
       setSelectedFile(null);
+      toast({ title: "Photo Ready", description: "Add a caption and post to the wall! ✨" });
     }
   };
 
@@ -143,7 +144,7 @@ export default function CommunityPage() {
           setSelectedImage(null);
           setSelectedVideo(null);
         }
-        toast({ title: "Content Pasted", description: "Secured to message queue. ✨" });
+        toast({ title: "Moment Pasted", description: "Ready to share with the circle. ❤️" });
       }
     }
   };
@@ -157,6 +158,7 @@ export default function CommunityPage() {
       setSelectedImage(null);
     }
     setSelectedFile(null);
+    toast({ title: "Live Capture Secured", description: "Post your moment to the wall. ✨" });
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -166,6 +168,7 @@ export default function CommunityPage() {
       setSelectedFile(file);
       setSelectedImage(null);
       setSelectedVideo(null);
+      toast({ title: "File Ready", description: "Shared documents inspire prosperity. ❤️" });
     }
   };
 
@@ -177,7 +180,7 @@ export default function CommunityPage() {
       const audio = new Audio(result.media);
       audio.play();
     } catch (error) {
-      toast({ variant: "destructive", title: "Audio Error", description: "The platform couldn't find its voice right now. ✨" });
+      toast({ variant: "destructive", title: "Audio Ripple", description: "The platform is momentarily silent." });
     } finally {
       setSpeakingIds(prev => {
         const next = new Set(prev);
@@ -192,7 +195,7 @@ export default function CommunityPage() {
     setIsDeleting(id);
     try {
       await deleteDoc(doc(db, 'communityMessages', id));
-      toast({ title: "Post Removed", description: "Your respectfully contribution has been cleared. ❤️" });
+      toast({ title: "Post Removed", description: "Cleared from Global Circle. ✨" });
     } catch (e) {
       toast({ variant: "destructive", title: "Action Failed", description: "Could not remove post." });
     } finally {
@@ -253,7 +256,7 @@ export default function CommunityPage() {
 
       await addDoc(collection(db, 'communityMessages'), {
         senderId: user.uid,
-        senderNickname: myProfile?.publicNickname || "Mystery Heart",
+        senderNickname: myProfile?.displayName || myProfile?.publicNickname || "Mystery Heart",
         text: newMessage,
         imageUrl: imageUrl,
         videoUrl: videoUrl,
@@ -267,9 +270,9 @@ export default function CommunityPage() {
       setSelectedImage(null);
       setSelectedVideo(null);
       setSelectedFile(null);
-      toast({ title: "Moment Shared!", description: "Your respectful post is live on the wall. ❤️" });
+      toast({ title: "Moment Shared!", description: "Your contribution is live on the wall. ❤️" });
     } catch (error) {
-      toast({ variant: "destructive", title: "Sharing Error", description: "The platform could not secure your post right now." });
+      toast({ variant: "destructive", title: "Sharing Ripple", description: "Could not secure your post right now." });
     } finally {
       setIsSending(false);
     }
@@ -320,7 +323,7 @@ export default function CommunityPage() {
             const isMe = msg.senderId === user?.uid;
             const isMedia = !!(msg.imageUrl || msg.videoUrl || msg.fileUrl);
             return (
-              <div key={msg.id || i} className={cn("flex flex-col gap-1 group", isMe ? "items-end" : "items-start")}>
+              <div key={msg.id || i} className={cn("flex flex-col gap-1 group animate-in fade-in slide-in-from-bottom-2 duration-300", isMe ? "items-end" : "items-start")}>
                 <div className="flex items-center gap-2 px-2">
                    <span className="text-[9px] font-black uppercase text-muted-foreground truncate max-w-[120px]">{msg.senderNickname}</span>
                    <span className="text-[7px] text-muted-foreground/40 shrink-0">{msg.timestamp ? new Date(msg.timestamp.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '...'}</span>
@@ -372,7 +375,6 @@ export default function CommunityPage() {
                     </div>
                   )}
 
-                  {/* attribution footer for media or general clarity */}
                   {isMedia && (
                     <div className={cn("flex justify-between items-center mt-1 pt-1 border-t", isMe ? "border-white/10" : "border-slate-100")}>
                        <span className="text-[8px] font-black uppercase opacity-40">{msg.senderNickname}</span>
@@ -395,25 +397,29 @@ export default function CommunityPage() {
 
       <footer className="p-4 bg-white/80 backdrop-blur-xl border-t pb-24 shrink-0 space-y-3">
         {(selectedImage || selectedVideo || selectedFile) && (
-          <div className="flex items-center gap-3 animate-in zoom-in-95">
+          <div className="flex items-center gap-3 animate-in zoom-in-95 bg-muted/20 p-2 rounded-2xl">
             {selectedImage ? (
-              <div className="relative w-20 h-20 rounded-xl overflow-hidden border-2 border-primary/20 shadow-lg">
+              <div className="relative w-20 h-20 rounded-xl overflow-hidden border-2 border-primary/20 shadow-lg shrink-0">
                 <Image src={selectedImage.url} alt="Preview" fill className="object-cover" />
                 <button onClick={() => setSelectedImage(null)} className="absolute top-0 right-0 bg-black/50 text-white p-1 rounded-bl-xl"><X className="w-3 h-3" /></button>
               </div>
             ) : selectedVideo ? (
-              <div className="bg-slate-900 p-3 rounded-xl flex items-center gap-3 border border-primary/20 shadow-lg">
+              <div className="bg-slate-900 p-3 rounded-xl flex items-center gap-3 border border-primary/20 shadow-lg shrink-0">
                  <PlayCircle className="w-4 h-4 text-primary" />
                  <span className="text-[10px] text-white font-bold truncate max-w-[120px]">{selectedVideo.file.name}</span>
                  <button onClick={() => setSelectedVideo(null)} className="text-white/40 hover:text-white"><X className="w-3 h-3" /></button>
               </div>
             ) : selectedFile ? (
-              <div className="bg-muted/50 p-3 rounded-xl flex items-center gap-3 border border-primary/10 shadow-sm">
+              <div className="bg-muted/50 p-3 rounded-xl flex items-center gap-3 border border-primary/10 shadow-sm shrink-0">
                  <FileIcon className="w-4 h-4 text-primary" />
                  <span className="text-[10px] font-bold truncate max-w-[120px]">{selectedFile.name}</span>
                  <button onClick={() => setSelectedFile(null)} className="text-muted-foreground hover:text-primary"><X className="w-3 h-3" /></button>
               </div>
             ) : null}
+            <div className="flex-grow text-left pl-2">
+               <p className="text-[9px] font-black uppercase text-primary">Media Queue Active</p>
+               <p className="text-[8px] font-bold text-muted-foreground italic uppercase">Caption & Post below</p>
+            </div>
           </div>
         )}
         <form onSubmit={handleSendMessage} className="flex gap-2">
@@ -438,7 +444,7 @@ export default function CommunityPage() {
                 </Button>
                 <Button variant="ghost" size="sm" onClick={() => fileInputRef.current?.click()} className="justify-start gap-3 rounded-xl py-5 h-auto border-t border-muted/50 mt-1">
                    <Paperclip className="w-4 h-4 text-primary" />
-                   <span className="font-bold text-xs uppercase tracking-tight">Upload File</span>
+                   <span className="font-bold text-xs uppercase tracking-tight">Post File</span>
                 </Button>
               </div>
             </PopoverContent>
