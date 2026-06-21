@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
@@ -49,6 +48,7 @@ import { useTranslation } from '@/components/providers/LanguageProvider';
 import { LiveCamera } from '@/components/LiveCamera';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError, type SecurityRuleContext } from '@/firebase/errors';
+import { Progress } from "@/components/ui/progress";
 
 /**
  * Utility to convert a File to a Data URI for AI moderation.
@@ -65,7 +65,7 @@ const fileToDataUri = (file: File): Promise<string> => {
 export default function CommunityPage() {
   const { user } = useUser();
   const db = useFirestore();
-  const { uploadFile, isUploading: isStorageUploading } = useFirebaseStorage();
+  const { uploadFile, isUploading: isStorageUploading, progress: uploadProgress } = useFirebaseStorage();
   const { toast } = useToast();
   const { t } = useTranslation();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -226,7 +226,6 @@ export default function CommunityPage() {
       let fileName: string | null = null;
       let isSensitive = false;
 
-      // 1. Parallelize Moderation and Uploads
       if (newMessage.trim()) {
         promises.push(moderateText({ text: newMessage, context: 'chat' }).then(res => {
           if (res.isFlagged) throw new Error(`TEXT_FLAGGED: ${res.reason}`);
@@ -261,7 +260,6 @@ export default function CommunityPage() {
 
       await Promise.all(promises);
 
-      // 2. High-Speed Non-Blocking Mutation
       const messageData = {
         senderId: user.uid,
         senderNickname: myProfile?.displayName || myProfile?.publicNickname || "Mystery Heart",
@@ -422,29 +420,41 @@ export default function CommunityPage() {
 
       <footer className="p-4 bg-white/80 backdrop-blur-xl border-t pb-24 shrink-0 space-y-3">
         {(selectedImage || selectedVideo || selectedFile) && (
-          <div className="flex items-center gap-3 animate-in zoom-in-95 bg-muted/20 p-2 rounded-2xl">
-            {selectedImage ? (
-              <div className="relative w-20 h-20 rounded-xl overflow-hidden border-2 border-primary/20 shadow-lg shrink-0">
-                <Image src={selectedImage.url} alt="Preview" fill className="object-cover" />
-                <button onClick={() => setSelectedImage(null)} className="absolute top-0 right-0 bg-black/50 text-white p-1 rounded-bl-xl"><X className="w-3 h-3" /></button>
+          <div className="flex flex-col gap-3 animate-in zoom-in-95 bg-muted/20 p-3 rounded-2xl">
+            <div className="flex items-center gap-3">
+              {selectedImage ? (
+                <div className="relative w-20 h-20 rounded-xl overflow-hidden border-2 border-primary/20 shadow-lg shrink-0">
+                  <Image src={selectedImage.url} alt="Preview" fill className="object-cover" />
+                  <button onClick={() => setSelectedImage(null)} className="absolute top-0 right-0 bg-black/50 text-white p-1 rounded-bl-xl"><X className="w-3 h-3" /></button>
+                </div>
+              ) : selectedVideo ? (
+                <div className="bg-slate-900 p-3 rounded-xl flex items-center gap-3 border border-primary/20 shadow-lg shrink-0">
+                   <PlayCircle className="w-4 h-4 text-primary" />
+                   <span className="text-[10px] text-white font-bold truncate max-w-[120px]">{selectedVideo.file.name}</span>
+                   <button onClick={() => setSelectedVideo(null)} className="text-white/40 hover:text-white"><X className="w-3 h-3" /></button>
+                </div>
+              ) : selectedFile ? (
+                <div className="bg-muted/50 p-3 rounded-xl flex items-center gap-3 border border-primary/10 shadow-sm shrink-0">
+                   <FileIcon className="w-4 h-4 text-primary" />
+                   <span className="text-[10px] font-bold truncate max-w-[120px]">{selectedFile.name}</span>
+                   <button onClick={() => setSelectedFile(null)} className="text-muted-foreground hover:text-primary"><X className="w-3 h-3" /></button>
+                </div>
+              ) : null}
+              <div className="flex-grow text-left pl-2">
+                 <p className="text-[9px] font-black uppercase text-primary">Media Queue Active</p>
+                 <p className="text-[8px] font-bold text-muted-foreground italic uppercase">Caption & Post below</p>
               </div>
-            ) : selectedVideo ? (
-              <div className="bg-slate-900 p-3 rounded-xl flex items-center gap-3 border border-primary/20 shadow-lg shrink-0">
-                 <PlayCircle className="w-4 h-4 text-primary" />
-                 <span className="text-[10px] text-white font-bold truncate max-w-[120px]">{selectedVideo.file.name}</span>
-                 <button onClick={() => setSelectedVideo(null)} className="text-white/40 hover:text-white"><X className="w-3 h-3" /></button>
-              </div>
-            ) : selectedFile ? (
-              <div className="bg-muted/50 p-3 rounded-xl flex items-center gap-3 border border-primary/10 shadow-sm shrink-0">
-                 <FileIcon className="w-4 h-4 text-primary" />
-                 <span className="text-[10px] font-bold truncate max-w-[120px]">{selectedFile.name}</span>
-                 <button onClick={() => setSelectedFile(null)} className="text-muted-foreground hover:text-primary"><X className="w-3 h-3" /></button>
-              </div>
-            ) : null}
-            <div className="flex-grow text-left pl-2">
-               <p className="text-[9px] font-black uppercase text-primary">Media Queue Active</p>
-               <p className="text-[8px] font-bold text-muted-foreground italic uppercase">Caption & Post below</p>
             </div>
+            
+            {isStorageUploading && (
+              <div className="space-y-1">
+                <div className="flex justify-between text-[8px] font-black uppercase">
+                  <span>Securing Media...</span>
+                  <span>{Math.round(uploadProgress)}%</span>
+                </div>
+                <Progress value={uploadProgress} className="h-1" />
+              </div>
+            )}
           </div>
         )}
         <form onSubmit={handleSendMessage} className="flex gap-2">

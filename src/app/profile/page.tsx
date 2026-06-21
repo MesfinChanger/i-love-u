@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, Suspense, useRef, useMemo } from 'react';
@@ -81,6 +80,7 @@ import { COUNTRIES, LANGUAGES, CURRENCIES, WORLD_LOCATIONS } from '@/lib/world-d
 import Image from 'next/image';
 import { useTranslation } from '@/components/providers/LanguageProvider';
 import { LiveCamera } from '@/components/LiveCamera';
+import { Progress } from "@/components/ui/progress";
 
 /**
  * Utility to convert a File to a Data URI for AI moderation.
@@ -103,7 +103,7 @@ function ProfileContent() {
   const { user } = useUser();
   const db = useFirestore();
   const auth = useAuth();
-  const { uploadFile, isUploading: isStorageUploading } = useFirebaseStorage();
+  const { uploadFile, isUploading: isStorageUploading, progress: uploadProgress } = useFirebaseStorage();
   const { toast } = useToast();
   const { t } = useTranslation();
   const router = useRouter();
@@ -115,7 +115,6 @@ function ProfileContent() {
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [cameraTarget, setCameraTarget] = useState<'avatar' | 'gallery' | 'video' | null>(null);
 
-  // Identity Fields
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -125,14 +124,12 @@ function ProfileContent() {
   const [additionalPhotoUrls, setAdditionalPhotoUrls] = useState<string[]>([]);
   const [publicVideoUrl, setPublicVideoUrl] = useState('');
   
-  // Granular Location Fields
   const [address1, setAddress1] = useState('');
   const [address2, setAddress2] = useState('');
   const [city, setCity] = useState(''); 
   const [state, setState] = useState(''); 
   const [country, setCountry] = useState('US');
 
-  // Vibe Fields
   const [displayName, setDisplayName] = useState('');
   const [gender, setGender] = useState('');
   const [bio, setBio] = useState('');
@@ -141,7 +138,6 @@ function ProfileContent() {
   const [preferredLanguage, setPreferredLanguage] = useState('English');
   const [currency, setCurrency] = useState('USD');
 
-  // Security Protocol
   const [isAgeVerified, setIsAgeVerified] = useState(false);
   const [isRespectful, setIsRespectful] = useState(false);
   const [isHuman, setIsHuman] = useState(false);
@@ -150,9 +146,6 @@ function ProfileContent() {
   const [isSaving, setIsSaving] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
-  const [isUploadingGallery, setIsUploadingGallery] = useState(false);
-  const [isUploadingVideo, setIsUploadingVideo] = useState(false);
-  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -231,28 +224,14 @@ function ProfileContent() {
     if (!user) return;
     
     try {
-      if (cameraTarget === 'avatar') {
-        setIsUploadingAvatar(true);
-        const url = await uploadFile(`profiles/${user.uid}/avatar`, data.file);
-        setPhotoUrl(url);
-        setIsUploadingAvatar(false);
-      } else if (cameraTarget === 'gallery') {
-        setIsUploadingGallery(true);
-        const url = await uploadFile(`profiles/${user.uid}/gallery_${Date.now()}`, data.file);
-        setAdditionalPhotoUrls(prev => [...prev, url]);
-        setIsUploadingGallery(false);
-      } else if (cameraTarget === 'video') {
-        setIsUploadingVideo(true);
-        const url = await uploadFile(`profiles/${user.uid}/highlight_video_${Date.now()}`, data.file);
-        setPublicVideoUrl(url);
-        setIsUploadingVideo(false);
-      }
+      const url = await uploadFile(`profiles/${user.uid}/${cameraTarget}_${Date.now()}`, data.file);
+      if (cameraTarget === 'avatar') setPhotoUrl(url);
+      else if (cameraTarget === 'gallery') setAdditionalPhotoUrls(prev => [...prev, url]);
+      else if (cameraTarget === 'video') setPublicVideoUrl(url);
+      
       toast({ title: "Media Secured", description: "Your live capture has been saved! ✨" });
     } catch (e) {
       toast({ variant: "destructive", title: "Upload Ripple", description: "Could not secure live capture. ❤️" });
-      setIsUploadingAvatar(false);
-      setIsUploadingGallery(false);
-      setIsUploadingVideo(false);
     }
   };
 
@@ -260,22 +239,13 @@ function ProfileContent() {
     const file = e.target.files?.[0];
     if (!file || !user) return;
 
-    const setLoader = (val: boolean) => {
-      if (target === 'avatar') setIsUploadingAvatar(val);
-      if (target === 'gallery') setIsUploadingGallery(val);
-      if (target === 'video') setIsUploadingVideo(val);
-    };
-
-    setLoader(true);
     try {
-      // 1. Convert for moderation (if image)
       if (file.type.startsWith('image/')) {
         const dataUri = await fileToDataUri(file);
         try {
           const moderation = await moderateImage({ photoDataUri: dataUri });
           if (moderation.isSensitive) {
             toast({ variant: "destructive", title: "Policy Violation", description: "This image contains sensitive content. ❤️" });
-            setLoader(false);
             return;
           }
         } catch (modErr) {
@@ -283,20 +253,16 @@ function ProfileContent() {
         }
       }
 
-      // 2. Upload to Cloud
       const path = `profiles/${user.uid}/${target}_${Date.now()}`;
       const url = await uploadFile(path, file);
 
-      // 3. Update Local State
       if (target === 'avatar') setPhotoUrl(url);
-      if (target === 'gallery') setAdditionalPhotoUrls(prev => [...prev, url]);
-      if (target === 'video') setPublicVideoUrl(url);
+      else if (target === 'gallery') setAdditionalPhotoUrls(prev => [...prev, url]);
+      else if (target === 'video') setPublicVideoUrl(url);
 
       toast({ title: "Media Saved", description: "Your respectful content is secured. ✨" });
     } catch (error) {
       toast({ variant: "destructive", title: "Upload Failed", description: "The platform could not secure your media right now." });
-    } finally {
-      setLoader(false);
     }
   };
 
@@ -399,21 +365,14 @@ function ProfileContent() {
     if (!user || !db || !auth?.currentUser || isDeletingAccount) return;
     setIsDeletingAccount(true);
     try {
-      // 1. Clear Firestore Records
       await deleteDoc(doc(db, 'users', user.uid));
       await deleteDoc(doc(db, 'publicProfiles', user.uid));
-      
-      // 2. Clear Local Protocol
       localStorage.removeItem('iloveu_policy_accepted');
       localStorage.removeItem(`spark_priv_${user.uid}`);
-
-      // 3. Delete Firebase Auth User
       await deleteUser(auth.currentUser);
-      
       toast({ title: "Account Purged", description: "Your identity and history have been permanently removed. ❤️" });
       router.push('/');
     } catch (error: any) {
-      console.error("Purge Ripple:", error);
       if (error.code === 'auth/requires-recent-login') {
         toast({ 
           variant: "destructive", 
@@ -463,7 +422,7 @@ function ProfileContent() {
                     <Avatar className="w-16 h-16 border-2 border-primary/20 shadow-lg">
                       <AvatarImage src={photoUrl} className="object-cover" />
                       <AvatarFallback className="bg-primary/5 text-primary">
-                        {isUploadingAvatar ? <Loader2 className="w-5 h-5 animate-spin" /> : <User className="w-8 h-8" />}
+                        {isStorageUploading && cameraTarget === 'avatar' ? <Loader2 className="w-5 h-5 animate-spin" /> : <User className="w-8 h-8" />}
                       </AvatarFallback>
                     </Avatar>
                     <div className="absolute -bottom-1 -right-1 bg-primary text-white p-1 rounded-full border-2 border-white shadow-sm group-hover:scale-110 transition-transform">
@@ -509,6 +468,16 @@ function ProfileContent() {
             </Button>
           </div>
         </div>
+
+        {isStorageUploading && (
+          <div className="mb-6 bg-white/50 backdrop-blur-md p-4 rounded-2xl border border-primary/10 animate-in fade-in slide-in-from-top-2">
+            <div className="flex justify-between text-[9px] font-black uppercase mb-1.5">
+              <span className="text-primary">Securing identity media...</span>
+              <span className="text-primary">{Math.round(uploadProgress)}%</span>
+            </div>
+            <Progress value={uploadProgress} className="h-1.5 bg-primary/5" />
+          </div>
+        )}
 
         <Tabs defaultValue="personal" className="w-full">
           <TabsList className="w-full h-14 bg-white/50 rounded-2xl p-1 mb-6 border shadow-sm backdrop-blur-md overflow-x-auto no-scrollbar">
@@ -655,7 +624,7 @@ function ProfileContent() {
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="sm" className="text-primary gap-1.5 h-8 px-4 bg-primary/5 rounded-full text-[9px] font-black uppercase">
-                            {isUploadingGallery ? <Loader2 className="w-3 h-3 animate-spin" /> : <Plus className="w-3 h-3" />}
+                            {isStorageUploading && cameraTarget === 'gallery' ? <Loader2 className="w-3 h-3 animate-spin" /> : <Plus className="w-3 h-3" />}
                             Add Photo
                           </Button>
                         </DropdownMenuTrigger>
@@ -694,7 +663,7 @@ function ProfileContent() {
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="sm" className="text-primary gap-1.5 h-8 px-4 bg-primary/5 rounded-full text-[9px] font-black uppercase">
-                              {isUploadingVideo ? <Loader2 className="w-3 h-3 animate-spin" /> : <Video className="w-3 h-3" />}
+                              {isStorageUploading && cameraTarget === 'video' ? <Loader2 className="w-3 h-3 animate-spin" /> : <Video className="w-3 h-3" />}
                               Capture / Replace
                             </Button>
                           </DropdownMenuTrigger>
@@ -770,7 +739,6 @@ function ProfileContent() {
                 </div>
               </Card>
 
-              {/* Account Deletion Section */}
               <Card className="rounded-[2.5rem] border-none shadow-xl bg-red-50 p-8 space-y-6">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-red-500 shadow-sm">

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect, useRef, use } from 'react';
@@ -69,6 +68,7 @@ import Link from 'next/link';
 import { LiveCamera } from '@/components/LiveCamera';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError, type SecurityRuleContext } from '@/firebase/errors';
+import { Progress } from "@/components/ui/progress";
 
 /**
  * Utility to convert a File to a Data URI for AI moderation.
@@ -92,7 +92,7 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
   const { matchId } = use(params);
   const { user } = useUser();
   const db = useFirestore();
-  const { uploadFile, isUploading: isStorageUploading } = useFirebaseStorage();
+  const { uploadFile, isUploading: isStorageUploading, progress: uploadProgress } = useFirebaseStorage();
   const router = useRouter();
   const { toast } = useToast();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -263,7 +263,6 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
 
     setIsSending(true);
     try {
-      // 1. Check Moderation
       const moderation = await moderateText({ text: newMessage });
       if (moderation.isFlagged) {
         toast({
@@ -275,14 +274,12 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
         return;
       }
 
-      // 2. Encryption Layer
       const partnerPubKey = partnerProfile?.publicKey;
       let encryptedText = null;
       if (partnerPubKey) {
         encryptedText = await encryptText(newMessage, partnerPubKey);
       }
 
-      // 3. Parallel non-blocking write
       const messagesColl = collection(db, 'matches', matchId, 'messages');
       const messageData = {
         senderId: user.uid,
@@ -317,7 +314,6 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
       if (data.type === 'image') {
         const photoDataUri = data.url.startsWith('data:') ? data.url : await fileToDataUri(data.file);
         
-        // 1. Parallelize AI and Storage
         const [modResult, cloudUrl] = await Promise.all([
           moderateImage({ photoDataUri }),
           uploadFile(`matches/${matchId}/${Date.now()}.jpg`, data.file)
@@ -653,7 +649,6 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
                       </div>
                     )}
                     
-                    {/* Attribution footer for media items */}
                     {isMedia && (
                       <div className={cn("flex justify-between items-center mt-2 pt-1 border-t", isMe ? "border-white/10" : "border-slate-100")}>
                         <span className="text-[8px] font-black uppercase opacity-60">{senderName}</span>
@@ -676,8 +671,18 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
         )}
       </main>
 
-      <footer className="p-4 border-t pb-8 bg-white/80 backdrop-blur-xl z-20 shrink-0">
-        <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-3 mb-1">
+      <footer className="p-4 border-t pb-8 bg-white/80 backdrop-blur-xl z-20 shrink-0 space-y-3">
+        {isStorageUploading && (
+          <div className="px-4 animate-in fade-in slide-in-from-bottom-2">
+            <div className="flex justify-between text-[8px] font-black uppercase mb-1">
+              <span className="text-primary">Securing Media...</span>
+              <span className="text-primary">{Math.round(uploadProgress)}%</span>
+            </div>
+            <Progress value={uploadProgress} className="h-1 bg-primary/10" />
+          </div>
+        )}
+
+        <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1 mb-1">
            {CHAT_SHORTCUTS.map((shortcut) => (
              <Button key={shortcut.id} variant="outline" size="sm" onClick={() => setIsCameraOpen(true)} className="rounded-full shrink-0 h-9 gap-2 border-primary/10 text-primary hover:bg-primary/5 font-black text-[9px] uppercase tracking-widest px-4" disabled={!hasAcceptedPolicy}>
                <shortcut.icon className="w-3.5 h-3.5" /> {shortcut.label}
