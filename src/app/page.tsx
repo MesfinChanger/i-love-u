@@ -58,7 +58,7 @@ const SUPPORTED_LANGUAGES = [
 
 export default function Home() {
   const dynamicImages = useMemo(() => PlaceHolderImages.filter(img => img.id.startsWith('user-')), []);
-  const { language, setLanguage } = useTranslation();
+  const { language, setLanguage, t } = useTranslation();
   
   const [langIndex, setLangIndex] = useState(0);
   const [imageIndex, setImageIndex] = useState(0);
@@ -117,7 +117,7 @@ export default function Home() {
 
             <Link href="/login" className="text-[10px] font-black uppercase tracking-widest text-white/60 hover:text-white transition-colors hidden sm:block">Login</Link>
             <Button size="sm" className="rounded-full h-10 px-6 gradient-bg font-black uppercase text-[9px] tracking-widest shadow-xl border border-white/10" asChild>
-              <Link href="/login">Launch</Link>
+              <Link href="/login">{t('login.launch')}</Link>
             </Button>
           </div>
         </div>
@@ -163,23 +163,24 @@ export default function Home() {
 
               <div className="space-y-8">
                 <h1 className="text-7xl lg:text-9xl font-black leading-[0.85] tracking-tighter text-white drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)]">
-                  Spark Love.<br/>
-                  End Poverty.
+                  {t('home.heroTitle').split('.').map((part, i) => (
+                    <span key={i}>{part}{i === 0 ? '.' : ''}<br/></span>
+                  ))}
                 </h1>
                 <p className="text-2xl lg:text-3xl text-white/95 max-w-2xl leading-relaxed font-medium italic drop-shadow-lg">
-                  Connecting hearts across every city and village to fund local job creation. Respect is Mandatory.
+                  {t('home.heroSubtitle')}
                 </p>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-6">
                 <Button size="lg" className="h-24 px-16 rounded-[2rem] text-2xl font-black gradient-bg shadow-[0_20px_50px_-10px_rgba(255,51,102,0.7)] hover:scale-105 transition-transform group border border-white/20" asChild>
                   <Link href="/login" className="flex items-center gap-5">
-                    Launch Spark
+                    {t('home.launchButton')}
                     <ArrowRight className="w-8 h-8 group-hover:translate-x-2 transition-transform" />
                   </Link>
                 </Button>
                 <Button variant="outline" size="lg" className="h-24 px-14 rounded-[2rem] text-xl font-bold border-2 border-white/30 bg-white/10 backdrop-blur-xl hover:bg-white/20 text-white transition-all shadow-2xl" asChild>
-                  <Link href="/donate">Support Mission</Link>
+                  <Link href="/donate">{t('home.supportButton')}</Link>
                 </Button>
               </div>
 
@@ -192,7 +193,7 @@ export default function Home() {
                 </div>
                 <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em] text-white/80 drop-shadow-md">
                    <ShieldCheck className="w-5 h-5 text-primary" />
-                   18+ Global Compliance
+                   {t('home.compliance')}
                 </div>
               </div>
             </div>
@@ -202,17 +203,19 @@ export default function Home() {
         <section className="py-40 bg-white relative z-10">
           <div className="container mx-auto px-6">
             <div className="flex flex-col items-center text-center mb-32">
-               <Badge className="mb-6 h-8 px-6 bg-primary/10 text-primary border-none text-[10px] font-black uppercase tracking-[0.3em]">The Movement</Badge>
+               <Badge className="mb-6 h-8 px-6 bg-primary/10 text-primary border-none text-[10px] font-black uppercase tracking-[0.3em]">{t('home.movementTitle')}</Badge>
                <h2 className="text-5xl lg:text-7xl font-black tracking-tighter uppercase leading-[0.9]">
-                 Happiness is the <br/><span className="gradient-text">Only Metric.</span>
+                 {t('home.metricTitle').split(' ').map((word, i) => (
+                   <span key={i} className={word === 'Only' || word === 'Metric.' ? 'gradient-text' : ''}>{word}{' '}</span>
+                 ))}
                </h2>
             </div>
             
             <div className="grid md:grid-cols-3 gap-12">
               {[
-                { icon: Zap, color: 'text-primary', bg: 'bg-primary/5', title: 'AI Moderated', desc: 'Disrespect is filtered automatically. Join a community where kindness is mandatory.' },
-                { icon: Heart, color: 'text-secondary', bg: 'bg-secondary/5', title: 'Pure Respect', desc: 'Built on mutual honor. Reaching every rural community and global city with love.' },
-                { icon: Briefcase, color: 'text-indigo-600', bg: 'bg-indigo-50', title: 'Prosperity', desc: 'Every connection funds local job creation to eliminate global poverty forever.' }
+                { icon: Zap, color: 'text-primary', bg: 'bg-primary/5', title: t('home.featureAiTitle'), desc: t('home.featureAiDesc') },
+                { icon: Heart, color: 'text-secondary', bg: 'bg-secondary/5', title: t('home.featureRespectTitle'), desc: t('home.featureRespectDesc') },
+                { icon: Briefcase, color: 'text-indigo-600', bg: 'bg-indigo-50', title: t('home.featureProsperityTitle'), desc: t('home.featureProsperityDesc') }
               ].map((feature, i) => (
                 <div key={i} className="bg-slate-50 p-14 rounded-[4rem] text-left group hover:bg-white hover:shadow-[0_50px_100px_-20px_rgba(0,0,0,0.1)] transition-all duration-700 border border-transparent hover:border-slate-100">
                   <div className={cn("w-20 h-20 rounded-[2rem] flex items-center justify-center mb-10 shadow-sm transition-transform group-hover:rotate-6", feature.bg, feature.color)}>
@@ -233,8 +236,8 @@ export default function Home() {
             <Heart className="w-10 h-10 fill-primary text-primary" />
             <span className="font-black text-[12px] tracking-[0.4em] text-primary uppercase">I LOVE YOU</span>
           </div>
-          <p className="font-black text-[10px] tracking-[0.3em] mb-4 uppercase text-slate-400">© {currentYear || 'Prosperity Revolution'} • Reaching Every Heart</p>
-          <p className="text-[9px] font-bold italic uppercase tracking-widest opacity-40 text-slate-400">Respect & Love is Mandatory ❤️ Eliminating Poverty Globally</p>
+          <p className="font-black text-[10px] tracking-[0.3em] mb-4 uppercase text-slate-400">© {currentYear || 'Prosperity Revolution'} • {t('home.footerCopyright')}</p>
+          <p className="text-[9px] font-bold italic uppercase tracking-widest opacity-40 text-slate-400">{t('home.footerTagline')}</p>
         </div>
       </footer>
     </div>

@@ -28,6 +28,23 @@ export const TRANSLATIONS: Record<LanguageCode, any> = {
       respectVerify: "Respect is Mandatory",
       humanVerify: "Verify Human Status"
     },
+    home: {
+      heroTitle: "Spark Love. End Poverty.",
+      heroSubtitle: "Connecting hearts across every city and village to fund local job creation. Respect is Mandatory.",
+      launchButton: "Launch Spark",
+      supportButton: "Support Mission",
+      compliance: "18+ Global Compliance",
+      movementTitle: "The Movement",
+      metricTitle: "Happiness is the Only Metric.",
+      featureAiTitle: "AI Moderated",
+      featureAiDesc: "Disrespect is filtered automatically. Join a community where kindness is mandatory.",
+      featureRespectTitle: "Pure Respect",
+      featureRespectDesc: "Built on mutual honor. Reaching every rural community and global city with love.",
+      featureProsperityTitle: "Prosperity",
+      featureProsperityDesc: "Every connection funds local job creation to eliminate global poverty forever.",
+      footerCopyright: "© Prosperity Revolution • Reaching Every Heart",
+      footerTagline: "Respect & Love is Mandatory ❤️ Eliminating Poverty Globally"
+    },
     discover: {
       mystery: "Mystery Connection",
       revealed: "Revealed Heart",
@@ -107,6 +124,23 @@ export const TRANSLATIONS: Record<LanguageCode, any> = {
       ageVerify: "Tengo 18+ años",
       respectVerify: "El Respeto es Obligatorio",
       humanVerify: "Verificar Humano"
+    },
+    home: {
+      heroTitle: "Chispa de Amor. Fin de la Pobreza.",
+      heroSubtitle: "Uniendo corazones en cada ciudad y pueblo para financiar la creación de empleo local. El respeto es obligatorio.",
+      launchButton: "Iniciar Chispa",
+      supportButton: "Apoyar Misión",
+      compliance: "Cumplimiento Global 18+",
+      movementTitle: "El Movimiento",
+      metricTitle: "La felicidad es la única métrica.",
+      featureAiTitle: "Moderado por IA",
+      featureAiDesc: "La falta de respeto se filtra automáticamente. Únete a una comunidad donde la amabilidad es obligatoria.",
+      featureRespectTitle: "Respeto Puro",
+      featureRespectDesc: "Construido sobre el honor mutuo. Llegando a cada comunidad rural y ciudad global con amor.",
+      featureProsperityTitle: "Prosperidad",
+      featureProsperityDesc: "Cada conexión financia la creación de empleo local para eliminar la pobreza global para siempre.",
+      footerCopyright: "© Revolución de Prosperidad • Llegando a cada corazón",
+      footerTagline: "El respeto y el amor son obligatorios ❤️ Eliminando la pobreza globalmente"
     },
     discover: {
       mystery: "Conexión Misteriosa",
@@ -188,6 +222,23 @@ export const TRANSLATIONS: Record<LanguageCode, any> = {
       respectVerify: "Le Respect est Obligatoire",
       humanVerify: "Vérification Humaine"
     },
+    home: {
+      heroTitle: "Étincelle d'Amour. Fin de la Pauvreté.",
+      heroSubtitle: "Relier les cœurs à travers chaque ville et village pour financer la création d'emplois locaux. Le respect est obligatoire.",
+      launchButton: "Lancer l'Étincelle",
+      supportButton: "Soutenir la Mission",
+      compliance: "Conformité Mondiale 18+",
+      movementTitle: "Le Mouvement",
+      metricTitle: "Le bonheur est la seule mesure.",
+      featureAiTitle: "Modéré par l'IA",
+      featureAiDesc: "L'irrespect est filtré automatiquement. Rejoignez une communauté où la gentillesse est obligatoire.",
+      featureRespectTitle: "Respect Pur",
+      featureRespectDesc: "Bâti sur l'honneur mutuel. Atteindre chaque communauté rurale et ville mondiale avec amour.",
+      featureProsperityTitle: "Prospérité",
+      featureProsperityDesc: "Chaque connexion finance la création d'emplois locaux pour éliminer définitivement la pauvreté mondiale.",
+      footerCopyright: "© Révolution de la Prospérité • Atteindre chaque cœur",
+      footerTagline: "Le respect et l'amour sont obligatoires ❤️ Éliminer la pauvreté dans le monde"
+    },
     discover: {
       mystery: "Connexion Mystère",
       revealed: "Cœur Révélé",
@@ -267,6 +318,23 @@ export const TRANSLATIONS: Record<LanguageCode, any> = {
       ageVerify: "Nina umri wa 18+",
       respectVerify: "Heshima ni Lazima",
       humanVerify: "Thibitisha Binadamu"
+    },
+    home: {
+      heroTitle: "Cheche ya Upendo. Maliza Umaskini.",
+      heroSubtitle: "Kuunganisha mioyo katika kila jiji na kijiji kufadhili uundaji wa ajira za ndani. Heshima ni Lazima.",
+      launchButton: "Anza Cheche",
+      supportButton: "Saidia Misheni",
+      compliance: "Uzingatiaji wa Ulimwengu 18+",
+      movementTitle: "Harakati",
+      metricTitle: "Furaha ndio Kipimo Pekee.",
+      featureAiTitle: "Inasimamiwa na AI",
+      featureAiDesc: "Ukosefu wa heshima huchujwa kiotomatiki. Jiunge na jumuiya ambapo fadhili ni lazima.",
+      featureRespectTitle: "Heshima Safi",
+      featureRespectDesc: "Imejengwa juu ya heshima ya pande zote. Kufikia kila jumuiya ya vijijini na jiji la kimataifa kwa upendo.",
+      featureProsperityTitle: "Mafanikio",
+      featureProsperityDesc: "Kila uhusiano hufadhili uundaji wa ajira za ndani ili kuondoa umaskini wa ulimwengu milele.",
+      footerCopyright: "© Mapinduzi ya Mafanikio • Kufikia Kila Moyo",
+      footerTagline: "Heshima na Upendo ni Lazima ❤️ Kumaliza Umaskini Kote Duniani"
     },
     discover: {
       mystery: "Uhusiano wa Siri",
