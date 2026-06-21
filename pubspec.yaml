@@ -1,0 +1,69 @@
+name: i_love_u_app
+description: "A mission-driven Flutter application for the I LOVE U Prosperity Revolution. Reaching every heart in every village. Respect & Love is Mandatory."
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # The Essentials
+  cupertino_icons: ^1.0.6
+  google_fonts: ^6.1.0
+  intl: ^0.18.1
+  
+  # Firebase Core & Mission Data
+  firebase_core: ^2.24.2
+  firebase_auth: ^4.15.2
+  cloud_firestore: ^4.13.2
+  firebase_storage: ^11.5.2
+  
+  # State & Networking
+  provider: ^6.1.1
+  dio: ^5.3.3
+  
+  # Media & Hardware (Universal Live Camera Protocol)
+  image_picker: ^1.0.4
+  camera: ^0.10.5+5
+  video_player: ^2.8.1
+  cached_network_image: ^3.3.0
+  
+  # Accountability (GPS Protocol)
+  geolocator: ^10.1.0
+  google_maps_flutter: ^2.5.0
+  
+  # Community Sharing & Links
+  share_plus: ^7.1.0
+  url_launcher: ^6.2.1
+  
+  # Prosperity UI Components
+  flutter_staggered_animations: ^1.1.1
+  shimmer: ^3.0.0
+  font_awesome_flutter: ^10.6.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+# Prosperity Revolution Assets
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+    - assets/icons/
+    - assets/videos/
+
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: fonts/Inter-Regular.ttf
+        - asset: fonts/Inter-Bold.ttf
+          weight: 700
+        - asset: fonts/Inter-Black.ttf
+          weight: 900
