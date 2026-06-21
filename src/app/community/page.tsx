@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
@@ -42,12 +41,14 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useTranslation } from '@/components/providers/LanguageProvider';
 
 export default function CommunityPage() {
   const { user } = useUser();
   const db = useFirestore();
   const { uploadFile, isUploading: isStorageUploading } = useFirebaseStorage();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const scrollRef = useRef<HTMLDivElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
@@ -247,8 +248,8 @@ export default function CommunityPage() {
               <Globe2 className="w-8 h-8 text-primary" />
            </div>
            <div>
-              <h2 className="text-xl font-black tracking-tighter">Global Circle Wall</h2>
-              <p className="text-[10px] font-bold uppercase tracking-widest">Bridging Hearts Across Every City</p>
+              <h2 className="text-xl font-black tracking-tighter">{t('community.title')}</h2>
+              <p className="text-[10px] font-bold uppercase tracking-widest">{t('community.subtitle')}</p>
            </div>
         </div>
 
@@ -260,8 +261,8 @@ export default function CommunityPage() {
             return (
               <div key={msg.id || i} className={cn("flex flex-col gap-1", isMe ? "items-end" : "items-start")}>
                 <div className="flex items-center gap-2 px-2">
-                   <span className="text-[9px] font-black uppercase text-muted-foreground">{msg.senderNickname}</span>
-                   <span className="text-[7px] text-muted-foreground/40">{msg.timestamp ? new Date(msg.timestamp.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '...'}</span>
+                   <span className="text-[9px] font-black uppercase text-muted-foreground truncate max-w-[120px]">{msg.senderNickname}</span>
+                   <span className="text-[7px] text-muted-foreground/40 shrink-0">{msg.timestamp ? new Date(msg.timestamp.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '...'}</span>
                 </div>
                 <div className={cn(
                   "max-w-[85%] px-4 py-3 rounded-[1.8rem] text-sm font-medium shadow-sm transition-all flex flex-col gap-3",
@@ -272,7 +273,7 @@ export default function CommunityPage() {
                       {msg.isSensitive && !myProfile?.settings?.allowSensitiveContent ? (
                          <div className="w-full h-full bg-slate-900 flex flex-col items-center justify-center text-center p-6 gap-2">
                             <EyeOff className="w-8 h-8 text-white/20" />
-                            <p className="text-[8px] font-black text-white/40 uppercase tracking-widest">Flagged by AI</p>
+                            <p className="text-[8px] font-black text-white/40 uppercase tracking-widest">{t('community.flagged')}</p>
                          </div>
                       ) : (
                         <Image src={msg.imageUrl} alt="Community moment" fill className="object-cover" />
@@ -290,16 +291,16 @@ export default function CommunityPage() {
                        <div className="min-w-0 flex-grow">
                           <p className="text-[10px] font-bold truncate">{msg.fileName || "Community Document"}</p>
                        </div>
-                       <Button size="sm" variant="ghost" className="h-7 text-[8px] font-black uppercase px-2" onClick={() => window.open(msg.fileUrl)}>Download</Button>
+                       <Button size="sm" variant="ghost" className="h-7 text-[8px] font-black uppercase px-2 shrink-0" onClick={() => window.open(msg.fileUrl)}>Download</Button>
                     </div>
                   )}
                   {msg.text && (
                     <div className="flex flex-col gap-2">
-                       <p>{msg.text}</p>
+                       <p className="break-words">{msg.text}</p>
                        <div className="flex justify-end">
                           <button onClick={() => handleSpeak(msg.id, msg.text)} className={cn("flex items-center gap-1.5 transition-opacity opacity-40 hover:opacity-100", isMe ? "text-white" : "text-primary")}>
                             {speakingIds.has(msg.id) ? <Loader2 className="w-3 h-3 animate-spin" /> : <Volume2 className="w-3 h-3" />}
-                            <span className="text-[8px] font-black uppercase">Listen</span>
+                            <span className="text-[8px] font-black uppercase">{t('community.listen')}</span>
                           </button>
                        </div>
                     </div>
@@ -311,7 +312,7 @@ export default function CommunityPage() {
         ) : (
           <div className="flex flex-col items-center justify-center py-20 text-center space-y-4 opacity-20">
              <MessageSquare className="w-12 h-12" />
-             <p className="text-sm font-bold uppercase tracking-widest">The Wall is Silent.<br/>Spark the First Message.</p>
+             <p className="text-sm font-bold uppercase tracking-widest">{t('community.empty')}</p>
           </div>
         )}
       </main>
@@ -347,7 +348,7 @@ export default function CommunityPage() {
           
           <Popover>
             <PopoverTrigger asChild>
-              <Button type="button" variant="ghost" size="icon" className="rounded-xl h-12 w-12 bg-muted/40 text-muted-foreground" disabled={!hasAcceptedPolicy}>
+              <Button type="button" variant="ghost" size="icon" className="rounded-xl h-12 w-12 bg-muted/40 text-muted-foreground shrink-0" disabled={!hasAcceptedPolicy}>
                 <Camera className="w-6 h-6" />
               </Button>
             </PopoverTrigger>
@@ -376,7 +377,7 @@ export default function CommunityPage() {
           <Input 
             value={newMessage} 
             onChange={e => setNewMessage(e.target.value)} 
-            placeholder={hasAcceptedPolicy ? "Share a respectful thought..." : "Read-only: Agree to policy to post"} 
+            placeholder={hasAcceptedPolicy ? t('community.placeholder') : t('community.viewOnly')} 
             className="rounded-2xl bg-muted/40 border-none h-12 px-6 font-bold text-sm"
             disabled={isSending || !hasAcceptedPolicy}
           />

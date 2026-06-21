@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, Suspense, useRef, useMemo } from 'react';
@@ -57,6 +56,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { COUNTRIES, LANGUAGES, CURRENCIES, WORLD_LOCATIONS } from '@/lib/world-data';
 import Image from 'next/image';
+import { useTranslation } from '@/components/providers/LanguageProvider';
 
 const GENDERS = [{ value: 'male', label: 'Male' }, { value: 'female', label: 'Female' }];
 
@@ -66,6 +66,7 @@ function ProfileContent() {
   const auth = useAuth();
   const { uploadFile, isUploading: isStorageUploading } = useFirebaseStorage();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const router = useRouter();
   const galleryInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
@@ -372,7 +373,7 @@ function ProfileContent() {
     <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
       <Header />
       <main className="container mx-auto px-4 max-w-2xl py-6">
-        <div className="flex items-center justify-between mb-6 gap-4">
+        <div className="flex items-center justify-between mb-6 gap-4 flex-wrap">
           <div className="flex items-center gap-4">
             <div className="relative group">
               <DropdownMenu>
@@ -406,21 +407,21 @@ function ProfileContent() {
             </div>
             <div>
               <h1 className="text-xl font-black tracking-tighter flex items-center gap-2">
-                My Account
+                {t('profile.account')}
               </h1>
               <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-widest ml-1">Manage your global presence.</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <Button 
               variant="outline" 
               size="sm" 
               onClick={handleSignOut} 
               disabled={isSigningOut}
-              className="h-9 px-4 text-[9px] font-black uppercase rounded-full gap-2"
+              className="h-9 px-4 text-[9px] font-black uppercase rounded-full gap-2 border-2"
             >
               {isSigningOut ? <Loader2 className="w-3 h-3 animate-spin" /> : <LogOut className="w-3 h-3" />}
-              Sign Out
+              {t('profile.signOut')}
             </Button>
             <Button 
               size="sm"
@@ -429,33 +430,29 @@ function ProfileContent() {
               className={cn("h-9 px-5 text-[9px] font-black uppercase shadow-lg rounded-full", isProtocolComplete ? "gradient-bg" : "bg-slate-200 text-slate-400")}
             >
               {isSaving ? <Loader2 className="w-3 h-3 animate-spin mr-1.5" /> : <Save className="w-3 h-3 mr-1.5" />}
-              Save
+              {t('profile.save')}
             </Button>
           </div>
         </div>
 
         <Tabs defaultValue="personal" className="w-full">
           <TabsList className="w-full h-14 bg-white/50 rounded-2xl p-1 mb-6 border shadow-sm backdrop-blur-md overflow-x-auto no-scrollbar">
-            <TabsTrigger value="personal" className="flex-1 rounded-xl text-[9px] font-black uppercase tracking-widest gap-1.5 group data-[state=active]:text-primary">
+            <TabsTrigger value="personal" className="flex-1 rounded-xl text-[9px] font-black uppercase tracking-widest gap-1.5 group data-[state=active]:text-primary whitespace-nowrap">
               <User className="w-3.5 h-3.5" />
-              Info
-              <Save className="w-2.5 h-2.5 ml-auto opacity-20 group-data-[state=active]:opacity-100 transition-opacity" />
+              {t('profile.personal')}
             </TabsTrigger>
-            <TabsTrigger value="address" className="flex-1 rounded-xl text-[9px] font-black uppercase tracking-widest gap-1.5 group data-[state=active]:text-primary">
+            <TabsTrigger value="address" className="flex-1 rounded-xl text-[9px] font-black uppercase tracking-widest gap-1.5 group data-[state=active]:text-primary whitespace-nowrap">
               <MapPin className="w-3.5 h-3.5" />
-              Address
-              <Save className="w-2.5 h-2.5 ml-auto opacity-20 group-data-[state=active]:opacity-100 transition-opacity" />
+              {t('profile.address')}
             </TabsTrigger>
-            <TabsTrigger value="public" className="flex-1 rounded-xl text-[9px] font-black uppercase tracking-widest gap-1.5 group data-[state=active]:text-primary">
+            <TabsTrigger value="public" className="flex-1 rounded-xl text-[9px] font-black uppercase tracking-widest gap-1.5 group data-[state=active]:text-primary whitespace-nowrap">
               <Globe2 className="w-3.5 h-3.5" />
-              Public
-              <Save className="w-2.5 h-2.5 ml-auto opacity-20 group-data-[state=active]:opacity-100 transition-opacity" />
+              {t('profile.public')}
             </TabsTrigger>
-            <TabsTrigger value="security" className="flex-1 rounded-xl text-[9px] font-black uppercase tracking-widest relative gap-1.5 group data-[state=active]:text-primary">
+            <TabsTrigger value="security" className="flex-1 rounded-xl text-[9px] font-black uppercase tracking-widest relative gap-1.5 group data-[state=active]:text-primary whitespace-nowrap">
               <ShieldCheck className="w-3.5 h-3.5" />
-              Security
+              {t('profile.security')}
               {isCommercialUser && !isProtocolComplete && <div className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full animate-pulse border-2 border-white" />}
-              <Save className="w-2.5 h-2.5 ml-auto opacity-20 group-data-[state=active]:opacity-100 transition-opacity" />
             </TabsTrigger>
           </TabsList>
 
@@ -587,16 +584,16 @@ function ProfileContent() {
                 </div>
                 <div className="space-y-6">
                   <div className="space-y-2">
-                    <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1">Unique Nickname</Label>
+                    <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1">{t('profile.nickname')}</Label>
                     <Input value={publicNickname} onChange={e => setPublicNickname(e.target.value)} placeholder="e.g. MysteryHeart77" className="h-12 text-sm font-black text-primary bg-muted/30 border-none px-4 rounded-xl" />
                   </div>
                   
                   <div className="grid grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1">Preferred Language</Label>
+                      <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1">{t('profile.language')}</Label>
                       <Select value={preferredLanguage} onValueChange={setPreferredLanguage}>
                         <SelectTrigger className="h-12 text-sm rounded-xl font-bold bg-muted/30 border-none px-4">
-                          <Languages className="w-4 h-4 mr-2 opacity-40" />
+                          <Languages className="w-4 h-4 mr-2 opacity-40 shrink-0" />
                           <SelectValue placeholder="Select Language" />
                         </SelectTrigger>
                         <SelectContent className="max-h-64 overflow-y-auto">
@@ -605,7 +602,7 @@ function ProfileContent() {
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1">Local Currency</Label>
+                      <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1">{t('profile.currency')}</Label>
                       <Select value={currency} onValueChange={setCurrency}>
                         <SelectTrigger className="h-12 text-sm rounded-xl font-bold bg-muted/30 border-none px-4"><SelectValue placeholder="Select Currency" /></SelectTrigger>
                         <SelectContent className="max-h-64 overflow-y-auto">
@@ -615,11 +612,11 @@ function ProfileContent() {
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between p-6 bg-primary/5 rounded-2xl border border-primary/10">
+                  <div className="flex items-center justify-between p-6 bg-primary/5 rounded-2xl border border-primary/10 flex-wrap gap-4">
                      <div className="flex items-center gap-4">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-primary shadow-sm border border-primary/5 cursor-pointer">
+                            <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-primary shadow-sm border border-primary/5 cursor-pointer shrink-0">
                               {isStorageUploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Camera className="w-5 h-5" />}
                             </div>
                           </DropdownMenuTrigger>
@@ -634,7 +631,7 @@ function ProfileContent() {
                              </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
-                        <div>
+                        <div className="min-w-0">
                           <h4 className="font-black text-xs uppercase tracking-tight">Public Photo</h4>
                           <p className="text-[9px] text-muted-foreground italic font-medium">Toggle discovery visibility.</p>
                         </div>
@@ -643,7 +640,7 @@ function ProfileContent() {
                   </div>
 
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between px-1">
+                    <div className="flex items-center justify-between px-1 flex-wrap gap-2">
                       <Label className="text-[9px] font-black uppercase tracking-widest opacity-60">Public Highlight Video</Label>
                       <input type="file" ref={publicVideoInputRef} className="hidden" accept="video/*" onChange={handleVideoUpload} />
                       <Button variant="ghost" size="sm" onClick={() => publicVideoInputRef.current?.click()} disabled={isUploadingVideo} className="text-primary gap-1.5 h-8 px-4 bg-primary/5 rounded-full text-[9px] font-black uppercase">
@@ -660,7 +657,7 @@ function ProfileContent() {
                   </div>
 
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between px-1">
+                    <div className="flex items-center justify-between px-1 flex-wrap gap-2">
                       <Label className="text-[9px] font-black uppercase tracking-widest opacity-60">Photo Gallery</Label>
                       <input 
                         type="file" 
@@ -702,7 +699,7 @@ function ProfileContent() {
                   </div>
                   
                   <div className="space-y-3">
-                    <div className="flex items-center justify-between px-1">
+                    <div className="flex items-center justify-between px-1 flex-wrap gap-2">
                       <Label className="text-[9px] font-black uppercase tracking-widest opacity-60">Personal Bio</Label>
                       <Button variant="ghost" size="sm" onClick={handleGenerateBio} disabled={isGenerating} className="text-primary gap-1.5 h-8 px-4 bg-primary/5 rounded-full text-[9px] font-black uppercase hover:bg-primary/10">
                         {isGenerating ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
@@ -710,7 +707,7 @@ function ProfileContent() {
                       </Button>
                     </div>
                     <div className="relative">
-                       <Textarea value={bio} onChange={e => setBio(e.target.value)} className="min-h-[160px] rounded-[1.5rem] text-sm italic p-6 bg-muted/30 border-none font-medium leading-relaxed" placeholder="Tell the community about your mission and what sparks joy for you..." />
+                       <Textarea value={bio} onChange={e => setBio(e.target.value)} className="min-h-[160px] rounded-[1.5rem] text-sm italic p-6 bg-muted/30 border-none font-medium leading-relaxed" placeholder={t('profile.bioPlaceholder')} />
                        <Save className="absolute right-4 bottom-4 w-3.5 h-3.5 text-primary/10" />
                     </div>
                   </div>
@@ -724,28 +721,28 @@ function ProfileContent() {
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-2 shadow-inner border-2 border-primary/5">
                   <ShieldCheck className="w-8 h-8 text-primary animate-pulse" />
                 </div>
-                <h3 className="text-lg font-black uppercase tracking-tighter">Security Protocol</h3>
+                <h3 className="text-lg font-black uppercase tracking-tighter">{t('profile.security')}</h3>
                 <p className="text-[10px] text-muted-foreground font-black uppercase tracking-[0.2em] opacity-60">Mandatory community safety</p>
               </div>
 
               <div className="space-y-4">
                 <div className="flex flex-col gap-4 bg-primary/5 p-6 rounded-[2rem] border border-primary/10">
                     <div className="flex items-center space-x-4 cursor-pointer group" onClick={() => setIsAgeVerified(!isAgeVerified)}>
-                      <div className={cn("w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all group-hover:scale-110", isAgeVerified ? "border-primary bg-primary" : "border-slate-300")}>
+                      <div className={cn("w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all group-hover:scale-110 shrink-0", isAgeVerified ? "border-primary bg-primary" : "border-slate-300")}>
                         {isAgeVerified && <div className="w-2.5 h-2.5 rounded-full bg-white" />}
                       </div>
                       <span className={cn("text-[11px] font-black uppercase tracking-widest transition-colors", isAgeVerified ? "text-primary" : "text-slate-400")}>I am 18+ years old</span>
                     </div>
                     <div className="h-px bg-primary/10 w-full" />
                     <div className="flex items-center space-x-4 cursor-pointer group" onClick={() => setIsRespectful(!isRespectful)}>
-                      <div className={cn("w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all group-hover:scale-110", isRespectful ? "border-primary bg-primary" : "border-slate-300")}>
+                      <div className={cn("w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all group-hover:scale-110 shrink-0", isRespectful ? "border-primary bg-primary" : "border-slate-300")}>
                         {isRespectful && <div className="w-2.5 h-2.5 rounded-full bg-white" />}
                       </div>
                       <span className={cn("text-[11px] font-black uppercase tracking-widest transition-colors", isRespectful ? "text-primary" : "text-slate-400")}>Respect is Mandatory</span>
                     </div>
                     <div className="h-px bg-primary/10 w-full" />
                     <div className="flex items-center space-x-4 cursor-pointer group" onClick={() => setIsHuman(!isHuman)}>
-                      <div className={cn("w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all group-hover:scale-110", isHuman ? "border-primary bg-primary" : "border-slate-300")}>
+                      <div className={cn("w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all group-hover:scale-110 shrink-0", isHuman ? "border-primary bg-primary" : "border-slate-300")}>
                         {isHuman && <div className="w-2.5 h-2.5 rounded-full bg-white" />}
                       </div>
                       <span className={cn("text-[11px] font-black uppercase tracking-widest transition-colors", isHuman ? "text-primary" : "text-slate-400")}>Verify Human Status</span>
@@ -778,7 +775,9 @@ function ProfileContent() {
 
 export default function ProfilePage() {
   return (
-    <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><Loader2 className="animate-spin text-primary" /></div>}>
+    <Suspense fallback={<div className="flex flex-col min-h-screen items-center justify-center bg-white">
+       <Loader2 className="w-10 h-10 animate-spin text-primary" />
+    </div>}>
       <ProfileContent />
     </Suspense>
   );

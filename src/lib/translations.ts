@@ -33,7 +33,10 @@ export const TRANSLATIONS: Record<LanguageCode, any> = {
       revealed: "Revealed Heart",
       invite: "Invite",
       spark: "Spark",
-      allExplored: "All Hearts Explored"
+      allExplored: "All Hearts Explored",
+      restart: "Restart Discovery",
+      viewMap: "View Map",
+      sponsored: "Sponsored"
     },
     search: {
       title: "Find Hearts",
@@ -42,6 +45,33 @@ export const TRANSLATIONS: Record<LanguageCode, any> = {
       noResults: "No hearts found for this vibration.",
       searching: "Scanning the network..."
     },
+    community: {
+      title: "Global Circle Wall",
+      subtitle: "Bridging Hearts Across Every City",
+      placeholder: "Share a respectful thought...",
+      viewOnly: "View Only Mode: Agree to policy to post",
+      empty: "The Wall is Silent. Spark the First Message.",
+      listen: "Listen",
+      flagged: "Flagged by AI"
+    },
+    matches: {
+      title: "My Hearts",
+      subtitle: "Community Connections",
+      sparks: "Sparks",
+      circle: "Circle",
+      invites: "Invites",
+      emptySparks: "No Sparks Found",
+      emptyCircle: "Circle is Empty",
+      emptyInvites: "No Invitations",
+      active: "Active Spark Room"
+    },
+    shop: {
+      title: "Gift Marketplace",
+      subtitle: "Premium gifts for your perfect Sparks.",
+      searchPlaceholder: "Search gifts...",
+      sellerPortal: "Seller Portal",
+      buy: "Buy Gift"
+    },
     profile: {
       account: "My Account",
       save: "Save",
@@ -49,7 +79,11 @@ export const TRANSLATIONS: Record<LanguageCode, any> = {
       personal: "Info",
       address: "Address",
       public: "Public",
-      security: "Security"
+      security: "Security",
+      bioPlaceholder: "Tell the community about your mission...",
+      nickname: "Unique Nickname",
+      language: "Preferred Language",
+      currency: "Local Currency"
     }
   },
   Spanish: {
@@ -79,7 +113,10 @@ export const TRANSLATIONS: Record<LanguageCode, any> = {
       revealed: "Corazón Revelado",
       invite: "Invitar",
       spark: "Chispa",
-      allExplored: "Corazones Explorados"
+      allExplored: "Corazones Explorados",
+      restart: "Reiniciar",
+      viewMap: "Ver Mapa",
+      sponsored: "Patrocinado"
     },
     search: {
       title: "Buscar Corazones",
@@ -88,6 +125,33 @@ export const TRANSLATIONS: Record<LanguageCode, any> = {
       noResults: "No se encontraron corazones.",
       searching: "Escaneando la red..."
     },
+    community: {
+      title: "Muro del Círculo Global",
+      subtitle: "Uniendo corazones en cada ciudad",
+      placeholder: "Comparte un pensamiento respetuoso...",
+      viewOnly: "Modo lectura: Acepta la política para publicar",
+      empty: "El muro está en silencio. Sé el primero.",
+      listen: "Escuchar",
+      flagged: "Marcado por IA"
+    },
+    matches: {
+      title: "Mis Corazones",
+      subtitle: "Conexiones de la Comunidad",
+      sparks: "Chispas",
+      circle: "Círculo",
+      invites: "Invitaciones",
+      emptySparks: "No hay chispas",
+      emptyCircle: "Círculo vacío",
+      emptyInvites: "Sin invitaciones",
+      active: "Sala de Chispas Activa"
+    },
+    shop: {
+      title: "Mercado de Regalos",
+      subtitle: "Regalos premium para tus Chispas.",
+      searchPlaceholder: "Buscar regalos...",
+      sellerPortal: "Portal de Vendedor",
+      buy: "Comprar Regalo"
+    },
     profile: {
       account: "Mi Cuenta",
       save: "Guardar",
@@ -95,7 +159,11 @@ export const TRANSLATIONS: Record<LanguageCode, any> = {
       personal: "Info",
       address: "Dirección",
       public: "Público",
-      security: "Seguridad"
+      security: "Seguridad",
+      bioPlaceholder: "Cuéntale a la comunidad sobre tu misión...",
+      nickname: "Apodo Único",
+      language: "Idioma Preferido",
+      currency: "Moneda Local"
     }
   },
   French: {
@@ -125,7 +193,10 @@ export const TRANSLATIONS: Record<LanguageCode, any> = {
       revealed: "Cœur Révélé",
       invite: "Inviter",
       spark: "Étincelle",
-      allExplored: "Tous les Cœurs Explorés"
+      allExplored: "Tous les Cœurs Explorés",
+      restart: "Redémarrer",
+      viewMap: "Voir la Carte",
+      sponsored: "Sponsorisé"
     },
     search: {
       title: "Chercher des Cœurs",
@@ -134,6 +205,33 @@ export const TRANSLATIONS: Record<LanguageCode, any> = {
       noResults: "Aucun cœur trouvé.",
       searching: "Balayage du réseau..."
     },
+    community: {
+      title: "Mur du Cercle Global",
+      subtitle: "Relier les cœurs à travers chaque ville",
+      placeholder: "Partagez une pensée respectueuse...",
+      viewOnly: "Lecture seule: Acceptez la politique pour poster",
+      empty: "Le mur est silencieux. Soyez le premier.",
+      listen: "Écouter",
+      flagged: "Signalé par l'IA"
+    },
+    matches: {
+      title: "Mes Cœurs",
+      subtitle: "Connexions de la Communauté",
+      sparks: "Étincelles",
+      circle: "Cercle",
+      invites: "Invitations",
+      emptySparks: "Aucune Étincelle",
+      emptyCircle: "Cercle Vide",
+      emptyInvites: "Aucune Invitation",
+      active: "Salon d'Étincelle Actif"
+    },
+    shop: {
+      title: "Marché aux Cadeaux",
+      subtitle: "Cadeaux premium pour vos Étincelles.",
+      searchPlaceholder: "Chercher des cadeaux...",
+      sellerPortal: "Portail Vendeur",
+      buy: "Acheter"
+    },
     profile: {
       account: "Mon Compte",
       save: "Sauvegarder",
@@ -141,7 +239,11 @@ export const TRANSLATIONS: Record<LanguageCode, any> = {
       personal: "Info",
       address: "Adresse",
       public: "Public",
-      security: "Sécurité"
+      security: "Sécurité",
+      bioPlaceholder: "Parlez de votre mission à la communauté...",
+      nickname: "Pseudo Unique",
+      language: "Langue Préférée",
+      currency: "Devise Locale"
     }
   },
   Swahili: {
@@ -171,7 +273,10 @@ export const TRANSLATIONS: Record<LanguageCode, any> = {
       revealed: "Moyo Uliofichuliwa",
       invite: "Alika",
       spark: "Cheche",
-      allExplored: "Mioyo Yote Imegunduliwa"
+      allExplored: "Mioyo Yote Imegunduliwa",
+      restart: "Anza Tena",
+      viewMap: "Angalia Ramani",
+      sponsored: "Imefadhiliwa"
     },
     search: {
       title: "Tafuta Mioyo",
@@ -180,6 +285,33 @@ export const TRANSLATIONS: Record<LanguageCode, any> = {
       noResults: "Hakuna mioyo iliyopatikana.",
       searching: "Inatafuta kwenye mtandao..."
     },
+    community: {
+      title: "Ukuta wa Ulimwengu",
+      subtitle: "Kuunganisha Mioyo Katika Kila Jiji",
+      placeholder: "Shiriki wazo la heshima...",
+      viewOnly: "Kuangalia Tu: Kubali sera ili kuchapisha",
+      empty: "Ukuta uko Kimya. Anza Ujumbe wa Kwanza.",
+      listen: "Sikiliza",
+      flagged: "Imewekwa alama na AI"
+    },
+    matches: {
+      title: "Mioyo Yangu",
+      subtitle: "Mahusiano ya Jumuiya",
+      sparks: "Cheche",
+      circle: "Mzunguko",
+      invites: "Mialiko",
+      emptySparks: "Hakuna Cheche",
+      emptyCircle: "Mzunguko uko Tupu",
+      emptyInvites: "Hakuna Mialiko",
+      active: "Chumba cha Cheche Kiko Wazi"
+    },
+    shop: {
+      title: "Soko la Zawadi",
+      subtitle: "Zawadi za kipekee kwa Cheche zako.",
+      searchPlaceholder: "Tafuta zawadi...",
+      sellerPortal: "Tovuti ya Muuzaji",
+      buy: "Nunua Zawadi"
+    },
     profile: {
       account: "Akaunti Yangu",
       save: "Hifadhi",
@@ -187,7 +319,11 @@ export const TRANSLATIONS: Record<LanguageCode, any> = {
       personal: "Habari",
       address: "Anwani",
       public: "Umma",
-      security: "Usalama"
+      security: "Usalama",
+      bioPlaceholder: "Eleza jumuiya kuhusu dhamira yako...",
+      nickname: "Jina la Utani",
+      language: "Lugha Unayopendelea",
+      currency: "Sarafu ya Kienyeji"
     }
   }
 };

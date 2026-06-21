@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -39,11 +38,13 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import Link from 'next/link';
+import { useTranslation } from '@/components/providers/LanguageProvider';
 
 export default function DiscoverPage() {
   const { user } = useUser();
   const db = useFirestore();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
@@ -184,7 +185,7 @@ export default function DiscoverPage() {
     };
 
     try {
-      await setDoc(doc(db, 'matches', matchId), matchData);
+      await setDoc(doc(db, 'matches', matchId), matchData, { merge: true });
       toast({ title: "Invitation Sent!", description: "Waiting for them to accept your spark. ❤️" });
       handleNext();
     } catch (e) {
@@ -211,9 +212,9 @@ export default function DiscoverPage() {
       <Header />
       <div className="space-y-4">
         <Ghost className="w-20 h-20 text-muted-foreground/20 mx-auto" />
-        <h2 className="text-2xl font-black">All Hearts Explored</h2>
-        <p className="text-muted-foreground text-sm max-w-[240px]">Come back later for new mysterious connections.</p>
-        <Button onClick={() => setCurrentIndex(0)} className="mt-4 rounded-xl gradient-bg px-8">Restart Discovery</Button>
+        <h2 className="text-2xl font-black">{t('discover.allExplored')}</h2>
+        <p className="text-muted-foreground text-sm max-w-[240px]">{t('discover.allExploredDesc') || "Come back later for new mysterious connections."}</p>
+        <Button onClick={() => setCurrentIndex(0)} className="mt-4 rounded-xl gradient-bg px-8">{t('discover.restart')}</Button>
       </div>
       <BottomNav />
     </div>
@@ -235,7 +236,7 @@ export default function DiscoverPage() {
               </div>
             )}
             <div className="relative z-10 p-10 flex flex-col h-full justify-between">
-              <Badge className="w-fit bg-blue-500/20 text-white font-black text-[9px] uppercase tracking-widest px-4 h-8 flex items-center">SPONSORED</Badge>
+              <Badge className="w-fit bg-blue-500/20 text-white font-black text-[9px] uppercase tracking-widest px-4 h-8 flex items-center">{t('discover.sponsored')}</Badge>
               <div className="space-y-4">
                 <h2 className="text-3xl font-black tracking-tighter leading-none">{currentItem.title}</h2>
                 <p className="text-white/70 line-clamp-3 text-sm leading-relaxed">{currentItem.description}</p>
@@ -323,17 +324,17 @@ export default function DiscoverPage() {
                 <div className="absolute bottom-0 left-0 right-0 p-8 space-y-3 text-white z-10">
                   <div className="flex justify-between items-end">
                     <div>
-                      <h2 className="text-3xl font-black tracking-tighter">{currentItem.name}</h2>
+                      <h2 className="text-3xl font-black tracking-tighter truncate max-w-[200px]">{currentItem.name}</h2>
                       <div className="flex items-center gap-2 text-[10px] font-bold text-white/60 uppercase tracking-widest mt-1">
                         <MapPin className="w-3 h-3" /> {currentItem.locationHint}
                       </div>
                     </div>
-                    <Badge className="bg-primary text-white border-none font-black text-[8px] uppercase h-7 px-3">Revealed Heart</Badge>
+                    <Badge className="bg-primary text-white border-none font-black text-[8px] uppercase h-7 px-3 shrink-0">{t('discover.revealed')}</Badge>
                   </div>
                   <p className="italic text-sm text-white/90 leading-relaxed font-medium line-clamp-2">"{currentItem.bio}"</p>
                   <div className="flex flex-wrap gap-1.5 pt-1">
                     {currentItem.interests.slice(0, 3).map((tag: string) => (
-                      <Badge key={tag} className="bg-white/10 text-white backdrop-blur-md border-none px-2.5 py-1 rounded-lg font-bold text-[8px]">
+                      <Badge key={tag} className="bg-white/10 text-white backdrop-blur-md border-none px-2.5 py-1 rounded-lg font-bold text-[8px] whitespace-nowrap">
                         {tag}
                       </Badge>
                     ))}
@@ -348,23 +349,23 @@ export default function DiscoverPage() {
                       <Heart className="w-8 h-8 text-primary/20 fill-primary/10 animate-pulse" />
                     </div>
                     <Badge variant="outline" className="h-7 px-3 rounded-full border-primary/10 text-primary font-black uppercase tracking-widest text-[8px]">
-                      Mystery Connection
+                      {t('discover.mystery')}
                     </Badge>
                   </div>
 
                   <div className="space-y-3">
-                    <h2 className="text-3xl font-black tracking-tighter text-slate-900">{currentItem.name}</h2>
+                    <h2 className="text-3xl font-black tracking-tighter text-slate-900 truncate">{currentItem.name}</h2>
                     <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
                       <MapPin className="w-3 h-3" /> {currentItem.locationHint}
                     </div>
-                    <p className="italic text-base text-slate-700 leading-relaxed font-medium">"{currentItem.bio}"</p>
+                    <p className="italic text-base text-slate-700 leading-relaxed font-medium line-clamp-4">"{currentItem.bio}"</p>
                   </div>
 
                   <div className="space-y-2">
                     <p className="text-[9px] font-black uppercase tracking-[0.2em] text-primary/60">Interests & Vibe</p>
                     <div className="flex flex-wrap gap-1.5">
                       {currentItem.interests.map((tag: string) => (
-                        <Badge key={tag} className="bg-slate-100 text-slate-600 border-none px-2.5 py-1 rounded-lg font-bold text-[9px]">
+                        <Badge key={tag} className="bg-slate-100 text-slate-600 border-none px-2.5 py-1 rounded-lg font-bold text-[9px] whitespace-nowrap">
                           {tag}
                         </Badge>
                       ))}
@@ -383,23 +384,23 @@ export default function DiscoverPage() {
             )}
           </Card>
           
-          <div className="relative mt-8 flex justify-center gap-4 w-full px-4">
+          <div className="relative mt-8 flex justify-center gap-4 w-full px-4 flex-wrap">
             <Button variant="outline" size="icon" className="w-14 h-14 rounded-full bg-white text-slate-400 hover:text-red-500 border-none shadow-xl transition-all hover:scale-110 shrink-0" onClick={handleNext}>
               <X className="w-6 h-6" />
             </Button>
             <Button 
-              className={cn("w-full max-w-[100px] h-14 rounded-full bg-white text-blue-600 shadow-xl font-black uppercase text-[9px] border-none hover:bg-blue-50 gap-2", !hasAcceptedPolicy && "opacity-40 cursor-not-allowed")} 
+              className={cn("flex-grow sm:flex-none min-w-[100px] h-14 rounded-full bg-white text-blue-600 shadow-xl font-black uppercase text-[9px] border-none hover:bg-blue-50 gap-2", !hasAcceptedPolicy && "opacity-40 cursor-not-allowed")} 
               onClick={() => handleAction('friend')}
             >
               <Send className="w-3 h-3" />
-              Invite
+              {t('discover.invite')}
             </Button>
             <Button 
-              className={cn("w-full max-w-[120px] h-14 rounded-full shadow-xl font-black uppercase text-[9px] gradient-bg hover:scale-105 transition-transform gap-2", !hasAcceptedPolicy && "opacity-40 cursor-not-allowed")} 
+              className={cn("flex-grow sm:flex-none min-w-[120px] h-14 rounded-full shadow-xl font-black uppercase text-[9px] gradient-bg hover:scale-105 transition-transform gap-2", !hasAcceptedPolicy && "opacity-40 cursor-not-allowed")} 
               onClick={() => handleAction('date')}
             >
               <Heart className="w-3 h-3 fill-current" />
-              Spark Love
+              {t('discover.spark')}
             </Button>
           </div>
         </div>

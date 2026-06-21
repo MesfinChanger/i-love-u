@@ -31,11 +31,13 @@ import {
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
+import { useTranslation } from '@/components/providers/LanguageProvider';
 
 function MatchesContent() {
   const { user } = useUser();
   const db = useFirestore();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
@@ -103,10 +105,10 @@ function MatchesContent() {
       <main className="container mx-auto px-4 pt-4 max-w-2xl">
         <div className="flex justify-between items-end mb-6">
           <div>
-            <h1 className="text-3xl font-black tracking-tighter">My Hearts</h1>
-            <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-[0.2em] ml-0.5">Community Connections</p>
+            <h1 className="text-3xl font-black tracking-tighter">{t('matches.title')}</h1>
+            <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-[0.2em] ml-0.5">{t('matches.subtitle')}</p>
           </div>
-          <div className="bg-primary/10 text-primary px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5 shadow-sm">
+          <div className="bg-primary/10 text-primary px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5 shadow-sm shrink-0">
             <Sparkles className="w-3 h-3" />
             {(dateMatches.length + friendMatches.length)} Active
           </div>
@@ -121,15 +123,15 @@ function MatchesContent() {
             <TabsList className="grid grid-cols-3 h-14 bg-white/50 backdrop-blur-md rounded-2xl p-1 mb-6 border shadow-sm">
               <TabsTrigger value="sparks" className="rounded-xl text-[9px] font-black uppercase tracking-widest gap-1.5 data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm">
                 <Heart className={dateMatches.length > 0 ? "w-3.5 h-3.5 fill-primary text-primary" : "w-3.5 h-3.5"} />
-                Sparks ({dateMatches.length})
+                {t('matches.sparks')} ({dateMatches.length})
               </TabsTrigger>
               <TabsTrigger value="circle" className="rounded-xl text-[9px] font-black uppercase tracking-widest gap-1.5 data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm">
                 <Users className="w-3.5 h-3.5" />
-                Circle ({friendMatches.length})
+                {t('matches.circle')} ({friendMatches.length})
               </TabsTrigger>
               <TabsTrigger value="invites" className="rounded-xl text-[9px] font-black uppercase tracking-widest relative gap-1.5 data-[state=active]:bg-white data-[state=active]:text-amber-600 data-[state=active]:shadow-sm">
                 <Send className="w-3.5 h-3.5" />
-                Invites ({invitations.length})
+                {t('matches.invites')} ({invitations.length})
                 {invitations.length > 0 && <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-primary rounded-full animate-pulse border-2 border-white" />}
               </TabsTrigger>
             </TabsList>
@@ -142,7 +144,7 @@ function MatchesContent() {
               ) : (
                 <EmptyState 
                   icon={Heart} 
-                  title="No Sparks Found" 
+                  title={t('matches.emptySparks')} 
                   desc="A romantic journey begins with a swipe of pure respect."
                   actionLabel="Start Discovering"
                   actionHref="/discover"
@@ -159,7 +161,7 @@ function MatchesContent() {
                 <EmptyState 
                   icon={Globe2} 
                   color="blue"
-                  title="Circle is Empty" 
+                  title={t('matches.emptyCircle')} 
                   desc="Bridge cultures and languages. Connect as friends for global prosperity."
                   actionLabel="Build Your Circle"
                   actionHref="/discover"
@@ -182,7 +184,7 @@ function MatchesContent() {
                 <EmptyState 
                   icon={Send} 
                   color="amber"
-                  title="No Invitations" 
+                  title={t('matches.emptyInvites')} 
                   desc="New sparks will appear here when others invite you to connect."
                   actionLabel="Discover Hearts"
                   actionHref="/discover"
@@ -207,22 +209,22 @@ function InvitationCard({ match, currentUserId, onAccept, onDecline }: any) {
   return (
     <Card className="rounded-[2rem] border-none shadow-md bg-white overflow-hidden animate-in slide-in-from-right-4 duration-500">
       <CardContent className="p-5 flex items-center gap-4">
-        <Avatar className="w-14 h-14 border-2 border-amber-100">
+        <Avatar className="w-14 h-14 border-2 border-amber-100 shrink-0">
           <AvatarImage src={senderProfile?.photoUrl} className="object-cover" />
           <AvatarFallback className="bg-amber-50 text-amber-600 font-bold">{senderProfile?.displayName?.[0] || '?'}</AvatarFallback>
         </Avatar>
         
         <div className="flex-grow min-w-0">
-          <div className="flex items-center gap-2">
-            <h3 className="font-black text-lg tracking-tight truncate">{senderProfile?.displayName || "Mysterious Heart"}</h3>
-            <Badge variant="outline" className={cn("text-[7px] uppercase font-black tracking-widest h-5", match.type === 'date' ? "text-primary border-primary/20 bg-primary/5" : "text-blue-600 border-blue-200 bg-blue-50")}>
+          <div className="flex items-center gap-2 flex-wrap">
+            <h3 className="font-black text-lg tracking-tight truncate max-w-[120px]">{senderProfile?.displayName || "Mysterious Heart"}</h3>
+            <Badge variant="outline" className={cn("text-[7px] uppercase font-black tracking-widest h-5 whitespace-nowrap", match.type === 'date' ? "text-primary border-primary/20 bg-primary/5" : "text-blue-600 border-blue-200 bg-blue-50")}>
               {match.type === 'date' ? 'Date Spark' : 'Friendship'}
             </Badge>
           </div>
           <p className="text-[10px] text-muted-foreground italic font-medium">wants to connect with you</p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <Button size="icon" variant="ghost" onClick={onDecline} className="rounded-full w-10 h-10 text-muted-foreground hover:text-red-500 hover:bg-red-50">
             <X className="w-5 h-5" />
           </Button>
@@ -269,6 +271,7 @@ function EmptyState({ icon: Icon, title, desc, actionLabel, actionHref, color = 
 
 function ExclusiveSparkCard({ match, currentUserId }: { match: any, currentUserId: string }) {
   const db = useFirestore();
+  const { t } = useTranslation();
   const partnerId = match.userIds.find((id: string) => id !== currentUserId);
   const partnerRef = useMemoFirebase(() => partnerId ? doc(db, 'users', partnerId) : null, [db, partnerId]);
   const { data: partnerProfile } = useDoc(partnerRef);
@@ -294,19 +297,19 @@ function ExclusiveSparkCard({ match, currentUserId }: { match: any, currentUserI
             <div className="flex flex-col gap-0.5">
               <h3 className="font-black text-2xl tracking-tighter truncate">{partnerProfile?.displayName || "Partner"}</h3>
               <div className="flex items-center gap-1.5">
-                 <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                 <span className="text-[8px] text-green-600 uppercase font-black tracking-widest">Active Spark Room</span>
+                 <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse shrink-0" />
+                 <span className="text-[8px] text-green-600 uppercase font-black tracking-widest truncate">{t('matches.active')}</span>
               </div>
             </div>
             <p className="text-muted-foreground text-sm italic font-medium line-clamp-1">
               {match.lastMessage || "Start your journey..."}
             </p>
             <div className="flex flex-wrap gap-2">
-               <Badge className="bg-green-500/10 text-green-600 border-none text-[7px] font-black uppercase tracking-widest px-2 h-5 flex items-center gap-1">
+               <Badge className="bg-green-500/10 text-green-600 border-none text-[7px] font-black uppercase tracking-widest px-2 h-5 flex items-center gap-1 whitespace-nowrap">
                  <Lock className="w-2 h-2" />
                  E2EE
                </Badge>
-               <Badge className="bg-blue-500/10 text-blue-600 border-none text-[7px] font-black uppercase tracking-widest px-2 h-5 flex items-center gap-1">
+               <Badge className="bg-blue-500/10 text-blue-600 border-none text-[7px] font-black uppercase tracking-widest px-2 h-5 flex items-center gap-1 whitespace-nowrap">
                  <Languages className="w-2 h-2" />
                  AI Translate
                </Badge>
@@ -343,15 +346,15 @@ function FriendMatchCard({ match, currentUserId }: { match: any, currentUserId: 
     <Link href={`/matches/${match.id}`}>
       <Card className="overflow-hidden hover:scale-[1.01] transition-all border-none shadow-sm hover:shadow-md bg-white rounded-[2rem] group">
         <CardContent className="p-4 flex items-center gap-4">
-          <Avatar className="w-14 h-14 border border-muted shadow-sm group-hover:rotate-2 transition-transform">
+          <Avatar className="w-14 h-14 border border-muted shadow-sm group-hover:rotate-2 transition-transform shrink-0">
             <AvatarImage src={partnerProfile?.photoUrl} className="object-cover" />
             <AvatarFallback className="bg-blue-50 text-blue-600 font-bold">{partnerProfile?.displayName?.[0] || '?'}</AvatarFallback>
           </Avatar>
           
           <div className="flex-grow min-w-0 space-y-0.5">
-            <div className="flex justify-between items-baseline">
-              <h3 className="font-black text-lg tracking-tight group-hover:text-blue-500 transition-colors">{partnerProfile?.displayName || "Friend"}</h3>
-              <span className="text-[8px] text-muted-foreground uppercase font-black tracking-widest">
+            <div className="flex justify-between items-baseline gap-2">
+              <h3 className="font-black text-lg tracking-tight group-hover:text-blue-500 transition-colors truncate">{partnerProfile?.displayName || "Friend"}</h3>
+              <span className="text-[8px] text-muted-foreground uppercase font-black tracking-widest shrink-0">
                 {dateString || 'Now'}
               </span>
             </div>
@@ -360,12 +363,9 @@ function FriendMatchCard({ match, currentUserId }: { match: any, currentUserId: 
             </p>
           </div>
           
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
              <div className="bg-blue-50 p-2 rounded-xl text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition-all shadow-inner">
                 <Languages className="w-4 h-4" />
-             </div>
-             <div className="bg-blue-50 p-2 rounded-xl text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition-all shadow-inner">
-                <MessageCircle className="w-4 h-4" />
              </div>
           </div>
         </CardContent>

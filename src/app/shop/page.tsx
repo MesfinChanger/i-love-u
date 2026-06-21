@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
@@ -16,6 +15,7 @@ import { Input } from '@/components/ui/input';
 import { createGiftPurchaseSession } from '@/lib/stripe-actions';
 import { useSearchParams } from 'next/navigation';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
+import { useTranslation } from '@/components/providers/LanguageProvider';
 
 const GIFT_CATEGORIES = ["Flowers", "Jewelry", "Electronics", "Apparel", "Home", "Ornamental"];
 
@@ -23,6 +23,7 @@ function ShopContent() {
   const { user } = useUser();
   const db = useFirestore();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const searchParams = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
   const [isPurchasing, setIsPurchasing] = useState<string | null>(null);
@@ -92,70 +93,69 @@ function ShopContent() {
     <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
       <Header />
       <main className="container mx-auto px-4 py-4">
-        <div className="flex flex-col md:flex-row justify-between items-center mb-4 gap-3">
+        <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
           <div className="text-center md:text-left">
-            <h1 className="text-2xl font-black tracking-tighter flex items-center justify-center md:justify-start gap-2">
-              <ShoppingBag className="w-6 h-6 text-primary" />
-              Gift Marketplace
+            <h1 className="text-3xl font-black tracking-tighter flex items-center justify-center md:justify-start gap-3">
+              <ShoppingBag className="w-8 h-8 text-primary" />
+              {t('shop.title')}
             </h1>
-            <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Premium gifts for your perfect Sparks.</p>
+            <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">{t('shop.subtitle')}</p>
           </div>
-          <div className="flex gap-2 w-full md:w-auto">
-            <div className="relative flex-grow md:w-48">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+          <div className="flex gap-2 w-full md:w-auto flex-wrap justify-center">
+            <div className="relative flex-grow md:w-64 max-w-sm">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/40" />
               <Input 
-                placeholder="Search gifts..." 
-                className="pl-8 h-9 rounded-full text-xs" 
+                placeholder={t('shop.searchPlaceholder')} 
+                className="pl-10 h-11 rounded-full text-sm bg-white border-none shadow-sm" 
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
               />
             </div>
-            <Button variant="outline" size="sm" className="rounded-full h-9 text-[10px] font-bold" asChild>
-              <a href="/shop/manage">Seller Portal</a>
+            <Button variant="outline" size="sm" className="rounded-full h-11 px-6 text-[10px] font-black uppercase tracking-widest border-2 hover:bg-white" asChild>
+              <a href="/shop/manage">{t('shop.sellerPortal')}</a>
             </Button>
           </div>
         </div>
 
-        <div className="flex gap-1.5 overflow-x-auto pb-3 mb-4 no-scrollbar">
+        <div className="flex gap-2 overflow-x-auto pb-4 mb-4 no-scrollbar">
           {GIFT_CATEGORIES.map(cat => (
-            <Badge key={cat} variant="secondary" className="px-3 py-1 text-[9px] font-black uppercase cursor-pointer hover:bg-primary hover:text-white transition-colors">
+            <Badge key={cat} variant="secondary" className="px-4 py-1.5 text-[10px] font-black uppercase cursor-pointer hover:bg-primary hover:text-white transition-colors whitespace-nowrap shadow-sm">
               {cat}
             </Badge>
           ))}
         </div>
 
         {searchParams.get('success') && (
-          <Card className="mb-6 rounded-2xl border-none shadow-md bg-green-50 p-4 flex items-center gap-3 animate-in zoom-in-95 duration-500">
-             <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-green-600 shadow-sm shrink-0">
-                <Heart className="w-5 h-5 fill-current" />
+          <Card className="mb-6 rounded-3xl border-none shadow-md bg-green-50 p-6 flex items-center gap-4 animate-in zoom-in-95 duration-500">
+             <div className="w-12 h-12 bg-green-100 rounded-2xl flex items-center justify-center text-green-600 shadow-sm shrink-0">
+                <Heart className="w-6 h-6 fill-current" />
              </div>
              <div>
-                <h3 className="font-black text-green-800 uppercase text-xs tracking-tight">Purchase Successful</h3>
-                <p className="text-[10px] text-green-700 font-medium">Thank you for spreading happiness! ✨</p>
+                <h3 className="font-black text-green-800 uppercase text-sm tracking-tight">Purchase Successful</h3>
+                <p className="text-xs text-green-700 font-medium">Thank you for spreading happiness! ✨</p>
              </div>
           </Card>
         )}
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {filteredProducts.map((product: any) => (
-            <Card key={product.id} className="overflow-hidden border-none shadow-sm hover:shadow-md transition-all group rounded-[1.5rem] bg-white">
-              <div className="relative aspect-square">
-                <Image src={product.imageUrl} alt={product.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
-                <Badge className="absolute top-2 right-2 bg-black/40 backdrop-blur-md border-none text-[7px] font-black uppercase tracking-widest">{product.category}</Badge>
+            <Card key={product.id} className="overflow-hidden border-none shadow-sm hover:shadow-xl transition-all group rounded-[2rem] bg-white flex flex-col">
+              <div className="relative aspect-square overflow-hidden">
+                <Image src={product.imageUrl} alt={product.name} fill className="object-cover group-hover:scale-110 transition-transform duration-700" />
+                <Badge className="absolute top-3 right-3 bg-black/40 backdrop-blur-md border-none text-[8px] font-black uppercase tracking-widest px-2 h-5">{product.category}</Badge>
               </div>
-              <CardHeader className="p-3 pb-0">
-                <CardTitle className="text-sm font-black truncate tracking-tight">{product.name}</CardTitle>
-                <p className="text-primary font-black text-lg">{userCurrency === 'USD' ? '$' : ''}{product.price}</p>
+              <CardHeader className="p-5 pb-0 flex-grow">
+                <CardTitle className="text-base font-black truncate tracking-tight mb-1">{product.name}</CardTitle>
+                <p className="text-primary font-black text-xl">{userCurrency === 'USD' ? '$' : ''}{product.price}</p>
               </CardHeader>
-              <CardFooter className="p-3 pt-2">
+              <CardFooter className="p-5 pt-3">
                 <Button 
-                  size="sm"
-                  className="w-full rounded-xl h-9 gradient-bg gap-1.5 font-bold text-xs shadow-md active:scale-95 transition-all" 
+                  className="w-full h-12 rounded-2xl gradient-bg gap-2 font-black text-[10px] uppercase tracking-widest shadow-lg shadow-primary/10 active:scale-95 transition-all" 
                   onClick={() => handlePurchase(product)}
                   disabled={isPurchasing === product.id}
                 >
-                  {isPurchasing === product.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <ShoppingCart className="w-3 h-3" />}
-                  Buy Gift
+                  {isPurchasing === product.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShoppingCart className="w-4 h-4" />}
+                  {t('shop.buy')}
                 </Button>
               </CardFooter>
             </Card>
