@@ -22,7 +22,8 @@ import {
   Video,
   PlayCircle,
   Image as ImageIcon,
-  ShieldAlert
+  ShieldAlert,
+  Zap
 } from 'lucide-react';
 import { 
   Popover, 
@@ -42,6 +43,7 @@ import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useTranslation } from '@/components/providers/LanguageProvider';
+import { LiveCamera } from '@/components/LiveCamera';
 
 export default function CommunityPage() {
   const { user } = useUser();
@@ -51,18 +53,16 @@ export default function CommunityPage() {
   const { t } = useTranslation();
   const scrollRef = useRef<HTMLDivElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
-  const cameraInputRef = useRef<HTMLInputElement>(null);
-  const videoInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [mounted, setMounted] = useState(false);
   const [newMessage, setNewMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<File | null>(null);
-  const [imagePreview, setSelectedImagePreview] = useState<string | null>(null);
-  const [selectedVideo, setSelectedVideo] = useState<File | null>(null);
+  const [selectedImage, setSelectedImage] = useState<{ file: File; url: string } | null>(null);
+  const [selectedVideo, setSelectedVideo] = useState<{ file: File; url: string } | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [speakingIds, setSpeakingIds] = useState<Set<string>>(new Set());
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -97,24 +97,22 @@ export default function CommunityPage() {
     if (!hasAcceptedPolicy) return;
     const file = e.target.files?.[0];
     if (file) {
-      setSelectedImage(file);
+      const url = URL.createObjectURL(file);
+      setSelectedImage({ file, url });
       setSelectedVideo(null);
       setSelectedFile(null);
-      const reader = new FileReader();
-      reader.onloadend = () => setSelectedImagePreview(reader.result as string);
-      reader.readAsDataURL(file);
     }
   };
 
-  const handleVideoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!hasAcceptedPolicy) return;
-    const file = e.target.files?.[0];
-    if (file) {
-      setSelectedVideo(file);
+  const handleLiveCapture = (data: { url: string; file: File; type: 'image' | 'video' }) => {
+    if (data.type === 'image') {
+      setSelectedImage({ file: data.file, url: data.url });
+      setSelectedVideo(null);
+    } else {
+      setSelectedVideo({ file: data.file, url: data.url });
       setSelectedImage(null);
-      setSelectedImagePreview(null);
-      setSelectedFile(null);
     }
+    setSelectedFile(null);
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -123,7 +121,6 @@ export default function CommunityPage() {
     if (file) {
       setSelectedFile(file);
       setSelectedImage(null);
-      setSelectedImagePreview(null);
       setSelectedVideo(null);
     }
   };
@@ -171,19 +168,23 @@ export default function CommunityPage() {
         }
       }
 
-      if (selectedImage && imagePreview) {
-        const imageModeration = await moderateImage({ photoDataUri: imagePreview });
-        if (imageModeration.isSensitive) {
-          toast({ variant: "destructive", title: "Safe Space Protocol", description: "Image contains sensitive content and was blocked by AI. ✨" });
-          setIsSending(false);
-          return;
+      if (selectedImage) {
+        try {
+          const imageModeration = await moderateImage({ photoDataUri: selectedImage.url });
+          if (imageModeration.isSensitive) {
+            toast({ variant: "destructive", title: "Safe Space Protocol", description: "Image contains sensitive content and was blocked by AI. ✨" });
+            setIsSending(false);
+            return;
+          }
+          imageUrl = await uploadFile(`community/${Date.now()}-${selectedImage.file.name}`, selectedImage.file);
+          isSensitive = imageModeration.isSensitive;
+        } catch (modErr) {
+          imageUrl = await uploadFile(`community/${Date.now()}-${selectedImage.file.name}`, selectedImage.file);
         }
-        imageUrl = await uploadFile(`community/${Date.now()}-${selectedImage.name}`, selectedImage);
-        isSensitive = imageModeration.isSensitive;
       }
 
       if (selectedVideo) {
-        videoUrl = await uploadFile(`community_videos/${Date.now()}-${selectedVideo.name}`, selectedVideo);
+        videoUrl = await uploadFile(`community_videos/${Date.now()}-${selectedVideo.file.name}`, selectedVideo.file);
       }
 
       if (selectedFile) {
@@ -205,7 +206,6 @@ export default function CommunityPage() {
 
       setNewMessage('');
       setSelectedImage(null);
-      setSelectedImagePreview(null);
       setSelectedVideo(null);
       setSelectedFile(null);
     } catch (error) {
@@ -318,32 +318,30 @@ export default function CommunityPage() {
       </main>
 
       <footer className="p-4 bg-white/80 backdrop-blur-xl border-t pb-24 shrink-0 space-y-3">
-        {(imagePreview || selectedVideo || selectedFile) && (
+        {(selectedImage || selectedVideo || selectedFile) && (
           <div className="flex items-center gap-3 animate-in zoom-in-95">
-            {imagePreview ? (
-              <div className="relative w-20 h-20 rounded-xl overflow-hidden border-2 border-primary/20">
-                <Image src={imagePreview} alt="Preview" fill className="object-cover" />
-                <button onClick={() => { setSelectedImage(null); setSelectedImagePreview(null); }} className="absolute top-0 right-0 bg-black/50 text-white p-1 rounded-bl-xl"><EyeOff className="w-3 h-3" /></button>
+            {selectedImage ? (
+              <div className="relative w-20 h-20 rounded-xl overflow-hidden border-2 border-primary/20 shadow-lg">
+                <Image src={selectedImage.url} alt="Preview" fill className="object-cover" />
+                <button onClick={() => setSelectedImage(null)} className="absolute top-0 right-0 bg-black/50 text-white p-1 rounded-bl-xl"><X className="w-3 h-3" /></button>
               </div>
             ) : selectedVideo ? (
-              <div className="bg-slate-900 p-3 rounded-xl flex items-center gap-3 border border-primary/20">
+              <div className="bg-slate-900 p-3 rounded-xl flex items-center gap-3 border border-primary/20 shadow-lg">
                  <PlayCircle className="w-4 h-4 text-primary" />
-                 <span className="text-[10px] text-white font-bold truncate max-w-[120px]">{selectedVideo.name}</span>
-                 <button onClick={() => setSelectedVideo(null)} className="text-white/40 hover:text-white"><EyeOff className="w-3 h-3" /></button>
+                 <span className="text-[10px] text-white font-bold truncate max-w-[120px]">{selectedVideo.file.name}</span>
+                 <button onClick={() => setSelectedVideo(null)} className="text-white/40 hover:text-white"><X className="w-3 h-3" /></button>
               </div>
             ) : selectedFile ? (
-              <div className="bg-muted/50 p-3 rounded-xl flex items-center gap-3 border border-primary/10">
+              <div className="bg-muted/50 p-3 rounded-xl flex items-center gap-3 border border-primary/10 shadow-sm">
                  <FileIcon className="w-4 h-4 text-primary" />
                  <span className="text-[10px] font-bold truncate max-w-[120px]">{selectedFile.name}</span>
-                 <button onClick={() => setSelectedFile(null)} className="text-muted-foreground hover:text-primary"><EyeOff className="w-3 h-3" /></button>
+                 <button onClick={() => setSelectedFile(null)} className="text-muted-foreground hover:text-primary"><X className="w-3 h-3" /></button>
               </div>
             ) : null}
           </div>
         )}
         <form onSubmit={handleSendMessage} className="flex gap-2">
           <input type="file" ref={galleryInputRef} className="hidden" accept="image/*" onChange={handleImageSelect} />
-          <input type="file" ref={cameraInputRef} className="hidden" accept="image/*" capture="user" onChange={handleImageSelect} />
-          <input type="file" ref={videoInputRef} className="hidden" accept="video/*" onChange={handleVideoSelect} />
           <input type="file" ref={fileInputRef} className="hidden" onChange={handleFileSelect} />
           
           <Popover>
@@ -354,21 +352,17 @@ export default function CommunityPage() {
             </PopoverTrigger>
             <PopoverContent className="w-48 p-2 rounded-2xl border-none shadow-2xl" side="top" align="start">
               <div className="flex flex-col gap-1">
-                <Button variant="ghost" size="sm" onClick={() => cameraInputRef.current?.click()} className="justify-start gap-3 rounded-xl py-5 h-auto">
-                   <Camera className="w-4 h-4 text-primary" />
-                   <span className="font-bold text-xs uppercase tracking-tight">Camera</span>
+                <Button variant="ghost" size="sm" onClick={() => setIsCameraOpen(true)} className="justify-start gap-3 rounded-xl py-5 h-auto">
+                   <Zap className="w-4 h-4 text-primary" />
+                   <span className="font-bold text-xs uppercase tracking-tight">Live Camera</span>
                 </Button>
                 <Button variant="ghost" size="sm" onClick={() => galleryInputRef.current?.click()} className="justify-start gap-3 rounded-xl py-5 h-auto">
                    <ImageIcon className="w-4 h-4 text-primary" />
                    <span className="font-bold text-xs uppercase tracking-tight">Gallery</span>
                 </Button>
-                <Button variant="ghost" size="sm" onClick={() => videoInputRef.current?.click()} className="justify-start gap-3 rounded-xl py-5 h-auto">
-                   <Video className="w-4 h-4 text-primary" />
-                   <span className="font-bold text-xs uppercase tracking-tight">Video</span>
-                </Button>
                 <Button variant="ghost" size="sm" onClick={() => fileInputRef.current?.click()} className="justify-start gap-3 rounded-xl py-5 h-auto border-t border-muted/50 mt-1">
                    <Paperclip className="w-4 h-4 text-primary" />
-                   <span className="font-bold text-xs uppercase tracking-tight">Big File</span>
+                   <span className="font-bold text-xs uppercase tracking-tight">Upload File</span>
                 </Button>
               </div>
             </PopoverContent>
@@ -387,6 +381,12 @@ export default function CommunityPage() {
         </form>
       </footer>
       
+      <LiveCamera 
+        isOpen={isCameraOpen} 
+        onClose={() => setIsCameraOpen(false)} 
+        onCapture={handleLiveCapture} 
+      />
+
       <BottomNav />
     </div>
   );

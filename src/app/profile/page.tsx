@@ -40,7 +40,8 @@ import {
   Instagram,
   Copy,
   CheckCircle2,
-  Heart
+  Heart,
+  Zap
 } from 'lucide-react';
 import { 
   DropdownMenu, 
@@ -64,6 +65,7 @@ import { cn } from '@/lib/utils';
 import { COUNTRIES, LANGUAGES, CURRENCIES, WORLD_LOCATIONS } from '@/lib/world-data';
 import Image from 'next/image';
 import { useTranslation } from '@/components/providers/LanguageProvider';
+import { LiveCamera } from '@/components/LiveCamera';
 
 const GENDERS = [{ value: 'male', label: 'Male' }, { value: 'female', label: 'Female' }];
 
@@ -76,11 +78,12 @@ function ProfileContent() {
   const { t } = useTranslation();
   const router = useRouter();
   const avatarGalleryInputRef = useRef<HTMLInputElement>(null);
-  const avatarCameraInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
 
   const [mounted, setMounted] = useState(false);
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const [cameraTarget, setCameraTarget] = useState<'avatar' | 'gallery' | 'video' | null>(null);
 
   // Identity Fields
   const [firstName, setFirstName] = useState('');
@@ -192,6 +195,43 @@ function ProfileContent() {
     }
   };
 
+  const handleLiveCapture = async (data: { url: string; file: File; type: 'image' | 'video' }) => {
+    if (!user) return;
+    
+    if (cameraTarget === 'avatar') {
+      try {
+        const moderation = await moderateImage({ photoDataUri: data.url });
+        if (moderation.isSensitive) {
+          toast({ variant: "destructive", title: "Policy Violation", description: "This image contains sensitive content. ❤️" });
+          return;
+        }
+        const url = await uploadFile(`profiles/${user.uid}/avatar`, data.file);
+        setPhotoUrl(url);
+      } catch (e) {
+        const url = await uploadFile(`profiles/${user.uid}/avatar`, data.file);
+        setPhotoUrl(url);
+      }
+    } else if (cameraTarget === 'gallery') {
+      setIsUploadingGallery(true);
+      try {
+        const url = await uploadFile(`profiles/${user.uid}/gallery_${Date.now()}`, data.file);
+        setAdditionalPhotoUrls(prev => [...prev, url]);
+      } finally {
+        setIsUploadingGallery(false);
+      }
+    } else if (cameraTarget === 'video') {
+      setIsUploadingVideo(true);
+      try {
+        const url = await uploadFile(`profiles/${user.uid}/highlight_video_${Date.now()}`, data.file);
+        setPublicVideoUrl(url);
+      } finally {
+        setIsUploadingVideo(false);
+      }
+    }
+    
+    toast({ title: "Media Secured", description: "Your live capture has been saved! ✨" });
+  };
+
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>, isGallery = false) => {
     const file = e.target.files?.[0];
     if (!file || !user) return;
@@ -223,8 +263,6 @@ function ProfileContent() {
           
           toast({ title: "Photo Secured", description: "Your respectful image has been saved." });
         } catch (modError) {
-          // If AI fails, proceed with upload but log the ripple
-          console.warn("AI Moderation Ripple - Proceeding with upload:", modError);
           const path = isGallery ? `profiles/${user.uid}/gallery_${Date.now()}` : `profiles/${user.uid}/avatar`;
           const url = await uploadFile(path, file);
           if (isGallery) {
@@ -238,25 +276,8 @@ function ProfileContent() {
       };
       reader.readAsDataURL(file);
     } catch (error) {
-      toast({ variant: "destructive", title: "Upload Ripple", description: "Could not process image. Check your connection." });
+      toast({ variant: "destructive", title: "Upload Ripple", description: "Could not process image." });
       if (isGallery) setIsUploadingGallery(false);
-    }
-  };
-
-  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !user) return;
-
-    setIsUploadingVideo(true);
-    try {
-      const path = `profiles/${user.uid}/highlight_video_${Date.now()}`;
-      const url = await uploadFile(path, file);
-      setPublicVideoUrl(url);
-      toast({ title: "Video Secured", description: "Your public highlight is live! ✨" });
-    } catch (error) {
-      toast({ variant: "destructive", title: "Upload Failed", description: "Could not upload video." });
-    } finally {
-      setIsUploadingVideo(false);
     }
   };
 
@@ -388,9 +409,9 @@ function ProfileContent() {
                   </div>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="rounded-2xl p-2 border-none shadow-xl">
-                  <DropdownMenuItem onClick={() => avatarCameraInputRef.current?.click()} className="rounded-xl gap-3 py-3 cursor-pointer">
-                    <Camera className="w-4 h-4 text-primary" />
-                    <span className="font-bold text-sm">Take Photo</span>
+                  <DropdownMenuItem onClick={() => { setCameraTarget('avatar'); setIsCameraOpen(true); }} className="rounded-xl gap-3 py-3 cursor-pointer">
+                    <Zap className="w-4 h-4 text-primary" />
+                    <span className="font-bold text-sm">Live Camera</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => avatarGalleryInputRef.current?.click()} className="rounded-xl gap-3 py-3 cursor-pointer">
                     <ImageIcon className="w-4 h-4 text-primary" />
@@ -400,7 +421,6 @@ function ProfileContent() {
               </DropdownMenu>
 
               <input type="file" ref={avatarGalleryInputRef} className="hidden" accept="image/*" onChange={(e) => handlePhotoUpload(e)} />
-              <input type="file" ref={avatarCameraInputRef} className="hidden" accept="image/*" capture="user" onChange={(e) => handlePhotoUpload(e)} />
             </div>
             <div>
               <h1 className="text-xl font-black tracking-tighter flex items-center gap-2">
@@ -410,22 +430,11 @@ function ProfileContent() {
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={handleSignOut} 
-              disabled={isSigningOut}
-              className="h-9 px-4 text-[9px] font-black uppercase rounded-full gap-2 border-2"
-            >
+            <Button variant="outline" size="sm" onClick={handleSignOut} disabled={isSigningOut} className="h-9 px-4 text-[9px] font-black uppercase rounded-full gap-2 border-2">
               {isSigningOut ? <Loader2 className="w-3 h-3 animate-spin" /> : <LogOut className="w-3 h-3" />}
               {t('profile.signOut')}
             </Button>
-            <Button 
-              size="sm"
-              onClick={handleSave} 
-              disabled={isSaving || !isProtocolComplete} 
-              className={cn("h-9 px-5 text-[9px] font-black uppercase shadow-lg rounded-full", isProtocolComplete ? "gradient-bg" : "bg-slate-200 text-slate-400")}
-            >
+            <Button size="sm" onClick={handleSave} disabled={isSaving || !isProtocolComplete} className={cn("h-9 px-5 text-[9px] font-black uppercase shadow-lg rounded-full", isProtocolComplete ? "gradient-bg" : "bg-slate-200 text-slate-400")}>
               {isSaving ? <Loader2 className="w-3 h-3 animate-spin mr-1.5" /> : <Save className="w-3 h-3 mr-1.5" />}
               {t('profile.save')}
             </Button>
@@ -454,11 +463,8 @@ function ProfileContent() {
           </TabsList>
 
           <TabsContent value="personal">
-            <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-8 space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
-              <div className="flex justify-between items-center px-1">
-                 <h3 className="text-base font-black uppercase tracking-tighter">Identity Details</h3>
-                 <Save className="w-4 h-4 text-primary/20" />
-              </div>
+            <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-8 space-y-8">
+              <h3 className="text-base font-black uppercase tracking-tighter">Identity Details</h3>
               <div className="space-y-6">
                 <div className="grid sm:grid-cols-2 gap-6">
                   <div className="space-y-2">
@@ -470,24 +476,16 @@ function ProfileContent() {
                     <Input value={lastName} onChange={e => setLastName(e.target.value)} className="h-12 text-sm rounded-xl font-bold bg-muted/30 border-none px-4" placeholder="Last Name" />
                   </div>
                 </div>
-
                 <div className="grid sm:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1">Email Address</Label>
-                    <div className="relative">
-                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/40" />
-                      <Input value={email} onChange={e => setEmail(e.target.value)} type="email" className="h-12 pl-12 text-sm rounded-xl font-bold bg-muted/30 border-none pr-4" placeholder="heart@example.com" />
-                    </div>
+                    <Input value={email} onChange={e => setEmail(e.target.value)} type="email" className="h-12 text-sm rounded-xl font-bold bg-muted/30 border-none px-4" placeholder="heart@example.com" />
                   </div>
                   <div className="space-y-2">
                     <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1">Phone Number</Label>
-                    <div className="relative">
-                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/40" />
-                      <Input value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} type="tel" className="h-12 pl-12 text-sm rounded-xl font-bold bg-muted/30 border-none pr-4" placeholder="+1..." />
-                    </div>
+                    <Input value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} type="tel" className="h-12 text-sm rounded-xl font-bold bg-muted/30 border-none px-4" placeholder="+1..." />
                   </div>
                 </div>
-
                 <div className="grid sm:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1">Display Name</Label>
@@ -510,58 +508,33 @@ function ProfileContent() {
           </TabsContent>
 
           <TabsContent value="address">
-            <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-8 space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
-              <div className="flex justify-between items-center px-1">
-                 <h3 className="text-base font-black uppercase tracking-tighter">Regional Origin</h3>
-                 <Save className="w-4 h-4 text-primary/20" />
-              </div>
+            <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-8 space-y-8">
+              <h3 className="text-base font-black uppercase tracking-tighter">Regional Origin</h3>
               <div className="space-y-6">
                 <div className="space-y-2">
                   <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1">Home Address Line 1</Label>
-                  <Input value={address1} onChange={e => setAddress1(e.target.value)} className="h-12 text-sm rounded-xl font-bold bg-muted/30 border-none px-4" placeholder="Street address or P.O. Box" />
+                  <Input value={address1} onChange={e => setAddress1(e.target.value)} className="h-12 text-sm rounded-xl font-bold bg-muted/30 border-none px-4" placeholder="Street address" />
                 </div>
-                
                 <div className="space-y-2">
                   <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1">Country / Region</Label>
                   <Select value={country} onValueChange={handleCountryChange}>
-                    <SelectTrigger className="h-12 text-sm rounded-xl font-bold bg-muted/30 border-none px-4">
-                      <SelectValue placeholder="Select Country" />
-                    </SelectTrigger>
-                    <SelectContent className="max-h-64 overflow-y-auto">
-                      {COUNTRIES.map(c => <SelectItem key={c.code} value={c.code}>{c.name}</SelectItem>)}
-                    </SelectContent>
+                    <SelectTrigger className="h-12 text-sm rounded-xl font-bold bg-muted/30 border-none px-4"><SelectValue placeholder="Select Country" /></SelectTrigger>
+                    <SelectContent className="max-h-64 overflow-y-auto">{COUNTRIES.map(c => <SelectItem key={c.code} value={c.code}>{c.name}</SelectItem>)}</SelectContent>
                   </Select>
                 </div>
-
                 <div className="grid sm:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1">State / Province</Label>
                     <Select value={state} onValueChange={(v) => { setState(v); setCity(''); }}>
-                      <SelectTrigger className="h-12 text-sm rounded-xl font-bold bg-muted/30 border-none px-4">
-                        <SelectValue placeholder="Select State" />
-                      </SelectTrigger>
-                      <SelectContent className="max-h-64 overflow-y-auto">
-                        {availableStates.length > 0 ? (
-                          availableStates.map(s => <SelectItem key={s.name} value={s.name}>{s.name}</SelectItem>)
-                        ) : (
-                          <SelectItem value="Other">Other / Not Listed</SelectItem>
-                        )}
-                      </SelectContent>
+                      <SelectTrigger className="h-12 text-sm rounded-xl font-bold bg-muted/30 border-none px-4"><SelectValue placeholder="Select State" /></SelectTrigger>
+                      <SelectContent className="max-h-64 overflow-y-auto">{availableStates.map(s => <SelectItem key={s.name} value={s.name}>{s.name}</SelectItem>)}</SelectContent>
                     </Select>
                   </div>
                   <div className="space-y-2">
                     <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1">City / Village</Label>
                     <Select value={city} onValueChange={setCity}>
-                      <SelectTrigger className="h-12 text-sm rounded-xl font-bold bg-muted/30 border-none px-4">
-                        <SelectValue placeholder="Select Community" />
-                      </SelectTrigger>
-                      <SelectContent className="max-h-64 overflow-y-auto">
-                        {availableCities.length > 0 ? (
-                          availableCities.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)
-                        ) : (
-                          <SelectItem value="Other">Other / Not Listed</SelectItem>
-                        )}
-                      </SelectContent>
+                      <SelectTrigger className="h-12 text-sm rounded-xl font-bold bg-muted/30 border-none px-4"><SelectValue placeholder="Select Community" /></SelectTrigger>
+                      <SelectContent className="max-h-64 overflow-y-auto">{availableCities.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
                     </Select>
                   </div>
                 </div>
@@ -570,47 +543,36 @@ function ProfileContent() {
           </TabsContent>
 
           <TabsContent value="public">
-             <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-8 space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                <div className="flex justify-between items-center px-1">
-                   <h3 className="text-base font-black uppercase tracking-tighter">Public Presence</h3>
-                   <Save className="w-4 h-4 text-primary/20" />
-                </div>
+             <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-8 space-y-8">
+                <h3 className="text-base font-black uppercase tracking-tighter">Public Presence</h3>
                 <div className="space-y-6">
                   <div className="space-y-2">
                     <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1">{t('profile.nickname')}</Label>
                     <Input value={publicNickname} onChange={e => setPublicNickname(e.target.value)} placeholder="e.g. MysteryHeart77" className="h-12 text-sm font-black text-primary bg-muted/30 border-none px-4 rounded-xl" />
                   </div>
-                  
                   <div className="grid grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1">{t('profile.language')}</Label>
                       <Select value={preferredLanguage} onValueChange={setPreferredLanguage}>
-                        <SelectTrigger className="h-12 text-sm rounded-xl font-bold bg-muted/30 border-none px-4">
-                          <Languages className="w-4 h-4 mr-2 opacity-40 shrink-0" />
-                          <SelectValue placeholder="Select Language" />
-                        </SelectTrigger>
-                        <SelectContent className="max-h-64 overflow-y-auto">
-                          {LANGUAGES.map(lang => <SelectItem key={lang} value={lang}>{lang}</SelectItem>)}
-                        </SelectContent>
+                        <SelectTrigger className="h-12 text-sm rounded-xl font-bold bg-muted/30 border-none px-4"><SelectValue placeholder="Select Language" /></SelectTrigger>
+                        <SelectContent className="max-h-64 overflow-y-auto">{LANGUAGES.map(lang => <SelectItem key={lang} value={lang}>{lang}</SelectItem>)}</SelectContent>
                       </Select>
                     </div>
                     <div className="space-y-2">
                       <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1">{t('profile.currency')}</Label>
                       <Select value={currency} onValueChange={setCurrency}>
                         <SelectTrigger className="h-12 text-sm rounded-xl font-bold bg-muted/30 border-none px-4"><SelectValue placeholder="Select Currency" /></SelectTrigger>
-                        <SelectContent className="max-h-64 overflow-y-auto">
-                          {CURRENCIES.map(curr => <SelectItem key={curr.code} value={curr.code}>{curr.code} ({curr.symbol})</SelectItem>)}
-                        </SelectContent>
+                        <SelectContent className="max-h-64 overflow-y-auto">{CURRENCIES.map(curr => <SelectItem key={curr.code} value={curr.code}>{curr.code} ({curr.symbol})</SelectItem>)}</SelectContent>
                       </Select>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between p-6 bg-primary/5 rounded-2xl border border-primary/10 flex-wrap gap-4">
+                  <div className="flex items-center justify-between p-6 bg-primary/5 rounded-2xl border border-primary/10">
                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-primary shadow-sm border border-primary/5 shrink-0">
+                        <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-primary shadow-sm border border-primary/5">
                           {isStorageUploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <ShieldCheck className="w-5 h-5" />}
                         </div>
-                        <div className="min-w-0">
+                        <div>
                           <h4 className="font-black text-xs uppercase tracking-tight">Public Photo</h4>
                           <p className="text-[9px] text-muted-foreground italic font-medium">Toggle discovery visibility.</p>
                         </div>
@@ -618,15 +580,28 @@ function ProfileContent() {
                      <Switch checked={isPhotoPublic} onCheckedChange={setIsPhotoPublic} />
                   </div>
 
-                  {/* Discovery Media Section */}
                   <div className="space-y-4">
                     <div className="flex items-center justify-between px-1">
                       <Label className="text-[9px] font-black uppercase tracking-widest opacity-60">Discovery Photos (Max 5)</Label>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm" className="text-primary gap-1.5 h-8 px-4 bg-primary/5 rounded-full text-[9px] font-black uppercase">
+                            {isUploadingGallery ? <Loader2 className="w-3 h-3 animate-spin" /> : <Plus className="w-3 h-3" />}
+                            Add Photo
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="rounded-2xl p-2 border-none shadow-xl">
+                          <DropdownMenuItem onClick={() => { setCameraTarget('gallery'); setIsCameraOpen(true); }} className="rounded-xl gap-3 py-3 cursor-pointer">
+                            <Zap className="w-4 h-4 text-primary" />
+                            <span className="font-bold text-sm">Live Camera</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => galleryInputRef.current?.click()} className="rounded-xl gap-3 py-3 cursor-pointer">
+                            <ImageIcon className="w-4 h-4 text-primary" />
+                            <span className="font-bold text-sm">Gallery</span>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                       <input type="file" ref={galleryInputRef} className="hidden" accept="image/*" onChange={(e) => handlePhotoUpload(e, true)} />
-                      <Button variant="ghost" size="sm" onClick={() => galleryInputRef.current?.click()} disabled={isUploadingGallery || additionalPhotoUrls.length >= 5} className="text-primary gap-1.5 h-8 px-4 bg-primary/5 rounded-full text-[9px] font-black uppercase">
-                        {isUploadingGallery ? <Loader2 className="w-3 h-3 animate-spin" /> : <Plus className="w-3 h-3" />}
-                        Add Photo
-                      </Button>
                     </div>
                     <div className="grid grid-cols-5 gap-2">
                        {additionalPhotoUrls.map((url, i) => (
@@ -646,11 +621,25 @@ function ProfileContent() {
                   <div className="space-y-4">
                     <div className="flex items-center justify-between px-1">
                       <Label className="text-[9px] font-black uppercase tracking-widest opacity-60">Public Highlight Video</Label>
-                      <input type="file" ref={videoInputRef} className="hidden" accept="video/*" onChange={handleVideoUpload} />
-                      <Button variant="ghost" size="sm" onClick={() => videoInputRef.current?.click()} disabled={isUploadingVideo} className="text-primary gap-1.5 h-8 px-4 bg-primary/5 rounded-full text-[9px] font-black uppercase">
-                        {isUploadingVideo ? <Loader2 className="w-3 h-3 animate-spin" /> : <Video className="w-3 h-3" />}
-                        {publicVideoUrl ? 'Change Video' : 'Add Video'}
-                      </Button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm" className="text-primary gap-1.5 h-8 px-4 bg-primary/5 rounded-full text-[9px] font-black uppercase">
+                            {isUploadingVideo ? <Loader2 className="w-3 h-3 animate-spin" /> : <Video className="w-3 h-3" />}
+                            Capture Moment
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="rounded-2xl p-2 border-none shadow-xl">
+                          <DropdownMenuItem onClick={() => { setCameraTarget('video'); setIsCameraOpen(true); }} className="rounded-xl gap-3 py-3 cursor-pointer">
+                            <Zap className="w-4 h-4 text-primary" />
+                            <span className="font-bold text-sm">Live Recording</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => videoInputRef.current?.click()} className="rounded-xl gap-3 py-3 cursor-pointer">
+                            <ImageIcon className="w-4 h-4 text-primary" />
+                            <span className="font-bold text-sm">Upload Video</span>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                      <input type="file" ref={videoInputRef} className="hidden" accept="video/*" onChange={handlePhotoUpload} />
                     </div>
                     {publicVideoUrl && (
                       <div className="relative aspect-video rounded-2xl overflow-hidden bg-black shadow-lg">
@@ -668,17 +657,14 @@ function ProfileContent() {
                         AI Spark Bio
                       </Button>
                     </div>
-                    <div className="relative">
-                       <Textarea value={bio} onChange={e => setBio(e.target.value)} className="min-h-[160px] rounded-[1.5rem] text-sm italic p-6 bg-muted/30 border-none font-medium leading-relaxed" placeholder={t('profile.bioPlaceholder')} />
-                       <Save className="absolute right-4 bottom-4 w-3.5 h-3.5 text-primary/10" />
-                    </div>
+                    <Textarea value={bio} onChange={e => setBio(e.target.value)} className="min-h-[160px] rounded-[1.5rem] text-sm italic p-6 bg-muted/30 border-none font-medium leading-relaxed" placeholder={t('profile.bioPlaceholder')} />
                   </div>
                 </div>
              </Card>
           </TabsContent>
 
           <TabsContent value="security">
-            <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-8 space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-8 space-y-8">
               <div className="text-center space-y-2">
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-2 shadow-inner border-2 border-primary/5">
                   <ShieldCheck className="w-8 h-8 text-primary animate-pulse" />
@@ -686,7 +672,6 @@ function ProfileContent() {
                 <h3 className="text-lg font-black uppercase tracking-tighter">{t('profile.security')}</h3>
                 <p className="text-[10px] text-muted-foreground font-black uppercase tracking-[0.2em] opacity-60">Mandatory community safety</p>
               </div>
-
               <div className="space-y-4">
                 <div className="flex flex-col gap-4 bg-primary/5 p-6 rounded-[2rem] border border-primary/10">
                     <div className="flex items-center space-x-4 cursor-pointer group" onClick={() => setIsAgeVerified(!isAgeVerified)}>
@@ -715,6 +700,13 @@ function ProfileContent() {
           </TabsContent>
         </Tabs>
       </main>
+
+      <LiveCamera 
+        isOpen={isCameraOpen} 
+        onClose={() => { setIsCameraOpen(false); setCameraTarget(null); }} 
+        onCapture={handleLiveCapture} 
+      />
+
       <BottomNav />
     </div>
   );
@@ -722,9 +714,7 @@ function ProfileContent() {
 
 export default function ProfilePage() {
   return (
-    <Suspense fallback={<div className="flex flex-col min-h-screen items-center justify-center bg-white">
-       <Loader2 className="w-10 h-10 animate-spin text-primary" />
-    </div>}>
+    <Suspense fallback={<div className="flex flex-col min-h-screen items-center justify-center bg-white"><Loader2 className="w-10 h-10 animate-spin text-primary" /></div>}>
       <ProfileContent />
     </Suspense>
   );
