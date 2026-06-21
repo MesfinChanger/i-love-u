@@ -101,10 +101,7 @@ export function Header() {
                 <div className="relative p-1.5 rounded-xl bg-primary/5">
                   <Heart className="w-10 h-10 fill-primary text-primary transition-transform group-hover:scale-110 animate-heartbeat" aria-hidden="true" />
                 </div>
-                <div className="flex flex-col leading-[0.8]">
-                  <span className="font-black text-2xl tracking-tighter text-primary uppercase">I LOVE</span>
-                  <span className="font-black text-[7px] tracking-[0.6em] text-muted-foreground ml-1 uppercase">U</span>
-                </div>
+                <span className="font-black text-xl tracking-[0.3em] text-primary uppercase ml-1 whitespace-nowrap">I LOVE U</span>
                 <Menu className="w-4 h-4 text-primary/40 ml-1 group-hover:text-primary transition-colors" />
               </div>
             </SheetTrigger>
