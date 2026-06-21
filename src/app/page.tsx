@@ -13,7 +13,8 @@ import {
   ShieldCheck, 
   Sparkles,
   Languages,
-  Check
+  Check,
+  Loader2
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -26,6 +27,8 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/components/providers/LanguageProvider';
 import { SUPPORTED_LANGUAGES } from '@/lib/world-data';
+import { useUser } from '@/firebase';
+import { useRouter } from 'next/navigation';
 
 const LOVE_TRANSLATIONS = [
   { lang: "English", text: "I Love U", icon: "❤️" },
@@ -36,13 +39,23 @@ const LOVE_TRANSLATIONS = [
 ];
 
 export default function Home() {
-  const dynamicImages = useMemo(() => PlaceHolderImages.filter(img => img.id.startsWith('user-')), []);
+  const { user, loading: userLoading } = useUser();
+  const router = useRouter();
   const { language, setLanguage, t } = useTranslation();
+  
+  const dynamicImages = useMemo(() => (PlaceHolderImages || []).filter(img => img.id.startsWith('user-')), []);
   
   const [langIndex, setLangIndex] = useState(0);
   const [imageIndex, setImageIndex] = useState(0);
   const [mounted, setMounted] = useState(false);
   const [currentYear, setCurrentYear] = useState('');
+
+  // Immediate Redirect Protocol
+  useEffect(() => {
+    if (user && !userLoading) {
+      router.push('/discover');
+    }
+  }, [user, userLoading, router]);
 
   useEffect(() => {
     setMounted(true);
@@ -53,7 +66,7 @@ export default function Home() {
     }, 4000);
 
     const imageInterval = setInterval(() => {
-      setImageIndex((prev) => (prev + 1) % dynamicImages.length);
+      setImageIndex((prev) => (prev + 1) % (dynamicImages.length || 1));
     }, 6000);
 
     return () => {
@@ -62,10 +75,15 @@ export default function Home() {
     };
   }, [dynamicImages.length]);
 
-  const heroTitle = useMemo(() => t('home.heroTitle'), [t]);
-  const metricTitle = useMemo(() => t('home.metricTitle'), [t]);
+  const heroTitle = useMemo(() => t('home.heroTitle') || "Spark Love. End Poverty.", [t]);
+  const metricTitle = useMemo(() => t('home.metricTitle') || "Happiness is the Only Metric.", [t]);
 
-  if (!mounted) return null;
+  // Prevent SSR flicker but ensure SEO content is present
+  if (!mounted) return (
+    <div className="flex items-center justify-center min-h-screen bg-white">
+      <Heart className="w-12 h-12 text-primary animate-heartbeat fill-primary" />
+    </div>
+  );
 
   return (
     <div className="flex flex-col min-h-screen bg-white overflow-x-hidden">
@@ -84,7 +102,7 @@ export default function Home() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56 rounded-2xl p-2 border-none shadow-2xl mr-4 max-h-80 overflow-y-auto" align="end">
-                {SUPPORTED_LANGUAGES.map((lang) => (
+                {(SUPPORTED_LANGUAGES || []).map((lang) => (
                   <DropdownMenuItem 
                     key={lang.name} 
                     onClick={() => setLanguage(lang.name)}
@@ -114,7 +132,7 @@ export default function Home() {
       <main className="flex-grow">
         <section className="relative h-[100vh] w-full flex items-center overflow-hidden">
           <div className="absolute inset-0 z-0">
-            {dynamicImages.map((img, i) => (
+            {(dynamicImages || []).map((img, i) => (
               <div 
                 key={img.id}
                 className={cn(
@@ -151,7 +169,7 @@ export default function Home() {
 
               <div className="space-y-8">
                 <h1 className="text-7xl lg:text-9xl font-black leading-[0.85] tracking-tighter text-white drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)]">
-                  {heroTitle.split('.').filter(p => p.trim()).map((part, i) => (
+                  {(heroTitle || "").split('.').filter(p => p.trim()).map((part, i) => (
                     <span key={i}>{part.trim()}.<br/></span>
                   ))}
                 </h1>
@@ -193,7 +211,7 @@ export default function Home() {
             <div className="flex flex-col items-center text-center mb-32">
                <Badge className="mb-6 h-8 px-6 bg-primary/10 text-primary border-none text-[10px] font-black uppercase tracking-[0.3em]">{t('home.movementTitle')}</Badge>
                <h2 className="text-5xl lg:text-7xl font-black tracking-tighter uppercase leading-[0.9]">
-                 {metricTitle.split(' ').map((word, i) => (
+                 {(metricTitle || "").split(' ').map((word, i) => (
                    <span key={i} className={word === 'Only' || word === 'Metric.' || word === 'መለኪያ' ? 'gradient-text' : ''}>{word}{' '}</span>
                  ))}
                </h2>

@@ -6,13 +6,13 @@ import { googleAI } from '@genkit-ai/google-genai';
 
 /**
  * @fileOverview Global Genkit configuration.
- * Uses the latest recommended model aliases for the Prosperity Revolution.
  * Hardened to sanitize and intelligently detect regional bridge credentials.
  */
 
 const rawKey = process.env.GOOGLE_GENAI_API_KEY || process.env.GEMINI_API_KEY || '';
 const apiKey = rawKey.trim().replace(/["']/g, '');
 
+// Credential Shield Protocol
 export const isKeyValid = !!(
   apiKey && 
   apiKey.length > 10 && 
@@ -25,6 +25,7 @@ export const ai = genkit({
   plugins: [
     googleAI({ apiKey: isKeyValid ? apiKey : 'NO_KEY' }),
   ],
+  // Fallback to latest stable model
   model: googleAI.model('gemini-flash-latest'),
 });
 

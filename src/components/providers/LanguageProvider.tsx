@@ -28,9 +28,9 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const { data: profile } = useDoc(userRef);
   const [currentLang, setCurrentLang] = useState(DEFAULT_LANGUAGE);
 
-  // 1. Initial Load from LocalStorage or Browser
+  // Immediate Snappy Hydration
   useEffect(() => {
-    const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+    const saved = typeof window !== 'undefined' ? localStorage.getItem(LOCAL_STORAGE_KEY) : null;
     if (saved) {
       setCurrentLang(saved);
     } else if (typeof window !== 'undefined') {
@@ -41,7 +41,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
         'sw': 'Swahili',
         'ja': 'Japanese',
         'ar': 'Arabic',
-        'zh': 'Chinese (Simplified)',
+        'pt': 'Portuguese',
         'hi': 'Hindi',
         'am': 'Amharic'
       };
@@ -53,46 +53,46 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  // 2. Sync from Profile (if logged in)
+  // background sync with profile
   useEffect(() => {
     if (profile?.preferredLanguage && profile.preferredLanguage !== currentLang) {
       setCurrentLang(profile.preferredLanguage);
     }
-  }, [profile, currentLang]);
+  }, [profile?.preferredLanguage]);
 
   const setLanguage = async (newLang: string) => {
+    // Immediate UI Feedback
     setCurrentLang(newLang);
-    localStorage.setItem(LOCAL_STORAGE_KEY, newLang);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(LOCAL_STORAGE_KEY, newLang);
+    }
     
+    // Background Sync (non-blocking)
     if (db && user) {
-      try {
-        await updateDoc(doc(db, 'users', user.uid), {
-          preferredLanguage: newLang
-        });
-      } catch (e) {
-        console.error("Failed to save language preference:", e);
-      }
+      updateDoc(doc(db, 'users', user.uid), {
+        preferredLanguage: newLang
+      }).catch(e => console.warn("Language sync deferred:", e));
     }
   };
 
   const t = useCallback((path: string) => {
     const keys = path.split('.');
     
-    // Try current language dictionary
-    let current = TRANSLATIONS[currentLang];
-    
-    // Fallback logic: iterate through keys in the current language dictionary
-    // If not found, iterate through keys in the default (English) dictionary
     const getValue = (dict: any) => {
       let result = dict;
+      if (!result) return undefined;
       for (const key of keys) {
-        if (!result || result[key] === undefined) return undefined;
+        if (result[key] === undefined) return undefined;
         result = result[key];
       }
       return result;
     };
 
-    const value = getValue(current) || getValue(TRANSLATIONS[DEFAULT_LANGUAGE]);
+    // 1. Try current language
+    // 2. Try default language
+    // 3. Fallback to path string
+    const langDict = TRANSLATIONS[currentLang] || TRANSLATIONS[DEFAULT_LANGUAGE];
+    const value = getValue(langDict) || getValue(TRANSLATIONS[DEFAULT_LANGUAGE]);
     
     return typeof value === 'string' ? value : path;
   }, [currentLang]);
