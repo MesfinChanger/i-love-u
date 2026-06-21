@@ -1,61 +1,44 @@
-/**
- * @fileOverview Universal Mobile Storage Blueprint - I LOVE U Revolution.
- * This file serves as the master reference for Flutter developers to implement
- * media upload progress with real-time feedback.
- * 
- * CORE MISSION: Reaching every heart with transparency and speed.
- */
-
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 
 /**
- * Uploads a file with real-time progress monitoring.
- * Mirroring the web platform's "High-Impact Progress Protocol".
+ * @fileOverview Mission Protocol: Storage Logic for I Love U Mobile (Flutter).
+ * This logic provides real-time feedback to members during media sharing.
  */
+
 void uploadFileWithProgress(File file) {
-  // 1. Create a reference pointing to the mission-specific upload path
-  final String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
-  final String fileName = file.path.split('/').last;
+  // 1. Create a reference pointing to your upload path
   final storageRef = FirebaseStorage.instance
       .ref()
-      .child('uploads/${timestamp}_$fileName');
+      .child('uploads/${DateTime.now().millisecondsSinceEpoch}_${file.path.split('/').last}');
   
-  // 2. Start the high-performance upload task
+  // 2. Start the upload task (Resumable)
   final uploadTask = storageRef.putFile(file);
   
-  // 3. Listen to the snapshot events stream (Critical for member feedback)
+  // 3. Listen to the stream of snapshot events to monitor progress
   uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
     switch (snapshot.state) {
       case TaskState.running:
-        // Calculate the progress percentage for the UI
+        // Calculate progress percentage for visual feedback
         final double progress = 100.0 * (snapshot.bytesTransferred / snapshot.totalBytes);
-        print("I LOVE U: Securing media... ${progress.toStringAsFixed(2)}% complete.");
-        // UPDATE UI: Set progress bar value to (progress / 100)
+        print("I Love U: Upload is ${progress.toStringAsFixed(2)}% complete.");
         break;
-        
       case TaskState.paused:
-        print("I LOVE U: Media upload paused.");
+        print("I Love U: Upload is paused.");
         break;
-        
       case TaskState.canceled:
-        print("I LOVE U: Media upload retracted by member.");
+        print("I Love U: Upload has been canceled.");
         break;
-        
       case TaskState.error:
-        print("I LOVE U: Regional Bridge Error during upload.");
+        print("I Love U: Upload encountered an error.");
         break;
-        
       case TaskState.success:
-        print("I LOVE U: Media successfully secured to Cloud!");
-        // Retrieve the secure URL to share in the Spark Room or Community Wall
-        storageRef.getDownloadURL().then((url) {
-          print("Shared Moment URL: $url");
-          // Proceed to save the metadata to Firestore
-        });
+        print("I Love U: Upload successfully completed!");
+        // Retrieve the secure URL for Firestore recording
+        storageRef.getDownloadURL().then((url) => print("Secured File URL: $url"));
         break;
     }
   }, onError: (Object e) {
-    print("I LOVE U: Critical Upload Ripple: $e");
+    print("I Love U: Error during upload task: $e");
   });
 }
