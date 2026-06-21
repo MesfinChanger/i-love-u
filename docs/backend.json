@@ -56,6 +56,18 @@
         "description": { "type": "string" },
         "logoUrl": { "type": "string" }
       }
+    },
+    "Feedback": {
+      "title": "User Feedback",
+      "description": "User suggestions, bug reports, or mission-related success stories.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "category": { "type": "string", "enum": ["app", "mission", "story"] },
+        "text": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      }
     }
   },
   "auth": {
@@ -67,6 +79,7 @@
     "/matches/{matchId}": { "schema": "Match", "description": "Connections" },
     "/ads/{adId}": { "schema": "Ad", "description": "Ad campaigns" },
     "/shops/{shopId}": { "schema": "Shop", "description": "Seller storefronts" },
-    "/global_products/{productId}": { "description": "Marketplace inventory" }
+    "/global_products/{productId}": { "description": "Marketplace inventory" },
+    "/feedback/{feedbackId}": { "schema": "Feedback", "description": "Community feedback submissions" }
   }
 }

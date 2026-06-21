@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -19,7 +20,8 @@ import {
   LogOut,
   Loader2,
   Languages,
-  Check
+  Check,
+  MessageSquare
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DonationDialog } from '@/components/DonationDialog';
@@ -60,6 +62,10 @@ export function Header() {
 
   const triggerAssistant = () => {
     window.dispatchEvent(new CustomEvent('toggle-spark-assistant'));
+  };
+
+  const triggerFeedback = () => {
+    window.dispatchEvent(new CustomEvent('toggle-feedback-box'));
   };
 
   const handleSignOut = async () => {
@@ -141,8 +147,18 @@ export function Header() {
                 })}
 
                 <div className="pt-6 mt-6 border-t border-dashed space-y-2">
-                   <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-4 mb-2">Platform Settings</p>
+                   <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-4 mb-2">Platform Tools</p>
                    
+                   <button 
+                    onClick={triggerFeedback}
+                    className="flex items-center gap-4 p-4 rounded-[1.5rem] transition-all w-full text-slate-600 hover:bg-primary/5 hover:text-primary group text-left"
+                   >
+                      <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center group-hover:bg-white group-hover:shadow-md transition-all">
+                        <MessageSquare className="w-5 h-5" />
+                      </div>
+                      <span className="font-black text-sm uppercase tracking-widest">Feedback</span>
+                   </button>
+
                    <DropdownMenu>
                      <DropdownMenuTrigger asChild>
                         <button className="flex items-center gap-4 p-4 rounded-[1.5rem] transition-all w-full text-slate-600 hover:bg-muted/50 group text-left">

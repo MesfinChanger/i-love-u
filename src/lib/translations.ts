@@ -1,3 +1,4 @@
+
 /**
  * @fileOverview Universal Translation Dictionaries for the Prosperity Revolution.
  * Comprehensive support for core mission languages to reach every heart.
@@ -109,6 +110,18 @@ const baseTranslations = {
     copyLink: "Copy Mission Link",
     linkCopied: "Link Secured to Clipboard!",
     anyConnection: "Any Connection"
+  },
+  feedback: {
+    title: "Community Heartbeat",
+    subtitle: "Shape the Revolution",
+    category: "Feedback Type",
+    app: "App Ripple (Bug)",
+    mission: "Mission Idea",
+    story: "Love Story",
+    placeholder: "How can we improve the revolution?",
+    submit: "Send to Mission Control",
+    successTitle: "Mission Recorded",
+    successDesc: "Your heart's voice has reached us. Together, we eliminate poverty. ❤️"
   }
 };
 
@@ -119,46 +132,28 @@ export const TRANSLATIONS: Record<LanguageCode, any> = {
     nav: { discover: "Descubrir", search: "Buscar", global: "Global", matches: "Corazones", shop: "Tienda", profile: "Perfil" },
     login: { ...baseTranslations.login, title: "TE AMO", signIn: "Entrar", join: "Unirse", launch: "Iniciar", joinRevolution: "Unirse a la Revolución", guest: "Invitado", ageVerify: "Tengo 18+ años", respectVerify: "El Respeto es Obligatorio", humanVerify: "Verificar Humano" },
     home: { ...baseTranslations.home, heroTitle: "Chispa de Amor. Fin de la Pobreza.", heroSubtitle: "Uniendo corazones en cada ciudad y pueblo para financiar la creación de empleo local. El respeto es obligatorio.", launchButton: "Iniciar Chispa", supportButton: "Apoyar Misión", metricTitle: "La Felicidad es la Única Métrica." },
-    discover: { ...baseTranslations.discover, mystery: "Conexión Misteriosa", revealed: "Corazón Revelado", invite: "Invitar", spark: "Chispa" }
+    discover: { ...baseTranslations.discover, mystery: "Conexión Misteriosa", revealed: "Corazón Revelado", invite: "Invitar", spark: "Chispa" },
+    feedback: { title: "Latido de la Comunidad", subtitle: "Dale forma a la Revolución", category: "Tipo de Comentarios", app: "Problema técnico", mission: "Idea de la Misión", story: "Historia de Amor", placeholder: "¿Cómo podemos mejorar la revolución?", submit: "Enviar a Control de Misión", successTitle: "Misión Registrada", successDesc: "La voz de tu corazón nos ha llegado. Juntos eliminamos la pobreza. ❤️" }
   },
   French: {
     ...baseTranslations,
     nav: { discover: "Découvrir", search: "Rechercher", global: "Global", matches: "Cœurs", shop: "Boutique", profile: "Profil" },
     login: { ...baseTranslations.login, title: "JE T'AIME", signIn: "Se Connecter", join: "Rejoindre", launch: "Lancer", joinRevolution: "Rejoindre la Révolution" },
     home: { ...baseTranslations.home, heroTitle: "Étincelle d'Amour. Fin de la Pauvreté.", heroSubtitle: "Relier les cœurs dans chaque ville et village pour financer la création d'emplois locaux. Le respect est obligatoire.", metricTitle: "Le Bonheur est la Seule Mesure." },
-    discover: { ...baseTranslations.discover, mystery: "Connexion Mystère", revealed: "Cœur Révélé", invite: "Inviter", spark: "Étincelle" }
+    discover: { ...baseTranslations.discover, mystery: "Connexion Mystère", revealed: "Cœur Révélé", invite: "Inviter", spark: "Étincelle" },
+    feedback: { title: "Battement de Cœur Communautaire", subtitle: "Façonner la Révolution", category: "Type de Retour", app: "Problème technique", mission: "Idée de Mission", story: "Histoire d'Amour", placeholder: "Comment pouvons-nous améliorer la révolution ?", submit: "Envoyer au Contrôle de Mission", successTitle: "Mission Enregistrée", successDesc: "La voix de votre cœur nous est parvenue. Ensemble, nous éliminons la pauvreté. ❤️" }
   },
   Swahili: {
     ...baseTranslations,
     nav: { discover: "Gundua", search: "Tafuta", global: "Ulimwengu", matches: "Mioyo Yangu", shop: "Duka", profile: "Wasifu" },
-    home: { ...baseTranslations.home, heroTitle: "Cheche ya Upendo. Komesha Umaskini.", heroSubtitle: "Kuunganisha mioyo katika kila mji na kijiji ili kufadhili uundaji wa nafasi za kazi nchini. Heshima ni lazima.", metricTitle: "Furaha ndio Kipimo Pekee." }
-  },
-  Japanese: {
-    ...baseTranslations,
-    nav: { discover: "発見", search: "検索", global: "グローバル", matches: "マッチ", shop: "ショップ", profile: "プロフィール" },
-    login: { ...baseTranslations.login, title: "愛してる", signIn: "サインイン", join: "参加する", launch: "起動", joinRevolution: "革命に参加する" },
-    home: { ...baseTranslations.home, heroTitle: "愛を。貧困を終わらせる。", heroSubtitle: "すべての都市と村の心をつなぎ、地元の雇用創出に資金を提供します。尊敬は必須です。", metricTitle: "幸福こそが唯一の基準です。" }
-  },
-  Portuguese: {
-    ...baseTranslations,
-    nav: { discover: "Descobrir", search: "Buscar", global: "Global", matches: "Corações", shop: "Loja", profile: "Perfil" },
-    login: { ...baseTranslations.login, title: "EU TE AMO", signIn: "Entrar", join: "Registrar", launch: "Lançar", joinRevolution: "Juntar-se à Revolução" },
-    home: { ...baseTranslations.home, heroTitle: "Gera Amor. Acaba com a Pobreza.", heroSubtitle: "Conectando corações em todas as cidades e vilas para financiar a criação de empregos locais. O respeito é obrigatório.", metricTitle: "A Felicidade é a Única Métrica." }
+    home: { ...baseTranslations.home, heroTitle: "Cheche ya Upendo. Komesha Umaskini.", heroSubtitle: "Kuunganisha mioyo katika kila mji na kijiji ili kufadhili uundaji wa nafasi za kazi nchini. Heshima ni lazima.", metricTitle: "Furaha ndio Kipimo Pekee." },
+    feedback: { title: "Mapigo ya Moyo ya Jumuiya", subtitle: "Jenga Mapinduzi", category: "Aina ya Maoni", app: "Tatizo la Programu", mission: "Wazo la Misheni", story: "Hadithi ya Mapenzi", placeholder: "Tunawezaje kuboresha mapinduzi?", submit: "Tuma kwa Udhibiti wa Misheni", successTitle: "Misheni Imehifadhiwa", successDesc: "Sauti ya moyo wako imetufikia. Pamoja, tunaangamiza umaskini. ❤️" }
   },
   Amharic: {
     ...baseTranslations,
     nav: { discover: "ይፈልጉ", search: "ይፈልጉ", global: "ዓለም አቀፍ", matches: "ልቦች", shop: "ሱቅ", profile: "መገለጫ" },
-    home: { ...baseTranslations.home, heroTitle: "የፍቅር ብልጭታ። ድህነትን ያብቁ።", heroSubtitle: "የአካባቢ የሥራ ዕድል ፈጠራን ለመደገፍ በየከተማውና በየመንደሩ ልቦችን ማገናኘት። መከባበር ግዴታ ነው።", metricTitle: "ደስታ ብቸኛው መለኪያ ነው።" }
-  },
-  Arabic: {
-    ...baseTranslations,
-    nav: { discover: "اكتشف", search: "بحث", global: "عالمي", matches: "قلوبي", shop: "متجر", profile: "الملف الشخصي" },
-    home: { ...baseTranslations.home, heroTitle: "شرارة الحب. إنهاء الفقر.", heroSubtitle: "ربط القلوب عبر كل مدينة وقرية لتمويل خلق فرص العمل المحلية. الاحترام إلزامي.", metricTitle: "السعادة هي المقياس الوحيد." }
-  },
-  Hindi: {
-    ...baseTranslations,
-    nav: { discover: "खोजें", search: "खोजें", global: "वैश्विक", matches: "मेरे दिल", shop: "दुकान", profile: "प्रोफ़ाइल" },
-    home: { ...baseTranslations.home, heroTitle: "प्यार जगाएं। गरीबी मिटाएं।", heroSubtitle: "स्थानीय रोजगार सृजन के लिए हर शहर और गांव के दिलों को जोड़ना। सम्मान अनिवार्य है।", metricTitle: "खुशी ही एकमात्र पैमाना है।" }
+    home: { ...baseTranslations.home, heroTitle: "የፍቅር ብልጭታ። ድህነትን ያብቁ።", heroSubtitle: "የአካባቢ የሥራ ዕድል ፈጠራን ለመደገፍ በየከተማውና በየመንደሩ ልቦችን ማገናኘት። መከባበር ግዴታ ነው።", metricTitle: "ደስታ ብቸኛው መለኪያ ነው።" },
+    feedback: { title: "የማህበረሰብ የልብ ትርታ", subtitle: "አብዮቱን ይቅረጹ", category: "የአስተያየት አይነት", app: "የመተግበሪያ ችግር", mission: "የተልዕኮ ሃሳብ", story: "የፍቅር ታሪክ", placeholder: "አብዮቱን እንዴት ማሻሻል እንችላለን?", submit: "ለተልዕኮ ቁጥጥር ይላኩ", successTitle: "ተልዕኮ ተመዝግቧል", successDesc: "የልብዎ ድምጽ ደርሶናል። አብረን ድህነትን እናጠፋለን። ❤️" }
   }
 };
 

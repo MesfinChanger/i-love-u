@@ -1,3 +1,4 @@
+
 'use client';
 
 import React from 'react';
@@ -6,6 +7,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { SparkAssistant } from '@/components/SparkAssistant';
 import { RegistrationReminder } from '@/components/RegistrationReminder';
 import { LanguageProvider } from './LanguageProvider';
+import { FeedbackBox } from '@/components/FeedbackBox';
 
 /**
  * @fileOverview Wraps all client-side providers for the application.
@@ -17,6 +19,7 @@ export function ClientProviders({ children }: { children: React.ReactNode }) {
       <LanguageProvider>
         {children}
         <SparkAssistant />
+        <FeedbackBox />
         <RegistrationReminder />
         <Toaster />
       </LanguageProvider>
