@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, Suspense, useRef, useMemo } from 'react';
@@ -43,7 +44,8 @@ import {
   Heart,
   Zap,
   RefreshCw,
-  X
+  X,
+  AlertTriangle
 } from 'lucide-react';
 import { 
   DropdownMenu, 
@@ -51,12 +53,23 @@ import {
   DropdownMenuItem, 
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu';
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { generateBio } from '@/ai/flows/generate-bio-flow';
 import { moderateImage } from '@/ai/flows/moderate-image-flow';
 import { useToast } from '@/hooks/use-toast';
 import { useUser, useFirestore, useAuth, useDoc, useFirebaseStorage } from '@/firebase';
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { signOut } from 'firebase/auth';
+import { doc, setDoc, serverTimestamp, deleteDoc } from 'firebase/firestore';
+import { signOut, deleteUser } from 'firebase/auth';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { useRouter } from 'next/navigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -68,8 +81,6 @@ import { COUNTRIES, LANGUAGES, CURRENCIES, WORLD_LOCATIONS } from '@/lib/world-d
 import Image from 'next/image';
 import { useTranslation } from '@/components/providers/LanguageProvider';
 import { LiveCamera } from '@/components/LiveCamera';
-
-const GENDERS = [{ value: 'male', label: 'Male' }, { value: 'female', label: 'Female' }];
 
 /**
  * Utility to convert a File to a Data URI for AI moderation.
@@ -133,6 +144,7 @@ function ProfileContent() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const [isUploadingGallery, setIsUploadingGallery] = useState(false);
   const [isUploadingVideo, setIsUploadingVideo] = useState(false);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
@@ -375,6 +387,40 @@ function ProfileContent() {
       toast({ variant: "destructive", title: "Sign Out Error", description: "Could not safely disconnect." });
     } finally {
       setIsSigningOut(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!user || !db || !auth?.currentUser || isDeletingAccount) return;
+    setIsDeletingAccount(true);
+    try {
+      // 1. Clear Firestore Records
+      await deleteDoc(doc(db, 'users', user.uid));
+      await deleteDoc(doc(db, 'publicProfiles', user.uid));
+      
+      // 2. Clear Local Protocol
+      localStorage.removeItem('iloveu_policy_accepted');
+      localStorage.removeItem(`spark_priv_${user.uid}`);
+
+      // 3. Delete Firebase Auth User
+      // Note: Re-authentication may be required for sensitive operations, but for MVP we attempt direct delete.
+      await deleteUser(auth.currentUser);
+      
+      toast({ title: "Account Purged", description: "Your identity and history have been permanently removed. ❤️" });
+      router.push('/');
+    } catch (error: any) {
+      console.error("Purge Ripple:", error);
+      if (error.code === 'auth/requires-recent-login') {
+        toast({ 
+          variant: "destructive", 
+          title: "Re-Authentication Required", 
+          description: "For security, please sign out and sign back in before deleting your account. ✨" 
+        });
+      } else {
+        toast({ variant: "destructive", title: "Purge Failed", description: "Could not safely remove your identity." });
+      }
+    } finally {
+      setIsDeletingAccount(false);
     }
   };
 
@@ -685,39 +731,88 @@ function ProfileContent() {
           </TabsContent>
 
           <TabsContent value="security">
-            <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-8 space-y-8">
-              <div className="text-center space-y-2">
-                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-2 shadow-inner border-2 border-primary/5">
-                  <ShieldCheck className="w-8 h-8 text-primary animate-pulse" />
+            <div className="space-y-6">
+              <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-8 space-y-8">
+                <div className="text-center space-y-2">
+                  <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-2 shadow-inner border-2 border-primary/5">
+                    <ShieldCheck className="w-8 h-8 text-primary animate-pulse" />
+                  </div>
+                  <h3 className="text-lg font-black uppercase tracking-tighter">{t('profile.security')}</h3>
+                  <p className="text-[10px] text-muted-foreground font-black uppercase tracking-[0.2em] opacity-60">Mandatory community safety</p>
                 </div>
-                <h3 className="text-lg font-black uppercase tracking-tighter">{t('profile.security')}</h3>
-                <p className="text-[10px] text-muted-foreground font-black uppercase tracking-[0.2em] opacity-60">Mandatory community safety</p>
-              </div>
-              <div className="space-y-4">
-                <div className="flex flex-col gap-4 bg-primary/5 p-6 rounded-[2rem] border border-primary/10">
-                    <div className="flex items-center space-x-4 cursor-pointer group" onClick={() => setIsAgeVerified(!isAgeVerified)}>
-                      <div className={cn("w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all group-hover:scale-110 shrink-0", isAgeVerified ? "border-primary bg-primary" : "border-slate-300")}>
-                        {isAgeVerified && <div className="w-2.5 h-2.5 rounded-full bg-white" />}
+                <div className="space-y-4">
+                  <div className="flex flex-col gap-4 bg-primary/5 p-6 rounded-[2rem] border border-primary/10">
+                      <div className="flex items-center space-x-4 cursor-pointer group" onClick={() => setIsAgeVerified(!isAgeVerified)}>
+                        <div className={cn("w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all group-hover:scale-110 shrink-0", isAgeVerified ? "border-primary bg-primary" : "border-slate-300")}>
+                          {isAgeVerified && <div className="w-2.5 h-2.5 rounded-full bg-white" />}
+                        </div>
+                        <span className={cn("text-[11px] font-black uppercase tracking-widest transition-colors", isAgeVerified ? "text-primary" : "text-slate-400")}>I am 18+ years old</span>
                       </div>
-                      <span className={cn("text-[11px] font-black uppercase tracking-widest transition-colors", isAgeVerified ? "text-primary" : "text-slate-400")}>I am 18+ years old</span>
-                    </div>
-                    <div className="h-px bg-primary/10 w-full" />
-                    <div className="flex items-center space-x-4 cursor-pointer group" onClick={() => setIsRespectful(!isRespectful)}>
-                      <div className={cn("w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all group-hover:scale-110 shrink-0", isRespectful ? "border-primary bg-primary" : "border-slate-300")}>
-                        {isRespectful && <div className="w-2.5 h-2.5 rounded-full bg-white" />}
+                      <div className="h-px bg-primary/10 w-full" />
+                      <div className="flex items-center space-x-4 cursor-pointer group" onClick={() => setIsRespectful(!isRespectful)}>
+                        <div className={cn("w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all group-hover:scale-110 shrink-0", isRespectful ? "border-primary bg-primary" : "border-slate-300")}>
+                          {isRespectful && <div className="w-2.5 h-2.5 rounded-full bg-white" />}
+                        </div>
+                        <span className={cn("text-[11px] font-black uppercase tracking-widest transition-colors", isRespectful ? "text-primary" : "text-slate-400")}>Respect is Mandatory</span>
                       </div>
-                      <span className={cn("text-[11px] font-black uppercase tracking-widest transition-colors", isRespectful ? "text-primary" : "text-slate-400")}>Respect is Mandatory</span>
-                    </div>
-                    <div className="h-px bg-primary/10 w-full" />
-                    <div className="flex items-center space-x-4 cursor-pointer group" onClick={() => setIsHuman(!isHuman)}>
-                      <div className={cn("w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all group-hover:scale-110 shrink-0", isHuman ? "border-primary bg-primary" : "border-slate-300")}>
-                        {isHuman && <div className="w-2.5 h-2.5 rounded-full bg-white" />}
+                      <div className="h-px bg-primary/10 w-full" />
+                      <div className="flex items-center space-x-4 cursor-pointer group" onClick={() => setIsHuman(!isHuman)}>
+                        <div className={cn("w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all group-hover:scale-110 shrink-0", isHuman ? "border-primary bg-primary" : "border-slate-300")}>
+                          {isHuman && <div className="w-2.5 h-2.5 rounded-full bg-white" />}
+                        </div>
+                        <span className={cn("text-[11px] font-black uppercase tracking-widest transition-colors", isHuman ? "text-primary" : "text-slate-400")}>Verify Human Status</span>
                       </div>
-                      <span className={cn("text-[11px] font-black uppercase tracking-widest transition-colors", isHuman ? "text-primary" : "text-slate-400")}>Verify Human Status</span>
-                    </div>
+                  </div>
                 </div>
-              </div>
-            </Card>
+              </Card>
+
+              {/* Account Deletion Section */}
+              <Card className="rounded-[2.5rem] border-none shadow-xl bg-red-50 p-8 space-y-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-red-500 shadow-sm">
+                    <AlertTriangle className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-black uppercase tracking-tighter text-red-900">{t('profile.deleteAccount')}</h3>
+                    <p className="text-[10px] text-red-700 font-bold uppercase tracking-widest">Permanent Identity Removal</p>
+                  </div>
+                </div>
+                
+                <p className="text-xs text-red-800/70 font-medium italic leading-relaxed">
+                  "Respecting your data means giving you the key to the exit." Deleting your account will purge all your respectful sparks and mission history.
+                </p>
+
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="outline" className="w-full h-14 rounded-2xl border-2 border-red-200 bg-white text-red-500 font-black uppercase text-[10px] tracking-widest hover:bg-red-50 hover:text-red-600 transition-all">
+                      Purge Identity & History
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent className="rounded-[3rem] border-none shadow-2xl p-8">
+                    <AlertDialogHeader className="text-center">
+                      <div className="w-20 h-20 bg-red-100 rounded-[2.5rem] flex items-center justify-center mx-auto mb-4">
+                         <Trash2 className="w-10 h-10 text-red-500" />
+                      </div>
+                      <AlertDialogTitle className="text-3xl font-black tracking-tighter uppercase">{t('profile.deleteWarningTitle')}</AlertDialogTitle>
+                      <AlertDialogDescription className="text-muted-foreground text-sm italic font-medium">
+                        {t('profile.deleteWarningDesc')}
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter className="flex-col sm:flex-row gap-3 mt-6">
+                      <AlertDialogCancel className="h-14 rounded-2xl border-none bg-muted/50 font-bold flex-1">{t('profile.deleteCancel')}</AlertDialogCancel>
+                      <AlertDialogAction 
+                        onClick={handleDeleteAccount}
+                        disabled={isDeletingAccount}
+                        className="h-14 rounded-2xl bg-red-500 hover:bg-red-600 text-white font-black uppercase text-[10px] tracking-widest flex-1 shadow-xl shadow-red-500/20"
+                      >
+                        {isDeletingAccount ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Trash2 className="w-4 h-4 mr-2" />}
+                        {t('profile.deleteConfirm')}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </Card>
+            </div>
           </TabsContent>
         </Tabs>
       </main>

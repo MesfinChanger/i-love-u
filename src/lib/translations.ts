@@ -109,7 +109,12 @@ const baseTranslations = {
     shareDescription: "Your connections fund local job creation. Help us reach every heart in every village.",
     copyLink: "Copy Mission Link",
     linkCopied: "Link Secured to Clipboard!",
-    anyConnection: "Any Connection"
+    anyConnection: "Any Connection",
+    deleteAccount: "Delete Account",
+    deleteWarningTitle: "Are you absolutely sure?",
+    deleteWarningDesc: "This action cannot be undone. All your matches, messages, and mission history will be permanently deleted.",
+    deleteConfirm: "Yes, Delete Forever",
+    deleteCancel: "Keep My Account"
   },
   feedback: {
     title: "Community Heartbeat",
