@@ -18,7 +18,8 @@ import {
   LayoutGrid,
   LogOut,
   Loader2,
-  Languages
+  Languages,
+  Check
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DonationDialog } from '@/components/DonationDialog';
@@ -182,12 +183,15 @@ export function Header() {
                             key={lang.name} 
                             onClick={() => setLanguage(lang.name)}
                             className={cn(
-                              "rounded-xl py-3 px-4 font-bold text-xs uppercase tracking-wider cursor-pointer transition-colors",
+                              "rounded-xl py-3 px-4 font-bold text-xs uppercase tracking-wider cursor-pointer transition-colors flex items-center justify-between",
                               language === lang.name ? "bg-primary/10 text-primary" : "hover:bg-muted"
                             )}
                           >
-                            <span className="flex-grow">{lang.name}</span>
-                            <span className="text-[10px] opacity-40 font-medium">{lang.native}</span>
+                            <div className="flex flex-col">
+                              <span>{lang.name}</span>
+                              <span className="text-[9px] opacity-40 font-medium">{lang.native}</span>
+                            </div>
+                            {language === lang.name && <Check className="w-4 h-4" />}
                           </DropdownMenuItem>
                         ))}
                      </DropdownMenuContent>
@@ -221,8 +225,9 @@ export function Header() {
         <div className="flex items-center gap-1">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="text-primary/60 hover:text-primary w-10 h-10" aria-label="Select Language">
+              <Button variant="ghost" size="sm" className="text-primary/60 hover:text-primary h-10 px-2 gap-2" aria-label="Select Language">
                 <Languages className="w-5 h-5" />
+                <span className="text-[10px] font-black uppercase tracking-widest hidden sm:inline-block">{language}</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-48 rounded-2xl p-2 border-none shadow-2xl mr-4 max-h-80 overflow-y-auto" align="end">
@@ -231,11 +236,15 @@ export function Header() {
                   key={lang.name} 
                   onClick={() => setLanguage(lang.name)}
                   className={cn(
-                    "rounded-xl py-3 px-4 font-bold text-xs uppercase tracking-wider cursor-pointer",
+                    "rounded-xl py-3 px-4 font-bold text-xs uppercase tracking-wider cursor-pointer flex items-center justify-between",
                     language === lang.name ? "bg-primary/10 text-primary" : "hover:bg-muted"
                   )}
                 >
-                  {lang.name}
+                  <div className="flex flex-col">
+                    <span>{lang.name}</span>
+                    <span className="text-[9px] opacity-40 font-medium">{lang.native}</span>
+                  </div>
+                  {language === lang.name && <Check className="w-4 h-4" />}
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>
