@@ -15,6 +15,7 @@ dependencies:
   cupertino_icons: ^1.0.6
   google_fonts: ^6.1.0
   intl: ^0.18.1
+  shared_preferences: ^2.2.5
   
   # Firebase Core & Mission Data
   firebase_core: ^2.24.2
