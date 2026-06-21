@@ -47,6 +47,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useTranslation } from '@/components/providers/LanguageProvider';
 import { LiveCamera } from '@/components/LiveCamera';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError, type SecurityRuleContext } from '@/firebase/errors';
 
 /**
  * Utility to convert a File to a Data URI for AI moderation.
@@ -197,7 +199,11 @@ export default function CommunityPage() {
       await deleteDoc(doc(db, 'communityMessages', id));
       toast({ title: "Post Removed", description: "Cleared from Global Circle. ✨" });
     } catch (e) {
-      toast({ variant: "destructive", title: "Action Failed", description: "Could not remove post." });
+      const permissionError = new FirestorePermissionError({
+        path: `communityMessages/${id}`,
+        operation: 'delete',
+      });
+      errorEmitter.emit('permission-error', permissionError);
     } finally {
       setIsDeleting(null);
     }
@@ -213,48 +219,50 @@ export default function CommunityPage() {
 
     setIsSending(true);
     try {
-      let imageUrl = null;
-      let videoUrl = null;
-      let fileUrl = null;
-      let fileName = null;
+      const promises: Promise<any>[] = [];
+      let imageUrl: string | null = null;
+      let videoUrl: string | null = null;
+      let fileUrl: string | null = null;
+      let fileName: string | null = null;
       let isSensitive = false;
 
+      // 1. Parallelize Moderation and Uploads
       if (newMessage.trim()) {
-        const textModeration = await moderateText({ text: newMessage, context: 'chat' });
-        if (textModeration.isFlagged) {
-          toast({ variant: "destructive", title: "Respect Rule Violation", description: textModeration.reason || "Disrespectful words are forbidden." });
-          setIsSending(false);
-          return;
-        }
+        promises.push(moderateText({ text: newMessage, context: 'chat' }).then(res => {
+          if (res.isFlagged) throw new Error(`TEXT_FLAGGED: ${res.reason}`);
+          return res;
+        }));
       }
 
       if (selectedImage) {
-        try {
-          const photoDataUri = await fileToDataUri(selectedImage.file);
-          const imageModeration = await moderateImage({ photoDataUri });
-          
-          if (imageModeration.isSensitive) {
-            toast({ variant: "destructive", title: "Safe Space Protocol", description: "Image contains sensitive content and was blocked by AI. ✨" });
-            setIsSending(false);
-            return;
-          }
+        const photoDataUri = await fileToDataUri(selectedImage.file);
+        promises.push(moderateImage({ photoDataUri }).then(async res => {
+          if (res.isSensitive) throw new Error("IMAGE_SENSITIVE");
+          isSensitive = res.isSensitive;
           imageUrl = await uploadFile(`community/${Date.now()}-${selectedImage.file.name}`, selectedImage.file);
-          isSensitive = imageModeration.isSensitive;
-        } catch (modErr) {
-          imageUrl = await uploadFile(`community/${Date.now()}-${selectedImage.file.name}`, selectedImage.file);
-        }
+          return res;
+        }));
       }
 
       if (selectedVideo) {
-        videoUrl = await uploadFile(`community_videos/${Date.now()}-${selectedVideo.file.name}`, selectedVideo.file);
+        promises.push(uploadFile(`community_videos/${Date.now()}-${selectedVideo.file.name}`, selectedVideo.file).then(url => {
+          videoUrl = url;
+          return url;
+        }));
       }
 
       if (selectedFile) {
-        fileUrl = await uploadFile(`community_files/${Date.now()}-${selectedFile.name}`, selectedFile);
-        fileName = selectedFile.name;
+        promises.push(uploadFile(`community_files/${Date.now()}-${selectedFile.name}`, selectedFile).then(url => {
+          fileUrl = url;
+          fileName = selectedFile!.name;
+          return url;
+        }));
       }
 
-      await addDoc(collection(db, 'communityMessages'), {
+      await Promise.all(promises);
+
+      // 2. High-Speed Non-Blocking Mutation
+      const messageData = {
         senderId: user.uid,
         senderNickname: myProfile?.displayName || myProfile?.publicNickname || "Mystery Heart",
         text: newMessage,
@@ -264,15 +272,32 @@ export default function CommunityPage() {
         fileName: fileName,
         isSensitive: isSensitive,
         timestamp: serverTimestamp(),
-      });
+      };
+
+      const collRef = collection(db, 'communityMessages');
+      addDoc(collRef, messageData)
+        .catch(async (err) => {
+          const permissionError = new FirestorePermissionError({
+            path: collRef.path,
+            operation: 'create',
+            requestResourceData: messageData,
+          });
+          errorEmitter.emit('permission-error', permissionError);
+        });
 
       setNewMessage('');
       setSelectedImage(null);
       setSelectedVideo(null);
       setSelectedFile(null);
       toast({ title: "Moment Shared!", description: "Your contribution is live on the wall. ❤️" });
-    } catch (error) {
-      toast({ variant: "destructive", title: "Sharing Ripple", description: "Could not secure your post right now." });
+    } catch (error: any) {
+      if (error.message.startsWith("TEXT_FLAGGED")) {
+        toast({ variant: "destructive", title: "Respect Rule Violation", description: error.message.split(": ")[1] || "Disrespectful words are forbidden." });
+      } else if (error.message === "IMAGE_SENSITIVE") {
+        toast({ variant: "destructive", title: "Safe Space Protocol", description: "Image contains sensitive content and was blocked by AI. ✨" });
+      } else {
+        toast({ variant: "destructive", title: "Sharing Ripple", description: "Could not secure your post right now." });
+      }
     } finally {
       setIsSending(false);
     }

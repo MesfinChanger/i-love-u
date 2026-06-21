@@ -67,6 +67,8 @@ import {
 import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import Link from 'next/link';
 import { LiveCamera } from '@/components/LiveCamera';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError, type SecurityRuleContext } from '@/firebase/errors';
 
 /**
  * Utility to convert a File to a Data URI for AI moderation.
@@ -210,13 +212,21 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
         } else {
           try {
             const cloudUrl = await uploadFile(`matches/${matchId}/${Date.now()}-${file.name}`, file);
-            await addDoc(collection(db, 'matches', matchId, 'messages'), {
+            const messagesColl = collection(db!, 'matches', matchId, 'messages');
+            const fileData = {
               senderId: user!.uid,
               fileUrl: cloudUrl,
               fileName: file.name,
               fileType: file.type,
               fileSize: file.size,
               timestamp: serverTimestamp(),
+            };
+            addDoc(messagesColl, fileData).catch(async err => {
+              errorEmitter.emit('permission-error', new FirestorePermissionError({
+                path: messagesColl.path,
+                operation: 'create',
+                requestResourceData: fileData
+              }));
             });
             toast({ title: "File Shared", description: `${file.name} sent.` });
           } catch (error) {
@@ -234,7 +244,10 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
       await deleteDoc(doc(db, 'matches', matchId, 'messages', id));
       toast({ title: "Message Retracted", description: "Cleared from sacred space. ❤️" });
     } catch (e) {
-      toast({ variant: "destructive", title: "Action Denied", description: "Could not retract message." });
+      errorEmitter.emit('permission-error', new FirestorePermissionError({
+        path: `matches/${matchId}/messages/${id}`,
+        operation: 'delete'
+      }));
     } finally {
       setIsDeleting(null);
     }
@@ -250,35 +263,42 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
 
     setIsSending(true);
     try {
-      try {
-        const moderation = await moderateText({ text: newMessage });
-        if (moderation.isFlagged) {
-          toast({
-            variant: "destructive",
-            title: "Respect Mandatory Rule",
-            description: "This message was blocked by AI for violating our Mandatory Respect & Love policy. ✨"
-          });
-          setIsSending(false);
-          return;
-        }
-      } catch (modError) {
+      // 1. Check Moderation
+      const moderation = await moderateText({ text: newMessage });
+      if (moderation.isFlagged) {
+        toast({
+          variant: "destructive",
+          title: "Respect Mandatory Rule",
+          description: moderation.reason || "Message blocked by AI."
+        });
         setIsSending(false);
         return;
       }
 
+      // 2. Encryption Layer
       const partnerPubKey = partnerProfile?.publicKey;
-
       let encryptedText = null;
       if (partnerPubKey) {
         encryptedText = await encryptText(newMessage, partnerPubKey);
       }
 
-      await addDoc(collection(db, 'matches', matchId, 'messages'), {
+      // 3. Parallel non-blocking write
+      const messagesColl = collection(db, 'matches', matchId, 'messages');
+      const messageData = {
         senderId: user.uid,
         text: partnerPubKey ? "[Encrypted Content]" : newMessage,
         encryptedText: encryptedText,
         timestamp: serverTimestamp(),
-      });
+      };
+
+      addDoc(messagesColl, messageData)
+        .catch(async (err) => {
+          errorEmitter.emit('permission-error', new FirestorePermissionError({
+            path: messagesColl.path,
+            operation: 'create',
+            requestResourceData: messageData
+          }));
+        });
 
       setNewMessage('');
     } catch (error) {
@@ -292,22 +312,49 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
     if (!user || !db || !matchId) return;
 
     try {
+      const messagesColl = collection(db, 'matches', matchId, 'messages');
+      
       if (data.type === 'image') {
         const photoDataUri = data.url.startsWith('data:') ? data.url : await fileToDataUri(data.file);
-        const moderation = await moderateImage({ photoDataUri });
-        const cloudUrl = await uploadFile(`matches/${matchId}/${Date.now()}.jpg`, data.file);
-        await addDoc(collection(db, 'matches', matchId, 'messages'), {
+        
+        // 1. Parallelize AI and Storage
+        const [modResult, cloudUrl] = await Promise.all([
+          moderateImage({ photoDataUri }),
+          uploadFile(`matches/${matchId}/${Date.now()}.jpg`, data.file)
+        ]);
+
+        if (modResult.isSensitive) {
+          toast({ variant: "destructive", title: "Policy Blocked", description: "Sensitive content detected." });
+          return;
+        }
+
+        const imageData = {
           senderId: user.uid,
           imageUrl: cloudUrl,
-          isSensitive: moderation.isSensitive,
+          isSensitive: modResult.isSensitive,
           timestamp: serverTimestamp(),
+        };
+
+        addDoc(messagesColl, imageData).catch(async err => {
+          errorEmitter.emit('permission-error', new FirestorePermissionError({
+            path: messagesColl.path,
+            operation: 'create',
+            requestResourceData: imageData
+          }));
         });
       } else {
         const cloudUrl = await uploadFile(`matches/${matchId}/${Date.now()}.mp4`, data.file);
-        await addDoc(collection(db, 'matches', matchId, 'messages'), {
+        const videoData = {
           senderId: user.uid,
           videoUrl: cloudUrl,
           timestamp: serverTimestamp(),
+        };
+        addDoc(messagesColl, videoData).catch(async err => {
+          errorEmitter.emit('permission-error', new FirestorePermissionError({
+            path: messagesColl.path,
+            operation: 'create',
+            requestResourceData: videoData
+          }));
         });
       }
       toast({ title: "Moment Shared", description: "Your live capture is live! ❤️" });
@@ -324,8 +371,15 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
         text,
         targetLanguage: myProfile?.preferredLanguage || 'English'
       });
-      await updateDoc(doc(db, 'matches', matchId, 'messages', msgId), {
+      const msgRef = doc(db!, 'matches', matchId, 'messages', msgId);
+      updateDoc(msgRef, {
         [`translations.${myProfile?.preferredLanguage || 'English'}`]: result.translatedText
+      }).catch(async err => {
+        errorEmitter.emit('permission-error', new FirestorePermissionError({
+          path: msgRef.path,
+          operation: 'update',
+          requestResourceData: { [`translations.${myProfile?.preferredLanguage || 'English'}`]: result.translatedText }
+        }));
       });
     } finally {
       setTranslatingIds(prev => {
@@ -359,13 +413,21 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
 
     try {
       const cloudUrl = await uploadFile(`matches/${matchId}/${Date.now()}-${file.name}`, file);
-      await addDoc(collection(db, 'matches', matchId, 'messages'), {
+      const messagesColl = collection(db, 'matches', matchId, 'messages');
+      const fileData = {
         senderId: user.uid,
         fileUrl: cloudUrl,
         fileName: file.name,
         fileType: file.type,
         fileSize: file.size,
         timestamp: serverTimestamp(),
+      };
+      addDoc(messagesColl, fileData).catch(async err => {
+        errorEmitter.emit('permission-error', new FirestorePermissionError({
+          path: messagesColl.path,
+          operation: 'create',
+          requestResourceData: fileData
+        }));
       });
       toast({ title: "File Shared", description: `${file.name} sent.` });
     } catch (error) {
@@ -377,13 +439,19 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
     if (!user || !db || !matchId) return;
     setIsUnconnecting(true);
     try {
-      const batch = writeBatch(db);
-      batch.update(doc(db, 'matches', matchId), {
+      const matchDocRef = doc(db, 'matches', matchId);
+      const updateData = {
         status: 'unmatched',
         unmatchedAt: serverTimestamp(),
         unmatchedBy: user.uid
+      };
+      updateDoc(matchDocRef, updateData).catch(async err => {
+        errorEmitter.emit('permission-error', new FirestorePermissionError({
+          path: matchDocRef.path,
+          operation: 'update',
+          requestResourceData: updateData
+        }));
       });
-      await batch.commit();
       toast({ title: "Unconnected", description: "Connection ended respectfully." });
       router.push('/matches');
     } finally {
@@ -395,7 +463,15 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
     if (!user || !db || !matchId || !witnessUid) return;
     setIsInvitingWitness(true);
     try {
-      await updateDoc(doc(db, 'matches', matchId), { witnessId: witnessUid, witnessStatus: 'pending' });
+      const matchDocRef = doc(db, 'matches', matchId);
+      const updateData = { witnessId: witnessUid, witnessStatus: 'pending' };
+      updateDoc(matchDocRef, updateData).catch(async err => {
+        errorEmitter.emit('permission-error', new FirestorePermissionError({
+          path: matchDocRef.path,
+          operation: 'update',
+          requestResourceData: updateData
+        }));
+      });
       toast({ title: "Witness Invited", description: "Waiting for them to vouch for your relationship! ✨" });
       setWitnessUid('');
     } finally {
