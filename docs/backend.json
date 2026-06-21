@@ -50,7 +50,8 @@
         "isRespectful": { "type": "boolean", "default": false },
         "isHuman": { "type": "boolean", "default": false },
         "policyAccepted": { "type": "boolean", "default": false },
-        "isAdmin": { "type": "boolean", "default": false }
+        "isAdmin": { "type": "boolean", "default": false },
+        "preferredLanguage": { "type": "string", "default": "English" }
       },
       "required": ["uid", "firstName", "lastName", "birthdate"]
     },
@@ -86,33 +87,6 @@
         "witnessStatus": { "type": "string", "enum": ["none", "pending", "confirmed"] }
       }
     },
-    "AdCampaign": {
-      "title": "Ad Campaign",
-      "description": "A paid advertisement shown in the discovery feed, supporting text or video.",
-      "type": "object",
-      "properties": {
-        "advertiserId": { "type": "string" },
-        "title": { "type": "string" },
-        "description": { "type": "string" },
-        "adType": { "type": "string", "enum": ["text", "video"], "default": "text" },
-        "targetCountries": { "type": "array", "items": { "type": "string" } },
-        "budget": { "type": "number" },
-        "currency": { "type": "string" },
-        "status": { "type": "string", "enum": ["pending", "active", "paused"] },
-        "timestamp": { "type": "string", "format": "date-time" }
-      }
-    },
-    "Donation": {
-      "title": "Donation",
-      "description": "A voluntary contribution to support the 100% free I Love U community.",
-      "type": "object",
-      "properties": {
-        "userId": { "type": "string" },
-        "amount": { "type": "number", "minimum": 1 },
-        "currency": { "type": "string" },
-        "timestamp": { "type": "string", "format": "date-time" }
-      }
-    },
     "Message": {
       "title": "Message",
       "description": "Chat message with gift, file, and translation support.",
@@ -121,59 +95,36 @@
         "senderId": { "type": "string" },
         "text": { "type": "string" },
         "encryptedText": { "type": "string" },
-        "translatedText": { "type": "string" },
+        "translations": { "type": "object" },
         "giftId": { "type": "string" },
-        "giftImageUrl": { "type": "string" },
+        "imageUrl": { "type": "string" },
         "fileUrl": { "type": "string" },
         "fileName": { "type": "string" },
-        "fileType": { "type": "string" },
-        "fileSize": { "type": "number" },
-        "imageUrl": { "type": "string" },
-        "isSensitive": { "type": "boolean" },
         "timestamp": { "type": "string", "format": "date-time" }
       }
     },
-    "CommunityMessage": {
-      "title": "Community Message",
-      "description": "A public message shared on the global community wall. Strictly moderated.",
+    "VideoCall": {
+      "title": "Video Call Signaling",
+      "description": "WebRTC signaling data for peer-to-peer calls.",
       "type": "object",
       "properties": {
-        "senderId": { "type": "string" },
-        "senderNickname": { "type": "string" },
-        "text": { "type": "string" },
-        "imageUrl": { "type": "string" },
-        "videoUrl": { "type": "string" },
-        "fileUrl": { "type": "string" },
-        "fileName": { "type": "string" },
-        "isSensitive": { "type": "boolean" },
+        "offer": { "type": "object" },
+        "answer": { "type": "object" },
+        "callerId": { "type": "string" },
+        "calleeId": { "type": "string" },
+        "status": { "type": "string", "enum": ["calling", "active", "ended"] },
         "timestamp": { "type": "string", "format": "date-time" }
-      }
-    },
-    "Product": {
-      "title": "Gift Product",
-      "description": "Item available in the marketplace.",
-      "type": "object",
-      "properties": {
-        "name": { "type": "string" },
-        "price": { "type": "number" },
-        "category": { "type": "string" },
-        "imageUrl": { "type": "string" }
       }
     }
   },
   "auth": {
-    "providers": ["google.com", "password", "phone"]
+    "providers": ["google.com", "password", "phone", "anonymous"]
   },
   "firestore": {
     "/users/{userId}": { "schema": "UserProfile", "description": "Private user profiles" },
     "/publicProfiles/{userId}": { "schema": "PublicProfile", "description": "Minimal discovery data" },
-    "/donations/{donationId}": { "schema": "Donation", "description": "Support donations" },
     "/matches/{matchId}": { "schema": "Match", "description": "Active connections" },
     "/matches/{matchId}/messages/{messageId}": { "schema": "Message", "description": "Moderated chat history" },
-    "/ads/{adId}": { "schema": "AdCampaign", "description": "Sponsored discovery ads" },
-    "/communityMessages/{messageId}": { "schema": "CommunityMessage", "description": "Global moderated feed" },
-    "/global_products/{productId}": { "schema": "Product", "description": "Gift inventory" },
-    "/shops/{shopId}": { "schema": "object", "description": "Seller storefronts" },
-    "/config/pricing": { "schema": "object", "description": "Global price settings" }
+    "/matches/{matchId}/calls/{callId}": { "schema": "VideoCall", "description": "Video signaling" }
   }
 }

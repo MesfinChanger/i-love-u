@@ -26,7 +26,8 @@ import {
   Volume2,
   Image as ImageIcon,
   EyeOff,
-  ShieldAlert
+  ShieldAlert,
+  Video
 } from 'lucide-react';
 import { 
   Popover, 
@@ -412,36 +413,44 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
 
         <div className="flex items-center gap-1 shrink-0">
           {isDatingMatch && (
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="ghost" size="icon" className="text-primary hover:bg-primary/5 rounded-full w-9 h-9" aria-label="Invite Witness">
-                  <Users className="w-4 h-4" />
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent className="rounded-[3rem] border-none shadow-2xl p-8">
-                <AlertDialogHeader className="text-center">
-                  <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Users className="w-8 h-8 text-primary" />
+            <>
+              <Button variant="ghost" size="icon" asChild className="text-primary hover:bg-primary/5 rounded-full w-9 h-9">
+                <Link href={`/matches/${matchId}/video`} aria-label="Start Video Call">
+                  <Video className="w-4 h-4" />
+                </Link>
+              </Button>
+
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="ghost" size="icon" className="text-primary hover:bg-primary/5 rounded-full w-9 h-9" aria-label="Invite Witness">
+                    <Users className="w-4 h-4" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="rounded-[3rem] border-none shadow-2xl p-8">
+                  <AlertDialogHeader className="text-center">
+                    <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Users className="w-8 h-8 text-primary" />
+                    </div>
+                    <AlertDialogTitle className="text-3xl font-black tracking-tighter">Invite Success Witness</AlertDialogTitle>
+                    <AlertDialogDescription className="text-muted-foreground text-base italic leading-relaxed">
+                      "Happy relationships build global prosperity." Invite a trusted third party to vouch for your respectful and loving Spark.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <div className="py-6 space-y-4">
+                    <div className="space-y-2">
+                      <label htmlFor="witness-id" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Witness User ID</label>
+                      <Input id="witness-id" placeholder="e.g. gHZ9n7s..." value={witnessUid} onChange={e => setWitnessUid(e.target.value)} className="rounded-2xl h-14 bg-muted/30 border-none px-6 text-lg font-bold" />
+                    </div>
                   </div>
-                  <AlertDialogTitle className="text-3xl font-black tracking-tighter">Invite Success Witness</AlertDialogTitle>
-                  <AlertDialogDescription className="text-muted-foreground text-base italic leading-relaxed">
-                    "Happy relationships build global prosperity." Invite a trusted third party to vouch for your respectful and loving Spark.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <div className="py-6 space-y-4">
-                  <div className="space-y-2">
-                    <label htmlFor="witness-id" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Witness User ID</label>
-                    <Input id="witness-id" placeholder="e.g. gHZ9n7s..." value={witnessUid} onChange={e => setWitnessUid(e.target.value)} className="rounded-2xl h-14 bg-muted/30 border-none px-6 text-lg font-bold" />
-                  </div>
-                </div>
-                <AlertDialogFooter className="flex-col gap-3">
-                  <AlertDialogAction onClick={handleInviteWitness} disabled={!witnessUid || isInvitingWitness} className="w-full h-14 rounded-2xl gradient-bg font-black text-lg shadow-xl shadow-primary/20">
-                    {isInvitingWitness ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : "Send Invitation"}
-                  </AlertDialogAction>
-                  <AlertDialogCancel className="w-full h-14 rounded-2xl border-none font-bold text-muted-foreground">Maybe Later</AlertDialogCancel>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+                  <AlertDialogFooter className="flex-col gap-3">
+                    <AlertDialogAction onClick={handleInviteWitness} disabled={!witnessUid || isInvitingWitness} className="w-full h-14 rounded-2xl gradient-bg font-black text-lg shadow-xl shadow-primary/20">
+                      {isInvitingWitness ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : "Send Invitation"}
+                    </AlertDialogAction>
+                    <AlertDialogCancel className="w-full h-14 rounded-2xl border-none font-bold text-muted-foreground">Maybe Later</AlertDialogCancel>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </>
           )}
 
           <Button variant="ghost" size="sm" onClick={handleIcebreaker} disabled={isGenerating || !hasAcceptedPolicy} className="text-primary gap-1 font-black text-[9px] uppercase tracking-widest h-9 px-3 bg-primary/5 rounded-full hidden sm:flex">
