@@ -22,14 +22,22 @@ export default function PolicyAgreePage() {
 
     setIsAgreeing(true);
     try {
+      // Immediate Local Persistence (Mirroring SharedPreferences logic)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('iloveu_policy_accepted', 'true');
+      }
+
       await updateDoc(doc(db, 'users', user.uid), {
         policyAccepted: true,
         policyAcceptedAt: serverTimestamp()
       });
+
       toast({
         title: "Agreement Recorded",
         description: "Welcome to the full Revolution experience! ❤️"
       });
+
+      // Equivalent to Navigator.pushReplacementNamed(context, '/home')
       router.push('/discover');
     } catch (e) {
       toast({ variant: "destructive", title: "Error", description: "Could not record agreement." });
@@ -102,7 +110,7 @@ export default function PolicyAgreePage() {
                   </p>
                 </div>
 
-                {/* Global Legal Disclaimer - THE CRITICAL BOX */}
+                {/* Global Legal Disclaimer */}
                 <div className="bg-slate-50 p-8 rounded-[2rem] border-2 border-dashed border-slate-200 space-y-4 relative group">
                   <div className="flex items-center gap-3 text-slate-900">
                     <Scale className="w-6 h-6" />
@@ -131,7 +139,7 @@ export default function PolicyAgreePage() {
               </div>
             </div>
 
-            {/* Sticky Actions */}
+            {/* Actions */}
             <div className="p-8 pt-0 border-t bg-slate-50/50 space-y-6">
               <div className="flex items-start gap-4 p-4 mt-8 bg-amber-50 rounded-2xl border border-amber-100">
                  <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
