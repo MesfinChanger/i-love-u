@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -7,7 +6,7 @@ import { useUser, useFirestore } from '@/firebase';
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Heart, ShieldCheck, Scale, AlertTriangle, ArrowRight, Loader2, Sparkles } from 'lucide-react';
+import { Heart, ShieldCheck, Scale, AlertTriangle, ArrowRight, Loader2, Sparkles, ScrollText, Gavel, Globe } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 
@@ -70,81 +69,100 @@ export default function PolicyAgreePage() {
             <div className="flex items-center gap-4">
               <ShieldCheck className="w-8 h-8 text-primary" />
               <div>
-                <h3 className="font-black text-xl uppercase tracking-tighter leading-none">Mandatory Policy</h3>
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60 mt-1">Version 1.2.0 • Global</p>
+                <h3 className="font-black text-xl uppercase tracking-tighter leading-none">Universal Protocol</h3>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60 mt-1">Version 2.0.0 • Mandatory Fulfillment</p>
               </div>
             </div>
-            <Scale className="w-6 h-6 text-white/20" />
+            <Gavel className="w-6 h-6 text-white/20" />
           </div>
 
-          <CardContent className="p-10 space-y-8">
-            <section className="space-y-6">
-              <div className="flex gap-4">
-                <div className="w-10 h-10 rounded-2xl bg-primary/5 flex items-center justify-center shrink-0 border border-primary/10">
-                   <span className="font-black text-primary">01</span>
+          <CardContent className="p-0">
+            {/* The Detailed Policy & Disclaimer Box */}
+            <div className="p-8 sm:p-10 space-y-8 max-h-[50vh] overflow-y-auto no-scrollbar">
+              <div className="space-y-10">
+                {/* Behavioral Mandate */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3 text-primary">
+                    <Heart className="w-5 h-5 fill-current" />
+                    <h4 className="font-black text-sm uppercase tracking-widest">01. Mandatory Respect & Love</h4>
+                  </div>
+                  <p className="text-sm text-slate-600 leading-relaxed font-medium">
+                    In this community, treating every heart with pure honor is not a suggestion—it is <span className="font-bold text-slate-900 uppercase underline">Mandatory</span>. We have Zero Tolerance for meanness, bullying, aggression, harassment, or toxic energy. Any sign of unloving behavior will result in immediate permanent expulsion from the revolution to protect our sacred space.
+                  </p>
                 </div>
-                <div>
-                   <h4 className="font-black text-sm uppercase tracking-tight mb-1">Respect is Mandatory</h4>
-                   <p className="text-sm text-muted-foreground leading-relaxed">
-                     Any sign of meanness, bullying, or aggression is forbidden. We are here to bridge cultures with love.
-                   </p>
+
+                {/* Financial Security */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3 text-secondary">
+                    <ShieldCheck className="w-5 h-5" />
+                    <h4 className="font-black text-sm uppercase tracking-widest">02. 100% Free Community Guardrails</h4>
+                  </div>
+                  <p className="text-sm text-slate-600 leading-relaxed font-medium">
+                    We are a mission-driven community focused on ending poverty. We strictly forbid the solicitation of money, bank transfers, crypto, or gifts within private chats. Furthermore, "sugar dating," transactional sex, or any form of commercialized intimacy is strictly prohibited and monitored by AI safety protocols.
+                  </p>
+                </div>
+
+                {/* Global Legal Disclaimer - THE CRITICAL BOX */}
+                <div className="bg-slate-50 p-8 rounded-[2rem] border-2 border-dashed border-slate-200 space-y-4 relative group">
+                  <div className="flex items-center gap-3 text-slate-900">
+                    <Scale className="w-6 h-6" />
+                    <h4 className="font-black text-base uppercase tracking-tighter">Legal Disclaimer & Liability Waiver</h4>
+                  </div>
+                  <div className="space-y-4 text-[13px] text-slate-500 font-bold uppercase leading-relaxed italic">
+                    <p>
+                      By clicking "I Agree," you solemnly acknowledge that the <span className="text-slate-900 underline">Owners, Developers, and Partners</span> of this platform are <span className="text-primary">NOT LIABLE</span> for any damages, psychological harm, physical injury, or financial losses resulting from your interactions.
+                    </p>
+                    <p>
+                      You assume <span className="text-slate-900 underline">100% Total Responsibility</span> for your own safety. While we use AI to moderate and E2EE to secure data, we cannot guarantee the behavior of individual members. You engage with others at your own risk in every city and village worldwide.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Mission Pledge */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3 text-blue-600">
+                    <Globe className="w-5 h-5" />
+                    <h4 className="font-black text-sm uppercase tracking-widest">03. The Prosperity Commitment</h4>
+                  </div>
+                  <p className="text-sm text-slate-600 leading-relaxed font-medium">
+                    Every spark in this app is a vote for global prosperity. You understand that our platform's marketplace and donations are dedicated to funding local equipment, vocational training, and infrastructure to eliminate world poverty through global job creation.
+                  </p>
                 </div>
               </div>
-
-              <div className="flex gap-4">
-                <div className="w-10 h-10 rounded-2xl bg-secondary/5 flex items-center justify-center shrink-0 border border-secondary/10">
-                   <span className="font-black text-secondary">02</span>
-                </div>
-                <div>
-                   <h4 className="font-black text-sm uppercase tracking-tight mb-1">100% Free Community</h4>
-                   <p className="text-sm text-muted-foreground leading-relaxed">
-                     Financial solicitation, sugar dating, or commercial services in private chats are strictly prohibited.
-                   </p>
-                </div>
-              </div>
-
-              <div className="flex gap-4">
-                <div className="w-10 h-10 rounded-2xl bg-blue-50 flex items-center justify-center shrink-0 border border-blue-100">
-                   <span className="font-black text-blue-600">03</span>
-                </div>
-                <div>
-                   <h4 className="font-black text-sm uppercase tracking-tight mb-1">Legal Liability</h4>
-                   <p className="text-sm text-muted-foreground leading-relaxed">
-                     You acknowledge that the developers and platform owners are NOT liable for damages or financial losses arising from interactions.
-                   </p>
-                </div>
-              </div>
-            </section>
-
-            <div className="p-6 bg-amber-50 border border-amber-200 rounded-[2rem] flex items-start gap-4">
-               <AlertTriangle className="w-6 h-6 text-amber-600 mt-1 shrink-0" />
-               <p className="text-xs text-amber-800 font-bold leading-relaxed uppercase">
-                 "View Only Mode" will be active if you do not agree. You will be unable to Spark, Message, or Post until agreement is recorded.
-               </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Button 
-                variant="outline" 
-                onClick={handleViewOnly}
-                className="h-16 rounded-2xl flex-1 border-2 font-black uppercase text-[10px] tracking-widest text-slate-400"
-              >
-                View Only Mode
-              </Button>
-              <Button 
-                onClick={handleAgree}
-                disabled={isAgreeing}
-                className="h-16 rounded-2xl flex-1 gradient-bg font-black uppercase text-[10px] tracking-widest shadow-xl shadow-primary/20 gap-3"
-              >
-                {isAgreeing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-                I Agree & Commit
-              </Button>
+            {/* Sticky Actions */}
+            <div className="p-8 pt-0 border-t bg-slate-50/50 space-y-6">
+              <div className="flex items-start gap-4 p-4 mt-8 bg-amber-50 rounded-2xl border border-amber-100">
+                 <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+                 <p className="text-[10px] text-amber-800 font-black uppercase leading-tight tracking-tight">
+                   "View Only Mode" will disable all Sparking, Messaging, and Community posting until your agreement is recorded.
+                 </p>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button 
+                  variant="outline" 
+                  onClick={handleViewOnly}
+                  className="h-16 rounded-2xl flex-1 border-2 font-black uppercase text-[10px] tracking-widest text-slate-400"
+                >
+                  View Only Mode
+                </Button>
+                <Button 
+                  onClick={handleAgree}
+                  disabled={isAgreeing}
+                  className="h-16 rounded-2xl flex-1 gradient-bg font-black uppercase text-[11px] tracking-[0.2em] shadow-xl shadow-primary/20 gap-3 group"
+                >
+                  {isAgreeing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4 group-hover:rotate-12 transition-transform" />}
+                  I Pledge & Commit
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
         
         <p className="text-[9px] text-center text-slate-400 uppercase font-black tracking-[0.4em]">
-          Eliminating World Poverty Together ❤️
+          Eliminating World Poverty Together ❤️ Reaching Every Village
         </p>
       </div>
     </div>
