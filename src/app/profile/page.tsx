@@ -167,7 +167,8 @@ function ProfileContent() {
       setAddress2(profileData.address2 || '');
       setCity(profileData.city || '');
       setState(profileData.state || '');
-      setCountry(profileData.country || 'US');
+      const initialCountry = profileData.country || 'US';
+      setCountry(initialCountry);
       setDisplayName(profileData.displayName || '');
       setGender(profileData.gender || '');
       setBio(profileData.bio || '');
@@ -178,6 +179,14 @@ function ProfileContent() {
       setIsHuman(profileData.isHuman || false);
       setPreferredLanguage(profileData.preferredLanguage || 'English');
       setCurrency(profileData.currency || 'USD');
+
+      // Auto-prefix phone if it's empty
+      if (!profileData.phoneNumber) {
+        const countryData = COUNTRIES.find(c => c.code === initialCountry);
+        if (countryData?.phoneCode) {
+          setPhoneNumber(countryData.phoneCode);
+        }
+      }
     }
   }, [profileData, user?.email]);
 
@@ -205,14 +214,17 @@ function ProfileContent() {
   };
 
   const handleCountryChange = (newCountryCode: string) => {
+    const oldCountryCode = country;
     setCountry(newCountryCode);
     setState('');
     setCity('');
     
     const countryData = COUNTRIES.find(c => c.code === newCountryCode);
+    const oldCountryData = COUNTRIES.find(c => c.code === oldCountryCode);
+
     if (countryData?.phoneCode) {
-      const currentPrefix = COUNTRIES.find(c => phoneNumber.startsWith(c.phoneCode))?.phoneCode;
-      if (!phoneNumber || phoneNumber === currentPrefix) {
+      // If the current phone number is empty, or just matches the previous country's prefix, update it.
+      if (!phoneNumber || phoneNumber.trim() === '' || phoneNumber === oldCountryData?.phoneCode) {
         setPhoneNumber(countryData.phoneCode);
       }
     }
