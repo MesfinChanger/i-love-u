@@ -18,102 +18,43 @@
         "religion": { "type": "string" },
         "bio": { "type": "string" },
         "interests": { "type": "array", "items": { "type": "string" } },
-        "culturalInterests": { "type": "array", "items": { "type": "string" } },
         "photoUrl": { "type": "string" },
-        "additionalPhotoUrls": { "type": "array", "items": { "type": "string" } },
-        "publicVideoUrl": { "type": "string", "description": "URL to a public profile highlight video." },
         "address1": { "type": "string" },
-        "address2": { "type": "string" },
-        "city": { "type": "string", "description": "City, Village, District, or Wereda" },
-        "state": { "type": "string", "description": "State, Province, or Region" },
-        "country": { "type": "string", "description": "ISO 3166-1 alpha-2 country code" },
-        "taxId": { "type": "string", "description": "SSN or TIN. Strictly protected and used for payment verification." },
-        "relationshipStatus": { "type": "string", "enum": ["single", "dating"] },
+        "city": { "type": "string" },
+        "state": { "type": "string" },
+        "country": { "type": "string" },
+        "taxId": { "type": "string" },
         "isSeller": { "type": "boolean", "default": false },
         "isAdvertiser": { "type": "boolean", "default": false },
-        "sellerStatus": { "type": "string", "enum": ["none", "pending", "approved", "rejected"], "default": "none" },
-        "advertiserStatus": { "type": "string", "enum": ["none", "pending", "approved", "rejected"], "default": "none" },
-        "adminChecklist": { 
-          "type": "object",
-          "properties": {
-            "idVerified": { "type": "boolean" },
-            "addressVerified": { "type": "boolean" },
-            "policySigned": { "type": "boolean" },
-            "humanVerified": { "type": "boolean" }
-          }
-        },
-        "publicKey": { "type": "string" },
-        "currency": { "type": "string", "default": "USD" },
-        "publicNickname": { "type": "string" },
-        "isPhotoPublic": { "type": "boolean", "default": false },
-        "isAgeVerified": { "type": "boolean", "default": false },
-        "isRespectful": { "type": "boolean", "default": false },
-        "isHuman": { "type": "boolean", "default": false },
-        "policyAccepted": { "type": "boolean", "default": false },
+        "sellerStatus": { "type": "string", "enum": ["none", "pending", "approved", "rejected"] },
+        "advertiserStatus": { "type": "string", "enum": ["none", "pending", "approved", "rejected"] },
         "isAdmin": { "type": "boolean", "default": false },
-        "preferredLanguage": { "type": "string", "default": "English" }
-      },
-      "required": ["uid", "firstName", "lastName", "birthdate"]
-    },
-    "PublicProfile": {
-      "title": "Public Profile",
-      "description": "Minimal discovery data visible to everyone. Hides identifying info.",
-      "type": "object",
-      "properties": {
-        "uid": { "type": "string" },
-        "bio": { "type": "string" },
-        "interests": { "type": "array", "items": { "type": "string" } },
-        "locationHint": { "type": "string", "description": "Combined City/Village and Country for discovery." },
-        "publicNickname": { "type": "string" },
-        "publicPhotoUrl": { "type": "string" },
-        "publicVideoUrl": { "type": "string" },
-        "additionalPhotoUrls": { "type": "array", "items": { "type": "string" } },
-        "country": { "type": "string" },
-        "birthMonthDay": { "type": "string", "description": "Month and Day of birth only for privacy." }
+        "policyAccepted": { "type": "boolean", "default": false }
       }
     },
-    "Match": {
-      "title": "Match",
-      "description": "Heart connection between users using a deterministic ID for security verification.",
+    "Ad": {
+      "title": "Advertisement",
+      "description": "Premium community advertisement campaign.",
       "type": "object",
       "properties": {
-        "userIds": { "type": "array", "items": { "type": "string" } },
-        "timestamp": { "type": "string", "format": "date-time" },
-        "lastMessage": { "type": "string" },
-        "status": { "type": "string", "enum": ["pending", "active", "unmatched", "declined"] },
-        "type": { "type": "string", "enum": ["friend", "date"], "default": "friend" },
-        "invitedBy": { "type": "string" },
-        "witnessId": { "type": "string" },
-        "witnessStatus": { "type": "string", "enum": ["none", "pending", "confirmed"] }
+        "advertiserId": { "type": "string" },
+        "adType": { "type": "string", "enum": ["text", "video"] },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "active", "rejected"] },
+        "budget": { "type": "number" },
+        "targetCountries": { "type": "array", "items": { "type": "string" } }
       }
     },
-    "Message": {
-      "title": "Message",
-      "description": "Chat message with gift, file, and translation support.",
+    "Shop": {
+      "title": "Seller Shop",
+      "description": "Virtual storefront for verified artisans.",
       "type": "object",
       "properties": {
-        "senderId": { "type": "string" },
-        "text": { "type": "string" },
-        "encryptedText": { "type": "string" },
-        "translations": { "type": "object" },
-        "giftId": { "type": "string" },
-        "imageUrl": { "type": "string" },
-        "fileUrl": { "type": "string" },
-        "fileName": { "type": "string" },
-        "timestamp": { "type": "string", "format": "date-time" }
-      }
-    },
-    "VideoCall": {
-      "title": "Video Call Signaling",
-      "description": "WebRTC signaling data for peer-to-peer calls.",
-      "type": "object",
-      "properties": {
-        "offer": { "type": "object" },
-        "answer": { "type": "object" },
-        "callerId": { "type": "string" },
-        "calleeId": { "type": "string" },
-        "status": { "type": "string", "enum": ["calling", "active", "ended"] },
-        "timestamp": { "type": "string", "format": "date-time" }
+        "ownerId": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "logoUrl": { "type": "string" }
       }
     }
   },
@@ -122,9 +63,10 @@
   },
   "firestore": {
     "/users/{userId}": { "schema": "UserProfile", "description": "Private user profiles" },
-    "/publicProfiles/{userId}": { "schema": "PublicProfile", "description": "Minimal discovery data" },
-    "/matches/{matchId}": { "schema": "Match", "description": "Active connections" },
-    "/matches/{matchId}/messages/{messageId}": { "schema": "Message", "description": "Moderated chat history" },
-    "/matches/{matchId}/calls/{callId}": { "schema": "VideoCall", "description": "Video signaling" }
+    "/publicProfiles/{userId}": { "schema": "PublicProfile", "description": "Discovery data" },
+    "/matches/{matchId}": { "schema": "Match", "description": "Connections" },
+    "/ads/{adId}": { "schema": "Ad", "description": "Ad campaigns" },
+    "/shops/{shopId}": { "schema": "Shop", "description": "Seller storefronts" },
+    "/global_products/{productId}": { "description": "Marketplace inventory" }
   }
 }

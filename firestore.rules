@@ -10,6 +10,10 @@ service cloud.firestore {
       return isAuthenticated() && request.auth.uid == userId;
     }
 
+    function isAdmin() {
+      return isAuthenticated() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+
     function hasAcceptedPolicy() {
       return isAuthenticated() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.policyAccepted == true;
     }
@@ -51,6 +55,24 @@ service cloud.firestore {
           allow read, write: if isParticipant(matchId);
         }
       }
+    }
+
+    // Ads
+    match /ads/{adId} {
+      allow read: if isAuthenticated() && (resource.data.status == 'active' || resource.data.advertiserId == request.auth.uid);
+      allow create: if isAuthenticated() && request.resource.data.advertiserId == request.auth.uid;
+      allow update: if isAuthenticated() && (resource.data.advertiserId == request.auth.uid || isAdmin());
+    }
+
+    // Shops
+    match /shops/{shopId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && (request.resource.data.ownerId == request.auth.uid || resource.data.ownerId == request.auth.uid);
+    }
+
+    // Products
+    match /global_products/{productId} {
+      allow read: if isAuthenticated();
     }
 
     // Community
