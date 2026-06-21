@@ -23,7 +23,8 @@ import {
   PlayCircle,
   Image as ImageIcon,
   ShieldAlert,
-  Zap
+  Zap,
+  X
 } from 'lucide-react';
 import { 
   Popover, 
@@ -101,6 +102,34 @@ export default function CommunityPage() {
       setSelectedImage({ file, url });
       setSelectedVideo(null);
       setSelectedFile(null);
+    }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    if (!hasAcceptedPolicy) return;
+    const items = e.clipboardData.items;
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (item.kind === 'file') {
+        const file = item.getAsFile();
+        if (!file) continue;
+        
+        const url = URL.createObjectURL(file);
+        if (item.type.startsWith('image/')) {
+          setSelectedImage({ file, url });
+          setSelectedVideo(null);
+          setSelectedFile(null);
+        } else if (item.type.startsWith('video/')) {
+          setSelectedVideo({ file, url });
+          setSelectedImage(null);
+          setSelectedFile(null);
+        } else {
+          setSelectedFile(file);
+          setSelectedImage(null);
+          setSelectedVideo(null);
+        }
+        toast({ title: "Content Pasted", description: "Secured to message queue. ✨" });
+      }
     }
   };
 
@@ -371,6 +400,7 @@ export default function CommunityPage() {
           <Input 
             value={newMessage} 
             onChange={e => setNewMessage(e.target.value)} 
+            onPaste={handlePaste}
             placeholder={hasAcceptedPolicy ? t('community.placeholder') : t('community.viewOnly')} 
             className="rounded-2xl bg-muted/40 border-none h-12 px-6 font-bold text-sm"
             disabled={isSending || !hasAcceptedPolicy}

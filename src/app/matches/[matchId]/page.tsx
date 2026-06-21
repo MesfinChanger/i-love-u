@@ -27,7 +27,8 @@ import {
   EyeOff,
   ShieldAlert,
   Video,
-  Zap
+  Zap,
+  X
 } from 'lucide-react';
 import { 
   Popover, 
@@ -173,6 +174,43 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
+
+  const handlePaste = async (e: React.ClipboardEvent) => {
+    if (!hasAcceptedPolicy) return;
+    const items = e.clipboardData.items;
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (item.kind === 'file') {
+        const file = item.getAsFile();
+        if (!file) continue;
+        
+        toast({ title: "Uploading Pasted Content...", description: "Securing to E2EE Room. ✨" });
+        
+        if (item.type.startsWith('image/')) {
+          const url = URL.createObjectURL(file);
+          await handleLiveCapture({ url, file, type: 'image' });
+        } else if (item.type.startsWith('video/')) {
+          const url = URL.createObjectURL(file);
+          await handleLiveCapture({ url, file, type: 'video' });
+        } else {
+          try {
+            const cloudUrl = await uploadFile(`matches/${matchId}/${Date.now()}-${file.name}`, file);
+            await addDoc(collection(db, 'matches', matchId, 'messages'), {
+              senderId: user!.uid,
+              fileUrl: cloudUrl,
+              fileName: file.name,
+              fileType: file.type,
+              fileSize: file.size,
+              timestamp: serverTimestamp(),
+            });
+            toast({ title: "File Pasted", description: `${file.name} sent.` });
+          } catch (error) {
+            toast({ variant: "destructive", title: "Paste Failed", description: "Could not share pasted file." });
+          }
+        }
+      }
+    }
+  };
 
   const handleSendMessage = async (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -555,7 +593,14 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
           </Popover>
 
           <form onSubmit={handleSendMessage} className="flex-grow flex gap-2">
-            <Input value={newMessage} onChange={e => setNewMessage(e.target.value)} placeholder={hasAcceptedPolicy ? "Respectful message..." : "Agree to policy"} className="rounded-2xl bg-muted/40 border-none h-12 px-6 font-bold" disabled={isSending || !hasAcceptedPolicy} />
+            <Input 
+              value={newMessage} 
+              onChange={e => setNewMessage(e.target.value)} 
+              onPaste={handlePaste}
+              placeholder={hasAcceptedPolicy ? "Respectful message..." : "Agree to policy"} 
+              className="rounded-2xl bg-muted/40 border-none h-12 px-6 font-bold" 
+              disabled={isSending || !hasAcceptedPolicy} 
+            />
             <Button type="submit" size="icon" className="rounded-xl h-12 w-12 gradient-bg shrink-0 shadow-lg" disabled={!newMessage.trim() || isSending || !hasAcceptedPolicy}>
               {isSending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
             </Button>
