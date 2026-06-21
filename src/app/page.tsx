@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useMemo } from 'react';
@@ -50,10 +51,15 @@ export default function Home() {
   const [mounted, setMounted] = useState(false);
   const [currentYear, setCurrentYear] = useState('');
 
-  // Immediate Redirect Protocol
+  // Immediate Policy Bridge Protocol
   useEffect(() => {
     if (user && !userLoading) {
-      router.push('/discover');
+      const hasAccepted = localStorage.getItem('iloveu_policy_accepted') === 'true';
+      if (hasAccepted) {
+        router.push('/discover');
+      } else {
+        router.push('/policy/agree');
+      }
     }
   }, [user, userLoading, router]);
 
@@ -78,7 +84,6 @@ export default function Home() {
   const heroTitle = useMemo(() => t('home.heroTitle') || "Spark Love. End Poverty.", [t]);
   const metricTitle = useMemo(() => t('home.metricTitle') || "Happiness is the Only Metric.", [t]);
 
-  // Prevent SSR flicker but ensure SEO content is present
   if (!mounted) return (
     <div className="flex items-center justify-center min-h-screen bg-white">
       <Heart className="w-12 h-12 text-primary animate-heartbeat fill-primary" />

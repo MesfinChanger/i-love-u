@@ -1,31 +1,44 @@
+
 /**
- * @fileOverview Mission Logic: Mobile Policy Agreement
- * This file serves as the master implementation reference for the Flutter branch.
+ * @fileOverview Universal Policy Bridge - Mobile Branch.
+ * This file serves as the technical blueprint for Flutter implementations.
+ * Reaching every heart in every village with zero-lag logic.
  */
 
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /**
- * Handles the sacred agreement process on mobile devices.
- * Ensures the 'has_accepted_policy' flag is persisted locally using SharedPreferences
- * for instantaneous access on subseqeunt launches.
+ * PROTOCOL: Policy Persistence
+ * Saves the mandatory agreement to local storage for a snappy user experience.
  */
 void acceptPolicy(BuildContext context) async {
-  try {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    
-    // 1. Secure Local Persistence
-    // Mirrors the web's localStorage.setItem('iloveu_policy_accepted', 'true')
-    await prefs.setBool('has_accepted_policy', true);
-    
-    // 2. Mission-Aligned Navigation
-    // Immediately transitions the heart to the discovery hub.
-    // Replace '/home' with your actual root discovery route (e.g., '/discover').
-    Navigator.pushReplacementNamed(context, '/discover');
-    
-    print("I LOVE U: Mobile Policy Agreement Secured. ❤️");
-  } catch (e) {
-    print("I LOVE U: Regional Preference Ripple: $e");
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  // Save the commitment to local persistence
+  await prefs.setBool('has_accepted_policy', true);
+  
+  // Instant transition to the app hub (Discovery)
+  Navigator.pushReplacementNamed(context, '/home');
+}
+
+/**
+ * PROTOCOL: Snap-Check
+ * Checks if the heart has already aligned with our mission to avoid redundant screens.
+ */
+void checkPolicyAgreement(BuildContext context) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  bool hasAccepted = prefs.getBool('has_accepted_policy') ?? false;
+
+  if (hasAccepted) {
+    // Already aligned! Fast-track to the Prosperity Network.
+    Navigator.pushReplacementNamed(context, '/home');
+  } else {
+    // First encounter or new device: Present the Sacred Agreement.
+    Navigator.pushReplacementNamed(context, '/disclaimer_screen');
   }
 }
+
+/**
+ * NOTE: Ensure 'shared_preferences: ^2.2.5' is in your pubspec.yaml.
+ * Happiness is Mandatory. ❤️
+ */
