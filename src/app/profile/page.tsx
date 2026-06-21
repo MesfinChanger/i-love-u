@@ -33,7 +33,14 @@ import {
   PlayCircle,
   Image as ImageIcon,
   Mail,
-  Phone
+  Phone,
+  Share2,
+  Facebook,
+  Twitter,
+  Instagram,
+  Copy,
+  CheckCircle2,
+  Heart
 } from 'lucide-react';
 import { 
   DropdownMenu, 
@@ -363,6 +370,36 @@ function ProfileContent() {
     }
   };
 
+  const handleGlobalShare = async () => {
+    const shareData = {
+      title: t('profile.shareTitle'),
+      text: t('profile.shareSubtitle') + " " + t('profile.shareDescription'),
+      url: window.location.origin
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        console.log("Sharing cancelled or failed");
+      }
+    } else {
+      navigator.clipboard.writeText(window.location.origin);
+      toast({ title: t('profile.linkCopied') });
+    }
+  };
+
+  const shareOnFacebook = () => {
+    const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.origin)}`;
+    window.open(url, '_blank');
+  };
+
+  const shareOnX = () => {
+    const text = `${t('profile.shareSubtitle')} ${window.location.origin}`;
+    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank');
+  };
+
   if (!mounted || profileLoading) return (
     <div className="flex flex-col min-h-screen items-center justify-center bg-white">
        <Loader2 className="w-10 h-10 animate-spin text-primary" />
@@ -448,6 +485,10 @@ function ProfileContent() {
             <TabsTrigger value="public" className="flex-1 rounded-xl text-[9px] font-black uppercase tracking-widest gap-1.5 group data-[state=active]:text-primary whitespace-nowrap">
               <Globe2 className="w-3.5 h-3.5" />
               {t('profile.public')}
+            </TabsTrigger>
+            <TabsTrigger value="invite" className="flex-1 rounded-xl text-[9px] font-black uppercase tracking-widest gap-1.5 group data-[state=active]:text-primary whitespace-nowrap">
+              <Share2 className="w-3.5 h-3.5" />
+              {t('profile.invite')}
             </TabsTrigger>
             <TabsTrigger value="security" className="flex-1 rounded-xl text-[9px] font-black uppercase tracking-widest relative gap-1.5 group data-[state=active]:text-primary whitespace-nowrap">
               <ShieldCheck className="w-3.5 h-3.5" />
@@ -568,10 +609,6 @@ function ProfileContent() {
                     </Select>
                   </div>
                 </div>
-                
-                <p className="text-[8px] text-muted-foreground italic font-medium uppercase tracking-widest text-center mt-4">
-                  "Every Village is a Community." We bridge all hearts.
-                </p>
               </div>
             </Card>
           </TabsContent>
@@ -655,48 +692,6 @@ function ProfileContent() {
                       </div>
                     )}
                   </div>
-
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between px-1 flex-wrap gap-2">
-                      <Label className="text-[9px] font-black uppercase tracking-widest opacity-60">Photo Gallery</Label>
-                      <input 
-                        type="file" 
-                        ref={additionalInputRef} 
-                        className="hidden" 
-                        accept="image/*" 
-                        onChange={(e) => handlePhotoUpload(e, true)} 
-                      />
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        disabled={isUploadingGallery || additionalPhotoUrls.length >= 5}
-                        onClick={() => additionalInputRef.current?.click()} 
-                        className="text-primary gap-1.5 h-8 px-4 bg-primary/5 rounded-full text-[9px] font-black uppercase hover:bg-primary/10"
-                      >
-                        {isUploadingGallery ? <Loader2 className="w-3 h-3 animate-spin" /> : <Plus className="w-3 h-3" />}
-                        Add Pic
-                      </Button>
-                    </div>
-                    <div className="grid grid-cols-5 gap-2">
-                       {additionalPhotoUrls.map((url, idx) => (
-                         <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border border-muted group">
-                           <Image src={url} alt={`Gallery ${idx}`} fill className="object-cover" />
-                           <button 
-                             onClick={() => removeGalleryPhoto(url)}
-                             className="absolute inset-0 bg-black/40 items-center justify-center hidden group-hover:flex transition-opacity"
-                           >
-                             <Trash2 className="w-5 h-5 text-white" />
-                           </button>
-                         </div>
-                       ))}
-                       {Array.from({ length: 5 - additionalPhotoUrls.length }).map((_, i) => (
-                         <div key={`empty-${i}`} className="aspect-square rounded-xl border-2 border-dashed border-muted bg-muted/10 flex items-center justify-center">
-                            <ImageIcon className="w-4 h-4 text-muted-foreground/30" />
-                         </div>
-                       ))}
-                    </div>
-                    <p className="text-[8px] text-muted-foreground italic text-center uppercase tracking-widest font-bold">Limit: 5 Additional Sacred Moments</p>
-                  </div>
                   
                   <div className="space-y-3">
                     <div className="flex items-center justify-between px-1 flex-wrap gap-2">
@@ -711,6 +706,61 @@ function ProfileContent() {
                        <Save className="absolute right-4 bottom-4 w-3.5 h-3.5 text-primary/10" />
                     </div>
                   </div>
+                </div>
+             </Card>
+          </TabsContent>
+
+          <TabsContent value="invite">
+             <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-8 space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                <div className="text-center space-y-4">
+                   <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto shadow-sm ring-4 ring-white">
+                      <Heart className="w-10 h-10 text-primary fill-primary/10 animate-heartbeat" />
+                   </div>
+                   <div>
+                      <h3 className="text-3xl font-black tracking-tighter uppercase">{t('profile.shareTitle')}</h3>
+                      <p className="text-[11px] text-muted-foreground font-bold uppercase tracking-[0.2em]">{t('profile.shareSubtitle')}</p>
+                   </div>
+                   <p className="text-sm text-slate-500 font-medium italic leading-relaxed px-4">
+                      "{t('profile.shareDescription')}"
+                   </p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                   <Button onClick={shareOnFacebook} variant="outline" className="h-16 rounded-2xl gap-3 border-none bg-blue-50 text-blue-600 hover:bg-blue-100 transition-all">
+                      <Facebook className="w-6 h-6 fill-current" />
+                      <span className="font-black text-[10px] uppercase">Facebook</span>
+                   </Button>
+                   <Button onClick={shareOnX} variant="outline" className="h-16 rounded-2xl gap-3 border-none bg-slate-900 text-white hover:bg-black transition-all">
+                      <Twitter className="w-5 h-5 fill-current" />
+                      <span className="font-black text-[10px] uppercase">X / Twitter</span>
+                   </Button>
+                   <Button onClick={handleGlobalShare} variant="outline" className="h-16 rounded-2xl gap-3 border-none bg-pink-50 text-pink-600 hover:bg-pink-100 transition-all">
+                      <Instagram className="w-6 h-6" />
+                      <span className="font-black text-[10px] uppercase">Instagram</span>
+                   </Button>
+                   <Button onClick={handleGlobalShare} variant="outline" className="h-16 rounded-2xl gap-3 border-none bg-slate-100 text-slate-900 hover:bg-slate-200 transition-all">
+                      <svg viewBox="0 0 24 24" className="w-6 h-6 fill-current" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.17-2.89-.6-4.13-1.47-1.26-.88-2.22-2.19-2.68-3.64-.03 5.07.01 10.14-.02 15.21-.03 1.48-.46 2.96-1.34 4.18-1.22 1.65-3.15 2.64-5.18 2.71-2.03.07-4.11-.64-5.55-2.13-1.43-1.45-2.2-3.52-1.92-5.54.27-2.02 1.51-3.83 3.32-4.71 1.81-.88 3.98-.82 5.73.16.01 1.48-.01 2.96 0 4.44-1.12-.61-2.48-.75-3.68-.27-1.19.48-2.11 1.56-2.4 2.82-.29 1.26-.01 2.63.75 3.61.76.98 1.94 1.54 3.17 1.51 1.23-.03 2.37-.62 3.07-1.63.7-1.01.99-2.31.96-3.5-.02-5.07.01-10.14-.02-15.21z"/>
+                      </svg>
+                      <span className="font-black text-[10px] uppercase">TikTok</span>
+                   </Button>
+                </div>
+
+                <div className="space-y-4 pt-4">
+                   <div className="relative">
+                      <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-dashed"></div></div>
+                      <div className="relative flex justify-center text-[9px] font-black uppercase tracking-widest"><span className="bg-white px-4 text-muted-foreground/40">Universal Access</span></div>
+                   </div>
+                   
+                   <Button onClick={handleGlobalShare} className="w-full h-16 rounded-2xl gradient-bg font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20 gap-3 group">
+                      <Share2 className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+                      {t('profile.anyConnection')}
+                   </Button>
+                   
+                   <Button onClick={() => { navigator.clipboard.writeText(window.location.origin); toast({ title: t('profile.linkCopied') }); }} variant="ghost" className="w-full h-12 text-[10px] font-black uppercase tracking-widest text-primary hover:bg-primary/5 rounded-xl gap-2">
+                      <Copy className="w-4 h-4" />
+                      {t('profile.copyLink')}
+                   </Button>
                 </div>
              </Card>
           </TabsContent>
@@ -748,21 +798,6 @@ function ProfileContent() {
                       <span className={cn("text-[11px] font-black uppercase tracking-widest transition-colors", isHuman ? "text-primary" : "text-slate-400")}>Verify Human Status</span>
                     </div>
                 </div>
-                
-                {isCommercialUser && (
-                  <div className="p-5 bg-slate-900 rounded-2xl flex items-center gap-4 shadow-lg border border-primary/20">
-                    <Lock className="w-6 h-6 text-primary shrink-0" />
-                    <p className="text-[9px] text-white/80 italic uppercase tracking-widest font-black leading-relaxed">
-                      Account saving is locked for Commercial Users until all security protocols are confirmed.
-                    </p>
-                  </div>
-                )}
-                
-                {!isCommercialUser && (
-                  <p className="text-[9px] text-muted-foreground text-center italic font-medium px-4">
-                    Commitment to our security protocols helps us reach every village with love. ✨
-                  </p>
-                )}
               </div>
             </Card>
           </TabsContent>

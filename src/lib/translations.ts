@@ -99,10 +99,17 @@ export const TRANSLATIONS: Record<LanguageCode, any> = {
       address: "Address",
       public: "Public",
       security: "Security",
+      invite: "Share",
       bioPlaceholder: "Tell the community about your mission...",
       nickname: "Unique Nickname",
       language: "Preferred Language",
-      currency: "Local Currency"
+      currency: "Local Currency",
+      shareTitle: "Share the Love",
+      shareSubtitle: "Invite your circle to join the prosperity revolution.",
+      shareDescription: "Your connections fund local job creation. Help us reach every heart in every village.",
+      copyLink: "Copy Mission Link",
+      linkCopied: "Link Secured to Clipboard!",
+      anyConnection: "Any Connection"
     }
   },
   Spanish: {
@@ -196,238 +203,17 @@ export const TRANSLATIONS: Record<LanguageCode, any> = {
       address: "Dirección",
       public: "Público",
       security: "Seguridad",
+      invite: "Compartir",
       bioPlaceholder: "Cuéntale a la comunidad sobre tu misión...",
       nickname: "Apodo Único",
       language: "Idioma Preferido",
-      currency: "Moneda Local"
-    }
-  },
-  French: {
-    nav: {
-      discover: "Découvrir",
-      search: "Chercher",
-      global: "Global",
-      matches: "Matchs",
-      shop: "Boutique",
-      profile: "Profil"
-    },
-    login: {
-      title: "JE T'AIME",
-      subtitle: "RÉVOLUTION DE PROSPÉRITÉ",
-      signIn: "Connexion",
-      join: "Rejoindre",
-      launch: "Lancer",
-      joinRevolution: "Rejoindre la Révolution",
-      guest: "Mode Invité",
-      protocol: "Protocole de Sécurité",
-      ageVerify: "J'ai 18+ ans",
-      respectVerify: "Le Respect est Obligatoire",
-      humanVerify: "Vérification Humaine"
-    },
-    home: {
-      heroTitle: "Étincelle d'Amour. Fin de la Pauvreté.",
-      heroSubtitle: "Relier les cœurs à travers chaque ville et village pour financer la création d'emplois locaux. Le respect est obligatoire.",
-      launchButton: "Lancer l'Étincelle",
-      supportButton: "Soutenir la Mission",
-      compliance: "Conformité Mondiale 18+",
-      movementTitle: "Le Mouvement",
-      metricTitle: "Le Bonheur est la Seule Mesure.",
-      featureAiTitle: "Modéré par l'IA",
-      featureAiDesc: "L'irrespect est filtré automatiquement. Rejoignez une communauté où la gentillesse est obligatoire.",
-      featureRespectTitle: "Respect Pur",
-      featureRespectDesc: "Bâti sur l'honneur mutuel. Atteindre chaque communauté rurale et ville mondiale avec amour.",
-      featureProsperityTitle: "Prospérité",
-      featureProsperityDesc: "Chaque connexion finance la création d'emplois locaux pour éliminer définitivement la pauvreté mondiale.",
-      footerCopyright: "Atteindre Chaque Cœur",
-      footerTagline: "Le respect et l'amour sont obligatoires ❤️ Éliminer la pauvreté dans le monde"
-    },
-    discover: {
-      mystery: "Connexion Mystère",
-      revealed: "Cœur Révélé",
-      invite: "Inviter",
-      spark: "Étincelle",
-      allExplored: "Tous les Cœurs Explorés",
-      restart: "Redémarrer",
-      viewMap: "Voir la Carte",
-      sponsored: "Sponsorisé"
-    },
-    search: {
-      title: "Chercher des Cœurs",
-      subtitle: "RECHERCHE DANS LA RÉVOLUTION",
-      placeholder: "Surnom ou Intérêt...",
-      noResults: "Aucun cœur trouvé.",
-      searching: "Balayage du réseau..."
-    },
-    community: {
-      title: "Mur du Cercle Global",
-      subtitle: "Relier les cœurs à travers chaque ville",
-      placeholder: "Partagez une pensée respectueuse...",
-      viewOnly: "Lecture seule: Acceptez la politique pour poster",
-      empty: "Le mur est silencieux. Soyez le premier.",
-      listen: "Écouter",
-      flagged: "Signalé par l'IA"
-    },
-    matches: {
-      title: "Mes Cœurs",
-      subtitle: "Connexions de la Communauté",
-      sparks: "Étincelles",
-      circle: "Cercle",
-      invites: "Invitations",
-      emptySparks: "Aucune Étincelle",
-      emptyCircle: "Cercle Vide",
-      emptyInvites: "Aucune Invitation",
-      active: "Salon d'Étincelle Actif"
-    },
-    shop: {
-      title: "Marché aux Cadeaux",
-      subtitle: "Cadeaux premium pour vos Étincelles.",
-      searchPlaceholder: "Chercher des cadeaux...",
-      sellerPortal: "Portail Vendeur",
-      buy: "Acheter"
-    },
-    profile: {
-      account: "Mon Compte",
-      save: "Sauvegarder",
-      signOut: "Déconnexion",
-      personal: "Info",
-      address: "Adresse",
-      public: "Public",
-      security: "Sécurité",
-      bioPlaceholder: "Parlez de votre mission à la communauté...",
-      nickname: "Pseudo Unique",
-      language: "Langue Préférée",
-      currency: "Devise Locale"
-    }
-  },
-  Swahili: {
-    nav: {
-      discover: "Gundua",
-      search: "Tafuta",
-      global: "Ulimwengu",
-      matches: "Mechi",
-      shop: "Duka",
-      profile: "Wasifu"
-    },
-    login: {
-      title: "NAKUPENDA",
-      subtitle: "MAPINDUZI YA MAFANIKIO",
-      signIn: "Ingia",
-      join: "Jiunge",
-      launch: "Anza",
-      joinRevolution: "Jiunge na Mapinduzi",
-      guest: "Mgeni",
-      protocol: "Itifaki ya Usalama",
-      ageVerify: "Nina umri wa 18+",
-      respectVerify: "Heshima ni Lazima",
-      humanVerify: "Thibitisha Binadamu"
-    },
-    home: {
-      heroTitle: "Cheche ya Upendo. Maliza Umaskini.",
-      heroSubtitle: "Kuunganisha mioyo katika kila jiji na kijiji kufadhili uundaji wa ajira za ndani. Heshima ni Lazima.",
-      launchButton: "Anza Cheche",
-      supportButton: "Saidia Misheni",
-      compliance: "Uzingatiaji wa Ulimwengu 18+",
-      movementTitle: "Harakati",
-      metricTitle: "Furaha ndio Kipimo Pekee.",
-      featureAiTitle: "Inasimamiwa na AI",
-      featureAiDesc: "Ukosefu wa heshima huchujwa kiotomatiki. Jiunge na jumuiya ambapo fadhili ni lazima.",
-      featureRespectTitle: "Heshima Safi",
-      featureRespectDesc: "Imejengwa juu ya heshima ya pande zote. Kufikia kila jumuiya ya vijijini na jiji la kimataifa kwa upendo.",
-      featureProsperityTitle: "Mafanikio",
-      featureProsperityDesc: "Kila uhusiano hufadhili uundaji wa ajira za ndani ili kuondoa umaskini wa ulimwengu milele.",
-      footerCopyright: "Kufikia Kila Moyo",
-      footerTagline: "Heshima na Upendo ni Lazima ❤️ Kumaliza Umaskini Kote Duniani"
-    },
-    discover: {
-      mystery: "Uhusiano wa Siri",
-      revealed: "Moyo Uliofichuliwa",
-      invite: "Alika",
-      spark: "Cheche",
-      allExplored: "Mioyo Yote Imegunduliwa",
-      restart: "Anza Tena",
-      viewMap: "Angalia Ramani",
-      sponsored: "Imefadhiliwa"
-    },
-    search: {
-      title: "Tafuta Mioyo",
-      subtitle: "TAFUTA MAPINDUZI",
-      placeholder: "Jina la Utani au Maslahi...",
-      noResults: "Hakuna mioyo iliyopatikana.",
-      searching: "Inatafuta kwenye mtandao..."
-    },
-    community: {
-      title: "Ukuta wa Ulimwengu",
-      subtitle: "Kuunganisha Mioyo Katika Kila Jiji",
-      placeholder: "Shiriki wazo la heshima...",
-      viewOnly: "Kuangalia Tu: Kubali sera ili kuchapisha",
-      empty: "Ukuta uko Kimya. Anza Ujumbe wa Kwanza.",
-      listen: "Sikiliza",
-      flagged: "Imewekwa alama na AI"
-    },
-    matches: {
-      title: "Mioyo Yangu",
-      subtitle: "Mahusiano ya Jumuiya",
-      sparks: "Cheche",
-      circle: "Mzunguko",
-      invites: "Mialiko",
-      emptySparks: "Hakuna Cheche",
-      emptyCircle: "Mzunguko uko Tupu",
-      emptyInvites: "Hakuna Mialiko",
-      active: "Chumba cha Cheche Kiko Wazi"
-    },
-    shop: {
-      title: "Soko la Zawadi",
-      subtitle: "Zawadi za kipekee kwa Cheche zako.",
-      searchPlaceholder: "Tafuta zawadi...",
-      sellerPortal: "Tovuti ya Muuzaji",
-      buy: "Nunua Zawadi"
-    },
-    profile: {
-      account: "Akaunti Yangu",
-      save: "Hifadhi",
-      signOut: "Ondoka",
-      personal: "Habari",
-      address: "Anwani",
-      public: "Umma",
-      security: "Usalama",
-      bioPlaceholder: "Eleza jumuiya kuhusu dhamira yako...",
-      nickname: "Jina la Utani",
-      language: "Lugha Unayopendelea",
-      currency: "Sarafu ya Kienyeji"
-    }
-  },
-  Amharic: {
-    nav: {
-      discover: "አግኝ",
-      search: "ፈልግ",
-      global: "አለምአቀፍ",
-      matches: "ግጥሚያዎች",
-      shop: "ሱቅ",
-      profile: "መገለጫ"
-    },
-    home: {
-      heroTitle: "ፍቅርን አንቃ። ድህነትን አጥፋ።",
-      heroSubtitle: "የአካባቢ የስራ እድልን ለመፍጠር በእያንዳንዱ ከተማ እና መንደር ውስጥ ልቦችን ማገናኘት። መከባበር ግዴታ ነው።",
-      launchButton: "አንቃ",
-      supportButton: "ደግፉ",
-      metricTitle: "ደስታ ብቸኛው መለኪያ ነው።"
-    }
-  },
-  Arabic: {
-    nav: {
-      discover: "اكتشف",
-      search: "بحث",
-      global: "عالمي",
-      matches: "قلوب",
-      shop: "متجر",
-      profile: "الملف الشخصي"
-    },
-    home: {
-      heroTitle: "أشعل الحب. أنهِ الفقر.",
-      heroSubtitle: "ربط القلوب عبر كل مدينة وقرية لتمويل خلق فرص العمل المحلية. الاحترام إلزامي.",
-      launchButton: "أطلق الشرارة",
-      supportButton: "دعم المهمة",
-      metricTitle: "السعادة هي المقياس الوحيد."
+      currency: "Moneda Local",
+      shareTitle: "Comparte el Amor",
+      shareSubtitle: "Invita a tu círculo a la revolución.",
+      shareDescription: "Tus conexiones financian empleos locales. Ayúdanos a llegar a cada corazón.",
+      copyLink: "Copiar Enlace",
+      linkCopied: "¡Enlace Copiado!",
+      anyConnection: "Cualquier Conexión"
     }
   }
 };
