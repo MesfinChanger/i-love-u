@@ -94,6 +94,11 @@ const fileToDataUri = (file: File): Promise<string> => {
   });
 };
 
+const GENDERS = [
+  { value: 'male', label: 'Male' },
+  { value: 'female', label: 'Female' }
+];
+
 function ProfileContent() {
   const { user } = useUser();
   const db = useFirestore();
@@ -403,7 +408,6 @@ function ProfileContent() {
       localStorage.removeItem(`spark_priv_${user.uid}`);
 
       // 3. Delete Firebase Auth User
-      // Note: Re-authentication may be required for sensitive operations, but for MVP we attempt direct delete.
       await deleteUser(auth.currentUser);
       
       toast({ title: "Account Purged", description: "Your identity and history have been permanently removed. ❤️" });
