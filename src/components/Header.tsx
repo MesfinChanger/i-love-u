@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -104,7 +103,7 @@ export function Header() {
                 </div>
                 <div className="flex flex-col leading-[0.8]">
                   <span className="font-black text-2xl tracking-tighter text-primary uppercase">I LOVE</span>
-                  <span className="font-black text-[7px] tracking-[0.6em] text-muted-foreground ml-1 uppercase">YOU</span>
+                  <span className="font-black text-[7px] tracking-[0.6em] text-muted-foreground ml-1 uppercase">U</span>
                 </div>
                 <Menu className="w-4 h-4 text-primary/40 ml-1 group-hover:text-primary transition-colors" />
               </div>

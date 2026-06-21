@@ -91,7 +91,7 @@ export default function Home() {
         <div className="container mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <Heart className="w-10 h-10 fill-primary text-primary animate-heartbeat" />
-            <span className="font-black text-[16px] tracking-[0.5em] text-primary uppercase ml-1">I LOVE YOU</span>
+            <span className="font-black text-[16px] tracking-[0.5em] text-primary uppercase ml-1">I LOVE U</span>
           </div>
           <div className="flex items-center gap-4">
             <DropdownMenu>
@@ -240,7 +240,7 @@ export default function Home() {
         <div className="container mx-auto px-6 text-center">
           <div className="flex items-center justify-center gap-3 mb-10 opacity-70">
             <Heart className="w-10 h-10 fill-primary text-primary" />
-            <span className="font-black text-[12px] tracking-[0.4em] text-primary uppercase">I LOVE YOU</span>
+            <span className="font-black text-[12px] tracking-[0.4em] text-primary uppercase">I LOVE U</span>
           </div>
           <p className="font-black text-[10px] tracking-[0.3em] mb-4 uppercase text-slate-400">© {currentYear} • {t('home.footerCopyright')}</p>
           <p className="text-[9px] font-bold italic uppercase tracking-widest opacity-40 text-slate-400">{t('home.footerTagline')}</p>
