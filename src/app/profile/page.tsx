@@ -81,18 +81,7 @@ import Image from 'next/image';
 import { useTranslation } from '@/components/providers/LanguageProvider';
 import { LiveCamera } from '@/components/LiveCamera';
 import { Progress } from "@/components/ui/progress";
-
-/**
- * Utility to convert a File to a Data URI for AI moderation.
- */
-const fileToDataUri = (file: File): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-};
+import { compressImage, fileToDataUri } from '@/lib/image-utils';
 
 const GENDERS = [
   { value: 'male', label: 'Male' },
@@ -224,7 +213,12 @@ function ProfileContent() {
     if (!user) return;
     
     try {
-      const url = await uploadFile(`profiles/${user.uid}/${cameraTarget}_${Date.now()}`, data.file);
+      let finalFile = data.file;
+      if (data.type === 'image') {
+        finalFile = await compressImage(data.file, 0.75);
+      }
+
+      const url = await uploadFile(`profiles/${user.uid}/${cameraTarget}_${Date.now()}`, finalFile);
       if (cameraTarget === 'avatar') setPhotoUrl(url);
       else if (cameraTarget === 'gallery') setAdditionalPhotoUrls(prev => [...prev, url]);
       else if (cameraTarget === 'video') setPublicVideoUrl(url);
@@ -240,8 +234,10 @@ function ProfileContent() {
     if (!file || !user) return;
 
     try {
+      let finalFile = file;
       if (file.type.startsWith('image/')) {
-        const dataUri = await fileToDataUri(file);
+        finalFile = await compressImage(file, 0.75);
+        const dataUri = await fileToDataUri(finalFile);
         try {
           const moderation = await moderateImage({ photoDataUri: dataUri });
           if (moderation.isSensitive) {
@@ -254,7 +250,7 @@ function ProfileContent() {
       }
 
       const path = `profiles/${user.uid}/${target}_${Date.now()}`;
-      const url = await uploadFile(path, file);
+      const url = await uploadFile(path, finalFile);
 
       if (target === 'avatar') setPhotoUrl(url);
       else if (target === 'gallery') setAdditionalPhotoUrls(prev => [...prev, url]);

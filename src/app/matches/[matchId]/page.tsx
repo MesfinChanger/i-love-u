@@ -69,18 +69,7 @@ import { LiveCamera } from '@/components/LiveCamera';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError, type SecurityRuleContext } from '@/firebase/errors';
 import { Progress } from "@/components/ui/progress";
-
-/**
- * Utility to convert a File to a Data URI for AI moderation.
- */
-const fileToDataUri = (file: File): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-};
+import { compressImage, fileToDataUri } from '@/lib/image-utils';
 
 const CHAT_SHORTCUTS = [
   { id: 'teachable', label: 'Teachable Pic', icon: BookOpen, description: 'Share a skill or a piece of your culture.' },
@@ -204,8 +193,9 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
         toast({ title: "Sharing Content...", description: "Securing to E2EE Room. ✨" });
         
         if (item.type.startsWith('image/')) {
-          const dataUri = await fileToDataUri(file);
-          await handleLiveCapture({ url: dataUri, file, type: 'image' });
+          const compressed = await compressImage(file, 0.75);
+          const dataUri = await fileToDataUri(compressed);
+          await handleLiveCapture({ url: dataUri, file: compressed, type: 'image' });
         } else if (item.type.startsWith('video/')) {
           const url = URL.createObjectURL(file);
           await handleLiveCapture({ url, file, type: 'video' });
@@ -312,11 +302,12 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
       const messagesColl = collection(db, 'matches', matchId, 'messages');
       
       if (data.type === 'image') {
-        const photoDataUri = data.url.startsWith('data:') ? data.url : await fileToDataUri(data.file);
+        const compressed = await compressImage(data.file, 0.75);
+        const photoDataUri = await fileToDataUri(compressed);
         
         const [modResult, cloudUrl] = await Promise.all([
           moderateImage({ photoDataUri }),
-          uploadFile(`matches/${matchId}/${Date.now()}.jpg`, data.file)
+          uploadFile(`matches/${matchId}/${Date.now()}.jpg`, compressed)
         ]);
 
         if (modResult.isSensitive) {
@@ -378,11 +369,8 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
         }));
       });
     } finally {
-      setTranslatingIds(prev => {
-        const next = new Set(prev);
-        next.delete(msgId);
-        return next;
-      });
+      translatingIds.delete(msgId);
+      setTranslatingIds(new Set(translatingIds));
     }
   };
 
@@ -394,11 +382,8 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
       const audio = new Audio(result.media);
       audio.play();
     } finally {
-      setSpeakingIds(prev => {
-        const next = new Set(prev);
-        next.delete(msgId);
-        return next;
-      });
+      speakingIds.delete(msgId);
+      setSpeakingIds(new Set(speakingIds));
     }
   };
 
@@ -696,8 +681,9 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
           <input type="file" id="chat-gallery-upload" className="hidden" accept="image/*" onChange={async (e) => {
             const file = e.target.files?.[0];
             if (file) {
-              const dataUri = await fileToDataUri(file);
-              handleLiveCapture({ url: dataUri, file, type: 'image' });
+              const compressed = await compressImage(file, 0.75);
+              const dataUri = await fileToDataUri(compressed);
+              handleLiveCapture({ url: dataUri, file: compressed, type: 'image' });
             }
           }} ref={galleryInputRef} />
           

@@ -49,18 +49,7 @@ import { LiveCamera } from '@/components/LiveCamera';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError, type SecurityRuleContext } from '@/firebase/errors';
 import { Progress } from "@/components/ui/progress";
-
-/**
- * Utility to convert a File to a Data URI for AI moderation.
- */
-const fileToDataUri = (file: File): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-};
+import { compressImage, fileToDataUri } from '@/lib/image-utils';
 
 export default function CommunityPage() {
   const { user } = useUser();
@@ -184,11 +173,8 @@ export default function CommunityPage() {
     } catch (error) {
       toast({ variant: "destructive", title: "Audio Ripple", description: "The platform is momentarily silent." });
     } finally {
-      setSpeakingIds(prev => {
-        const next = new Set(prev);
-        next.delete(msgId);
-        return next;
-      });
+      speakingIds.delete(msgId);
+      setSpeakingIds(new Set(speakingIds));
     }
   };
 
@@ -234,11 +220,12 @@ export default function CommunityPage() {
       }
 
       if (selectedImage) {
-        const photoDataUri = await fileToDataUri(selectedImage.file);
+        const compressed = await compressImage(selectedImage.file, 0.75);
+        const photoDataUri = await fileToDataUri(compressed);
         promises.push(moderateImage({ photoDataUri }).then(async res => {
           if (res.isSensitive) throw new Error("IMAGE_SENSITIVE");
           isSensitive = res.isSensitive;
-          imageUrl = await uploadFile(`community/${Date.now()}-${selectedImage.file.name}`, selectedImage.file);
+          imageUrl = await uploadFile(`community/${Date.now()}-${compressed.name}`, compressed);
           return res;
         }));
       }
