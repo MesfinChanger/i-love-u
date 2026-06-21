@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect, useRef, use } from 'react';
@@ -151,9 +150,13 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
 
       for (const msg of messages as any[]) {
         if (msg.encryptedText && !newDecrypted[msg.id]) {
-          const decrypted = await decryptText(msg.encryptedText, privKey);
-          newDecrypted[msg.id] = decrypted;
-          changed = true;
+          try {
+            const decrypted = await decryptText(msg.encryptedText, privKey);
+            newDecrypted[msg.id] = decrypted;
+            changed = true;
+          } catch (e) {
+            newDecrypted[msg.id] = "[Encryption Ripple]";
+          }
         }
       }
 
@@ -179,14 +182,19 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
 
     setIsSending(true);
     try {
-      const moderation = await moderateText({ text: newMessage });
-      
-      if (moderation.isFlagged) {
-        toast({
-          variant: "destructive",
-          title: "Respect Mandatory Rule",
-          description: "This message was blocked by AI for violating our Mandatory Respect & Love policy. ✨"
-        });
+      try {
+        const moderation = await moderateText({ text: newMessage });
+        if (moderation.isFlagged) {
+          toast({
+            variant: "destructive",
+            title: "Respect Mandatory Rule",
+            description: "This message was blocked by AI for violating our Mandatory Respect & Love policy. ✨"
+          });
+          setIsSending(false);
+          return;
+        }
+      } catch (modError) {
+        toast({ variant: "destructive", title: "Safety Ripple", description: "AI moderation is currently disconnected. Please try again. ❤️" });
         setIsSending(false);
         return;
       }
@@ -231,7 +239,7 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
         [`translations.${myProfile?.preferredLanguage || 'English'}`]: result.translatedText
       });
     } catch (error) {
-      toast({ variant: "destructive", title: "Translation Ripple", description: "AI couldn't bridge this language yet." });
+      toast({ variant: "destructive", title: "Translation Ripple", description: "AI bridge is currently offline." });
     } finally {
       setTranslatingIds(prev => {
         const next = new Set(prev);
@@ -249,7 +257,7 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
       const audio = new Audio(result.media);
       audio.play();
     } catch (error) {
-      toast({ variant: "destructive", title: "Audio Error", description: "The platform couldn't find its voice right now. ✨" });
+      toast({ variant: "destructive", title: "Audio Ripple", description: "AI voice engine is currently resting." });
     } finally {
       setSpeakingIds(prev => {
         const next = new Set(prev);
@@ -269,17 +277,20 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
         const reader = new FileReader();
         reader.onloadend = async () => {
           const dataUri = reader.result as string;
-          const moderation = await moderateImage({ photoDataUri: dataUri });
-          
-          const fileName = `${Date.now()}-${file.name}`;
-          const cloudUrl = await uploadFile(`matches/${matchId}/${fileName}`, file);
+          try {
+            const moderation = await moderateImage({ photoDataUri: dataUri });
+            const fileName = `${Date.now()}-${file.name}`;
+            const cloudUrl = await uploadFile(`matches/${matchId}/${fileName}`, file);
 
-          await addDoc(collection(db, 'matches', matchId, 'messages'), {
-            senderId: user.uid,
-            imageUrl: cloudUrl,
-            isSensitive: moderation.isSensitive,
-            timestamp: serverTimestamp(),
-          });
+            await addDoc(collection(db, 'matches', matchId, 'messages'), {
+              senderId: user.uid,
+              imageUrl: cloudUrl,
+              isSensitive: moderation.isSensitive,
+              timestamp: serverTimestamp(),
+            });
+          } catch (modErr) {
+            toast({ variant: "destructive", title: "Safety Ripple", description: "AI image check failed. Please try again. ❤️" });
+          }
         };
         reader.readAsDataURL(file);
       } else {
@@ -351,8 +362,9 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
         language: myProfile?.preferredLanguage || 'English'
       });
       setNewMessage(result.icebreaker);
+      toast({ title: "Spark Ready!", description: "A respectful icebreaker has been crafted. ✨" });
     } catch (error) {
-      console.error(error);
+      toast({ variant: "destructive", title: "AI Ripple", description: "The AI wingman is currently resting. Try a simple 'Hello'! ❤️" });
     } finally {
       setIsGenerating(false);
     }

@@ -180,7 +180,6 @@ function ProfileContent() {
       setPreferredLanguage(profileData.preferredLanguage || 'English');
       setCurrency(profileData.currency || 'USD');
 
-      // Auto-prefix phone if it's empty
       if (!profileData.phoneNumber) {
         const countryData = COUNTRIES.find(c => c.code === initialCountry);
         if (countryData?.phoneCode) {
@@ -223,7 +222,6 @@ function ProfileContent() {
     const oldCountryData = COUNTRIES.find(c => c.code === oldCountryCode);
 
     if (countryData?.phoneCode) {
-      // If the current phone number is empty, or just matches the previous country's prefix, update it.
       if (!phoneNumber || phoneNumber.trim() === '' || phoneNumber === oldCountryData?.phoneCode) {
         setPhoneNumber(countryData.phoneCode);
       }
@@ -240,25 +238,30 @@ function ProfileContent() {
       const reader = new FileReader();
       reader.onloadend = async () => {
         const dataUri = reader.result as string;
-        const moderation = await moderateImage({ photoDataUri: dataUri });
-        
-        if (moderation.isSensitive) {
-          toast({ variant: "destructive", title: "Respect Rule Violation", description: "This image was flagged by AI and cannot be used. ✨" });
-          if (isGallery) setIsUploadingGallery(false);
-          return;
-        }
+        try {
+          const moderation = await moderateImage({ photoDataUri: dataUri });
+          
+          if (moderation.isSensitive) {
+            toast({ variant: "destructive", title: "Respect Rule Violation", description: "This image was flagged by AI and cannot be used. ✨" });
+            if (isGallery) setIsUploadingGallery(false);
+            return;
+          }
 
-        const path = isGallery ? `profiles/${user.uid}/gallery_${Date.now()}` : `profiles/${user.uid}/avatar`;
-        const url = await uploadFile(path, file);
-        
-        if (isGallery) {
-          setAdditionalPhotoUrls(prev => [...prev, url]);
-          setIsUploadingGallery(false);
-        } else {
-          setPhotoUrl(url);
+          const path = isGallery ? `profiles/${user.uid}/gallery_${Date.now()}` : `profiles/${user.uid}/avatar`;
+          const url = await uploadFile(path, file);
+          
+          if (isGallery) {
+            setAdditionalPhotoUrls(prev => [...prev, url]);
+            setIsUploadingGallery(false);
+          } else {
+            setPhotoUrl(url);
+          }
+          
+          toast({ title: "Photo Secured", description: "Your respectful image has been saved." });
+        } catch (modError) {
+          toast({ variant: "destructive", title: "Safety Protocol Bypass", description: "AI moderation is currently busy. Please try again in a moment. ❤️" });
+          if (isGallery) setIsUploadingGallery(false);
         }
-        
-        toast({ title: "Photo Secured", description: "Your respectful image has been saved." });
       };
       reader.readAsDataURL(file);
     } catch (error) {
@@ -377,6 +380,10 @@ function ProfileContent() {
         language: preferredLanguage
       });
       setBio(result.bio);
+      toast({ title: "Bio Generated", description: "Your AI-powered respectful bio is ready! ✨" });
+    } catch (error) {
+      console.error("AI Error:", error);
+      toast({ variant: "destructive", title: "AI Ripple", description: "The AI bridge is currently disconnected. Please check back later. ❤️" });
     } finally {
       setIsGenerating(false);
     }
