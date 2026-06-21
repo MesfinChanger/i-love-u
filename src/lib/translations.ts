@@ -26,7 +26,9 @@ export const TRANSLATIONS: Record<LanguageCode, any> = {
       protocol: "Global Security Protocol",
       ageVerify: "I am 18+ years old",
       respectVerify: "Respect is Mandatory",
-      humanVerify: "Verify Human Status"
+      humanVerify: "Verify Human Status",
+      launchButton: "Launch Spark",
+      joinButton: "Join the Mission"
     },
     home: {
       heroTitle: "Spark Love. End Poverty.",
@@ -42,7 +44,7 @@ export const TRANSLATIONS: Record<LanguageCode, any> = {
       featureRespectDesc: "Built on mutual honor. Reaching every rural community and global city with love.",
       featureProsperityTitle: "Prosperity",
       featureProsperityDesc: "Every connection funds local job creation to eliminate global poverty forever.",
-      footerCopyright: "© Prosperity Revolution • Reaching Every Heart",
+      footerCopyright: "Reaching Every Heart",
       footerTagline: "Respect & Love is Mandatory ❤️ Eliminating Poverty Globally"
     },
     discover: {
@@ -132,14 +134,14 @@ export const TRANSLATIONS: Record<LanguageCode, any> = {
       supportButton: "Apoyar Misión",
       compliance: "Cumplimiento Global 18+",
       movementTitle: "El Movimiento",
-      metricTitle: "La felicidad es la única métrica.",
+      metricTitle: "La Felicidad es la Única Métrica.",
       featureAiTitle: "Moderado por IA",
       featureAiDesc: "La falta de respeto se filtra automáticamente. Únete a una comunidad donde la amabilidad es obligatoria.",
       featureRespectTitle: "Respeto Puro",
       featureRespectDesc: "Construido sobre el honor mutuo. Llegando a cada comunidad rural y ciudad global con amor.",
       featureProsperityTitle: "Prosperidad",
       featureProsperityDesc: "Cada conexión financia la creación de empleo local para eliminar la pobreza global para siempre.",
-      footerCopyright: "© Revolución de Prosperidad • Llegando a cada corazón",
+      footerCopyright: "Llegando a Cada Corazón",
       footerTagline: "El respeto y el amor son obligatorios ❤️ Eliminando la pobreza globalmente"
     },
     discover: {
@@ -229,14 +231,14 @@ export const TRANSLATIONS: Record<LanguageCode, any> = {
       supportButton: "Soutenir la Mission",
       compliance: "Conformité Mondiale 18+",
       movementTitle: "Le Mouvement",
-      metricTitle: "Le bonheur est la seule mesure.",
+      metricTitle: "Le Bonheur est la Seule Mesure.",
       featureAiTitle: "Modéré par l'IA",
       featureAiDesc: "L'irrespect est filtré automatiquement. Rejoignez une communauté où la gentillesse est obligatoire.",
       featureRespectTitle: "Respect Pur",
       featureRespectDesc: "Bâti sur l'honneur mutuel. Atteindre chaque communauté rurale et ville mondiale avec amour.",
       featureProsperityTitle: "Prospérité",
       featureProsperityDesc: "Chaque connexion finance la création d'emplois locaux pour éliminer définitivement la pauvreté mondiale.",
-      footerCopyright: "© Révolution de la Prospérité • Atteindre chaque cœur",
+      footerCopyright: "Atteindre Chaque Cœur",
       footerTagline: "Le respect et l'amour sont obligatoires ❤️ Éliminer la pauvreté dans le monde"
     },
     discover: {
@@ -333,7 +335,7 @@ export const TRANSLATIONS: Record<LanguageCode, any> = {
       featureRespectDesc: "Imejengwa juu ya heshima ya pande zote. Kufikia kila jumuiya ya vijijini na jiji la kimataifa kwa upendo.",
       featureProsperityTitle: "Mafanikio",
       featureProsperityDesc: "Kila uhusiano hufadhili uundaji wa ajira za ndani ili kuondoa umaskini wa ulimwengu milele.",
-      footerCopyright: "© Mapinduzi ya Mafanikio • Kufikia Kila Moyo",
+      footerCopyright: "Kufikia Kila Moyo",
       footerTagline: "Heshima na Upendo ni Lazima ❤️ Kumaliza Umaskini Kote Duniani"
     },
     discover: {
@@ -392,6 +394,40 @@ export const TRANSLATIONS: Record<LanguageCode, any> = {
       nickname: "Jina la Utani",
       language: "Lugha Unayopendelea",
       currency: "Sarafu ya Kienyeji"
+    }
+  },
+  Amharic: {
+    nav: {
+      discover: "አግኝ",
+      search: "ፈልግ",
+      global: "አለምአቀፍ",
+      matches: "ግጥሚያዎች",
+      shop: "ሱቅ",
+      profile: "መገለጫ"
+    },
+    home: {
+      heroTitle: "ፍቅርን አንቃ። ድህነትን አጥፋ።",
+      heroSubtitle: "የአካባቢ የስራ እድልን ለመፍጠር በእያንዳንዱ ከተማ እና መንደር ውስጥ ልቦችን ማገናኘት። መከባበር ግዴታ ነው።",
+      launchButton: "አንቃ",
+      supportButton: "ደግፉ",
+      metricTitle: "ደስታ ብቸኛው መለኪያ ነው።"
+    }
+  },
+  Arabic: {
+    nav: {
+      discover: "اكتشف",
+      search: "بحث",
+      global: "عالمي",
+      matches: "قلوب",
+      shop: "متجر",
+      profile: "الملف الشخصي"
+    },
+    home: {
+      heroTitle: "أشعل الحب. أنهِ الفقر.",
+      heroSubtitle: "ربط القلوب عبر كل مدينة وقرية لتمويل خلق فرص العمل المحلية. الاحترام إلزامي.",
+      launchButton: "أطلق الشرارة",
+      supportButton: "دعم المهمة",
+      metricTitle: "السعادة هي المقياس الوحيد."
     }
   }
 };

@@ -62,8 +62,10 @@ export default function Home() {
     };
   }, [dynamicImages.length]);
 
-  const heroTitle = t('home.heroTitle') || "Spark Love. End Poverty.";
-  const metricTitle = t('home.metricTitle') || "Happiness is the Only Metric.";
+  const heroTitle = useMemo(() => t('home.heroTitle'), [t]);
+  const metricTitle = useMemo(() => t('home.metricTitle'), [t]);
+
+  if (!mounted) return null;
 
   return (
     <div className="flex flex-col min-h-screen bg-white overflow-x-hidden">
@@ -82,7 +84,7 @@ export default function Home() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56 rounded-2xl p-2 border-none shadow-2xl mr-4 max-h-80 overflow-y-auto" align="end">
-                {SUPPORTED_LANGUAGES && SUPPORTED_LANGUAGES.map((lang) => (
+                {SUPPORTED_LANGUAGES.map((lang) => (
                   <DropdownMenuItem 
                     key={lang.name} 
                     onClick={() => setLanguage(lang.name)}
@@ -112,7 +114,7 @@ export default function Home() {
       <main className="flex-grow">
         <section className="relative h-[100vh] w-full flex items-center overflow-hidden">
           <div className="absolute inset-0 z-0">
-            {mounted && dynamicImages.map((img, i) => (
+            {dynamicImages.map((img, i) => (
               <div 
                 key={img.id}
                 className={cn(
@@ -149,8 +151,8 @@ export default function Home() {
 
               <div className="space-y-8">
                 <h1 className="text-7xl lg:text-9xl font-black leading-[0.85] tracking-tighter text-white drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)]">
-                  {heroTitle.split('.').map((part, i) => (
-                    <span key={i}>{part}{i === 0 && part.trim() ? '.' : ''}<br/></span>
+                  {heroTitle.split('.').filter(p => p.trim()).map((part, i) => (
+                    <span key={i}>{part.trim()}.<br/></span>
                   ))}
                 </h1>
                 <p className="text-2xl lg:text-3xl text-white/95 max-w-2xl leading-relaxed font-medium italic drop-shadow-lg">
@@ -174,7 +176,7 @@ export default function Home() {
                 <div className="inline-flex items-center gap-4 px-6 py-3 rounded-full bg-slate-900/80 backdrop-blur-md text-white shadow-2xl border border-white/10">
                   <Globe className="w-5 h-5 animate-spin-slow text-secondary" />
                   <span className="text-[12px] font-black uppercase tracking-[0.2em]">
-                    {mounted ? LOVE_TRANSLATIONS[langIndex].text : "I Love U"}
+                    {LOVE_TRANSLATIONS[langIndex].text}
                   </span>
                 </div>
                 <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em] text-white/80 drop-shadow-md">
@@ -192,7 +194,7 @@ export default function Home() {
                <Badge className="mb-6 h-8 px-6 bg-primary/10 text-primary border-none text-[10px] font-black uppercase tracking-[0.3em]">{t('home.movementTitle')}</Badge>
                <h2 className="text-5xl lg:text-7xl font-black tracking-tighter uppercase leading-[0.9]">
                  {metricTitle.split(' ').map((word, i) => (
-                   <span key={i} className={word === 'Only' || word === 'Metric.' ? 'gradient-text' : ''}>{word}{' '}</span>
+                   <span key={i} className={word === 'Only' || word === 'Metric.' || word === 'መለኪያ' ? 'gradient-text' : ''}>{word}{' '}</span>
                  ))}
                </h2>
             </div>
@@ -222,7 +224,7 @@ export default function Home() {
             <Heart className="w-10 h-10 fill-primary text-primary" />
             <span className="font-black text-[12px] tracking-[0.4em] text-primary uppercase">I LOVE YOU</span>
           </div>
-          <p className="font-black text-[10px] tracking-[0.3em] mb-4 uppercase text-slate-400">© {currentYear || 'Prosperity Revolution'} • {t('home.footerCopyright')}</p>
+          <p className="font-black text-[10px] tracking-[0.3em] mb-4 uppercase text-slate-400">© {currentYear} • {t('home.footerCopyright')}</p>
           <p className="text-[9px] font-bold italic uppercase tracking-widest opacity-40 text-slate-400">{t('home.footerTagline')}</p>
         </div>
       </footer>

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { TRANSLATIONS, DEFAULT_LANGUAGE } from '@/lib/translations';
 import { useUser, useFirestore, useDoc } from '@/firebase';
 import { doc, updateDoc } from 'firebase/firestore';
@@ -26,17 +26,14 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   }, [db, user]);
   
   const { data: profile } = useDoc(userRef);
-  const [language, setInternalLanguage] = useState(DEFAULT_LANGUAGE);
+  const [currentLang, setCurrentLang] = useState(DEFAULT_LANGUAGE);
 
   // 1. Initial Load from LocalStorage or Browser
   useEffect(() => {
     const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
     if (saved) {
-      setInternalLanguage(saved);
-      return;
-    }
-
-    if (typeof window !== 'undefined') {
+      setCurrentLang(saved);
+    } else if (typeof window !== 'undefined') {
       const browserLang = navigator.language.split('-')[0];
       const langMap: Record<string, string> = {
         'es': 'Spanish',
@@ -45,28 +42,28 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
         'ja': 'Japanese',
         'ar': 'Arabic',
         'zh': 'Chinese (Simplified)',
-        'hi': 'Hindi'
+        'hi': 'Hindi',
+        'am': 'Amharic'
       };
       
       const detected = langMap[browserLang];
       if (detected) {
-        setInternalLanguage(detected);
+        setCurrentLang(detected);
       }
     }
   }, []);
 
   // 2. Sync from Profile (if logged in)
   useEffect(() => {
-    if (profile?.preferredLanguage) {
-      setInternalLanguage(profile.preferredLanguage);
+    if (profile?.preferredLanguage && profile.preferredLanguage !== currentLang) {
+      setCurrentLang(profile.preferredLanguage);
     }
-  }, [profile]);
+  }, [profile, currentLang]);
 
   const setLanguage = async (newLang: string) => {
-    setInternalLanguage(newLang);
+    setCurrentLang(newLang);
     localStorage.setItem(LOCAL_STORAGE_KEY, newLang);
     
-    // Save to Firestore if user is authenticated
     if (db && user) {
       try {
         await updateDoc(doc(db, 'users', user.uid), {
@@ -78,34 +75,30 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const t = (path: string) => {
+  const t = useCallback((path: string) => {
     const keys = path.split('.');
+    
     // Try current language dictionary
-    let current = TRANSLATIONS[language];
+    let current = TRANSLATIONS[currentLang];
     
-    // If dictionary doesn't exist for this language, use English
-    if (!current) {
-      current = TRANSLATIONS[DEFAULT_LANGUAGE];
-    }
-    
-    for (const key of keys) {
-      if (!current || current[key] === undefined) {
-        // Fallback to English if key missing in current language dictionary
-        let fallback = TRANSLATIONS[DEFAULT_LANGUAGE];
-        for (const fKey of keys) {
-          fallback = fallback?.[fKey];
-          if (!fallback) break;
-        }
-        return typeof fallback === 'string' ? fallback : path;
+    // Fallback logic: iterate through keys in the current language dictionary
+    // If not found, iterate through keys in the default (English) dictionary
+    const getValue = (dict: any) => {
+      let result = dict;
+      for (const key of keys) {
+        if (!result || result[key] === undefined) return undefined;
+        result = result[key];
       }
-      current = current[key];
-    }
+      return result;
+    };
+
+    const value = getValue(current) || getValue(TRANSLATIONS[DEFAULT_LANGUAGE]);
     
-    return typeof current === 'string' ? current : path;
-  };
+    return typeof value === 'string' ? value : path;
+  }, [currentLang]);
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+    <LanguageContext.Provider value={{ language: currentLang, setLanguage, t }}>
       {children}
     </LanguageContext.Provider>
   );
