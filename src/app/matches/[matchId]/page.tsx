@@ -66,6 +66,18 @@ import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from '@/comp
 import Link from 'next/link';
 import { LiveCamera } from '@/components/LiveCamera';
 
+/**
+ * Utility to convert a File to a Data URI for AI moderation.
+ */
+const fileToDataUri = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+};
+
 const CHAT_SHORTCUTS = [
   { id: 'teachable', label: 'Teachable Pic', icon: BookOpen, description: 'Share a skill or a piece of your culture.' },
   { id: 'holiday', label: 'Holiday Tradition', icon: TreePine, description: 'Show how your family celebrates holidays.' },
@@ -184,11 +196,11 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
         const file = item.getAsFile();
         if (!file) continue;
         
-        toast({ title: "Uploading Pasted Content...", description: "Securing to E2EE Room. ✨" });
+        toast({ title: "Sharing Content...", description: "Securing to E2EE Room. ✨" });
         
         if (item.type.startsWith('image/')) {
-          const url = URL.createObjectURL(file);
-          await handleLiveCapture({ url, file, type: 'image' });
+          const dataUri = await fileToDataUri(file);
+          await handleLiveCapture({ url: dataUri, file, type: 'image' });
         } else if (item.type.startsWith('video/')) {
           const url = URL.createObjectURL(file);
           await handleLiveCapture({ url, file, type: 'video' });
@@ -203,7 +215,7 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
               fileSize: file.size,
               timestamp: serverTimestamp(),
             });
-            toast({ title: "File Pasted", description: `${file.name} sent.` });
+            toast({ title: "File Shared", description: `${file.name} sent.` });
           } catch (error) {
             toast({ variant: "destructive", title: "Paste Failed", description: "Could not share pasted file." });
           }
@@ -265,7 +277,9 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
 
     try {
       if (data.type === 'image') {
-        const moderation = await moderateImage({ photoDataUri: data.url });
+        // High-Quality Data URI for moderation
+        const photoDataUri = data.url.startsWith('data:') ? data.url : await fileToDataUri(data.file);
+        const moderation = await moderateImage({ photoDataUri });
         const cloudUrl = await uploadFile(`matches/${matchId}/${Date.now()}.jpg`, data.file);
         await addDoc(collection(db, 'matches', matchId, 'messages'), {
           senderId: user.uid,
@@ -563,9 +577,12 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
 
         <div className="flex items-center gap-2">
           <input type="file" id="chat-file-upload" className="hidden" ref={fileInputRef} onChange={handleFileUpload} />
-          <input type="file" id="chat-gallery-upload" className="hidden" accept="image/*" onChange={(e) => {
+          <input type="file" id="chat-gallery-upload" className="hidden" accept="image/*" onChange={async (e) => {
             const file = e.target.files?.[0];
-            if (file) handleLiveCapture({ url: URL.createObjectURL(file), file, type: 'image' });
+            if (file) {
+              const dataUri = await fileToDataUri(file);
+              handleLiveCapture({ url: dataUri, file, type: 'image' });
+            }
           }} ref={galleryInputRef} />
           
           <Popover>

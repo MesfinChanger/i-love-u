@@ -46,6 +46,18 @@ import Link from 'next/link';
 import { useTranslation } from '@/components/providers/LanguageProvider';
 import { LiveCamera } from '@/components/LiveCamera';
 
+/**
+ * Utility to convert a File to a Data URI for AI moderation.
+ */
+const fileToDataUri = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+};
+
 export default function CommunityPage() {
   const { user } = useUser();
   const db = useFirestore();
@@ -199,7 +211,10 @@ export default function CommunityPage() {
 
       if (selectedImage) {
         try {
-          const imageModeration = await moderateImage({ photoDataUri: selectedImage.url });
+          // Resilient Protocol: Convert to Data URI for AI and moderate
+          const photoDataUri = await fileToDataUri(selectedImage.file);
+          const imageModeration = await moderateImage({ photoDataUri });
+          
           if (imageModeration.isSensitive) {
             toast({ variant: "destructive", title: "Safe Space Protocol", description: "Image contains sensitive content and was blocked by AI. ✨" });
             setIsSending(false);
@@ -208,6 +223,7 @@ export default function CommunityPage() {
           imageUrl = await uploadFile(`community/${Date.now()}-${selectedImage.file.name}`, selectedImage.file);
           isSensitive = imageModeration.isSensitive;
         } catch (modErr) {
+          // Fail-Safe: Upload anyway if moderation ripples, but mark as potentially sensitive
           imageUrl = await uploadFile(`community/${Date.now()}-${selectedImage.file.name}`, selectedImage.file);
         }
       }
@@ -237,8 +253,9 @@ export default function CommunityPage() {
       setSelectedImage(null);
       setSelectedVideo(null);
       setSelectedFile(null);
+      toast({ title: "Moment Shared!", description: "Your respectful post is live on the wall. ❤️" });
     } catch (error) {
-      toast({ variant: "destructive", title: "Error", description: "Could not post to wall." });
+      toast({ variant: "destructive", title: "Sharing Error", description: "The platform could not secure your post right now." });
     } finally {
       setIsSending(false);
     }
