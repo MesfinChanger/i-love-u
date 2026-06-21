@@ -13,9 +13,17 @@ import { googleAI } from '@genkit-ai/google-genai';
 const rawKey = process.env.GOOGLE_GENAI_API_KEY || process.env.GEMINI_API_KEY || '';
 const apiKey = rawKey.trim().replace(/["']/g, '');
 
+export const isKeyValid = !!(
+  apiKey && 
+  apiKey.length > 10 && 
+  !apiKey.includes("PLACEHOLDER") &&
+  !apiKey.includes("REPLACE_WITH") &&
+  !apiKey.includes("YOUR_")
+);
+
 export const ai = genkit({
   plugins: [
-    googleAI({ apiKey }),
+    googleAI({ apiKey: isKeyValid ? apiKey : 'NO_KEY' }),
   ],
   model: googleAI.model('gemini-flash-latest'),
 });

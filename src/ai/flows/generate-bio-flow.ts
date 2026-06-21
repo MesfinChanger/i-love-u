@@ -3,7 +3,7 @@
  * @fileOverview A Genkit flow to generate creative dating app bios in various languages.
  */
 
-import {ai} from '@/ai/genkit';
+import {ai, isKeyValid} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const GenerateBioInputSchema = z.object({
@@ -14,10 +14,14 @@ export type GenerateBioInput = z.infer<typeof GenerateBioInputSchema>;
 
 const GenerateBioOutputSchema = z.object({
   bio: z.string().describe('The generated creative bio.'),
+  error: z.string().optional().describe('Error message if generation failed.'),
 });
 export type GenerateBioOutput = z.infer<typeof GenerateBioOutputSchema>;
 
 export async function generateBio(input: GenerateBioInput): Promise<GenerateBioOutput> {
+  if (!isKeyValid) {
+    return { bio: '', error: 'AI_BRIDGE_DISCONNECTED' };
+  }
   return generateBioFlow(input);
 }
 
@@ -42,7 +46,12 @@ const generateBioFlow = ai.defineFlow(
     outputSchema: GenerateBioOutputSchema,
   },
   async (input) => {
-    const {output} = await prompt(input);
-    return output!;
+    try {
+      const {output} = await prompt(input);
+      return output!;
+    } catch (e) {
+      console.error("Genkit Bio Error:", e);
+      return { bio: '', error: 'GENERATION_FAILED' };
+    }
   }
 );
