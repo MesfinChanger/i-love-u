@@ -168,14 +168,17 @@ function LoginContent() {
         }
       }
     } catch (error: any) {
-      console.error("Auth Error:", error.code);
       let message = "Check your credentials and try again. ❤️";
       let title = "Access Ripple";
-      if (error.code?.includes('api-key-not-valid')) {
+      
+      if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
+        message = "The secure phrase or email provided does not match our records. ✨";
+      } else if (error.code?.includes('api-key-not-valid')) {
         setIsConfigError(true);
-      } else {
-        toast({ variant: "destructive", title, description: message });
+        return;
       }
+      
+      toast({ variant: "destructive", title, description: message });
     } finally {
       setIsLoading(false);
     }

@@ -216,7 +216,7 @@ function ProfileContent() {
     try {
       let finalFile = data.file;
       if (data.type === 'image') {
-        finalFile = await compressImage(data.file, 0.75);
+        finalFile = await compressImage(data.file, 0.75, 1920, 1920);
       }
 
       const url = await uploadFile(`profiles/${user.uid}/${cameraTarget}_${Date.now()}`, finalFile);
@@ -237,7 +237,7 @@ function ProfileContent() {
     try {
       let finalFile = file;
       if (file.type.startsWith('image/')) {
-        finalFile = await compressImage(file, 0.75);
+        finalFile = await compressImage(file, 0.75, 1920, 1920);
         const dataUri = await fileToDataUri(finalFile);
         try {
           const moderation = await moderateImage({ photoDataUri: dataUri });

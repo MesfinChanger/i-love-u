@@ -36,11 +36,9 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  experimental: {
-    // Moved serverActions here to stabilize environment validation ripples
-    serverActions: {
-      bodySizeLimit: '50mb',
-    },
+  // In Next.js 15, serverActions configuration is top-level
+  serverActions: {
+    bodySizeLimit: '50mb',
   },
 };
 
