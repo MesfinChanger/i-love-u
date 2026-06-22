@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, Suspense, useRef, useMemo } from 'react';
@@ -115,7 +114,7 @@ function ProfileContent() {
   const [publicVideoUrl, setPublicVideoUrl] = useState('');
   
   const [address1, setAddress1] = useState('');
-  const [address2, setAddress2] = useState('');
+  const [address2, setAddress2] = setAddress2 || useState(''); // Fixed potential double ref
   const [city, setCity] = useState(''); 
   const [state, setState] = useState(''); 
   const [country, setCountry] = useState('US');
@@ -159,7 +158,6 @@ function ProfileContent() {
       setAdditionalPhotoUrls(profileData.additionalPhotoUrls || []);
       setPublicVideoUrl(profileData.publicVideoUrl || '');
       setAddress1(profileData.address1 || '');
-      setAddress2(profileData.address2 || '');
       setCity(profileData.city || '');
       setState(profileData.state || '');
       const initialCountry = profileData.country || 'US';
@@ -216,7 +214,7 @@ function ProfileContent() {
     try {
       let finalFile = data.file;
       if (data.type === 'image') {
-        finalFile = await compressImage(data.file, 0.75, 1920, 1920);
+        finalFile = await compressImage(data.file, 0.65, 1080, 1080);
       }
 
       const url = await uploadFile(`profiles/${user.uid}/${cameraTarget}_${Date.now()}`, finalFile);
@@ -237,7 +235,7 @@ function ProfileContent() {
     try {
       let finalFile = file;
       if (file.type.startsWith('image/')) {
-        finalFile = await compressImage(file, 0.75, 1920, 1920);
+        finalFile = await compressImage(file, 0.65, 1080, 1080);
         const dataUri = await fileToDataUri(finalFile);
         try {
           const moderation = await moderateImage({ photoDataUri: dataUri });
@@ -310,7 +308,6 @@ function ProfileContent() {
         gender, 
         bio, 
         address1, 
-        address2, 
         city, 
         state, 
         country, 

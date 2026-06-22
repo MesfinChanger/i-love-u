@@ -1,20 +1,20 @@
 /**
  * @fileOverview High-performance client-side image processing.
- * Mirroring the "imageQuality" and "resolution" behavior of the I Love U Flutter mobile branch.
+ * Optimized for HD distribution with 1080px ceiling and 0.65 quality.
  */
 
 /**
  * Compresses and resizes an image file using the Canvas API.
  * @param file The original File from an input or camera.
- * @param quality A value between 0 and 1 (0.75 matches the mobile team's target).
- * @param maxWidth The maximum width of the image (default 1920).
- * @param maxHeight The maximum height of the image (default 1920).
+ * @param quality A value between 0 and 1 (0.65 matches the mobile team's target for 80% compression).
+ * @param maxWidth The maximum width of the image (default 1080).
+ * @param maxHeight The maximum height of the image (default 1080).
  */
 export async function compressImage(
   file: File, 
-  quality: number = 0.75, 
-  maxWidth: number = 1920, 
-  maxHeight: number = 1920
+  quality: number = 0.65, 
+  maxWidth: number = 1080, 
+  maxHeight: number = 1080
 ): Promise<File> {
   if (!file.type.startsWith('image/')) return file;
 
@@ -31,7 +31,7 @@ export async function compressImage(
         let width = img.width;
         let height = img.height;
 
-        // Resolution Scaling Protocol (1920px Ceiling)
+        // Optimized HD Scaling Protocol (1080px Ceiling)
         if (width > height) {
           if (width > maxWidth) {
             height *= maxWidth / width;
