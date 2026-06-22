@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, Suspense, useRef, useMemo } from 'react';
@@ -114,7 +115,6 @@ function ProfileContent() {
   const [publicVideoUrl, setPublicVideoUrl] = useState('');
   
   const [address1, setAddress1] = useState('');
-  const [address2, setAddress2] = setAddress2 || useState(''); // Fixed potential double ref
   const [city, setCity] = useState(''); 
   const [state, setState] = useState(''); 
   const [country, setCountry] = useState('US');

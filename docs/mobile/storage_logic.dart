@@ -3,31 +3,24 @@ import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 
 /**
- * @fileOverview Master Storage Logic for the I LOVE U Mobile Branch.
- * Implements real-time progress tracking for mission-aligned transparency.
+ * @fileOverview Universal Resumable Upload Logic for Flutter.
+ * This handles network drops gracefully and provides real-time progress.
  */
-Future<void> uploadFileWithProgress(File file) async {
-  // 1. Create a reference pointing to the mission-aligned upload path
+Future<void> uploadFileWithResumableTask(File compressedFile) async {
   final storageRef = FirebaseStorage.instance
       .ref()
       .child('uploads/${DateTime.now().millisecondsSinceEpoch}.mp4');
 
-  // 2. putFile() handles native mobile file paths and supports resumable chunks
-  // Matches the web implementation's high-speed protocol.
-  UploadTask uploadTask = storageRef.putFile(file);
+  // putFile handles network drops much better than putData or putString
+  UploadTask uploadTask = storageRef.putFile(compressedFile);
 
-  // 3. Monitor the progress in real-time to provide user feedback
   uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
     double progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-    // Signal this to the UI to update the Prosperity Progress Bar
-    print("Upload progress: ${progress.toStringAsFixed(1)}%");
+    print("Upload is ${progress.toStringAsFixed(1)}% done");
+  }, onError: (e) {
+    print("Resumable Upload Ripple: $e");
   });
 
-  try {
-    // Await completion to confirm the moment is secured
-    await uploadTask;
-    print("Upload completed smoothly! Spark Secured. ❤️");
-  } catch (e) {
-    print("Upload failed: $e. Re-trying logic recommended.");
-  }
+  await uploadTask;
+  print("Media secured to mission cloud. ❤️");
 }
