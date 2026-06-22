@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, Suspense, useRef, useMemo } from 'react';
@@ -798,7 +799,7 @@ function ProfileContent() {
 
 export default function ProfilePage() {
   return (
-    <Suspense fallback={<div className="flex flex-col min-h-screen items-center justify-center bg-white"><Loader2 className="w-10 h-10 animate-spin text-primary" /></div>}>
+    <Suspense fallback={<div className="flex flex-col min-h-screen items-center justify-center bg-white"><Loader2 className="animate-spin text-primary" /></div>}>
       <ProfileContent />
     </Suspense>
   );

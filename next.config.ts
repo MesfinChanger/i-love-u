@@ -1,3 +1,4 @@
+
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
@@ -35,12 +36,11 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  // In Next.js 15, serverActions is stable and bodySizeLimit belongs here
-  serverActions: {
-    bodySizeLimit: '50mb',
-  },
   experimental: {
-    // Keep this block for any future true experiments
+    // Moved serverActions here to stabilize environment validation ripples
+    serverActions: {
+      bodySizeLimit: '50mb',
+    },
   },
 };
 
