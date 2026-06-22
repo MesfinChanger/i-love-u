@@ -1,14 +1,21 @@
 /**
  * @fileOverview High-performance client-side image processing.
- * Mirroring the "imageQuality" behavior of the I Love U Flutter mobile branch.
+ * Mirroring the "imageQuality" and "resolution" behavior of the I Love U Flutter mobile branch.
  */
 
 /**
- * Compresses an image file using the Canvas API.
+ * Compresses and resizes an image file using the Canvas API.
  * @param file The original File from an input or camera.
  * @param quality A value between 0 and 1 (0.75 matches the mobile team's target).
+ * @param maxWidth The maximum width of the image (default 1920).
+ * @param maxHeight The maximum height of the image (default 1920).
  */
-export async function compressImage(file: File, quality: number = 0.75): Promise<File> {
+export async function compressImage(
+  file: File, 
+  quality: number = 0.75, 
+  maxWidth: number = 1920, 
+  maxHeight: number = 1920
+): Promise<File> {
   if (!file.type.startsWith('image/')) return file;
 
   return new Promise((resolve, reject) => {
@@ -21,21 +28,19 @@ export async function compressImage(file: File, quality: number = 0.75): Promise
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         
-        // Optional: Max width/height to further reduce upload times
-        const MAX_WIDTH = 1200;
-        const MAX_HEIGHT = 1200;
         let width = img.width;
         let height = img.height;
 
+        // Resolution Scaling Protocol (1920px Ceiling)
         if (width > height) {
-          if (width > MAX_WIDTH) {
-            height *= MAX_WIDTH / width;
-            width = MAX_WIDTH;
+          if (width > maxWidth) {
+            height *= maxWidth / width;
+            width = maxWidth;
           }
         } else {
-          if (height > MAX_HEIGHT) {
-            width *= MAX_HEIGHT / height;
-            height = MAX_HEIGHT;
+          if (height > maxHeight) {
+            width *= maxHeight / height;
+            height = maxHeight;
           }
         }
 
