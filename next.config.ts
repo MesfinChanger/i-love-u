@@ -1,3 +1,4 @@
+
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
@@ -35,7 +36,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  // In Next.js 15, serverActions configuration is top-level
+  // In Next.js 15, serverActions configuration is stable and top-level
   serverActions: {
     bodySizeLimit: '50mb',
   },
