@@ -35,10 +35,12 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // In Next.js 15, serverActions is stable and bodySizeLimit belongs here
+  serverActions: {
+    bodySizeLimit: '50mb',
+  },
   experimental: {
-    serverActions: {
-      bodySizeLimit: '50mb',
-    },
+    // Keep this block for any future true experiments
   },
 };
 
