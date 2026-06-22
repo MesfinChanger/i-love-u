@@ -14,7 +14,7 @@
         "displayName": { "type": "string" },
         "birthdate": { "type": "string", "format": "date" },
         "age": { "type": "number", "minimum": 18 },
-        "gender": { "type": "string", "enum": ["male", "female"] },
+        "gender": { "type": "string", "enum": ["male", "female", "other"] },
         "religion": { "type": "string" },
         "bio": { "type": "string" },
         "interests": { "type": "array", "items": { "type": "string" } },

@@ -86,7 +86,8 @@ import { compressImage, fileToDataUri } from '@/lib/image-utils';
 
 const GENDERS = [
   { value: 'male', label: 'Male' },
-  { value: 'female', label: 'Female' }
+  { value: 'female', label: 'Female' },
+  { value: 'other', label: 'Other' }
 ];
 
 function ProfileContent() {
