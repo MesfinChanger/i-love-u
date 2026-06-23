@@ -84,6 +84,10 @@ import { LiveCamera } from '@/components/LiveCamera';
 import { Progress } from "@/components/ui/progress";
 import { compressImage, fileToDataUri } from '@/lib/image-utils';
 
+/**
+ * @fileOverview Profile Console.
+ * Strictly enforces Binary Identity Protocol (Male/Female only).
+ */
 const GENDERS = [
   { value: 'male', label: 'Male' },
   { value: 'female', label: 'Female' }

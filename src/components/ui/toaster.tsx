@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/toast"
 
 /**
- * @fileOverview Universal Toast Dispatcher.
+ * @fileOverview Universal Toast Dispatcher for the Prosperity Revolution.
  * Automatically injects an "Oky" action button for error (destructive) popups.
  */
 export function Toaster() {
@@ -40,16 +40,21 @@ export function Toaster() {
               )}
             </div>
             
-            {/* Automatic "Oky" Protocol for Errors */}
-            {action || (props.variant === "destructive" && (
-              <ToastAction 
-                altText="Oky" 
-                onClick={() => dismiss(id)} 
-                className="bg-white/20 hover:bg-white/30 text-white border-none font-black uppercase text-[10px] tracking-[0.2em] h-10 px-5 rounded-xl transition-all active:scale-95 shadow-sm"
-              >
-                Oky
-              </ToastAction>
-            ))}
+            <div className="flex flex-col gap-2 shrink-0">
+              {/* Optional Custom Action (e.g., Open Console) */}
+              {action}
+              
+              {/* Mandatory "Oky" Protocol for Errors */}
+              {props.variant === "destructive" && (
+                <ToastAction 
+                  altText="Oky" 
+                  onClick={() => dismiss(id)} 
+                  className="bg-white/20 hover:bg-white/30 text-white border-none font-black uppercase text-[10px] tracking-[0.2em] h-10 px-5 rounded-xl transition-all active:scale-95 shadow-sm"
+                >
+                  Oky
+                </ToastAction>
+              )}
+            </div>
             
             <ToastClose className={props.variant === 'destructive' ? "text-white/50 hover:text-white" : ""} />
           </Toast>
