@@ -12,22 +12,35 @@ import {
   Loader2, 
   ShieldCheck, 
   ImageIcon, 
-  X 
+  X,
+  Camera,
+  Video,
+  FileIcon,
+  Paperclip,
+  Zap,
+  Image as LucideImageIcon
 } from 'lucide-react';
+import { 
+  Popover, 
+  PopoverContent, 
+  PopoverTrigger 
+} from '@/components/ui/popover';
 import { useUser, useFirestore, useCollection, useDoc, useFirebaseStorage } from '@/firebase';
 import { collection, addDoc, query, orderBy, serverTimestamp, limit, doc } from 'firebase/firestore';
 import { moderateText } from '@/ai/flows/moderate-text-flow';
+import { moderateImage } from '@/ai/flows/moderate-image-flow';
 import { useToast } from '@/hooks/use-toast';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { Progress } from "@/components/ui/progress";
-import { compressImage } from '@/lib/image-utils';
+import { compressImage, fileToDataUri } from '@/lib/image-utils';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
+import { LiveCamera } from '@/components/LiveCamera';
 
 /**
- * @fileOverview Accessible Community Wall.
- * Enforces "Respect is Mandatory" and provides high-impact feedback.
- * Hardened error handling for Storage and AI ripples.
+ * @fileOverview Universal Global Wall.
+ * Enforces "Respect is Mandatory" and enables live pic, video, and file sharing.
+ * Optimized for accessibility and high-fidelity feedback.
  */
 export default function CommunityPage() {
   const { user } = useUser();
@@ -36,10 +49,16 @@ export default function CommunityPage() {
   const { toast } = useToast();
   const scrollRef = useRef<HTMLDivElement>(null);
   const galleryRef = useRef<HTMLInputElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const [newMessage, setNewMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<{ file: File; url: string } | null>(null);
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const [attachedMedia, setAttachedMedia] = useState<{ 
+    file: File; 
+    url: string; 
+    type: 'image' | 'video' | 'file' 
+  } | null>(null);
 
   const userRef = useMemoFirebase(() => db && user ? doc(db, 'users', user.uid) : null, [db, user]);
   const { data: myProfile } = useDoc(userRef);
@@ -51,26 +70,60 @@ export default function CommunityPage() {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [messages]);
 
+  const handleLiveCapture = async (data: { url: string; file: File; type: 'image' | 'video' }) => {
+    setAttachedMedia({ file: data.file, url: data.url, type: data.type });
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'video' | 'file') => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setAttachedMedia({ file, url, type });
+    }
+  };
+
   const handleSendMessage = async (e?: React.FormEvent) => {
     e?.preventDefault();
-    if ((!newMessage.trim() && !selectedImage) || !user || !db || isSending) return;
+    if ((!newMessage.trim() && !attachedMedia) || !user || !db || isSending) return;
     setIsSending(true);
     try {
-      const moderation = await moderateText({ text: newMessage });
-      if (moderation.isFlagged) {
-        toast({
-          variant: "destructive",
-          title: "Respect Policy Ripple",
-          description: moderation.reason || "Your message violates the mandatory respect rule. ❤️"
-        });
-        setIsSending(false);
-        return;
+      if (newMessage.trim()) {
+        const moderation = await moderateText({ text: newMessage });
+        if (moderation.isFlagged) {
+          toast({
+            variant: "destructive",
+            title: "Respect Policy Ripple",
+            description: moderation.reason || "Your message violates the mandatory respect rule. ❤️"
+          });
+          setIsSending(false);
+          return;
+        }
       }
 
       let imageUrl = null;
-      if (selectedImage) {
-        const compressed = await compressImage(selectedImage.file, 0.65);
-        imageUrl = await uploadFile(`community/${Date.now()}_${compressed.name}`, compressed);
+      let videoUrl = null;
+      let fileUrl = null;
+      let fileName = null;
+
+      if (attachedMedia) {
+        toast({ title: "Securing Media...", description: "Your moment is reaching the cloud bridge. ✨" });
+        
+        if (attachedMedia.type === 'image') {
+          const compressed = await compressImage(attachedMedia.file, 0.65);
+          const dataUri = await fileToDataUri(compressed);
+          const modResult = await moderateImage({ photoDataUri: dataUri });
+          if (modResult.isSensitive) {
+            toast({ variant: "destructive", title: "Policy Blocked", description: "Sensitive content detected." });
+            setIsSending(false);
+            return;
+          }
+          imageUrl = await uploadFile(`community/images/${Date.now()}_${compressed.name}`, compressed);
+        } else if (attachedMedia.type === 'video') {
+          videoUrl = await uploadFile(`community/videos/${Date.now()}_${attachedMedia.file.name}`, attachedMedia.file);
+        } else {
+          fileUrl = await uploadFile(`community/files/${Date.now()}_${attachedMedia.file.name}`, attachedMedia.file);
+          fileName = attachedMedia.file.name;
+        }
       }
       
       await addDoc(collection(db, 'communityMessages'), {
@@ -78,10 +131,14 @@ export default function CommunityPage() {
         senderNickname: myProfile?.publicNickname || "Mystery Heart",
         text: newMessage,
         imageUrl,
+        videoUrl,
+        fileUrl,
+        fileName,
         timestamp: serverTimestamp(),
       });
+      
       setNewMessage('');
-      setSelectedImage(null);
+      setAttachedMedia(null);
       toast({ title: "Shared!", description: "Your post is live on the wall. ❤️" });
     } catch (error: any) {
       if (error.code === 'storage/unknown' || error.message?.includes('storage')) {
@@ -89,13 +146,7 @@ export default function CommunityPage() {
           variant: "destructive", 
           title: "Storage Configuration Ripple", 
           description: "Firebase Storage needs setup. Check Rules & CORS in console. 🛠️",
-          action: <Button variant="outline" size="sm" className="h-8 text-[10px] font-black uppercase" onClick={() => window.open('https://console.firebase.google.com/')}>Open Console</Button>
-        });
-      } else if (error.message?.includes('API key') || error.message?.includes('400')) {
-        toast({ 
-          variant: "destructive", 
-          title: "AI Bridge Offline", 
-          description: "Mission Control is waiting for your GenAI credentials. ❤️" 
+          action: <Button variant="outline" size="sm" className="h-8 text-[10px]" onClick={() => window.open('https://console.firebase.google.com/')}>Setup Now</Button>
         });
       } else {
         toast({ 
@@ -109,20 +160,12 @@ export default function CommunityPage() {
     }
   };
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setSelectedImage({ file, url });
-    }
-  };
-
   return (
     <div className="flex flex-col h-[100dvh] bg-muted/30 overflow-hidden">
       <Header />
       <div className="bg-primary/5 border-b p-2 flex items-center justify-center gap-2">
         <ShieldCheck className="w-3.5 h-3.5 text-primary animate-pulse" />
-        <p className="text-[9px] font-black uppercase tracking-widest text-primary/60">Respect is Mandatory • Global Moderation Active</p>
+        <p className="text-[9px] font-black uppercase tracking-widest text-primary/60">Global Wall • Respect is Mandatory</p>
       </div>
 
       <main 
@@ -133,8 +176,13 @@ export default function CommunityPage() {
       >
         {loading ? (
           <div className="flex justify-center py-20"><Loader2 className="animate-spin text-primary opacity-20" aria-label="Loading messages" /></div>
+        ) : messages?.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-32 text-center opacity-20 space-y-4">
+             <Globe2 className="w-16 h-16" />
+             <p className="text-sm font-black uppercase tracking-widest">The wall is silent. Spark a message.</p>
+          </div>
         ) : messages?.map((msg: any) => (
-          <div key={msg.id} className={cn("flex flex-col gap-1", msg.senderId === user?.uid ? "items-end" : "items-start")}>
+          <div key={msg.id} className={cn("flex flex-col gap-1 animate-in fade-in slide-in-from-bottom-2", msg.senderId === user?.uid ? "items-end" : "items-start")}>
             <span className="text-[8px] font-black uppercase text-muted-foreground px-2">{msg.senderNickname}</span>
             <div className={cn("max-w-[85%] px-4 py-3 rounded-[1.5rem] shadow-sm", msg.senderId === user?.uid ? "bg-primary text-white" : "bg-white border text-slate-800")}>
               {msg.imageUrl && (
@@ -142,7 +190,21 @@ export default function CommunityPage() {
                   <Image src={msg.imageUrl} alt="Community share" fill className="object-cover" />
                 </div>
               )}
-              <p className="text-sm font-medium">{msg.text}</p>
+              {msg.videoUrl && (
+                <div className="relative w-full aspect-video rounded-xl overflow-hidden mb-2 bg-black">
+                   <video src={msg.videoUrl} controls className="w-full h-full" />
+                </div>
+              )}
+              {msg.fileUrl && (
+                <div className="flex items-center gap-3 bg-black/10 p-3 rounded-xl mb-2 border border-white/10">
+                   <FileIcon className="w-5 h-5 shrink-0" />
+                   <div className="min-w-0 flex-grow">
+                      <p className="text-[10px] font-bold truncate">{msg.fileName}</p>
+                   </div>
+                   <Button size="sm" variant="ghost" className="h-7 text-[8px] font-black uppercase" onClick={() => window.open(msg.fileUrl)}>Get</Button>
+                </div>
+              )}
+              {msg.text && <p className="text-sm font-medium">{msg.text}</p>}
             </div>
           </div>
         ))}
@@ -156,55 +218,79 @@ export default function CommunityPage() {
           </div>
         )}
         
-        {selectedImage && (
+        {attachedMedia && (
           <div className="flex items-center gap-3 p-2 bg-muted/40 rounded-xl animate-in zoom-in-95">
-            <div className="relative w-12 h-12 rounded-lg overflow-hidden shrink-0">
-               <Image src={selectedImage.url} alt="Selected" fill className="object-cover" />
+            <div className="relative w-12 h-12 rounded-lg overflow-hidden shrink-0 bg-slate-900 flex items-center justify-center">
+               {attachedMedia.type === 'image' ? (
+                 <Image src={attachedMedia.url} alt="Selected" fill className="object-cover" />
+               ) : attachedMedia.type === 'video' ? (
+                 <Video className="w-5 h-5 text-white" />
+               ) : (
+                 <FileIcon className="w-5 h-5 text-white" />
+               )}
             </div>
-            <p className="text-[10px] font-bold truncate flex-grow">{selectedImage.file.name}</p>
-            <Button variant="ghost" size="icon" onClick={() => setSelectedImage(null)} className="rounded-full h-8 w-8 hover:bg-red-50 hover:text-red-500" aria-label="Remove selected image">
+            <p className="text-[10px] font-bold truncate flex-grow">{attachedMedia.file.name}</p>
+            <Button variant="ghost" size="icon" onClick={() => setAttachedMedia(null)} className="rounded-full h-8 w-8 hover:bg-red-50 hover:text-red-500" aria-label="Remove attachment">
               <X className="w-4 h-4" />
             </Button>
           </div>
         )}
 
-        <form onSubmit={handleSendMessage} className="flex gap-2">
-          <input 
-            type="file" 
-            ref={galleryRef} 
-            onChange={handleFileChange} 
-            accept="image/*" 
-            className="hidden" 
-            id="community-image-upload"
-          />
-          <Button 
-            type="button" 
-            variant="ghost" 
-            size="icon" 
-            onClick={() => galleryRef.current?.click()} 
-            className="rounded-xl h-12 w-12 bg-muted/40 text-muted-foreground"
-            aria-label="Attach Photo"
-          >
-            <ImageIcon className="w-6 h-6" />
-          </Button>
-          <Input 
-            value={newMessage} 
-            onChange={e => setNewMessage(e.target.value)} 
-            placeholder="Share a respectful thought..." 
-            className="rounded-2xl border-none bg-muted/40 h-12 font-bold"
-            aria-label="Message text"
-          />
-          <Button 
-            type="submit" 
-            disabled={isSending || (!newMessage.trim() && !selectedImage)} 
-            className="rounded-xl h-12 gradient-bg shadow-lg px-6"
-            aria-label="Post to wall"
-          >
-            {isSending ? <Loader2 className="animate-spin" /> : <Send className="w-5 h-5" />}
-          </Button>
-        </form>
+        <div className="flex gap-2">
+          <input type="file" ref={galleryRef} onChange={(e) => handleFileSelect(e, 'image')} accept="image/*,video/*" className="hidden" />
+          <input type="file" ref={fileRef} onChange={(e) => handleFileSelect(e, 'file')} className="hidden" />
+          
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button 
+                type="button" 
+                variant="ghost" 
+                size="icon" 
+                className="rounded-xl h-12 w-12 bg-muted/40 text-muted-foreground"
+                aria-label="Attach Media"
+              >
+                <Camera className="w-6 h-6" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-48 p-2 rounded-2xl border-none shadow-2xl" side="top" align="start">
+              <div className="flex flex-col gap-1">
+                <Button variant="ghost" size="sm" onClick={() => setIsCameraOpen(true)} className="justify-start gap-3 rounded-xl py-5 h-auto">
+                   <Zap className="w-4 h-4 text-primary" />
+                   <span className="font-bold text-xs uppercase tracking-tight">Live Camera</span>
+                </Button>
+                <Button variant="ghost" size="sm" onClick={() => galleryRef.current?.click()} className="justify-start gap-3 rounded-xl py-5 h-auto">
+                   <LucideImageIcon className="w-4 h-4 text-primary" />
+                   <span className="font-bold text-xs uppercase tracking-tight">Gallery</span>
+                </Button>
+                <Button variant="ghost" size="sm" onClick={() => fileRef.current?.click()} className="justify-start gap-3 rounded-xl py-5 h-auto border-t border-muted/50 mt-1">
+                   <Paperclip className="w-4 h-4 text-primary" />
+                   <span className="font-bold text-xs uppercase tracking-tight">Share File</span>
+                </Button>
+              </div>
+            </PopoverContent>
+          </Popover>
+
+          <form onSubmit={handleSendMessage} className="flex-grow flex gap-2">
+            <Input 
+              value={newMessage} 
+              onChange={e => setNewMessage(e.target.value)} 
+              placeholder="Share a respectful thought..." 
+              className="rounded-2xl border-none bg-muted/40 h-12 font-bold px-6"
+              aria-label="Message text"
+            />
+            <Button 
+              type="submit" 
+              disabled={isSending || (!newMessage.trim() && !attachedMedia)} 
+              className="rounded-xl h-12 gradient-bg shadow-lg px-6 shrink-0"
+              aria-label="Post to wall"
+            >
+              {isSending ? <Loader2 className="animate-spin" /> : <Send className="w-5 h-5" />}
+            </Button>
+          </form>
+        </div>
       </footer>
       <BottomNav />
+      <LiveCamera isOpen={isCameraOpen} onClose={() => setIsCameraOpen(false)} onCapture={handleLiveCapture} />
     </div>
   );
 }
