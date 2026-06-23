@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -16,10 +17,10 @@ export function useUser() {
   useEffect(() => {
     // If auth is not yet available, we wait in loading state
     if (!auth) {
-      // Small timeout to prevent permanent hang
+      // Small timeout to prevent permanent hang during provision phase
       const timer = setTimeout(() => {
         setLoading(false);
-      }, 5000);
+      }, 3000);
       return () => clearTimeout(timer);
     }
 
@@ -28,7 +29,7 @@ export function useUser() {
         setUser(firebaseUser);
         setLoading(false);
       }, (error) => {
-        console.error("I Love U: Auth observer ripple:", error);
+        console.warn("I Love U: Auth observer ripple:", error);
         setLoading(false);
       });
       
