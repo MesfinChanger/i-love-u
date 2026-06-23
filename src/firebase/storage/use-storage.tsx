@@ -1,16 +1,21 @@
+
 'use client';
 
 import { useState } from 'react';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { useStorage } from '../provider';
+import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
+import React from 'react';
 
 /**
  * @fileOverview Hook for Google Cloud Storage operations.
  * Optimized for high-performance resumable uploads mirroring high-resilience Dart logic.
- * Handles network fluctuations and provide byte-accurate progress tracking.
+ * Includes descriptive diagnostic feedback for setup ripples.
  */
 export function useFirebaseStorage() {
   const storage = useStorage();
+  const { toast } = useToast();
   const [isUploading, setIsUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<Error | null>(null);
@@ -41,9 +46,28 @@ export function useFirebaseStorage() {
           const p = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
           setProgress(p);
         },
-        (err) => {
+        (err: any) => {
           setError(err);
           setIsUploading(false);
+          
+          if (err.code === 'storage/unknown' || err.message?.includes('storage')) {
+            toast({
+              variant: "destructive",
+              title: "Storage Configuration Ripple",
+              description: "Mission Control needs Rules & CORS setup. Check docs/FIREBASE_SETUP.md for the fix. ❤️",
+              action: (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="h-8 text-[10px] font-black uppercase" 
+                  onClick={() => window.open('https://console.firebase.google.com/')}
+                >
+                  Setup Now
+                </Button>
+              )
+            });
+          }
+          
           reject(err);
         },
         async () => {
