@@ -2,7 +2,7 @@
 /**
  * @fileOverview A Genkit flow to moderate text messages and advertisements.
  * Enforces the "Respect and Love is Mandatory" rule.
- * Hardened with the Credential Shield Protocol.
+ * Hardened with the AI Credential Shield Protocol.
  */
 
 import {ai, isKeyValid} from '@/ai/genkit';
@@ -21,7 +21,7 @@ const ModerateTextOutputSchema = z.object({
 export type ModerateTextOutput = z.infer<typeof ModerateTextOutputSchema>;
 
 export async function moderateText(input: ModerateTextInput): Promise<ModerateTextOutput> {
-  // Credential Shield: If API Key is missing, bypass with safe default for prototype continuity.
+  // Credential Shield Protocol: If API Key is missing, bypass with safe default for prototype continuity.
   if (!isKeyValid) {
     return { isFlagged: false, reason: 'AI_BRIDGE_OFFLINE' };
   }

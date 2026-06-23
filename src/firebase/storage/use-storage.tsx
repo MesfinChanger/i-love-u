@@ -6,7 +6,8 @@ import { useStorage } from '../provider';
 
 /**
  * @fileOverview Hook for Google Cloud Storage operations.
- * Optimized for high-performance resumable uploads mirroring Dart logic.
+ * Optimized for high-performance resumable uploads mirroring high-resilience Dart logic.
+ * Handles network fluctuations and provide byte-accurate progress tracking.
  */
 export function useFirebaseStorage() {
   const storage = useStorage();
@@ -14,7 +15,7 @@ export function useFirebaseStorage() {
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<Error | null>(null);
 
-  const uploadFile = async (path: string, file: File | string): Promise<string> => {
+  const uploadFile = async (path: string, file: File | Blob | string): Promise<string> => {
     if (!storage) throw new Error("Storage not initialized.");
     setIsUploading(true);
     setProgress(0);
@@ -31,9 +32,12 @@ export function useFirebaseStorage() {
     }
 
     return new Promise((resolve, reject) => {
+      // Use uploadBytesResumable for high network resilience
       const uploadTask = uploadBytesResumable(storageRef, blob);
+      
       uploadTask.on('state_changed',
         (snapshot) => {
+          // Precise byte-accurate progress calculation
           const p = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
           setProgress(p);
         },

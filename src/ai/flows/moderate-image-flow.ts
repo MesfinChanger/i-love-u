@@ -1,7 +1,7 @@
 'use server';
 /**
  * @fileOverview A Genkit flow to moderate images for sensitive content (nudity, explicit material).
- * Hardened to handle missing AI credentials gracefully.
+ * Hardened with the AI Credential Shield Protocol.
  */
 
 import {ai, isKeyValid} from '@/ai/genkit';

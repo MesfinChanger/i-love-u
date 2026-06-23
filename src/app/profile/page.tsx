@@ -45,7 +45,7 @@ import { useRouter } from 'next/navigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Card } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/avatar';
 import { cn } from '@/lib/utils';
 import { COUNTRIES } from '@/lib/world-data';
 import Image from 'next/image';
@@ -248,13 +248,13 @@ function ProfileContent() {
           <TabsContent value="personal" className="space-y-6">
             <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-10 space-y-8">
               <div className="grid sm:grid-cols-2 gap-8">
-                <div className="space-y-3"><Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">First Name</Label><Input value={firstName} onChange={e => setFirstName(e.target.value)} className="rounded-2xl border-none bg-muted/40 h-14 px-6 text-lg font-bold" /></div>
-                <div className="space-y-3"><Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Last Name</Label><Input value={lastName} onChange={e => setLastName(e.target.value)} className="rounded-2xl border-none bg-muted/40 h-14 px-6 text-lg font-bold" /></div>
+                <div className="space-y-3"><Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">First Name</Label><Input value={firstName} onChange={e => setFirstName(e.target.value)} className="rounded-2xl border-none bg-muted/40 h-14 px-6 text-lg font-bold" aria-label="First Name" /></div>
+                <div className="space-y-3"><Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Last Name</Label><Input value={lastName} onChange={e => setLastName(e.target.value)} className="rounded-2xl border-none bg-muted/40 h-14 px-6 text-lg font-bold" aria-label="Last Name" /></div>
               </div>
               <div className="space-y-3">
                 <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Gender (Binary Protocol)</Label>
                 <Select value={gender} onValueChange={setGender}>
-                  <SelectTrigger className="rounded-2xl border-none bg-muted/40 h-14 px-6 text-lg font-bold"><SelectValue placeholder="Select Identity" /></SelectTrigger>
+                  <SelectTrigger className="rounded-2xl border-none bg-muted/40 h-14 px-6 text-lg font-bold" aria-label="Select Gender"><SelectValue placeholder="Select Identity" /></SelectTrigger>
                   <SelectContent className="rounded-2xl border-none shadow-2xl">{GENDERS.map(g => <SelectItem key={g.value} value={g.value} className="py-4 rounded-xl font-bold">{g.label}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
@@ -263,24 +263,24 @@ function ProfileContent() {
 
           <TabsContent value="address" className="space-y-6">
             <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-10 space-y-8">
-              <div className="space-y-3"><Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Business Address / Line 1</Label><Input value={address1} onChange={e => setAddress1(e.target.value)} className="rounded-2xl border-none bg-muted/40 h-14 px-6 text-lg font-bold" /></div>
+              <div className="space-y-3"><Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Business Address / Line 1</Label><Input value={address1} onChange={e => setAddress1(e.target.value)} className="rounded-2xl border-none bg-muted/40 h-14 px-6 text-lg font-bold" aria-label="Address" /></div>
               <div className="grid sm:grid-cols-2 gap-8">
                  <div className="space-y-3">
                   <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Country Origin</Label>
                   <Select value={country} onValueChange={setCountry}>
-                    <SelectTrigger className="rounded-2xl border-none bg-muted/40 h-14 px-6 font-bold"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="rounded-2xl border-none bg-muted/40 h-14 px-6 font-bold" aria-label="Select Country"><SelectValue /></SelectTrigger>
                     <SelectContent className="max-h-80 rounded-2xl border-none shadow-2xl">{COUNTRIES.map(c => <SelectItem key={c.code} value={c.code} className="py-3">{c.name}</SelectItem>)}</SelectContent>
                   </Select>
                 </div>
-                <div className="space-y-3"><Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Tax Identification / SSN</Label><Input type="password" value={profileData?.taxId || ''} readOnly className="rounded-2xl border-none bg-muted/40 h-14 px-6 text-lg font-bold opacity-40 cursor-not-allowed" /></div>
+                <div className="space-y-3"><Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Tax Identification / SSN</Label><Input type="password" value={profileData?.taxId || ''} readOnly className="rounded-2xl border-none bg-muted/40 h-14 px-6 text-lg font-bold opacity-40 cursor-not-allowed" aria-label="Tax ID" /></div>
               </div>
             </Card>
           </TabsContent>
 
           <TabsContent value="public" className="space-y-6">
             <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-10 space-y-8">
-              <div className="space-y-3"><Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Community Nickname</Label><Input value={publicNickname} onChange={e => setPublicNickname(e.target.value)} className="rounded-2xl border-none bg-muted/40 h-14 px-6 text-xl font-black text-primary" /></div>
-              <div className="space-y-3"><Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Mystery Bio</Label><Textarea value={bio} onChange={e => setBio(e.target.value)} className="rounded-3xl border-none bg-muted/40 min-h-[120px] p-6 text-base font-medium italic leading-relaxed" placeholder="Tell the revolution about your mission..." /></div>
+              <div className="space-y-3"><Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Community Nickname</Label><Input value={publicNickname} onChange={e => setPublicNickname(e.target.value)} className="rounded-2xl border-none bg-muted/40 h-14 px-6 text-xl font-black text-primary" aria-label="Community Nickname" /></div>
+              <div className="space-y-3"><Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Mystery Bio</Label><Textarea value={bio} onChange={e => setBio(e.target.value)} className="rounded-3xl border-none bg-muted/40 min-h-[120px] p-6 text-base font-medium italic leading-relaxed" placeholder="Tell the revolution about your mission..." aria-label="Bio" /></div>
               
               <div className="flex items-center justify-between p-6 bg-primary/5 rounded-3xl border border-primary/10">
                 <div className="space-y-1">
@@ -292,7 +292,7 @@ function ProfileContent() {
 
               <div className="space-y-4">
                  <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Identity Gallery</Label>
-                 <div className="grid grid-cols-3 gap-4">
+                 <div className="grid grid-cols-3 gap-4" role="group" aria-label="Gallery photos">
                     {additionalPhotoUrls.map((url, i) => (
                       <div key={i} className="relative aspect-square rounded-2xl overflow-hidden border-2 border-white shadow-md">
                          <Image src={url} alt={`Identity ${i+1}`} fill className="object-cover" />
@@ -321,7 +321,7 @@ function ProfileContent() {
                 <h3 className="font-black uppercase text-lg tracking-tighter">Mission Verification</h3>
                 <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Protocol Version 2.0.0</p>
               </div>
-              <div className="space-y-4">
+              <div className="space-y-4" role="group" aria-label="Mission verification items">
                 {[
                   { label: "I am 18+ years old", state: isAgeVerified, set: setIsAgeVerified, desc: "Legal compliance for global hearts." },
                   { label: "Respect & Love is Mandatory", state: isRespectful, set: setIsRespectful, desc: "Zero tolerance for meanness or toxicity." },
@@ -340,7 +340,7 @@ function ProfileContent() {
               <div className="pt-8 border-t border-dashed">
                  <AlertDialog>
                     <AlertDialogTrigger asChild>
-                       <Button variant="ghost" className="w-full text-red-500 font-black uppercase text-[10px] tracking-[0.3em] hover:bg-red-50 hover:text-red-600 h-14 rounded-2xl">Delete My Entire Mission</Button>
+                       <Button variant="ghost" className="w-full text-red-500 font-black uppercase text-[10px] tracking-[0.3em] hover:bg-red-50 hover:text-red-600 h-14 rounded-2xl" aria-label="Delete account">Delete My Entire Mission</Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent className="rounded-[3rem] p-10 border-none shadow-2xl">
                        <AlertDialogHeader>

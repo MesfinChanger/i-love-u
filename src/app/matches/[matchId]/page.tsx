@@ -513,7 +513,7 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
   return (
     <div className={cn("flex flex-col h-[100dvh] overflow-hidden", isDatingMatch ? "bg-accent/30" : "bg-white")}>
       <header className="flex items-center gap-4 px-4 h-14 border-b shrink-0 bg-white/80 backdrop-blur-md z-20 shadow-sm">
-        <Button variant="ghost" size="icon" onClick={() => router.back()} className="rounded-full w-9 h-9">
+        <Button variant="ghost" size="icon" onClick={() => router.back()} className="rounded-full w-9 h-9" aria-label="Go back">
           <ChevronLeft className="w-5 h-5" />
         </Button>
         
@@ -543,12 +543,12 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
         <div className="flex items-center gap-1 shrink-0">
           {isDatingMatch && (
             <>
-              <Button variant="ghost" size="icon" asChild className="text-primary hover:bg-primary/5 rounded-full w-9 h-9">
+              <Button variant="ghost" size="icon" asChild className="text-primary hover:bg-primary/5 rounded-full w-9 h-9" aria-label="Start Video Call">
                 <Link href={`/matches/${matchId}/video`}><Video className="w-4 h-4" /></Link>
               </Button>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button variant="ghost" size="icon" className="text-primary hover:bg-primary/5 rounded-full w-9 h-9"><Users className="w-4 h-4" /></Button>
+                  <Button variant="ghost" size="icon" className="text-primary hover:bg-primary/5 rounded-full w-9 h-9" aria-label="Invite Witness"><Users className="w-4 h-4" /></Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent className="rounded-[3rem] p-8">
                   <AlertDialogHeader className="text-center">
@@ -572,7 +572,7 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
           </Button>
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary rounded-full w-9 h-9"><HeartOff className="w-4 h-4" /></Button>
+              <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary rounded-full w-9 h-9" aria-label="Unconnect"><HeartOff className="w-4 h-4" /></Button>
             </AlertDialogTrigger>
             <AlertDialogContent className="rounded-[3rem] p-10 border-none shadow-2xl">
               <AlertDialogHeader><AlertDialogTitle className="text-3xl font-black">End this Journey?</AlertDialogTitle></AlertDialogHeader>
@@ -588,7 +588,7 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
       </header>
 
       {!hasAcceptedPolicy && (
-        <div className="bg-amber-100 border-b border-amber-200 px-4 py-2 flex items-center justify-between animate-in slide-in-from-top-2 shrink-0">
+        <div className="bg-amber-100 border-b border-amber-200 px-4 py-2 flex items-center justify-between animate-in slide-in-from-top-2 shrink-0" role="alert">
            <div className="flex items-center gap-2 text-amber-800">
               <ShieldAlert className="w-4 h-4" />
               <p className="text-[10px] font-bold uppercase tracking-tight">View Only Mode Active</p>
@@ -611,9 +611,9 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
         </div>
       )}
 
-      <main ref={scrollRef} className="flex-grow overflow-y-auto p-6 space-y-6 relative no-scrollbar">
+      <main ref={scrollRef} className="flex-grow overflow-y-auto p-6 space-y-6 relative no-scrollbar" role="log" aria-label="Chat messages">
         {messagesLoading ? (
-          <div className="flex justify-center py-20"><Loader2 className="w-10 h-10 animate-spin text-primary opacity-20" /></div>
+          <div className="flex justify-center py-20"><Loader2 className="w-10 h-10 animate-spin text-primary opacity-20" aria-label="Loading messages" /></div>
         ) : (
           messages?.map((msg: any, i) => {
             const isMe = msg.senderId === user?.uid;
@@ -629,7 +629,7 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
                    <div className={cn("px-5 py-4 rounded-[2.2rem] text-sm leading-relaxed shadow-sm transition-all relative", isMe ? 'bg-primary text-white rounded-tr-none' : 'bg-white text-foreground rounded-tl-none border')}>
                     {msg.imageUrl ? (
                        <div className="relative w-60 h-72 overflow-hidden rounded-[1.8rem] bg-muted shadow-inner">
-                          <Image src={msg.imageUrl} alt="Moment" fill className="object-cover" />
+                          <Image src={msg.imageUrl} alt="Shared moment" fill className="object-cover" />
                         </div>
                     ) : msg.videoUrl ? (
                       <div className="relative w-60 aspect-video rounded-2xl overflow-hidden bg-black">
@@ -650,10 +650,10 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
                         <div className="flex items-center gap-3 mt-1 opacity-40 justify-end">
                            <div className="flex items-center gap-2">
                               {!isMe && !translation && textToShow !== "..." && (
-                                <button onClick={() => handleTranslate(msg.id, textToShow)} className="flex items-center gap-1 hover:text-primary"><Languages className="w-2.5 h-2.5" /><span className="text-[8px] font-black uppercase">Translate</span></button>
+                                <button onClick={() => handleTranslate(msg.id, textToShow)} className="flex items-center gap-1 hover:text-primary" aria-label="Translate message"><Languages className="w-2.5 h-2.5" /><span className="text-[8px] font-black uppercase">Translate</span></button>
                               )}
                               {actualText && actualText !== "..." && (
-                                 <button onClick={() => handleSpeak(msg.id, actualText)} className="flex items-center gap-1 hover:text-primary"><Volume2 className="w-2.5 h-2.5" /><span className="text-[8px] font-black uppercase">Listen</span></button>
+                                 <button onClick={() => handleSpeak(msg.id, actualText)} className="flex items-center gap-1 hover:text-primary" aria-label="Listen to message"><Volume2 className="w-2.5 h-2.5" /><span className="text-[8px] font-black uppercase">Listen</span></button>
                               )}
                            </div>
                            <Lock className="w-2.5 h-2.5" />
@@ -671,7 +671,7 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
                     )}
                   </div>
                   {isMe && (
-                    <button onClick={() => handleDeleteMessage(msg.id)} className="text-[8px] font-black uppercase text-muted-foreground/40 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 mr-4">
+                    <button onClick={() => handleDeleteMessage(msg.id)} className="text-[8px] font-black uppercase text-muted-foreground/40 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 mr-4" aria-label="Delete message">
                        {isDeleting === msg.id ? <Loader2 className="w-2 h-2 animate-spin" /> : <Trash2 className="w-2 h-2" />}
                        Retract
                     </button>
@@ -685,7 +685,7 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
 
       <footer className="p-4 border-t pb-8 bg-white/80 backdrop-blur-xl z-20 shrink-0 space-y-3">
         {isStorageUploading && (
-          <div className="px-4 animate-in fade-in slide-in-from-bottom-2">
+          <div className="px-4 animate-in fade-in slide-in-from-bottom-2" role="status" aria-label={`Securing media: ${Math.round(uploadProgress)}%`}>
             <div className="flex justify-between text-[8px] font-black uppercase mb-1">
               <span className="text-primary">Securing Media...</span>
               <span className="text-primary">{Math.round(uploadProgress)}%</span>
@@ -694,7 +694,7 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
           </div>
         )}
 
-        <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1 mb-1">
+        <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1 mb-1" role="group" aria-label="Quick actions">
            {CHAT_SHORTCUTS.map((shortcut) => (
              <Button key={shortcut.id} variant="outline" size="sm" onClick={() => setIsCameraOpen(true)} className="rounded-full shrink-0 h-9 gap-2 border-primary/10 text-primary hover:bg-primary/5 font-black text-[9px] uppercase tracking-widest px-4" disabled={!hasAcceptedPolicy}>
                <shortcut.icon className="w-3.5 h-3.5" /> {shortcut.label}
@@ -716,7 +716,7 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
           
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="ghost" size="icon" className="rounded-xl shrink-0 bg-muted/40 h-12 w-12 text-muted-foreground" disabled={isSending || isStorageUploading || !hasAcceptedPolicy}>
+              <Button variant="ghost" size="icon" className="rounded-xl shrink-0 bg-muted/40 h-12 w-12 text-muted-foreground" disabled={isSending || isStorageUploading || !hasAcceptedPolicy} aria-label="Attach media">
                 {isStorageUploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Camera className="w-6 h-6" />}
               </Button>
             </PopoverTrigger>
@@ -746,8 +746,9 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
               placeholder={hasAcceptedPolicy ? "Respectful message..." : "Agree to policy"} 
               className="rounded-2xl bg-muted/40 border-none h-12 px-6 font-bold" 
               disabled={isSending || !hasAcceptedPolicy} 
+              aria-label="Message input"
             />
-            <Button type="submit" size="icon" className="rounded-xl h-12 w-12 gradient-bg shrink-0 shadow-lg" disabled={!newMessage.trim() || isSending || !hasAcceptedPolicy}>
+            <Button type="submit" size="icon" className="rounded-xl h-12 w-12 gradient-bg shrink-0 shadow-lg" disabled={!newMessage.trim() || isSending || !hasAcceptedPolicy} aria-label="Send message">
               {isSending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
             </Button>
           </form>

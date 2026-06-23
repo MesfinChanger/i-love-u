@@ -1,7 +1,7 @@
 'use server';
 /**
  * @fileOverview A Genkit flow to translate messages.
- * Hardened with the Credential Shield Protocol.
+ * Hardened with the AI Credential Shield Protocol.
  */
 
 import {ai, isKeyValid} from '@/ai/genkit';
