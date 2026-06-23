@@ -219,8 +219,12 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
               }));
             });
             toast({ title: "File Shared", description: `${file.name} sent.` });
-          } catch (error) {
-            toast({ variant: "destructive", title: "Paste Failed", description: "Could not share pasted file." });
+          } catch (error: any) {
+            if (error.message === "Storage not initialized.") {
+              toast({ variant: "destructive", title: "Bridge Offline", description: "Project credentials required. ❤️" });
+            } else {
+              toast({ variant: "destructive", title: "Paste Failed", description: "Could not share pasted file." });
+            }
           }
         }
       }
@@ -345,8 +349,12 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
         });
       }
       toast({ title: "Moment Shared", description: "Your live capture is live! ❤️" });
-    } catch (e) {
-      toast({ variant: "destructive", title: "Error", description: "Could not share live moment." });
+    } catch (e: any) {
+      if (e.message === "Storage not initialized.") {
+        toast({ variant: "destructive", title: "Bridge Offline", description: "The platform is still securing project credentials. ✨" });
+      } else {
+        toast({ variant: "destructive", title: "Error", description: "Could not share live moment." });
+      }
     }
   };
 
@@ -411,8 +419,12 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
         }));
       });
       toast({ title: "File Shared", description: `${file.name} sent.` });
-    } catch (error) {
-      toast({ variant: "destructive", title: "Upload Failed", description: "Could not share file." });
+    } catch (error: any) {
+      if (error.message === "Storage not initialized.") {
+        toast({ variant: "destructive", title: "Bridge Offline", description: "Please set up Firebase Storage credentials. ❤️" });
+      } else {
+        toast({ variant: "destructive", title: "Upload Failed", description: "Could not share file." });
+      }
     }
   };
 

@@ -29,7 +29,7 @@ export function initializeFirebase(): {
                      !apiKey.includes("YOUR_"));
 
   if (!isKeyValid) {
-    console.warn("I Love U: Regional Bridge is still securing your project credentials.");
+    console.warn("I Love U: Regional Bridge is waiting for a valid NEXT_PUBLIC_FIREBASE_API_KEY to reach the cloud.");
     return { app: null, db: null, auth: null, storage: null };
   }
 

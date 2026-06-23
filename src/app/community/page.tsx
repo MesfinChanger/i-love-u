@@ -280,6 +280,8 @@ export default function CommunityPage() {
         toast({ variant: "destructive", title: "Respect Rule Violation", description: error.message.split(": ")[1] || "Disrespectful words are forbidden." });
       } else if (error.message === "IMAGE_SENSITIVE") {
         toast({ variant: "destructive", title: "Safe Space Protocol", description: "Image contains sensitive content and was blocked by AI. ✨" });
+      } else if (error.message === "Storage not initialized.") {
+        toast({ variant: "destructive", title: "Bridge Offline", description: "Mission Control is waiting for project credentials. ❤️" });
       } else {
         toast({ variant: "destructive", title: "Sharing Ripple", description: "Could not secure your post right now." });
       }
