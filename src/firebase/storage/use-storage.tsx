@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -50,6 +49,7 @@ export function useFirebaseStorage() {
           setError(err);
           setIsUploading(false);
           
+          // Enhanced Diagnostic Protocol
           if (err.code === 'storage/unknown' || err.message?.includes('storage')) {
             toast({
               variant: "destructive",

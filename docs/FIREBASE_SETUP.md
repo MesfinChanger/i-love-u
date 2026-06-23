@@ -1,4 +1,3 @@
-
 # Firebase Mission Control Setup
 
 To resolve the "Storage Configuration Ripple" and "Ads List Denial," follow these mandatory steps in your Firebase Console.
