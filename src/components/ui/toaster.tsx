@@ -41,7 +41,7 @@ export function Toaster() {
             </div>
             
             <div className="flex flex-col gap-2 shrink-0">
-              {/* Optional Custom Action (e.g., Open Console) */}
+              {/* Optional Custom Action */}
               {action}
               
               {/* Mandatory "Oky" Protocol for Errors */}
