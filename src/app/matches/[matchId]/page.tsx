@@ -39,7 +39,7 @@ import {
 import { useUser, useFirestore, useCollection, useDoc, useFirebaseStorage } from '@/firebase';
 import { collection, addDoc, query, orderBy, serverTimestamp, doc, updateDoc, writeBatch, deleteDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/avatar';
 import { generateIcebreaker } from '@/ai/flows/generate-icebreaker-flow';
 import { moderateImage } from '@/ai/flows/moderate-image-flow';
 import { moderateText } from '@/ai/flows/moderate-text-flow';
@@ -223,7 +223,7 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
             if (error.message === "Storage not initialized.") {
               toast({ variant: "destructive", title: "Bridge Offline", description: "Project credentials required. ❤️" });
             } else {
-              toast({ variant: "destructive", title: "Paste Failed", description: "Could not share pasted file." });
+              toast({ variant: "destructive", title: "Paste Failed", description: error.message || "Could not share pasted file." });
             }
           }
         }
@@ -292,8 +292,8 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
         });
 
       setNewMessage('');
-    } catch (error) {
-      toast({ variant: "destructive", title: "Error", description: "Could not send message." });
+    } catch (error: any) {
+      toast({ variant: "destructive", title: "Sharing Ripple", description: error.message || "Could not secure your message right now." });
     } finally {
       setIsSending(false);
     }
@@ -353,7 +353,7 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
       if (e.message === "Storage not initialized.") {
         toast({ variant: "destructive", title: "Bridge Offline", description: "The platform is still securing project credentials. ✨" });
       } else {
-        toast({ variant: "destructive", title: "Error", description: "Could not share live moment." });
+        toast({ variant: "destructive", title: "Sharing Ripple", description: e.message || "Could not secure live capture." });
       }
     }
   };
@@ -423,7 +423,7 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
       if (error.message === "Storage not initialized.") {
         toast({ variant: "destructive", title: "Bridge Offline", description: "Please set up Firebase Storage credentials. ❤️" });
       } else {
-        toast({ variant: "destructive", title: "Upload Failed", description: "Could not share file." });
+        toast({ variant: "destructive", title: "Sharing Ripple", description: error.message || "Could not share file." });
       }
     }
   };

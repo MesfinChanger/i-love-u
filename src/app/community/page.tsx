@@ -276,6 +276,7 @@ export default function CommunityPage() {
       setSelectedFile(null);
       toast({ title: "Moment Shared!", description: "Your contribution is live on the wall. ❤️" });
     } catch (error: any) {
+      // Descriptive Protocol: Identify the ripple source
       if (error.message.startsWith("TEXT_FLAGGED")) {
         toast({ variant: "destructive", title: "Respect Rule Violation", description: error.message.split(": ")[1] || "Disrespectful words are forbidden." });
       } else if (error.message === "IMAGE_SENSITIVE") {
@@ -283,7 +284,7 @@ export default function CommunityPage() {
       } else if (error.message === "Storage not initialized.") {
         toast({ variant: "destructive", title: "Bridge Offline", description: "Mission Control is waiting for project credentials. ❤️" });
       } else {
-        toast({ variant: "destructive", title: "Sharing Ripple", description: "Could not secure your post right now." });
+        toast({ variant: "destructive", title: "Sharing Ripple", description: error.message || "Could not secure your post right now." });
       }
     } finally {
       setIsSending(false);

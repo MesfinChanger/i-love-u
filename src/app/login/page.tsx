@@ -167,6 +167,7 @@ function LoginContent() {
         }
       }
     } catch (error: any) {
+      // Support Protocol: Replace console.error with user-friendly feedback
       let message = "Check your credentials and try again. ❤️";
       let title = "Access Ripple";
       

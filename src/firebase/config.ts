@@ -26,9 +26,9 @@ const sanitizeEnv = (val: string | undefined, keyName: string): string => {
 
 export const firebaseConfig = {
   apiKey: sanitizeEnv(process.env.NEXT_PUBLIC_FIREBASE_API_KEY, "NEXT_PUBLIC_FIREBASE_API_KEY"),
-  authDomain: sanitizeEnv(process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN, "NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN") || "studio-9260674464-8df20.firebaseapp.com",
-  projectId: sanitizeEnv(process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID, "NEXT_PUBLIC_FIREBASE_PROJECT_ID") || "studio-9260674464-8df20",
-  storageBucket: sanitizeEnv(process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET, "NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET") || "studio-9260674464-8df20.firebasestorage.app",
+  authDomain: "studio-9260674464-8df20.firebaseapp.com",
+  projectId: "studio-9260674464-8df20",
+  storageBucket: "studio-9260674464-8df20.firebasestorage.app",
   messagingSenderId: sanitizeEnv(process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID, "NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID"),
-  appId: sanitizeEnv(process.env.NEXT_PUBLIC_FIREBASE_APP_ID, "NEXT_PUBLIC_FIREBASE_APP_ID") || "1:543611851947:web:32d955d7f3a11135f093ee"
+  appId: "1:543611851947:web:32d955d7f3a11135f093ee"
 };
