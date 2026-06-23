@@ -220,9 +220,7 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
             });
             toast({ title: "File Shared", description: `${file.name} sent.` });
           } catch (error: any) {
-            if (error.message === "Storage not initialized.") {
-              toast({ variant: "destructive", title: "Bridge Offline", description: "Project credentials required. ❤️" });
-            } else if (error.code === 'storage/unknown') {
+             if (error.code === 'storage/unknown') {
               toast({ 
                 variant: "destructive", 
                 title: "Storage Configuration Ripple", 
@@ -357,9 +355,7 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
       }
       toast({ title: "Moment Shared", description: "Your live capture is live! ❤️" });
     } catch (e: any) {
-      if (e.message === "Storage not initialized.") {
-        toast({ variant: "destructive", title: "Bridge Offline", description: "The platform is still securing project credentials. ✨" });
-      } else if (e.code === 'storage/unknown') {
+      if (e.code === 'storage/unknown') {
         toast({ 
           variant: "destructive", 
           title: "Storage Configuration Ripple", 
@@ -434,9 +430,7 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
       });
       toast({ title: "File Shared", description: `${file.name} sent.` });
     } catch (error: any) {
-      if (error.message === "Storage not initialized.") {
-        toast({ variant: "destructive", title: "Bridge Offline", description: "Please set up Firebase Storage credentials. ❤️" });
-      } else if (error.code === 'storage/unknown') {
+      if (error.code === 'storage/unknown') {
         toast({ 
           variant: "destructive", 
           title: "Storage Configuration Ripple", 

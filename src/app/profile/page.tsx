@@ -227,9 +227,9 @@ function ProfileContent() {
       if (e.code === 'storage/unknown') {
         toast({ 
           variant: "destructive", 
-          title: "Storage Ripple", 
-          description: "Firebase Storage needs setup in Console. 🛠️",
-          action: <Button variant="outline" size="sm" className="h-8 text-[10px]" onClick={() => window.open('https://console.firebase.google.com/')}>Console</Button>
+          title: "Storage Configuration Ripple", 
+          description: "Firebase Storage needs setup. Check Rules & CORS in console. 🛠️",
+          action: <Button variant="outline" size="sm" className="h-8 text-[10px]" onClick={() => window.open('https://console.firebase.google.com/')}>Open Console</Button>
         });
       } else {
         toast({ variant: "destructive", title: "Upload Ripple", description: "Could not secure live capture. ❤️" });
@@ -269,8 +269,8 @@ function ProfileContent() {
       if (error.code === 'storage/unknown') {
         toast({ 
           variant: "destructive", 
-          title: "Storage Configuration", 
-          description: "Mission Control needs manual Storage setup in Firebase Console.",
+          title: "Storage Configuration Ripple", 
+          description: "Firebase Storage needs setup. Check Rules & CORS in console. 🛠️",
           action: <Button variant="outline" size="sm" className="h-8 text-[10px]" onClick={() => window.open('https://console.firebase.google.com/')}>Open Console</Button>
         });
       } else {
