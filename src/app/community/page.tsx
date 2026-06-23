@@ -277,7 +277,6 @@ export default function CommunityPage() {
       setSelectedFile(null);
       toast({ title: "Moment Shared!", description: "Your contribution is live on the wall. ❤️" });
     } catch (error: any) {
-      // Diagnostic Protocol: Identifying specific bridge ripples
       if (error.message.startsWith("TEXT_FLAGGED")) {
         toast({ variant: "destructive", title: "Respect Rule Violation", description: error.message.split(": ")[1] || "Disrespectful words are forbidden." });
       } else if (error.message === "IMAGE_SENSITIVE") {
