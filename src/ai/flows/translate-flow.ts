@@ -1,10 +1,10 @@
-
 'use server';
 /**
- * @fileOverview A Genkit flow to translate messages between community members.
+ * @fileOverview A Genkit flow to translate messages.
+ * Hardened with the Credential Shield Protocol.
  */
 
-import {ai} from '@/ai/genkit';
+import {ai, isKeyValid} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const TranslateInputSchema = z.object({
@@ -15,10 +15,14 @@ export type TranslateInput = z.infer<typeof TranslateInputSchema>;
 
 const TranslateOutputSchema = z.object({
   translatedText: z.string().describe('The resulting translated text.'),
+  error: z.string().optional(),
 });
 export type TranslateOutput = z.infer<typeof TranslateOutputSchema>;
 
 export async function translateMessage(input: TranslateInput): Promise<TranslateOutput> {
+  if (!isKeyValid) {
+    return { translatedText: input.text, error: 'AI_BRIDGE_OFFLINE' };
+  }
   return translateFlow(input);
 }
 
@@ -26,13 +30,12 @@ const prompt = ai.definePrompt({
   name: 'translatePrompt',
   input: {schema: TranslateInputSchema},
   output: {schema: TranslateOutputSchema},
-  prompt: `You are a professional translator for the "I Love U" Prosperity Revolution.
-Your goal is to translate the following message while maintaining its respectful and loving tone.
+  prompt: `Translate the following message into {{{targetLanguage}}}.
+Maintain a respectful and warm tone. 
 
-Target Language: {{{targetLanguage}}}
 Original Message: "{{{text}}}"
 
-Translate the message accurately and warmly. Only return the translation.`,
+Only return the translated text.`,
 });
 
 const translateFlow = ai.defineFlow(
@@ -42,7 +45,11 @@ const translateFlow = ai.defineFlow(
     outputSchema: TranslateOutputSchema,
   },
   async (input) => {
-    const {output} = await prompt(input);
-    return output!;
+    try {
+      const {output} = await prompt(input);
+      return output!;
+    } catch (e) {
+      return { translatedText: input.text, error: 'TRANSLATION_FAILED' };
+    }
   }
 );

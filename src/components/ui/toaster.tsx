@@ -13,8 +13,8 @@ import {
 
 /**
  * @fileOverview Universal Toast Dispatcher for the Prosperity Revolution.
- * Automatically injects an "Oky" action button for error (destructive) popups.
- * accessibility: Ensures all status updates are screen-reader compatible.
+ * Automatically injects a mandatory "Oky" action button for error (destructive) popups.
+ * accessibility: Ensures all status updates are screen-reader compatible via ARIA live regions.
  */
 export function Toaster() {
   const { toasts, dismiss } = useToast()
@@ -22,13 +22,15 @@ export function Toaster() {
   return (
     <ToastProvider>
       {toasts.map(function ({ id, title, description, action, ...props }) {
+        const isError = props.variant === 'destructive';
+        
         return (
           <Toast 
             key={id} 
             {...props} 
-            className={props.variant === 'destructive' ? "bg-red-600 text-white border-none rounded-[2rem] shadow-2xl p-6" : "rounded-2xl shadow-xl p-6"}
-            role={props.variant === 'destructive' ? "alert" : "status"}
-            aria-live={props.variant === 'destructive' ? "assertive" : "polite"}
+            className={isError ? "bg-red-600 text-white border-none rounded-[2rem] shadow-2xl p-6" : "rounded-2xl shadow-xl p-6"}
+            role={isError ? "alert" : "status"}
+            aria-live={isError ? "assertive" : "polite"}
           >
             <div className="grid gap-1">
               {title && (
@@ -48,7 +50,7 @@ export function Toaster() {
               {action}
               
               {/* Mandatory "Oky" Protocol for Errors */}
-              {props.variant === "destructive" && (
+              {isError && (
                 <ToastAction 
                   altText="Acknowledge and Close" 
                   onClick={() => dismiss(id)} 
@@ -59,7 +61,7 @@ export function Toaster() {
               )}
             </div>
             
-            <ToastClose className={props.variant === 'destructive' ? "text-white/50 hover:text-white" : ""} />
+            <ToastClose className={isError ? "text-white/50 hover:text-white" : ""} />
           </Toast>
         )
       })}

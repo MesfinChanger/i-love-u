@@ -12,7 +12,7 @@ import { googleAI } from '@genkit-ai/google-genai';
 const rawKey = process.env.GOOGLE_GENAI_API_KEY || process.env.GEMINI_API_KEY || '';
 const apiKey = rawKey.trim().replace(/["']/g, '');
 
-// Credential Shield Protocol
+// Credential Shield Protocol: Detects placeholders or empty keys
 export const isKeyValid = !!(
   apiKey && 
   apiKey.length > 10 && 
@@ -23,7 +23,7 @@ export const isKeyValid = !!(
 
 export const ai = genkit({
   plugins: [
-    googleAI({ apiKey: isKeyValid ? apiKey : 'NO_KEY' }),
+    googleAI({ apiKey: isKeyValid ? apiKey : 'AI_BRIDGE_PENDING' }),
   ],
   // Fallback to latest stable model
   model: googleAI.model('gemini-flash-latest'),

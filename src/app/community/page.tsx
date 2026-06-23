@@ -10,33 +10,23 @@ import {
   Send, 
   Loader2, 
   ShieldCheck, 
-  Camera, 
   ImageIcon, 
-  Paperclip, 
-  Zap, 
-  Trash2, 
-  Volume2, 
-  EyeOff, 
-  FileIcon,
   X 
 } from 'lucide-react';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useUser, useFirestore, useCollection, useDoc, useFirebaseStorage } from '@/firebase';
-import { collection, addDoc, query, orderBy, serverTimestamp, limit, doc, deleteDoc } from 'firebase/firestore';
+import { collection, addDoc, query, orderBy, serverTimestamp, limit, doc } from 'firebase/firestore';
 import { moderateText } from '@/ai/flows/moderate-text-flow';
-import { moderateImage } from '@/ai/flows/moderate-image-flow';
-import { textToSpeech } from '@/ai/flows/text-to-speech-flow';
 import { useToast } from '@/hooks/use-toast';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { Progress } from "@/components/ui/progress";
-import { compressImage, fileToDataUri } from '@/lib/image-utils';
+import { compressImage } from '@/lib/image-utils';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
-import Link from 'next/link';
 
 /**
  * @fileOverview Accessible Community Wall.
  * Enforces "Respect is Mandatory" and provides high-impact feedback.
+ * Hardened error handling for Storage and AI ripples.
  */
 export default function CommunityPage() {
   const { user } = useUser();
@@ -93,7 +83,7 @@ export default function CommunityPage() {
       setSelectedImage(null);
       toast({ title: "Shared!", description: "Your post is live on the wall. ❤️" });
     } catch (error: any) {
-      if (error.code === 'storage/unknown') {
+      if (error.code === 'storage/unknown' || error.message?.includes('storage')) {
         toast({ 
           variant: "destructive", 
           title: "Storage Configuration Ripple", 
@@ -101,7 +91,11 @@ export default function CommunityPage() {
           action: <Button variant="outline" size="sm" className="h-8 text-[10px]" onClick={() => window.open('https://console.firebase.google.com/')}>Open Console</Button>
         });
       } else {
-        toast({ variant: "destructive", title: "Sharing Ripple", description: error.message || "Could not secure post." });
+        toast({ 
+          variant: "destructive", 
+          title: "Sharing Ripple", 
+          description: error.message?.includes('API key') ? "AI Bridge Offline: Check your GenAI credentials." : "Could not secure post right now." 
+        });
       }
     } finally {
       setIsSending(false);

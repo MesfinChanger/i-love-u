@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense, useRef, useMemo } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { Header } from '@/components/Header';
 import { BottomNav } from '@/components/BottomNav';
 import { Button } from '@/components/ui/button';
@@ -15,25 +15,14 @@ import {
   SelectValue 
 } from '@/components/ui/select';
 import { 
-  Sparkles, 
   Loader2, 
   Save, 
-  LogOut, 
-  Globe2,
-  User,
+  User, 
   ShieldCheck,
   Camera,
-  MapPin,
-  Lock,
-  Languages,
   Plus,
   Trash2,
-  Video,
-  Image as ImageIcon,
   CheckCircle2,
-  Heart,
-  Zap,
-  X,
   AlertTriangle
 } from 'lucide-react';
 import { 
@@ -47,12 +36,10 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { generateBio } from '@/ai/flows/generate-bio-flow';
-import { moderateImage } from '@/ai/flows/moderate-image-flow';
 import { useToast } from '@/hooks/use-toast';
 import { useUser, useFirestore, useAuth, useDoc, useFirebaseStorage } from '@/firebase';
-import { doc, setDoc, serverTimestamp, deleteDoc } from 'firebase/firestore';
-import { signOut, deleteUser } from 'firebase/auth';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { signOut } from 'firebase/auth';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { useRouter } from 'next/navigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -60,12 +47,10 @@ import { Switch } from '@/components/ui/switch';
 import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
-import { COUNTRIES, WORLD_LOCATIONS } from '@/lib/world-data';
+import { COUNTRIES } from '@/lib/world-data';
 import Image from 'next/image';
-import { useTranslation } from '@/components/providers/LanguageProvider';
 import { LiveCamera } from '@/components/LiveCamera';
 import { Progress } from "@/components/ui/progress";
-import { compressImage, fileToDataUri } from '@/lib/image-utils';
 
 /**
  * @fileOverview Profile Console.
@@ -83,7 +68,6 @@ function ProfileContent() {
   const auth = useAuth();
   const { uploadFile, isUploading: isStorageUploading, progress: uploadProgress } = useFirebaseStorage();
   const { toast } = useToast();
-  const { t } = useTranslation();
   const router = useRouter();
   
   const [mounted, setMounted] = useState(false);
@@ -169,7 +153,16 @@ function ProfileContent() {
       else if (cameraTarget === 'video') setPublicVideoUrl(url);
       toast({ title: "Media Secured", description: "Your identity highlight is live! ✨" });
     } catch (e: any) {
-      toast({ variant: "destructive", title: "Upload Ripple", description: "Mission Control rejected media." });
+      if (e.code === 'storage/unknown' || e.message?.includes('storage')) {
+        toast({ 
+          variant: "destructive", 
+          title: "Storage Configuration Ripple", 
+          description: "Firebase Storage needs setup. Check Rules & CORS in console. 🛠️",
+          action: <Button variant="outline" size="sm" className="h-8 text-[10px]" onClick={() => window.open('https://console.firebase.google.com/')}>Open Console</Button>
+        });
+      } else {
+        toast({ variant: "destructive", title: "Upload Ripple", description: "Mission Control rejected media." });
+      }
     }
   };
 
@@ -235,7 +228,7 @@ function ProfileContent() {
         </div>
 
         {isStorageUploading && (
-          <div className="mb-6 space-y-2 p-6 bg-white rounded-[2rem] shadow-sm animate-in fade-in" role="status" aria-label="Upload in progress">
+          <div className="mb-6 space-y-2 p-6 bg-white rounded-[2rem] shadow-sm animate-in fade-in" role="status" aria-label={`Securing Cloud Bridge: ${Math.round(uploadProgress)}%`}>
              <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-primary">
                 <span>Securing Cloud Bridge...</span>
                 <span>{Math.round(uploadProgress)}%</span>
@@ -334,7 +327,7 @@ function ProfileContent() {
                   { label: "Respect & Love is Mandatory", state: isRespectful, set: setIsRespectful, desc: "Zero tolerance for meanness or toxicity." },
                   { label: "Verified Human Status", state: isHuman, set: setIsHuman, desc: "Accountability for every connection." }
                 ].map((item, i) => (
-                  <div key={i} className="flex items-center gap-4 p-6 bg-muted/20 rounded-[1.5rem] cursor-pointer hover:bg-muted/30 transition-all" onClick={() => item.set(!item.state)} role="checkbox" aria-checked={item.state} tabIndex={0}>
+                  <div key={i} className="flex items-center gap-4 p-6 bg-muted/20 rounded-[1.5rem] cursor-pointer hover:bg-muted/30 transition-all" onClick={() => item.set(!item.state)} role="checkbox" aria-checked={item.state} tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && item.set(!item.state)}>
                     <div className={cn("w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all shrink-0", item.state ? "bg-primary border-primary shadow-lg shadow-primary/20" : "border-slate-300")}>{item.state && <CheckCircle2 className="w-5 h-5 text-white" />}</div>
                     <div className="space-y-0.5">
                        <span className={cn("text-[11px] font-black uppercase tracking-widest", item.state ? "text-primary" : "text-slate-400")}>{item.label}</span>
