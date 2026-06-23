@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
@@ -45,7 +46,7 @@ import { useRouter } from 'next/navigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Card } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { COUNTRIES } from '@/lib/world-data';
 import Image from 'next/image';
@@ -158,7 +159,7 @@ function ProfileContent() {
           variant: "destructive", 
           title: "Storage Configuration Ripple", 
           description: "Firebase Storage needs setup. Check Rules & CORS in console. 🛠️",
-          action: <Button variant="outline" size="sm" className="h-8 text-[10px]" onClick={() => window.open('https://console.firebase.google.com/')}>Open Console</Button>
+          action: <Button variant="outline" size="sm" className="h-8 text-[10px] font-black uppercase" onClick={() => window.open('https://console.firebase.google.com/')}>Open Console</Button>
         });
       } else {
         toast({ variant: "destructive", title: "Upload Ripple", description: "Mission Control rejected media." });

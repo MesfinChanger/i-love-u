@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
@@ -88,13 +89,19 @@ export default function CommunityPage() {
           variant: "destructive", 
           title: "Storage Configuration Ripple", 
           description: "Firebase Storage needs setup. Check Rules & CORS in console. 🛠️",
-          action: <Button variant="outline" size="sm" className="h-8 text-[10px]" onClick={() => window.open('https://console.firebase.google.com/')}>Open Console</Button>
+          action: <Button variant="outline" size="sm" className="h-8 text-[10px] font-black uppercase" onClick={() => window.open('https://console.firebase.google.com/')}>Open Console</Button>
+        });
+      } else if (error.message?.includes('API key') || error.message?.includes('400')) {
+        toast({ 
+          variant: "destructive", 
+          title: "AI Bridge Offline", 
+          description: "Mission Control is waiting for your GenAI credentials. ❤️" 
         });
       } else {
         toast({ 
           variant: "destructive", 
           title: "Sharing Ripple", 
-          description: error.message?.includes('API key') ? "AI Bridge Offline: Check your GenAI credentials." : "Could not secure post right now." 
+          description: error.message || "Could not secure post right now." 
         });
       }
     } finally {
