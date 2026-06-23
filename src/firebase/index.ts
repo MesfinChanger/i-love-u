@@ -1,38 +1,18 @@
 'use client';
 
 /**
- * @fileOverview Stable Firebase Barrel File.
- * Re-exports components explicitly to prevent ChunkLoadErrors and circular dependencies.
+ * @fileOverview Flattened Firebase Barrel File.
+ * Re-exports components explicitly to prevent circular dependencies and ChunkLoadErrors.
  */
 
-import { initializeFirebase } from './init';
-import { 
-  FirebaseProvider, 
-  useFirebase, 
-  useFirebaseApp, 
-  useFirestore, 
-  useAuth, 
-  useStorage 
-} from './provider';
-import { FirebaseClientProvider } from './client-provider';
-import { useUser } from './auth/use-user';
-import { useCollection } from './firestore/use-collection';
-import { useDoc } from './firestore/use-doc';
-import { useFirebaseStorage } from './storage/use-storage';
-import { useMemoFirebase } from './use-memo-firebase';
+export * from './provider';
+export * from './client-provider';
+export * from './auth/use-user';
+export * from './firestore/use-collection';
+export * from './firestore/use-doc';
+export * from './storage/use-storage';
+export * from './use-memo-firebase';
 
-export {
-  FirebaseProvider,
-  FirebaseClientProvider,
-  useFirebase,
-  useFirebaseApp,
-  useFirestore,
-  useAuth,
-  useStorage,
-  useUser,
-  useCollection,
-  useDoc,
-  useFirebaseStorage,
-  initializeFirebase,
-  useMemoFirebase,
-};
+// Helper for direct initialization access
+import { initializeFirebase } from './init';
+export { initializeFirebase };

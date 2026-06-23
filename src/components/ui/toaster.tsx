@@ -14,6 +14,7 @@ import {
 /**
  * @fileOverview Universal Toast Dispatcher for the Prosperity Revolution.
  * Automatically injects an "Oky" action button for error (destructive) popups.
+ * accessibility: Ensures all status updates are screen-reader compatible.
  */
 export function Toaster() {
   const { toasts, dismiss } = useToast()
@@ -26,6 +27,8 @@ export function Toaster() {
             key={id} 
             {...props} 
             className={props.variant === 'destructive' ? "bg-red-600 text-white border-none rounded-[2rem] shadow-2xl p-6" : "rounded-2xl shadow-xl p-6"}
+            role={props.variant === 'destructive' ? "alert" : "status"}
+            aria-live={props.variant === 'destructive' ? "assertive" : "polite"}
           >
             <div className="grid gap-1">
               {title && (
@@ -47,7 +50,7 @@ export function Toaster() {
               {/* Mandatory "Oky" Protocol for Errors */}
               {props.variant === "destructive" && (
                 <ToastAction 
-                  altText="Oky" 
+                  altText="Acknowledge and Close" 
                   onClick={() => dismiss(id)} 
                   className="bg-white/20 hover:bg-white/30 text-white border-none font-black uppercase text-[10px] tracking-[0.2em] h-10 px-5 rounded-xl transition-all active:scale-95 shadow-sm"
                 >

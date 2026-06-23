@@ -24,6 +24,10 @@ import {
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 
+/**
+ * @fileOverview Accessible Live Media Capture Component.
+ * Optimized for screen readers and high-fidelity feedback.
+ */
 interface LiveCameraProps {
   isOpen: boolean;
   onClose: () => void;
@@ -95,7 +99,6 @@ export function LiveCamera({ isOpen, onClose, onCapture }: LiveCameraProps) {
       ctx.drawImage(videoRef.current, 0, 0);
       const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
       
-      // Convert to File
       const byteString = atob(dataUrl.split(',')[1]);
       const ab = new ArrayBuffer(byteString.length);
       const ia = new Uint8Array(ab);
@@ -107,6 +110,7 @@ export function LiveCamera({ isOpen, onClose, onCapture }: LiveCameraProps) {
       
       setCapturedMedia({ url: dataUrl, file, type: 'image' });
       stopStream();
+      toast({ title: "Photo Captured", description: "Review your moment before sharing. ✨" });
     }
   };
 
@@ -131,6 +135,7 @@ export function LiveCamera({ isOpen, onClose, onCapture }: LiveCameraProps) {
       const file = new File([blob], `live-video-${Date.now()}.${extension}`, { type: mediaRecorder.mimeType });
       
       setCapturedMedia({ url, file, type: 'video' });
+      toast({ title: "Video Captured", description: "Review your video before sharing. ✨" });
     };
 
     mediaRecorderRef.current = mediaRecorder;
@@ -158,6 +163,7 @@ export function LiveCamera({ isOpen, onClose, onCapture }: LiveCameraProps) {
     setCapturedMedia(null);
     setRecordedChunks([]);
     setIsRecording(false);
+    startStream();
   };
 
   return (
@@ -176,7 +182,7 @@ export function LiveCamera({ isOpen, onClose, onCapture }: LiveCameraProps) {
              </div>
           </div>
           <DialogClose asChild>
-            <Button variant="ghost" size="icon" className="text-white hover:bg-white/10 rounded-full" onClick={onClose}>
+            <Button variant="ghost" size="icon" className="text-white hover:bg-white/10 rounded-full" onClick={onClose} aria-label="Close Camera">
               <X className="w-5 h-5" />
             </Button>
           </DialogClose>
@@ -184,7 +190,7 @@ export function LiveCamera({ isOpen, onClose, onCapture }: LiveCameraProps) {
 
         <div className="relative aspect-[3/4] bg-slate-900 flex items-center justify-center overflow-hidden">
           {isLoading && (
-            <div className="flex flex-col items-center gap-4 text-white/40">
+            <div className="flex flex-col items-center gap-4 text-white/40" role="status" aria-label="Opening camera bridge">
               <Loader2 className="w-10 h-10 animate-spin" />
               <p className="text-[10px] font-black uppercase tracking-widest">Opening Bridge...</p>
             </div>
@@ -197,19 +203,20 @@ export function LiveCamera({ isOpen, onClose, onCapture }: LiveCameraProps) {
               playsInline 
               muted 
               className={cn("w-full h-full object-cover", facingMode === 'user' && "scale-x-[-1]")}
+              aria-label="Live camera preview"
             />
           ) : (
-            <div className="w-full h-full">
+            <div className="w-full h-full" role="region" aria-label="Media preview">
               {capturedMedia.type === 'image' ? (
-                <img src={capturedMedia.url} className="w-full h-full object-cover" alt="Captured" />
+                <img src={capturedMedia.url} className="w-full h-full object-cover" alt="Captured moment" />
               ) : (
-                <video src={capturedMedia.url} controls className="w-full h-full object-cover" autoPlay loop />
+                <video src={capturedMedia.url} controls className="w-full h-full object-cover" autoPlay loop aria-label="Captured video" />
               )}
             </div>
           )}
 
           {isRecording && (
-            <div className="absolute top-24 left-6 flex items-center gap-2 bg-red-500 px-3 py-1.5 rounded-full animate-pulse z-20">
+            <div className="absolute top-24 left-6 flex items-center gap-2 bg-red-500 px-3 py-1.5 rounded-full animate-pulse z-20" role="status" aria-label="Recording in progress">
                <div className="w-2 h-2 bg-white rounded-full" />
                <span className="text-[10px] text-white font-black uppercase tracking-widest">Recording</span>
             </div>
@@ -224,6 +231,7 @@ export function LiveCamera({ isOpen, onClose, onCapture }: LiveCameraProps) {
                 size="icon" 
                 onClick={toggleCamera} 
                 className="w-14 h-14 rounded-full bg-white/5 text-white hover:bg-white/10"
+                aria-label="Switch Camera"
               >
                 <RefreshCw className="w-6 h-6" />
               </Button>
@@ -233,6 +241,7 @@ export function LiveCamera({ isOpen, onClose, onCapture }: LiveCameraProps) {
                   onClick={takePhoto} 
                   disabled={isLoading || isRecording}
                   className="w-20 h-20 rounded-full bg-white border-[6px] border-white/30 p-0 active:scale-90 transition-transform group"
+                  aria-label="Take Photo"
                  >
                     <div className="w-full h-full bg-white rounded-full flex items-center justify-center text-slate-900 group-hover:scale-95 transition-transform">
                        <Camera className="w-8 h-8" />
@@ -246,6 +255,7 @@ export function LiveCamera({ isOpen, onClose, onCapture }: LiveCameraProps) {
                     "w-20 h-20 rounded-full p-0 active:scale-90 transition-all border-[6px]",
                     isRecording ? "bg-red-500 border-red-500/30" : "bg-primary border-primary/30"
                   )}
+                  aria-label={isRecording ? "Stop Recording" : "Start Video Recording"}
                  >
                     <div className={cn(
                       "w-full h-full rounded-full flex items-center justify-center text-white",
@@ -256,7 +266,7 @@ export function LiveCamera({ isOpen, onClose, onCapture }: LiveCameraProps) {
                  </Button>
               </div>
 
-              <div className="w-14 h-14" /> {/* Spacer */}
+              <div className="w-14 h-14" />
             </div>
           ) : (
             <div className="flex gap-4">
@@ -264,12 +274,14 @@ export function LiveCamera({ isOpen, onClose, onCapture }: LiveCameraProps) {
                 variant="outline" 
                 onClick={resetCamera} 
                 className="flex-1 h-16 rounded-2xl border-white/10 bg-white/5 text-white font-black uppercase text-[10px] tracking-widest hover:bg-white/10"
+                aria-label="Retake moment"
               >
                 <X className="w-4 h-4 mr-2" /> Retake
               </Button>
               <Button 
                 onClick={handleSend} 
                 className="flex-1 h-16 rounded-2xl gradient-bg font-black uppercase text-[10px] tracking-widest shadow-xl shadow-primary/20"
+                aria-label="Share this moment"
               >
                 <Check className="w-4 h-4 mr-2" /> Share Moment
               </Button>
