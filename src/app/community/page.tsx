@@ -25,7 +25,8 @@ import {
   ShieldAlert,
   Zap,
   X,
-  Trash2
+  Trash2,
+  Settings
 } from 'lucide-react';
 import { 
   Popover, 
@@ -220,7 +221,7 @@ export default function CommunityPage() {
       }
 
       if (selectedImage) {
-        const compressed = await compressImage(selectedImage.file, 0.75);
+        const compressed = await compressImage(selectedImage.file, 0.65);
         const photoDataUri = await fileToDataUri(compressed);
         promises.push(moderateImage({ photoDataUri }).then(async res => {
           if (res.isSensitive) throw new Error("IMAGE_SENSITIVE");
@@ -276,13 +277,20 @@ export default function CommunityPage() {
       setSelectedFile(null);
       toast({ title: "Moment Shared!", description: "Your contribution is live on the wall. ❤️" });
     } catch (error: any) {
-      // Descriptive Protocol: Identify the ripple source
+      // Diagnostic Protocol: Identifying specific bridge ripples
       if (error.message.startsWith("TEXT_FLAGGED")) {
         toast({ variant: "destructive", title: "Respect Rule Violation", description: error.message.split(": ")[1] || "Disrespectful words are forbidden." });
       } else if (error.message === "IMAGE_SENSITIVE") {
         toast({ variant: "destructive", title: "Safe Space Protocol", description: "Image contains sensitive content and was blocked by AI. ✨" });
       } else if (error.message === "Storage not initialized.") {
         toast({ variant: "destructive", title: "Bridge Offline", description: "Mission Control is waiting for project credentials. ❤️" });
+      } else if (error.code === 'storage/unknown') {
+        toast({ 
+          variant: "destructive", 
+          title: "Storage Configuration Ripple", 
+          description: "Firebase Storage needs setup. Check Rules & CORS in console. 🛠️",
+          action: <Button variant="outline" size="sm" className="h-8 text-[10px]" onClick={() => window.open('https://console.firebase.google.com/')}>Open Console</Button>
+        });
       } else {
         toast({ variant: "destructive", title: "Sharing Ripple", description: error.message || "Could not secure your post right now." });
       }

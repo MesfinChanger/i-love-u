@@ -39,7 +39,7 @@ import {
 import { useUser, useFirestore, useCollection, useDoc, useFirebaseStorage } from '@/firebase';
 import { collection, addDoc, query, orderBy, serverTimestamp, doc, updateDoc, writeBatch, deleteDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
-import { Avatar, AvatarFallback, AvatarImage } from '@/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { generateIcebreaker } from '@/ai/flows/generate-icebreaker-flow';
 import { moderateImage } from '@/ai/flows/moderate-image-flow';
 import { moderateText } from '@/ai/flows/moderate-text-flow';
@@ -193,7 +193,7 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
         toast({ title: "Sharing Content...", description: "Securing to E2EE Room. ✨" });
         
         if (item.type.startsWith('image/')) {
-          const compressed = await compressImage(file, 0.75);
+          const compressed = await compressImage(file, 0.65);
           const dataUri = await fileToDataUri(compressed);
           await handleLiveCapture({ url: dataUri, file: compressed, type: 'image' });
         } else if (item.type.startsWith('video/')) {
@@ -222,6 +222,13 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
           } catch (error: any) {
             if (error.message === "Storage not initialized.") {
               toast({ variant: "destructive", title: "Bridge Offline", description: "Project credentials required. ❤️" });
+            } else if (error.code === 'storage/unknown') {
+              toast({ 
+                variant: "destructive", 
+                title: "Storage Configuration Ripple", 
+                description: "Firebase Storage needs setup. Check Rules & CORS in console. 🛠️",
+                action: <Button variant="outline" size="sm" className="h-8 text-[10px]" onClick={() => window.open('https://console.firebase.google.com/')}>Open Console</Button>
+              });
             } else {
               toast({ variant: "destructive", title: "Paste Failed", description: error.message || "Could not share pasted file." });
             }
@@ -306,7 +313,7 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
       const messagesColl = collection(db, 'matches', matchId, 'messages');
       
       if (data.type === 'image') {
-        const compressed = await compressImage(data.file, 0.75);
+        const compressed = await compressImage(data.file, 0.65);
         const photoDataUri = await fileToDataUri(compressed);
         
         const [modResult, cloudUrl] = await Promise.all([
@@ -352,6 +359,13 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
     } catch (e: any) {
       if (e.message === "Storage not initialized.") {
         toast({ variant: "destructive", title: "Bridge Offline", description: "The platform is still securing project credentials. ✨" });
+      } else if (e.code === 'storage/unknown') {
+        toast({ 
+          variant: "destructive", 
+          title: "Storage Configuration Ripple", 
+          description: "Firebase Storage needs setup. Check Rules & CORS in console. 🛠️",
+          action: <Button variant="outline" size="sm" className="h-8 text-[10px]" onClick={() => window.open('https://console.firebase.google.com/')}>Open Console</Button>
+        });
       } else {
         toast({ variant: "destructive", title: "Sharing Ripple", description: e.message || "Could not secure live capture." });
       }
@@ -422,6 +436,13 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
     } catch (error: any) {
       if (error.message === "Storage not initialized.") {
         toast({ variant: "destructive", title: "Bridge Offline", description: "Please set up Firebase Storage credentials. ❤️" });
+      } else if (error.code === 'storage/unknown') {
+        toast({ 
+          variant: "destructive", 
+          title: "Storage Configuration Ripple", 
+          description: "Firebase Storage needs setup. Check Rules & CORS in console. 🛠️",
+          action: <Button variant="outline" size="sm" className="h-8 text-[10px]" onClick={() => window.open('https://console.firebase.google.com/')}>Open Console</Button>
+        });
       } else {
         toast({ variant: "destructive", title: "Sharing Ripple", description: error.message || "Could not share file." });
       }
@@ -693,7 +714,7 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
           <input type="file" id="chat-gallery-upload" className="hidden" accept="image/*" onChange={async (e) => {
             const file = e.target.files?.[0];
             if (file) {
-              const compressed = await compressImage(file, 0.75);
+              const compressed = await compressImage(file, 0.65);
               const dataUri = await fileToDataUri(compressed);
               handleLiveCapture({ url: dataUri, file: compressed, type: 'image' });
             }

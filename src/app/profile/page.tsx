@@ -44,7 +44,8 @@ import {
   Zap,
   RefreshCw,
   X,
-  AlertTriangle
+  AlertTriangle,
+  Settings
 } from 'lucide-react';
 import { 
   DropdownMenu, 
@@ -74,7 +75,7 @@ import { useRouter } from 'next/navigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Card } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { COUNTRIES, LANGUAGES, CURRENCIES, WORLD_LOCATIONS } from '@/lib/world-data';
 import Image from 'next/image';
@@ -222,8 +223,17 @@ function ProfileContent() {
       else if (cameraTarget === 'video') setPublicVideoUrl(url);
       
       toast({ title: "Media Secured", description: "Your live capture has been saved! ✨" });
-    } catch (e) {
-      toast({ variant: "destructive", title: "Upload Ripple", description: "Could not secure live capture. ❤️" });
+    } catch (e: any) {
+      if (e.code === 'storage/unknown') {
+        toast({ 
+          variant: "destructive", 
+          title: "Storage Ripple", 
+          description: "Firebase Storage needs setup in Console. 🛠️",
+          action: <Button variant="outline" size="sm" className="h-8 text-[10px]" onClick={() => window.open('https://console.firebase.google.com/')}>Console</Button>
+        });
+      } else {
+        toast({ variant: "destructive", title: "Upload Ripple", description: "Could not secure live capture. ❤️" });
+      }
     }
   };
 
@@ -255,8 +265,17 @@ function ProfileContent() {
       else if (target === 'video') setPublicVideoUrl(url);
 
       toast({ title: "Media Saved", description: "Your respectful content is secured. ✨" });
-    } catch (error) {
-      toast({ variant: "destructive", title: "Upload Failed", description: "The platform could not secure your media right now." });
+    } catch (error: any) {
+      if (error.code === 'storage/unknown') {
+        toast({ 
+          variant: "destructive", 
+          title: "Storage Configuration", 
+          description: "Mission Control needs manual Storage setup in Firebase Console.",
+          action: <Button variant="outline" size="sm" className="h-8 text-[10px]" onClick={() => window.open('https://console.firebase.google.com/')}>Open Console</Button>
+        });
+      } else {
+        toast({ variant: "destructive", title: "Upload Failed", description: "The platform could not secure your media right now." });
+      }
     }
   };
 

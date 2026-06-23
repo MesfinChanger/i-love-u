@@ -25,6 +25,7 @@ const sanitizeEnv = (val: string | undefined, keyName: string): string => {
 };
 
 export const firebaseConfig = {
+  // Use user provided API key or environment variable
   apiKey: sanitizeEnv(process.env.NEXT_PUBLIC_FIREBASE_API_KEY, "NEXT_PUBLIC_FIREBASE_API_KEY"),
   authDomain: "studio-9260674464-8df20.firebaseapp.com",
   projectId: "studio-9260674464-8df20",
