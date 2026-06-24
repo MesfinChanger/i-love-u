@@ -44,10 +44,11 @@ function DonateContent() {
   const userCurrency = profile?.currency || 'USD';
   const currencySymbol = useMemo(() => CURRENCIES.find(c => c.code === userCurrency)?.symbol || '$', [userCurrency]);
 
-  const handleDonate = async () => {
-    if (!user || !db || !amount) return;
+  const handleDonate = async (targetAmount?: string) => {
+    const finalAmount = targetAmount || amount;
+    if (!user || !db || !finalAmount) return;
     
-    const donationAmount = parseFloat(amount);
+    const donationAmount = parseFloat(finalAmount);
     if (isNaN(donationAmount) || donationAmount < 0.25) {
       toast({
         variant: "destructive",
@@ -119,7 +120,10 @@ function DonateContent() {
                   {presetOptions.map(opt => (
                     <button 
                       key={opt.val}
-                      onClick={() => setAmount(opt.val)}
+                      onClick={() => {
+                        setAmount(opt.val);
+                        handleDonate(opt.val);
+                      }}
                       className={cn(
                         "w-16 h-16 rounded-full flex items-center justify-center font-black text-[10px] transition-all border-2 shadow-sm active:scale-95",
                         opt.color,
@@ -163,7 +167,7 @@ function DonateContent() {
 
               <Button 
                 className="w-full h-20 rounded-[2rem] gradient-bg text-2xl font-black shadow-2xl shadow-primary/30 active:scale-95 transition-all"
-                onClick={handleDonate}
+                onClick={() => handleDonate()}
                 disabled={isDonating || !amount}
               >
                 {isDonating ? <Loader2 className="w-6 h-6 animate-spin mr-2" /> : <Sparkles className="w-6 h-6 mr-2" />}

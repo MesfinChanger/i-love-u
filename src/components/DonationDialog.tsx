@@ -53,10 +53,11 @@ export function DonationDialog({ trigger }: DonationDialogProps) {
   const userCurrency = profile?.currency || 'USD';
   const currencySymbol = useMemo(() => CURRENCIES.find(c => c.code === userCurrency)?.symbol || '$', [userCurrency]);
 
-  const handleDonate = async () => {
-    if (!user || !db || !amount) return;
+  const handleDonate = async (targetAmount?: string) => {
+    const finalAmount = targetAmount || amount;
+    if (!user || !db || !finalAmount) return;
     
-    const donationAmount = parseFloat(amount);
+    const donationAmount = parseFloat(finalAmount);
     if (isNaN(donationAmount) || donationAmount < 0.25) {
       toast({
         variant: "destructive",
@@ -81,6 +82,7 @@ export function DonationDialog({ trigger }: DonationDialogProps) {
     { val: '5', color: 'bg-pink-100 text-pink-600 border-pink-200' },
     { val: '25', color: 'bg-amber-100 text-amber-600 border-amber-200' },
     { val: '100', color: 'bg-blue-100 text-blue-600 border-blue-200' },
+    { val: '250', color: 'bg-purple-100 text-purple-600 border-purple-200' },
   ];
 
   return (
@@ -108,7 +110,10 @@ export function DonationDialog({ trigger }: DonationDialogProps) {
             {presetOptions.map(opt => (
               <button 
                 key={opt.val}
-                onClick={() => setAmount(opt.val)}
+                onClick={() => {
+                  setAmount(opt.val);
+                  handleDonate(opt.val);
+                }}
                 className={cn(
                   "w-12 h-12 rounded-full flex items-center justify-center font-black text-[9px] transition-all border-2 shadow-sm active:scale-95",
                   opt.color,
@@ -146,7 +151,7 @@ export function DonationDialog({ trigger }: DonationDialogProps) {
 
           <Button 
             className="w-full h-14 rounded-2xl gradient-bg text-base font-bold shadow-lg"
-            onClick={handleDonate}
+            onClick={() => handleDonate()}
             disabled={isDonating || !amount}
           >
             {isDonating ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Sparkles className="w-4 h-4 mr-2" />}
