@@ -21,7 +21,8 @@ import {
   ShieldAlert,
   Info,
   Zap,
-  Clock
+  Clock,
+  Maximize2
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -39,12 +40,20 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+  DialogTitle,
+  DialogHeader
+} from "@/components/ui/dialog";
 import Link from 'next/link';
 import { useTranslation } from '@/components/providers/LanguageProvider';
 
 /**
  * @fileOverview Discovery Grid Protocol.
  * Replaces the one-by-one carousel with a high-impact scrollable grid of mystery hearts.
+ * Media items are now openable in full-screen lightbox mode.
  */
 export default function DiscoverPage() {
   const { user } = useUser();
@@ -178,7 +187,6 @@ export default function DiscoverPage() {
       )}
 
       <main className="container mx-auto px-6 py-10 max-w-7xl">
-        {/* DISCOVERY HEADER */}
         <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
            <div className="space-y-2">
               <div className="flex items-center gap-3 text-primary">
@@ -204,7 +212,6 @@ export default function DiscoverPage() {
            </div>
         </div>
 
-        {/* PROFILE GRID */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {profiles.map((item: any, idx: number) => (
             <DiscoverCard 
@@ -259,9 +266,11 @@ export default function DiscoverPage() {
 /**
  * Sub-component for individual Discovery Cards.
  * Features an internal media carousel and contextual spark actions.
+ * Supports full-screen media lightbox.
  */
 function DiscoverCard({ item, hasAcceptedPolicy, onAction }: any) {
   const [isMuted, setIsMuted] = useState(true);
+  const [activeMedia, setActiveMedia] = useState<any>(null);
   const { t } = useTranslation();
 
   // RENDER AD CARD
@@ -302,23 +311,45 @@ function DiscoverCard({ item, hasAcceptedPolicy, onAction }: any) {
           <CarouselContent className="h-full">
             {mediaItems.map((media, idx) => (
               <CarouselItem key={idx} className="relative h-full">
-                {media.type === 'video' ? (
-                   <div className="relative w-full h-full bg-black">
-                      <video src={media.url} autoPlay loop muted playsInline className="w-full h-full object-cover" />
-                      <div className="absolute top-6 right-6 z-20">
-                         <Badge className="bg-primary/20 text-white backdrop-blur-md border-none px-2 h-6 flex items-center gap-1.5 uppercase font-black text-[7px] tracking-widest">
-                            <PlayCircle className="w-3 h-3" />
-                            Highlight
-                         </Badge>
+                <Dialog>
+                   <DialogTrigger asChild>
+                      <div className="w-full h-full cursor-zoom-in relative group/media">
+                        {media.type === 'video' ? (
+                          <div className="relative w-full h-full bg-black">
+                              <video src={media.url} autoPlay loop muted playsInline className="w-full h-full object-cover" />
+                              <div className="absolute top-6 right-6 z-20">
+                                <Badge className="bg-primary/20 text-white backdrop-blur-md border-none px-2 h-6 flex items-center gap-1.5 uppercase font-black text-[7px] tracking-widest">
+                                    <PlayCircle className="w-3 h-3" />
+                                    Highlight
+                                </Badge>
+                              </div>
+                          </div>
+                        ) : (
+                          <img 
+                            src={media.url} 
+                            alt={`${item.name}`} 
+                            className="w-full h-full object-cover" 
+                          />
+                        )}
+                        <div className="absolute inset-0 bg-black/0 group-hover/media:bg-black/10 transition-colors flex items-center justify-center">
+                           <Maximize2 className="w-10 h-10 text-white opacity-0 group-hover/media:opacity-100 transition-opacity drop-shadow-lg" />
+                        </div>
                       </div>
-                   </div>
-                ) : (
-                  <img 
-                    src={media.url} 
-                    alt={`${item.name}`} 
-                    className="w-full h-full object-cover" 
-                  />
-                )}
+                   </DialogTrigger>
+                   <DialogContent className="max-w-[95vw] max-h-[90vh] p-0 overflow-hidden bg-black border-none rounded-[3rem] shadow-2xl">
+                      <DialogHeader className="absolute top-6 left-6 z-50 text-left pointer-events-none">
+                         <DialogTitle className="text-white font-black text-2xl tracking-tighter uppercase drop-shadow-md">{item.name}</DialogTitle>
+                         <p className="text-[10px] text-white/60 font-black uppercase tracking-widest drop-shadow-md">Public Highlight • {media.type.toUpperCase()}</p>
+                      </DialogHeader>
+                      <div className="w-full h-full flex items-center justify-center p-4">
+                         {media.type === 'video' ? (
+                            <video src={media.url} controls autoPlay loop className="max-w-full max-h-[80vh] rounded-3xl" />
+                         ) : (
+                            <img src={media.url} alt={item.name} className="max-w-full max-h-[80vh] object-contain rounded-3xl" />
+                         )}
+                      </div>
+                   </DialogContent>
+                </Dialog>
               </CarouselItem>
             ))}
           </CarouselContent>
