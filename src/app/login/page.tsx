@@ -138,10 +138,11 @@ function LoginContent() {
       console.error("Auth error:", error);
       let message = error.message || "Verify your credentials and join again. ❤️";
       
-      if (error.code === 'auth/invalid-credential') {
-        message = "Identity Mismatch: The secure phrase or email is incorrect. If you haven't joined yet, please use the Join tab! ✨";
-      } else if (error.code === 'auth/user-not-found') {
-        message = "No account found with this email. Did you mean to Join? ❤️";
+      // Expanded detection for common auth errors to provide mission-aligned guidance
+      if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+        message = "Identity Mismatch: The secure phrase or email is incorrect. If you haven't joined the mission yet, please use the Join tab! ✨";
+      } else if (error.code === 'auth/too-many-requests') {
+        message = "Access Ripple: Too many failed attempts. Please wait a heartbeat and try again. ❤️";
       }
 
       toast({ 
