@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import Image from 'next/image';
 import { 
   Globe, 
   Send, 
@@ -37,7 +38,7 @@ import {
   PopoverTrigger 
 } from '@/components/ui/popover';
 import { useUser, useFirestore, useCollection, useDoc, useFirebaseStorage } from '@/firebase';
-import { collection, addDoc, query, orderBy, serverTimestamp, limit, doc, deleteDoc } from 'firebase/firestore';
+import { collection, addDoc, query, orderBy, serverTimestamp, limit, doc, deleteDoc, getDoc, updateDoc } from 'firebase/firestore';
 import { moderateText } from '@/ai/flows/moderate-text-flow';
 import { moderateImage } from '@/ai/flows/moderate-image-flow';
 import { useToast } from '@/hooks/use-toast';
@@ -47,7 +48,7 @@ import { cn } from '@/lib/utils';
 import { LiveCamera } from '@/components/LiveCamera';
 
 /**
- * @fileOverview Universal Global Wall with Floating Hero Design & Select-to-Delete Protocol.
+ * @fileOverview Universal Global Wall with Luxury Dynamic Hero & Admin Vision Controls.
  */
 export default function CommunityPage() {
   const { user } = useUser();
@@ -57,6 +58,7 @@ export default function CommunityPage() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const galleryRef = useRef<HTMLInputElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const heroInputRef = useRef<HTMLInputElement>(null);
 
   const [newMessage, setNewMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
@@ -69,17 +71,59 @@ export default function CommunityPage() {
     type: 'image' | 'video' | 'file' 
   } | null>(null);
 
+  // Dynamic Hero State
+  const [heroImage, setHeroImage] = useState("https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=1600");
+  const [pageOwnerId, setPageOwnerId] = useState("");
+  const [isUploadingHero, setIsUploadingHero] = useState(false);
+
   const userRef = useMemoFirebase(() => db && user ? doc(db, 'users', user.uid) : null, [db, user]);
   const { data: myProfile } = useDoc(userRef);
 
   const communityQuery = useMemoFirebase(() => db ? query(collection(db, 'communityMessages'), orderBy('timestamp', 'asc'), limit(100)) : null, [db]);
   const { data: messages, loading } = useCollection(communityQuery);
 
+  // Load Hero Vision
+  useEffect(() => {
+    if (!db) return;
+    const loadHero = async () => {
+      const docRef = doc(db, "siteSettings", "communityHero");
+      const snap = await getDoc(docRef);
+      if (snap.exists()) {
+        const data = snap.data();
+        setHeroImage(data.heroImageUrl || heroImage);
+        setPageOwnerId(data.ownerId || "");
+      }
+    };
+    loadHero();
+  }, [db]);
+
+  const canEditHero = myProfile?.isAdmin || (user?.uid === pageOwnerId && pageOwnerId !== "");
+
   useEffect(() => {
     if (scrollRef.current && !isSelectMode) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages, isSelectMode]);
+
+  const handleHeroUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !db || !user) return;
+
+    setIsUploadingHero(true);
+    try {
+      const url = await uploadFile(`hero-images/community-${Date.now()}_${file.name}`, file);
+      await updateDoc(doc(db, "siteSettings", "communityHero"), {
+        heroImageUrl: url,
+        updatedAt: serverTimestamp(),
+      });
+      setHeroImage(url);
+      toast({ title: "Vision Updated", description: "The Global Wall has a new heartbeat. ✨" });
+    } catch (err) {
+      toast({ variant: "destructive", title: "Update Failed", description: "Could not change the global vision." });
+    } finally {
+      setIsUploadingHero(false);
+    }
+  };
 
   const toggleSelectMode = () => {
     setIsSelectMode(!isSelectMode);
@@ -184,81 +228,107 @@ export default function CommunityPage() {
     <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
       <Header />
       
-      {/* LUXURY HERO */}
+      {/* LUXURY DYNAMIC HERO */}
       <section className="max-w-7xl mx-auto w-full p-6">
         <div className="relative overflow-hidden rounded-[40px] bg-gradient-to-br from-pink-50 via-white to-amber-50 shadow-2xl border border-white/50 mb-8">
+          
+          {/* Background Glows */}
+          <div className="absolute -top-32 -left-32 h-72 w-72 rounded-full bg-pink-300/20 blur-3xl" />
+          <div className="absolute -bottom-32 -right-32 h-72 w-72 rounded-full bg-orange-300/20 blur-3xl" />
+
           <div className="grid lg:grid-cols-2 gap-10 items-center p-8 lg:p-12">
-            <div className="text-left">
+            <div className="text-left relative z-10">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-pink-100 text-pink-600 font-bold text-sm mb-6">
                 <Shield className="w-4 h-4" /> GLOBAL WALL
               </div>
               <h1 className="text-5xl lg:text-7xl font-black leading-none tracking-tight">
-                Respect is <span className="block bg-gradient-to-r from-pink-500 to-orange-400 bg-clip-text text-transparent">Mandatory.</span>
+                Respect is <span className="block bg-gradient-to-r from-pink-500 via-orange-400 to-yellow-400 bg-clip-text text-transparent">Mandatory.</span>
               </h1>
-              <p className="mt-6 text-xl text-slate-600 max-w-xl leading-relaxed">
-                Share your moments. Every respectful connection funds local job creation to end world poverty.
+              <p className="mt-6 text-xl text-slate-600 max-w-xl leading-relaxed font-medium">
+                Share your moments. Inspire people around the world. Every respectful connection helps build a stronger global community.
               </p>
+              
               <div className="flex flex-wrap gap-4 mt-8">
-                <Badge variant="secondary" className="bg-white rounded-full px-5 py-2 shadow-sm border-none font-bold text-slate-600">🌎 192 Countries</Badge>
-                <Badge variant="secondary" className="bg-white rounded-full px-5 py-2 shadow-sm border-none font-bold text-slate-600">❤️ 18.2K Members</Badge>
-                <Badge variant="secondary" className="bg-white rounded-full px-5 py-2 shadow-sm border-none font-bold text-slate-600">✨ Live Community</Badge>
+                <div className="flex items-center gap-2 bg-white px-5 py-3 rounded-full shadow-lg">
+                  <Globe className="w-5 h-5 text-blue-500" />
+                  <span className="font-bold text-sm">192 Countries</span>
+                </div>
+                <div className="flex items-center gap-2 bg-white px-5 py-3 rounded-full shadow-lg">
+                  <Heart className="w-5 h-5 text-pink-500" />
+                  <span className="font-bold text-sm">18.2K Members</span>
+                </div>
+                <div className="flex items-center gap-2 bg-white px-5 py-3 rounded-full shadow-lg">
+                  <Sparkles className="w-5 h-5 text-orange-500" />
+                  <span className="font-bold text-sm">Live Community</span>
+                </div>
+              </div>
+
+              <div className="flex gap-4 mt-8">
+                <Button className="h-14 px-8 rounded-full gradient-bg font-black uppercase text-[10px] tracking-widest shadow-xl active:scale-95 transition-all">
+                  Share Moment
+                </Button>
+                <Button variant="outline" className="h-14 px-8 rounded-full bg-white font-black uppercase text-[10px] tracking-widest shadow-lg border-none hover:bg-slate-50 transition-all">
+                  Explore
+                </Button>
               </div>
             </div>
             
-            {/* FLOATING DESIGN BLOCK */}
             <div className="relative">
               {/* Main Image Card */}
-              <div className="relative overflow-hidden rounded-[40px] shadow-2xl group transition-transform hover:scale-[1.01] duration-700">
-                <img
-                  src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=1600"
-                  alt="Community"
-                  className="w-full h-[550px] object-cover transition-transform duration-[2000ms] group-hover:scale-110"
-                />
-
-                {/* Dark Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
-
-                {/* Text */}
-                <div className="absolute bottom-8 left-8 text-white text-left">
-                  <h3 className="text-5xl font-black mb-3 drop-shadow-xl">
-                    Together We Build
-                  </h3>
-                  <p className="text-xl opacity-90 font-medium italic">
-                    Connecting hearts around the world ❤️
-                  </p>
+              <div className="relative overflow-hidden rounded-[35px] bg-white p-3 shadow-2xl group transition-transform hover:scale-[1.01] duration-700">
+                <div className="relative aspect-[4/3] overflow-hidden rounded-[28px]">
+                  <Image
+                    src={heroImage}
+                    alt="Community Vision"
+                    fill
+                    className="object-cover transition-transform duration-[2000ms] group-hover:scale-110"
+                    priority
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                  <div className="absolute bottom-8 left-8 text-white text-left">
+                    <p className="text-[10px] font-black uppercase tracking-[0.3em] mb-2 opacity-80">Global Community</p>
+                    <h3 className="text-4xl font-black leading-none tracking-tighter drop-shadow-xl">
+                      Together We Build
+                    </h3>
+                  </div>
                 </div>
+
+                {/* Admin Action */}
+                {canEditHero && (
+                  <div className="absolute top-6 right-6 z-20">
+                    <input ref={heroInputRef} type="file" accept="image/*" className="hidden" onChange={handleHeroUpload} />
+                    <Button 
+                      onClick={() => heroInputRef.current?.click()}
+                      disabled={isUploadingHero}
+                      className="bg-white/90 text-slate-900 hover:bg-white rounded-full px-4 h-10 shadow-2xl font-black uppercase text-[9px] tracking-widest gap-2 backdrop-blur-md border-none"
+                    >
+                      {isUploadingHero ? <Loader2 className="w-4 h-4 animate-spin" /> : <Camera className="w-4 h-4 text-primary" />}
+                      Change Vision
+                    </Button>
+                  </div>
+                )}
               </div>
 
               {/* Floating Members Card */}
-              <div className="absolute -top-6 -left-6 bg-white rounded-3xl p-6 shadow-2xl border border-pink-50 animate-bounce duration-[5000ms] hover:animate-none transition-all">
-                <div className="text-pink-500 text-4xl mb-2">
-                  ❤️
-                </div>
-                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                  Live Community
-                </p>
-                <h4 className="text-3xl font-black tracking-tighter">
-                  18.2K+
-                </h4>
+              <div className="absolute -top-6 -left-6 bg-white rounded-[2rem] p-6 shadow-2xl border border-pink-50 animate-bounce duration-[5000ms] hover:animate-none transition-all">
+                <div className="text-pink-500 text-4xl mb-2">❤️</div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Live Community</p>
+                <h4 className="text-3xl font-black tracking-tighter">18.2K+</h4>
                 <div className="flex items-center gap-1.5 mt-1">
                    <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                   <p className="text-green-600 font-bold text-[10px] uppercase tracking-widest">
-                     Online Now
-                   </p>
+                   <p className="text-green-600 font-bold text-[10px] uppercase tracking-widest">Online Now</p>
                 </div>
               </div>
 
-              {/* Floating Countries Card */}
-              <div className="absolute bottom-6 right-6 bg-white rounded-3xl p-6 shadow-2xl border border-slate-50 transition-transform hover:scale-110">
-                <div className="text-4xl mb-2">
-                  🌎
+              {/* Floating Growth Card */}
+              <div className="absolute -bottom-6 -left-6 bg-white rounded-[2rem] p-5 shadow-2xl border border-slate-50 transition-transform hover:scale-110">
+                <div className="flex items-center gap-3">
+                  <TrendingUp className="text-green-500 w-6 h-6" />
+                  <div className="text-left">
+                    <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Today</p>
+                    <p className="font-black text-xs uppercase tracking-tight">+324 New Connections</p>
+                  </div>
                 </div>
-                <h4 className="text-3xl font-black tracking-tighter">
-                  192
-                </h4>
-                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                  Countries
-                </p>
               </div>
             </div>
           </div>
@@ -353,12 +423,37 @@ export default function CommunityPage() {
         </div>
 
         <div className="lg:col-span-4 space-y-8">
-           <Card className="rounded-[2.5rem] border-none shadow-xl bg-slate-900 p-8 text-white text-left relative overflow-hidden group">
-              <Star className="absolute top-4 right-4 w-12 h-12 text-primary opacity-10" />
-              <h3 className="font-black text-xl uppercase tracking-tighter mb-6">Community Stats</h3>
-              <div className="grid grid-cols-2 gap-4">
-                 <div className="bg-white/5 p-6 rounded-3xl border border-white/10 text-center"><p className="font-black text-3xl text-primary">18.2K</p><p className="text-[9px] font-black uppercase text-white/40">Members</p></div>
-                 <div className="bg-white/5 p-6 rounded-3xl border border-white/10 text-center"><p className="font-black text-3xl text-secondary">47.6K</p><p className="text-[9px] font-black uppercase text-white/40">Posts</p></div>
+           <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-8 space-y-8 text-left">
+              <div>
+                <h3 className="font-black text-xl uppercase tracking-tighter mb-4">What's Happening</h3>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3 p-3 rounded-2xl hover:bg-muted/30 transition-colors cursor-pointer">
+                    <Heart className="w-4 h-4 text-primary fill-primary" />
+                    <span className="font-bold text-sm">World Kindness Day</span>
+                  </div>
+                  <div className="flex items-center gap-3 p-3 rounded-2xl hover:bg-muted/30 transition-colors cursor-pointer">
+                    <Rocket className="w-4 h-4 text-orange-500" />
+                    <span className="font-bold text-sm">Entrepreneurship</span>
+                  </div>
+                  <div className="flex items-center gap-3 p-3 rounded-2xl hover:bg-muted/30 transition-colors cursor-pointer">
+                    <Sparkles className="w-4 h-4 text-secondary" />
+                    <span className="font-bold text-sm">Sustainability</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-8 border-t border-dashed">
+                <h3 className="font-black text-xl uppercase tracking-tighter mb-6">Community Stats</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-primary/5 p-6 rounded-3xl text-center">
+                    <p className="font-black text-3xl text-primary">18.2K</p>
+                    <p className="text-[9px] font-black uppercase text-primary/40">Members</p>
+                  </div>
+                  <div className="bg-primary/5 p-6 rounded-3xl text-center">
+                    <p className="font-black text-3xl text-secondary">47.6K</p>
+                    <p className="text-[9px] font-black uppercase text-secondary/40">Posts</p>
+                  </div>
+                </div>
               </div>
            </Card>
         </div>
