@@ -9,15 +9,30 @@ import { useState, useEffect } from 'react';
 
 /**
  * @fileOverview A persistent reminder for guests to join the "I Love U" community.
- * Stays visible until the user is authenticated.
+ * Optimized with local storage persistence to remember dismissal.
  */
 export function RegistrationReminder() {
   const { user, loading } = useUser();
   const pathname = usePathname();
-  const [isVisible, setIsVisible] = useState(true);
+  const [isVisible, setIsVisible] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-  // Don't show if auth is loading, user is logged in, or they are already on the login page
-  if (loading || user || pathname === '/login') return null;
+  useEffect(() => {
+    setMounted(true);
+    // Only show if not previously dismissed by the user
+    const isHidden = localStorage.getItem('iloveu_registration_reminder_hidden') === 'true';
+    if (!isHidden) {
+      setIsVisible(true);
+    }
+  }, []);
+
+  const handleDismiss = () => {
+    setIsVisible(false);
+    localStorage.setItem('iloveu_registration_reminder_hidden', 'true');
+  };
+
+  // Don't show if auth is loading, user is logged in, they are on the login page, or it was dismissed
+  if (!mounted || loading || user || pathname === '/login' || pathname === '/policy/agree') return null;
   if (!isVisible) return null;
 
   return (
@@ -27,7 +42,7 @@ export function RegistrationReminder() {
           <Button 
             variant="ghost" 
             size="icon" 
-            onClick={() => setIsVisible(false)} 
+            onClick={handleDismiss} 
             className="rounded-full h-8 w-8 text-muted-foreground hover:text-primary transition-colors"
             aria-label="Hide reminder"
           >
