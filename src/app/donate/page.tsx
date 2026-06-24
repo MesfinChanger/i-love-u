@@ -7,7 +7,22 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Heart, Loader2, Sparkles, ShieldCheck, CheckCircle, Globe, TrendingDown, Star, Zap } from 'lucide-react';
+import { 
+  Heart, 
+  Loader2, 
+  Sparkles, 
+  ShieldCheck, 
+  CheckCircle, 
+  Globe, 
+  TrendingDown, 
+  Star, 
+  Zap,
+  User,
+  AtSign,
+  Phone,
+  MapPin,
+  ArrowRight
+} from 'lucide-react';
 import { useUser, useFirestore, useDoc } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
@@ -16,6 +31,13 @@ import { createDonationSession } from '@/lib/stripe-actions';
 import { useSearchParams } from 'next/navigation';
 import { CURRENCIES } from '@/lib/world-data';
 import { cn } from '@/lib/utils';
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogDescription 
+} from '@/components/ui/dialog';
 
 function DonateContent() {
   const { user } = useUser();
@@ -31,6 +53,13 @@ function DonateContent() {
 
   const [amount, setAmount] = useState('5');
   const [isDonating, setIsDonating] = useState(false);
+  
+  // Guest Info State
+  const [showGuestForm, setShowGuestForm] = useState(false);
+  const [guestEmail, setGuestEmail] = useState('');
+  const [guestPhone, setGuestPhone] = useState('');
+  const [guestAddress, setGuestAddress] = useState('');
+  const [pendingAmount, setPendingAmount] = useState<string | null>(null);
 
   useEffect(() => {
     if (searchParams.get('success')) {
@@ -46,7 +75,7 @@ function DonateContent() {
 
   const handleDonate = async (targetAmount?: string) => {
     const finalAmount = targetAmount || amount;
-    if (!user || !db || !finalAmount) return;
+    if (!finalAmount) return;
     
     const donationAmount = parseFloat(finalAmount);
     if (isNaN(donationAmount) || donationAmount < 0.25) {
@@ -58,12 +87,44 @@ function DonateContent() {
       return;
     }
 
+    if (!user) {
+      setPendingAmount(finalAmount);
+      setShowGuestForm(true);
+      return;
+    }
+
     setIsDonating(true);
     try {
       await createDonationSession(donationAmount, userCurrency, user.uid);
     } catch (e) {
       console.error(e);
       toast({ variant: "destructive", title: "Error", description: "Could not initiate payment." });
+      setIsDonating(false);
+    }
+  };
+
+  const handleGuestSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!pendingAmount) return;
+    if (!guestAddress) {
+      toast({ variant: "destructive", title: "Address Required", description: "Billing address is mandatory for guests. ❤️" });
+      return;
+    }
+    if (!guestEmail && !guestPhone) {
+      toast({ variant: "destructive", title: "Contact Required", description: "Please provide an email or phone number. ✨" });
+      return;
+    }
+
+    setIsDonating(true);
+    setShowGuestForm(false);
+    try {
+      await createDonationSession(parseFloat(pendingAmount), userCurrency, 'guest', {
+        email: guestEmail,
+        phone: guestPhone,
+        address: guestAddress
+      });
+    } catch (e) {
+      toast({ variant: "destructive", title: "Error", description: "Payment bridge failed." });
       setIsDonating(false);
     }
   };
@@ -88,10 +149,6 @@ function DonateContent() {
           <p className="text-xl text-muted-foreground font-medium leading-relaxed">
             Your investment builds lives. We create jobs to end poverty forever.
           </p>
-          <div className="inline-flex items-center gap-2 bg-amber-50 text-amber-700 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border border-amber-200">
-            <Star className="w-3 h-3 fill-amber-500" />
-            100% Impact Driven
-          </div>
         </div>
 
         {searchParams.get('success') ? (
@@ -112,10 +169,6 @@ function DonateContent() {
                 </div>
                 <h3 className="text-2xl font-black tracking-tighter uppercase">Securing Cloud Bridge</h3>
                 <p className="text-muted-foreground text-sm font-medium italic mt-2">Connecting to the Prosperity Network. Please wait... ❤️</p>
-                <div className="mt-8 flex items-center gap-2 opacity-30">
-                   <Zap className="w-3.5 h-3.5 text-primary" />
-                   <p className="text-[9px] font-black uppercase tracking-widest">Encrypted Payment Window</p>
-                </div>
               </div>
             )}
 
@@ -187,14 +240,72 @@ function DonateContent() {
                 {isDonating ? <Loader2 className="w-6 h-6 animate-spin mr-2" /> : <Sparkles className="w-6 h-6 mr-2" />}
                 Propel Prosperity
               </Button>
-              
-              <p className="text-[9px] text-center text-muted-foreground uppercase font-black tracking-[0.3em] opacity-40">
-                Poverty Elimination is Mandatory ❤️
-              </p>
             </CardContent>
           </Card>
         )}
       </main>
+
+      {/* Guest Billing Form Dialog */}
+      <Dialog open={showGuestForm} onOpenChange={setShowGuestForm}>
+        <DialogContent className="sm:max-w-md rounded-[3rem] border-none shadow-2xl p-0 overflow-hidden bg-white">
+           <DialogHeader className="p-8 bg-slate-900 text-white text-center">
+              <div className="w-16 h-16 bg-primary/20 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-primary/30">
+                <User className="w-8 h-8 text-primary" />
+              </div>
+              <DialogTitle className="text-2xl font-black uppercase tracking-tight">Guest Billing</DialogTitle>
+              <DialogDescription className="text-[9px] font-bold text-primary uppercase tracking-[0.2em] mt-1">Mission Integrity Protocol</DialogDescription>
+           </DialogHeader>
+           <form onSubmit={handleGuestSubmit} className="p-8 space-y-6">
+              <div className="space-y-4">
+                 <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest ml-1 flex items-center gap-2">
+                      <MapPin className="w-3 h-3" /> Billing Address
+                    </Label>
+                    <Input 
+                      value={guestAddress} 
+                      onChange={e => setGuestAddress(e.target.value)} 
+                      placeholder="Street, City, State, Country" 
+                      className="h-12 rounded-xl bg-muted/30 border-none font-bold"
+                      required
+                    />
+                 </div>
+                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                       <Label className="text-[10px] font-black uppercase tracking-widest ml-1 flex items-center gap-2">
+                         <AtSign className="w-3 h-3" /> Email
+                       </Label>
+                       <Input 
+                         type="email" 
+                         value={guestEmail} 
+                         onChange={e => setGuestEmail(e.target.value)} 
+                         placeholder="heart@example.com" 
+                         className="h-12 rounded-xl bg-muted/30 border-none font-bold"
+                       />
+                    </div>
+                    <div className="space-y-2">
+                       <Label className="text-[10px] font-black uppercase tracking-widest ml-1 flex items-center gap-2">
+                         <Phone className="w-3 h-3" /> Phone
+                       </Label>
+                       <Input 
+                         type="tel" 
+                         value={guestPhone} 
+                         onChange={e => setGuestPhone(e.target.value)} 
+                         placeholder="+1..." 
+                         className="h-12 rounded-xl bg-muted/30 border-none font-bold"
+                       />
+                    </div>
+                 </div>
+                 <p className="text-[9px] text-muted-foreground italic font-medium text-center">
+                    * Billing address and at least one contact method (email/phone) are mandatory for guests.
+                 </p>
+              </div>
+              <Button type="submit" className="w-full h-16 rounded-2xl gradient-bg font-black uppercase text-xs tracking-widest shadow-xl gap-2">
+                Continue to Payment <ArrowRight className="w-4 h-4" />
+              </Button>
+           </form>
+        </DialogContent>
+      </Dialog>
+
       <BottomNav />
     </div>
   );

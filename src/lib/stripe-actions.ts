@@ -14,9 +14,15 @@ const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:9002';
 /**
  * Creates a Stripe Checkout Session for a one-time donation.
  */
-export async function createDonationSession(amount: number, currency: string, userId: string) {
+export async function createDonationSession(
+  amount: number, 
+  currency: string, 
+  userId: string, 
+  guestInfo?: { email?: string; phone?: string; address?: string }
+) {
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ['card'],
+    customer_email: guestInfo?.email || undefined,
     line_items: [
       {
         price_data: {
@@ -33,7 +39,12 @@ export async function createDonationSession(amount: number, currency: string, us
     mode: 'payment',
     success_url: `${BASE_URL}/donate?success=true`,
     cancel_url: `${BASE_URL}/donate?canceled=true`,
-    metadata: { userId, type: 'donation' },
+    metadata: { 
+      userId: userId || 'guest', 
+      type: 'donation',
+      guestPhone: guestInfo?.phone || '',
+      guestAddress: guestInfo?.address || ''
+    },
   });
 
   if (session.url) redirect(session.url);
@@ -99,9 +110,16 @@ export async function createSubscriptionSession(planType: 'basic_seller' | 'pro_
 /**
  * Creates a Stripe Checkout Session for a product/gift purchase.
  */
-export async function createGiftPurchaseSession(productName: string, amount: number, currency: string, userId: string) {
+export async function createGiftPurchaseSession(
+  productName: string, 
+  amount: number, 
+  currency: string, 
+  userId: string,
+  guestInfo?: { email?: string; phone?: string; address?: string }
+) {
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ['card'],
+    customer_email: guestInfo?.email || undefined,
     line_items: [
       {
         price_data: {
@@ -118,7 +136,13 @@ export async function createGiftPurchaseSession(productName: string, amount: num
     mode: 'payment',
     success_url: `${BASE_URL}/shop?success=true`,
     cancel_url: `${BASE_URL}/shop?canceled=true`,
-    metadata: { userId, type: 'gift_purchase', productName },
+    metadata: { 
+      userId: userId || 'guest', 
+      type: 'gift_purchase', 
+      productName,
+      guestPhone: guestInfo?.phone || '',
+      guestAddress: guestInfo?.address || ''
+    },
   });
 
   if (session.url) redirect(session.url);

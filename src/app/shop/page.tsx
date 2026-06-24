@@ -6,17 +6,39 @@ import { BottomNav } from '@/components/BottomNav';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Gift, ShoppingBag, Star, Zap, ShoppingCart, Search, Loader2, Heart } from 'lucide-react';
+import { 
+  Gift, 
+  ShoppingBag, 
+  Star, 
+  Zap, 
+  ShoppingCart, 
+  Search, 
+  Loader2, 
+  Heart,
+  User,
+  MapPin,
+  AtSign,
+  Phone,
+  ArrowRight
+} from 'lucide-react';
 import Image from 'next/image';
 import { useFirestore, useCollection, useUser, useDoc } from '@/firebase';
 import { collection, query, addDoc, serverTimestamp, doc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { createGiftPurchaseSession } from '@/lib/stripe-actions';
 import { useSearchParams } from 'next/navigation';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { useTranslation } from '@/components/providers/LanguageProvider';
 import { CURRENCIES } from '@/lib/world-data';
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogDescription 
+} from '@/components/ui/dialog';
 
 const GIFT_CATEGORIES = ["Flowers", "Jewelry", "Electronics", "Apparel", "Home", "Ornamental"];
 
@@ -29,6 +51,13 @@ function ShopContent() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isPurchasing, setIsPurchasing] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
+
+  // Guest State
+  const [showGuestForm, setShowGuestForm] = useState(false);
+  const [guestEmail, setGuestEmail] = useState('');
+  const [guestPhone, setGuestPhone] = useState('');
+  const [guestAddress, setGuestAddress] = useState('');
+  const [pendingProduct, setPendingProduct] = useState<any>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -50,9 +79,9 @@ function ShopContent() {
   }, [searchParams, toast]);
 
   const productsQuery = useMemoFirebase(() => {
-    if (!db || !user) return null;
+    if (!db) return null;
     return query(collection(db, 'global_products'));
-  }, [db, user]);
+  }, [db]);
 
   const { data: dbProducts, loading: productsLoading } = useCollection(productsQuery);
 
@@ -73,7 +102,8 @@ function ShopContent() {
 
   const handlePurchase = async (product: any) => {
     if (!user) {
-      toast({ variant: "destructive", title: "Login Required", description: "Please join the revolution to buy gifts." });
+      setPendingProduct(product);
+      setShowGuestForm(true);
       return;
     }
     
@@ -83,6 +113,32 @@ function ShopContent() {
     } catch (e) {
       console.error(e);
       toast({ variant: "destructive", title: "Error", description: "Payment redirect failed." });
+      setIsPurchasing(null);
+    }
+  };
+
+  const handleGuestSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!pendingProduct) return;
+    if (!guestAddress) {
+      toast({ variant: "destructive", title: "Address Required", description: "Billing address is mandatory for guests. ❤️" });
+      return;
+    }
+    if (!guestEmail && !guestPhone) {
+      toast({ variant: "destructive", title: "Contact Required", description: "Please provide an email or phone number. ✨" });
+      return;
+    }
+
+    setIsPurchasing(pendingProduct.id);
+    setShowGuestForm(false);
+    try {
+      await createGiftPurchaseSession(pendingProduct.name, pendingProduct.price, userCurrency, 'guest', {
+        email: guestEmail,
+        phone: guestPhone,
+        address: guestAddress
+      });
+    } catch (e) {
+      toast({ variant: "destructive", title: "Error", description: "Payment bridge failed." });
       setIsPurchasing(null);
     }
   };
@@ -103,10 +159,6 @@ function ShopContent() {
            </div>
            <h2 className="text-3xl font-black tracking-tighter uppercase">Securing Shop Window</h2>
            <p className="text-muted-foreground text-lg font-medium italic mt-2">Opening the Payment Bridge... ❤️</p>
-           <div className="mt-12 flex items-center gap-3 opacity-30">
-              <Zap className="w-5 h-5 text-primary" />
-              <p className="text-[10px] font-black uppercase tracking-[0.4em]">Encrypted Transaction Protocol</p>
-           </div>
         </div>
       )}
 
@@ -143,18 +195,6 @@ function ShopContent() {
           ))}
         </div>
 
-        {searchParams.get('success') && (
-          <Card className="mb-6 rounded-3xl border-none shadow-md bg-green-50 p-6 flex items-center gap-4 animate-in zoom-in-95 duration-500">
-             <div className="w-12 h-12 bg-green-100 rounded-2xl flex items-center justify-center text-green-600 shadow-sm shrink-0">
-                <Heart className="w-6 h-6 fill-current" />
-             </div>
-             <div>
-                <h3 className="font-black text-green-800 uppercase text-sm tracking-tight">Purchase Successful</h3>
-                <p className="text-xs text-green-700 font-medium">Thank you for spreading happiness! ✨</p>
-             </div>
-          </Card>
-        )}
-
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {filteredProducts.map((product: any) => (
             <Card key={product.id} className="overflow-hidden border-none shadow-sm hover:shadow-xl transition-all group rounded-[2rem] bg-white flex flex-col">
@@ -180,6 +220,68 @@ function ShopContent() {
           ))}
         </div>
       </main>
+
+      {/* Guest Billing Form Dialog */}
+      <Dialog open={showGuestForm} onOpenChange={setShowGuestForm}>
+        <DialogContent className="sm:max-w-md rounded-[3rem] border-none shadow-2xl p-0 overflow-hidden bg-white">
+           <DialogHeader className="p-8 bg-slate-900 text-white text-center">
+              <div className="w-16 h-16 bg-primary/20 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-primary/30">
+                <ShoppingCart className="w-8 h-8 text-primary" />
+              </div>
+              <DialogTitle className="text-2xl font-black uppercase tracking-tight">Purchase as Guest</DialogTitle>
+              <DialogDescription className="text-[9px] font-bold text-primary uppercase tracking-[0.2em] mt-1">Transaction Protocol</DialogDescription>
+           </DialogHeader>
+           <form onSubmit={handleGuestSubmit} className="p-8 space-y-6">
+              <div className="space-y-4">
+                 <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest ml-1 flex items-center gap-2">
+                      <MapPin className="w-3 h-3" /> Billing Address
+                    </Label>
+                    <Input 
+                      value={guestAddress} 
+                      onChange={e => setGuestAddress(e.target.value)} 
+                      placeholder="Shipping/Billing Address" 
+                      className="h-12 rounded-xl bg-muted/30 border-none font-bold"
+                      required
+                    />
+                 </div>
+                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                       <Label className="text-[10px] font-black uppercase tracking-widest ml-1 flex items-center gap-2">
+                         <AtSign className="w-3 h-3" /> Email
+                       </Label>
+                       <Input 
+                         type="email" 
+                         value={guestEmail} 
+                         onChange={e => setGuestEmail(e.target.value)} 
+                         placeholder="heart@example.com" 
+                         className="h-12 rounded-xl bg-muted/30 border-none font-bold"
+                       />
+                    </div>
+                    <div className="space-y-2">
+                       <Label className="text-[10px] font-black uppercase tracking-widest ml-1 flex items-center gap-2">
+                         <Phone className="w-3 h-3" /> Phone
+                       </Label>
+                       <Input 
+                         type="tel" 
+                         value={guestPhone} 
+                         onChange={e => setGuestPhone(e.target.value)} 
+                         placeholder="+1..." 
+                         className="h-12 rounded-xl bg-muted/30 border-none font-bold"
+                       />
+                    </div>
+                 </div>
+                 <p className="text-[9px] text-muted-foreground italic font-medium text-center">
+                    Billing address and contact (email/phone) are required for guest hearts. ❤️
+                 </p>
+              </div>
+              <Button type="submit" className="w-full h-16 rounded-2xl gradient-bg font-black uppercase text-xs tracking-widest shadow-xl gap-2">
+                Secure Gift Now <ArrowRight className="w-4 h-4" />
+              </Button>
+           </form>
+        </DialogContent>
+      </Dialog>
+
       <BottomNav />
     </div>
   );
