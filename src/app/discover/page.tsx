@@ -28,7 +28,6 @@ import { doc, setDoc, collection, serverTimestamp, query, where } from 'firebase
 import { useToast } from '@/hooks/use-toast';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { cn } from '@/lib/utils';
-import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import {
   Carousel,
@@ -295,12 +294,10 @@ export default function DiscoverPage() {
                             </div>
                          </div>
                       ) : (
-                        <Image 
+                        <img 
                           src={item.url} 
                           alt={`${currentItem.name} ${idx + 1}`} 
-                          fill 
-                          className="object-cover" 
-                          priority={idx === 0}
+                          className="w-full h-full object-cover" 
                         />
                       )}
                       {/* Photo Index Indicator */}

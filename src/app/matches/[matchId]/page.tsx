@@ -49,9 +49,7 @@ import { moderateText } from '@/ai/flows/moderate-text-flow';
 import { translateMessage } from '@/ai/flows/translate-flow';
 import { textToSpeech } from '@/ai/flows/text-to-speech-flow';
 import { useToast } from '@/hooks/use-toast';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
-import Image from 'next/image';
 import { encryptText, decryptText } from '@/lib/crypto';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -68,8 +66,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import Link from 'next/link';
 import { LiveCamera } from '@/components/LiveCamera';
-import { errorEmitter } from '@/firebase/error-emitter';
-import { FirestorePermissionError } from '@/firebase/errors';
 import { Progress } from "@/components/ui/progress";
 import { compressImage, fileToDataUri } from '@/lib/image-utils';
 
@@ -335,7 +331,13 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
                     isSelected && "ring-2 ring-primary ring-offset-2 opacity-60"
                   )}>
                     {msg.imageUrl ? (
-                      <div className="relative w-60 h-72 rounded-[1.8rem] overflow-hidden"><Image src={msg.imageUrl} alt="Moment" fill className="object-cover" /></div>
+                      <div className="relative w-60 h-72 rounded-[1.8rem] overflow-hidden">
+                        <img 
+                          src={msg.imageUrl} 
+                          alt="Moment" 
+                          className="w-full h-full object-cover" 
+                        />
+                      </div>
                     ) : msg.videoUrl ? (
                       <div className="relative w-60 aspect-video rounded-2xl overflow-hidden bg-black"><video src={msg.videoUrl} controls className="w-full h-full" /></div>
                     ) : msg.fileUrl ? (

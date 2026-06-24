@@ -37,13 +37,12 @@ import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { Progress } from "@/components/ui/progress";
 import { compressImage, fileToDataUri } from '@/lib/image-utils';
 import { cn } from '@/lib/utils';
-import Image from 'next/image';
 import { LiveCamera } from '@/components/LiveCamera';
 
 /**
  * @fileOverview Universal Global Wall with Select-to-Delete Protocol.
  * Enforces "Respect is Mandatory" and enables live multi-media sharing.
- * Optimized for high-fidelity media display and batch secure deletion.
+ * Optimized for standard img rendering and batch secure deletion.
  */
 export default function CommunityPage() {
   const { user } = useUser();
@@ -254,7 +253,11 @@ export default function CommunityPage() {
               )}>
                 {msg.imageUrl && (
                   <div className={cn("relative w-full aspect-square rounded-xl overflow-hidden", msg.text ? "mb-2" : "mb-0")}>
-                    <Image src={msg.imageUrl} alt="Community share" fill className="object-cover" />
+                    <img 
+                      src={msg.imageUrl} 
+                      alt="Community share" 
+                      className="w-full h-full object-cover" 
+                    />
                   </div>
                 )}
                 {msg.videoUrl && (
@@ -320,7 +323,7 @@ export default function CommunityPage() {
               <div className="flex items-center gap-3 p-2 bg-muted/40 rounded-xl animate-in zoom-in-95">
                 <div className="relative w-12 h-12 rounded-lg overflow-hidden shrink-0 bg-slate-900 flex items-center justify-center">
                    {attachedMedia.type === 'image' ? (
-                     <Image src={attachedMedia.url} alt="Selected" fill className="object-cover" />
+                     <img src={attachedMedia.url} alt="Selected" className="w-full h-full object-cover" />
                    ) : attachedMedia.type === 'video' ? (
                      <Video className="w-5 h-5 text-white" />
                    ) : (

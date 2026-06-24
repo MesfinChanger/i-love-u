@@ -37,7 +37,7 @@ service cloud.firestore {
       allow create, update, delete: if isOwner(userId);
     }
 
-    // Discovery Profiles: Publicly shared snippets (camelCase normalization)
+    // Discovery Profiles: Publicly shared snippets (camelCase normalized)
     match /publicProfiles/{userId} {
       allow read: if true;
       allow write: if isOwner(userId);
