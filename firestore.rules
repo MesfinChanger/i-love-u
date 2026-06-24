@@ -25,7 +25,7 @@ service cloud.firestore {
     }
 
     function isMatchParticipant(matchId) {
-      return isAuthenticated() && request.auth.uid in get(/databases/$(database)/documents/matches/$(matchId)).data.userIds;
+      return isAuthenticated() && (request.auth.uid in get(/databases/$(database)/documents/matches/$(matchId)).data.userIds);
     }
 
     // --- COLLECTION PROTOCOLS ---
@@ -37,7 +37,7 @@ service cloud.firestore {
       allow create, update, delete: if isOwner(userId);
     }
 
-    // Discovery Profiles: Publicly shared snippets (camelCase normalized)
+    // Discovery Profiles: Publicly shared snippets
     match /publicProfiles/{userId} {
       allow read: if true;
       allow write: if isOwner(userId);
@@ -53,6 +53,12 @@ service cloud.firestore {
         allow read: if isMatchParticipant(matchId);
         allow create: if isMatchParticipant(matchId) && hasAcceptedPolicy();
         allow delete: if isMatchParticipant(matchId) && request.auth.uid == resource.data.senderId;
+      }
+
+      match /calls/{callId} {
+        allow read, write: if isMatchParticipant(matchId);
+        match /offerCandidates/{id} { allow read, write: if isMatchParticipant(matchId); }
+        match /answerCandidates/{id} { allow read, write: if isMatchParticipant(matchId); }
       }
     }
 

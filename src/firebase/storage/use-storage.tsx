@@ -83,7 +83,7 @@ export function useFirebaseStorage() {
   const deleteFile = async (pathOrUrl: string): Promise<void> => {
     if (!storage || !pathOrUrl) return;
     try {
-      // ref() intelligently handles full URLs
+      // ref() intelligently handles full URLs or partial paths
       const storageRef = ref(storage, pathOrUrl);
       await deleteObject(storageRef);
     } catch (err: any) {

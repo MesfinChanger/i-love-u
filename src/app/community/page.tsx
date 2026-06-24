@@ -10,7 +10,6 @@ import {
   Send, 
   Loader2, 
   ShieldCheck, 
-  ImageIcon, 
   X,
   Camera,
   Video,
