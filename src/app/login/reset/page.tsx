@@ -130,7 +130,7 @@ export default function ResetPasswordPage() {
                   <div className="p-4 bg-amber-50 rounded-2xl border border-amber-100 flex items-start gap-3 text-left">
                     <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                     <p className="text-[10px] text-amber-800 font-bold uppercase tracking-tight">
-                      Important: If you don't see it within 60 seconds, please check your Spam or Junk folder.
+                      Important: Look for an email from <strong>noreply@iLoveU.com</strong>. If you don't see it within 60 seconds, please check your Spam or Junk folder.
                     </p>
                   </div>
                 </div>
