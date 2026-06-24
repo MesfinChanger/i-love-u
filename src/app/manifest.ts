@@ -1,10 +1,9 @@
-
 import { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'I Love U Dating',
-    short_name: 'I Love U',
+    name: 'I LOVE U Dating',
+    short_name: 'I LOVE U',
     description: 'Respect & Love is Mandatory. AI-powered dating and cultural exchange.',
     start_url: '/',
     display: 'standalone',
