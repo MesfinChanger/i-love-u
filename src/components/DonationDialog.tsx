@@ -26,7 +26,10 @@ import {
   MapPin,
   AtSign,
   Phone,
-  ArrowRight
+  ArrowRight,
+  Building2,
+  Map,
+  Hash
 } from 'lucide-react';
 import { useUser, useFirestore, useDoc } from '@/firebase';
 import { doc } from 'firebase/firestore';
@@ -70,6 +73,9 @@ export function DonationDialog({ trigger }: DonationDialogProps) {
   const [guestEmail, setGuestEmail] = useState('');
   const [guestPhone, setGuestPhone] = useState('');
   const [guestAddress, setGuestAddress] = useState('');
+  const [guestCity, setGuestCity] = useState('');
+  const [guestState, setGuestState] = useState('');
+  const [guestZip, setGuestZip] = useState('');
   const [pendingAmount, setPendingAmount] = useState<string | null>(null);
 
   const userCurrency = profile?.currency || 'USD';
@@ -113,8 +119,8 @@ export function DonationDialog({ trigger }: DonationDialogProps) {
   const handleGuestSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!pendingAmount) return;
-    if (!guestAddress) {
-      toast({ variant: "destructive", title: "Address Required", description: "Billing address is mandatory for guests. ❤️" });
+    if (!guestAddress || !guestCity || !guestState || !guestZip) {
+      toast({ variant: "destructive", title: "Location Required", description: "Full billing address is mandatory for guests. ❤️" });
       return;
     }
     if (!guestEmail && !guestPhone) {
@@ -125,10 +131,11 @@ export function DonationDialog({ trigger }: DonationDialogProps) {
     setIsDonating(true);
     setShowGuestForm(false);
     try {
+      const fullAddress = `${guestAddress}, ${guestCity}, ${guestState}, ${guestZip}`;
       const result = await createDonationSession(parseFloat(pendingAmount), userCurrency, 'guest', {
         email: guestEmail,
         phone: guestPhone,
-        address: guestAddress
+        address: fullAddress
       });
       if (result?.url) {
         window.location.href = result.url;
@@ -158,7 +165,7 @@ export function DonationDialog({ trigger }: DonationDialogProps) {
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden relative">
+      <DialogContent className="sm:max-w-md rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden relative max-h-[90vh] overflow-y-auto">
         {isDonating && (
           <div className="absolute inset-0 z-[60] bg-white/90 backdrop-blur-sm flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-300">
             <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-6">
@@ -248,43 +255,44 @@ export function DonationDialog({ trigger }: DonationDialogProps) {
                <div className="space-y-4">
                   <div className="space-y-1.5">
                      <Label className="text-[9px] font-black uppercase tracking-widest ml-1 flex items-center gap-2">
-                        <MapPin className="w-2.5 h-2.5" /> Billing Address
+                        <MapPin className="w-2.5 h-2.5 text-primary" /> Street Address
                      </Label>
-                     <Input 
-                        value={guestAddress} 
-                        onChange={e => setGuestAddress(e.target.value)} 
-                        placeholder="Street, City, Country" 
-                        className="h-11 rounded-xl bg-muted/30 border-none font-bold text-xs"
-                        required
-                     />
+                     <Input value={guestAddress} onChange={e => setGuestAddress(e.target.value)} placeholder="123 Heart Lane" className="h-11 rounded-xl bg-muted/30 border-none font-bold text-xs" required />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                     <div className="space-y-1.5">
+                        <Label className="text-[9px] font-black uppercase tracking-widest ml-1 flex items-center gap-2">
+                           <Building2 className="w-2.5 h-2.5 text-primary" /> City
+                        </Label>
+                        <Input value={guestCity} onChange={e => setGuestCity(e.target.value)} placeholder="City" className="h-11 rounded-xl bg-muted/30 border-none font-bold text-xs" required />
+                     </div>
+                     <div className="space-y-1.5">
+                        <Label className="text-[9px] font-black uppercase tracking-widest ml-1 flex items-center gap-2">
+                           <Map className="w-2.5 h-2.5 text-primary" /> State
+                        </Label>
+                        <Input value={guestState} onChange={e => setGuestState(e.target.value)} placeholder="State" className="h-11 rounded-xl bg-muted/30 border-none font-bold text-xs" required />
+                     </div>
                   </div>
                   <div className="space-y-1.5">
                      <Label className="text-[9px] font-black uppercase tracking-widest ml-1 flex items-center gap-2">
-                        <AtSign className="w-2.5 h-2.5" /> Email
+                        <Hash className="w-2.5 h-2.5 text-primary" /> Zip / Postal
                      </Label>
-                     <Input 
-                        type="email" 
-                        value={guestEmail} 
-                        onChange={e => setGuestEmail(e.target.value)} 
-                        placeholder="heart@example.com" 
-                        className="h-11 rounded-xl bg-muted/30 border-none font-bold text-xs"
-                     />
+                     <Input value={guestZip} onChange={e => setGuestZip(e.target.value)} placeholder="00000" className="h-11 rounded-xl bg-muted/30 border-none font-bold text-xs" required />
                   </div>
-                  <div className="space-y-1.5">
-                     <Label className="text-[9px] font-black uppercase tracking-widest ml-1 flex items-center gap-2">
-                        <Phone className="w-2.5 h-2.5" /> Phone
-                     </Label>
-                     <Input 
-                        type="tel" 
-                        value={guestPhone} 
-                        onChange={e => setGuestPhone(e.target.value)} 
-                        placeholder="+1..." 
-                        className="h-11 rounded-xl bg-muted/30 border-none font-bold text-xs"
-                     />
+                  <div className="grid grid-cols-2 gap-3 border-t pt-4 border-dashed">
+                     <div className="space-y-1.5">
+                        <Label className="text-[9px] font-black uppercase tracking-widest ml-1 flex items-center gap-2">
+                           <AtSign className="w-2.5 h-2.5" /> Email
+                        </Label>
+                        <Input type="email" value={guestEmail} onChange={e => setGuestEmail(e.target.value)} placeholder="heart@example.com" className="h-11 rounded-xl bg-muted/30 border-none font-bold text-xs" />
+                     </div>
+                     <div className="space-y-1.5">
+                        <Label className="text-[9px] font-black uppercase tracking-widest ml-1 flex items-center gap-2">
+                           <Phone className="w-2.5 h-2.5" /> Phone
+                        </Label>
+                        <Input type="tel" value={guestPhone} onChange={e => setGuestPhone(e.target.value)} placeholder="+1..." className="h-11 rounded-xl bg-muted/30 border-none font-bold text-xs" />
+                     </div>
                   </div>
-                  <p className="text-[8px] text-muted-foreground italic font-medium leading-tight text-center">
-                    Mandatory billing info for guests. Provide email or phone. ❤️
-                  </p>
                </div>
                <div className="flex gap-2">
                   <Button variant="ghost" onClick={() => setShowGuestForm(false)} className="h-12 rounded-xl text-[9px] font-black uppercase tracking-widest">Back</Button>

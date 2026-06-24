@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, Suspense, useMemo } from 'react';
@@ -24,7 +25,11 @@ import {
   Trash2,
   CheckCircle2,
   AlertTriangle,
-  Clock
+  Clock,
+  MapPin,
+  Building2,
+  Map,
+  Hash
 } from 'lucide-react';
 import { 
   AlertDialog,
@@ -53,11 +58,6 @@ import Image from 'next/image';
 import { LiveCamera } from '@/components/LiveCamera';
 import { Progress } from "@/components/ui/progress";
 
-/**
- * @fileOverview Profile Console.
- * Strictly enforces Binary Identity Protocol (Male/Female only).
- * sessions: Added High-Security Idle Timeout management.
- */
 const GENDERS = [
   { value: 'male', label: 'Male' },
   { value: 'female', label: 'Female' }
@@ -99,6 +99,7 @@ function ProfileContent() {
   const [city, setCity] = useState(''); 
   const [state, setState] = useState(''); 
   const [country, setCountry] = useState('US');
+  const [postalCode, setPostalCode] = useState('');
 
   const [displayName, setDisplayName] = useState('');
   const [gender, setGender] = useState('');
@@ -141,6 +142,7 @@ function ProfileContent() {
       setCity(profileData.city || '');
       setState(profileData.state || '');
       setCountry(profileData.country || 'US');
+      setPostalCode(profileData.postalCode || '');
       setDisplayName(profileData.displayName || '');
       setGender(profileData.gender || '');
       setBio(profileData.bio || '');
@@ -162,7 +164,7 @@ function ProfileContent() {
       await setDoc(doc(db, 'users', user.uid), {
         firstName, lastName, email, phoneNumber, birthdate, photoUrl,
         additionalPhotoUrls, publicVideoUrl, gender, bio, address1,
-        city, state, country, publicNickname, isPhotoPublic,
+        city, state, country, postalCode, publicNickname, isPhotoPublic,
         isAgeVerified, isRespectful, isHuman, preferredLanguage, currency,
         idleTimeout: parseInt(idleTimeout),
         updatedAt: serverTimestamp()
@@ -180,7 +182,7 @@ function ProfileContent() {
     setIsSigningOut(true);
     try {
       await signOut(auth);
-      router.push('/'); // Redirect to home page
+      router.push('/');
     } finally {
       setIsSigningOut(false);
     }
@@ -230,16 +232,6 @@ function ProfileContent() {
           </div>
         </div>
 
-        {isStorageUploading && (
-          <div className="mb-6 space-y-2 p-6 bg-white rounded-[2rem] shadow-sm animate-in fade-in" role="status">
-             <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-primary">
-                <span>Securing Cloud Bridge...</span>
-                <span>{Math.round(uploadProgress)}%</span>
-             </div>
-             <Progress value={uploadProgress} className="h-2" />
-          </div>
-        )}
-
         <Tabs defaultValue="personal" className="w-full">
           <TabsList className="w-full h-16 bg-white/50 rounded-[2rem] p-1 mb-8 border shadow-sm backdrop-blur-md overflow-x-auto no-scrollbar">
             <TabsTrigger value="personal" className="flex-1 rounded-3xl text-[10px] font-black uppercase tracking-widest gap-2">Personal</TabsTrigger>
@@ -266,9 +258,36 @@ function ProfileContent() {
 
           <TabsContent value="address" className="space-y-6">
             <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-10 space-y-8">
-              <div className="space-y-3"><Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Business Address / Line 1</Label><Input value={address1} onChange={e => setAddress1(e.target.value)} className="rounded-2xl border-none bg-muted/40 h-14 px-6 text-lg font-bold" /></div>
+              <div className="space-y-3">
+                <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 flex items-center gap-2">
+                  <MapPin className="w-3.5 h-3.5 text-primary" /> Street Address
+                </Label>
+                <Input value={address1} onChange={e => setAddress1(e.target.value)} placeholder="123 Heart Lane" className="rounded-2xl border-none bg-muted/40 h-14 px-6 text-lg font-bold" />
+              </div>
+
               <div className="grid sm:grid-cols-2 gap-8">
-                 <div className="space-y-3">
+                <div className="space-y-3">
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 flex items-center gap-2">
+                    <Building2 className="w-3.5 h-3.5 text-primary" /> City
+                  </Label>
+                  <Input value={city} onChange={e => setCity(e.target.value)} placeholder="Metropolis" className="rounded-2xl border-none bg-muted/40 h-14 px-6 font-bold" />
+                </div>
+                <div className="space-y-3">
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 flex items-center gap-2">
+                    <Map className="w-3.5 h-3.5 text-primary" /> State / Province
+                  </Label>
+                  <Input value={state} onChange={e => setState(e.target.value)} placeholder="Region" className="rounded-2xl border-none bg-muted/40 h-14 px-6 font-bold" />
+                </div>
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-8">
+                <div className="space-y-3">
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 flex items-center gap-2">
+                    <Hash className="w-3.5 h-3.5 text-primary" /> Zip / Postal Code
+                  </Label>
+                  <Input value={postalCode} onChange={e => setPostalCode(e.target.value)} placeholder="00000" className="rounded-2xl border-none bg-muted/40 h-14 px-6 font-bold" />
+                </div>
+                <div className="space-y-3">
                   <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Country Origin</Label>
                   <Select value={country} onValueChange={setCountry}>
                     <SelectTrigger className="rounded-2xl border-none bg-muted/40 h-14 px-6 font-bold"><SelectValue /></SelectTrigger>
@@ -304,7 +323,6 @@ function ProfileContent() {
                 <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Protocol Version 2.1.0</p>
               </div>
 
-              {/* IDLE TIMEOUT CONFIG */}
               <div className="space-y-4 p-6 bg-slate-900 text-white rounded-[1.5rem] shadow-xl relative overflow-hidden group">
                  <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:rotate-12 transition-transform">
                     <Clock className="w-20 h-20 text-primary" />
