@@ -1,10 +1,10 @@
-
 rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
     match /{allPaths=**} {
       // Testing Protocol: Full permissive access to resolve initial setup ripples.
+      // In production, you would restrict this to authenticated users: if request.auth != null;
       allow read, write: if true;
     }
   }
