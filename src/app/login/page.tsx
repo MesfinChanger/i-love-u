@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, Suspense } from 'react';
@@ -63,7 +64,6 @@ function LoginContent() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  // Pre-Sign-Up Consent State
   const [agreedAge, setAgreedAge] = useState(false);
   const [agreedTerms, setAgreedTerms] = useState(false);
   const [agreedResponsibility, setAgreedResponsibility] = useState(false);
@@ -136,10 +136,18 @@ function LoginContent() {
       }
     } catch (error: any) {
       console.error("Auth error:", error);
+      let message = error.message || "Verify your credentials and join again. ❤️";
+      
+      if (error.code === 'auth/invalid-credential') {
+        message = "Identity Mismatch: The secure phrase or email is incorrect. If you haven't joined yet, please use the Join tab! ✨";
+      } else if (error.code === 'auth/user-not-found') {
+        message = "No account found with this email. Did you mean to Join? ❤️";
+      }
+
       toast({ 
         variant: "destructive", 
         title: "Access Ripple", 
-        description: error.message || "Verify your credentials and join again. ❤️" 
+        description: message 
       });
     } finally {
       setIsLoading(false);

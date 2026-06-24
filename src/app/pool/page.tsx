@@ -25,7 +25,8 @@ import {
   ArrowRight,
   TrendingDown,
   Scale,
-  Brain
+  Brain,
+  Clock
 } from 'lucide-react';
 import { useUser, useFirestore, useCollection, useDoc } from '@/firebase';
 import { collection, addDoc, query, orderBy, serverTimestamp, limit, where, doc } from 'firebase/firestore';
@@ -115,7 +116,6 @@ export default function ProsperityPoolPage() {
     <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
       <Header />
       
-      {/* POOL HERO */}
       <section className="relative overflow-hidden bg-slate-900 py-16 px-6 text-white text-center">
          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-blue-900/40 via-transparent to-transparent pointer-events-none" />
          <div className="max-w-4xl mx-auto space-y-6 relative z-10">
@@ -133,7 +133,6 @@ export default function ProsperityPoolPage() {
 
       <main className="max-w-7xl mx-auto w-full px-6 grid lg:grid-cols-12 gap-8 mt-10">
         
-        {/* LEFT COLUMN: Posting & Topics */}
         <div className="lg:col-span-4 space-y-8">
            <Card className="rounded-[2.5rem] border-none shadow-xl bg-white overflow-hidden sticky top-24">
               <div className="bg-primary/5 p-8 border-b">
@@ -187,7 +186,6 @@ export default function ProsperityPoolPage() {
            </Card>
         </div>
 
-        {/* RIGHT COLUMN: The Pool Feed */}
         <div className="lg:col-span-8 space-y-8">
            <div className="flex items-center justify-between overflow-x-auto no-scrollbar gap-2 pb-2">
               <Button 
@@ -253,14 +251,6 @@ export default function ProsperityPoolPage() {
                            <div className="flex items-center gap-2 text-muted-foreground/40">
                               <Clock className="w-3.5 h-3.5" />
                               <span className="text-[10px] font-bold uppercase tracking-widest">Recorded in Pool</span>
-                           </div>
-                           <div className="flex gap-2">
-                              <Button variant="ghost" size="sm" className="rounded-xl h-8 px-3 text-[9px] font-black uppercase tracking-widest text-blue-500 hover:bg-blue-50">
-                                 Resonate
-                              </Button>
-                              <Button variant="ghost" size="sm" className="rounded-xl h-8 px-3 text-[9px] font-black uppercase tracking-widest text-slate-400">
-                                 Observe
-                              </Button>
                            </div>
                         </div>
                      </div>

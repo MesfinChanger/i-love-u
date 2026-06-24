@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Sparkles, Heart, User, ShoppingBag, Globe2, Search, Home, Waves } from 'lucide-react';
+import { Sparkles, Heart, User, ShoppingBag, Globe2, Waves, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useTranslation } from './providers/LanguageProvider';

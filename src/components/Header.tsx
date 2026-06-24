@@ -11,12 +11,10 @@ import {
   Sparkles, 
   Star, 
   MessageCircle, 
-  HeartHandshake,
   Menu,
   Globe2,
   ShoppingBag,
   User,
-  LayoutGrid,
   LogOut,
   Loader2,
   Languages,
@@ -76,7 +74,7 @@ export function Header() {
     setIsSigningOut(true);
     try {
       await signOut(auth);
-      router.push('/'); // Redirect to home page
+      router.push('/'); 
       toast({ title: "Disconnected", description: "Successfully signed out. ❤️" });
     } catch (e) {
       toast({ variant: "destructive", title: "Error", description: "Sign out failed." });
@@ -99,7 +97,6 @@ export function Header() {
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur-md" role="banner">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        {/* Logo Link + Navigation Menu */}
         <div className="flex items-center gap-1">
           <Link href="/" className="flex items-center gap-3 group hover:opacity-80 transition-opacity" aria-label="Go to Home">
             <div className="relative p-1.5 rounded-xl bg-primary/5">
@@ -229,7 +226,6 @@ export function Header() {
           </Sheet>
         </div>
         
-        {/* Universal Actions */}
         <div className="flex items-center gap-1">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -264,7 +260,6 @@ export function Header() {
             <CircleHelp className="w-5 h-5" aria-hidden="true" />
           </Button>
 
-          {/* Notification Center */}
           <Sheet>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="text-muted-foreground relative w-10 h-10" aria-label="View notifications">
@@ -299,7 +294,7 @@ export function Header() {
                       badge="SYSTEM"
                     />
                     <NotificationItem 
-                      icon={HeartHandshake} 
+                      icon={TrendingDown} 
                       title="Eliminate Poverty" 
                       desc="A donation has been sparked in your region. The Prosperity Fund is growing! ❤️" 
                       time="2h ago"
