@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useMemo, useEffect, Suspense } from 'react';
@@ -102,7 +101,17 @@ function DonateContent() {
 
     setIsDonating(true);
     try {
-      const result = await createDonationSession(donationAmount, userCurrency, user.uid);
+      // Sync identity info from profile
+      const details = {
+        email: profile?.email || user.email || '',
+        phone: profile?.phoneNumber || '',
+        address: profile?.address1 || '',
+        city: profile?.city || '',
+        state: profile?.state || '',
+        zip: profile?.postalCode || ''
+      };
+
+      const result = await createDonationSession(donationAmount, userCurrency, user.uid, details);
       if (result?.url) {
         window.location.href = result.url;
       } else if (result?.error) {
@@ -134,11 +143,13 @@ function DonateContent() {
     setIsDonating(true);
     setShowGuestForm(false);
     try {
-      const fullAddress = `${guestAddress}, ${guestCity}, ${guestState}, ${guestZip}`;
       const result = await createDonationSession(parseFloat(pendingAmount), userCurrency, 'guest', {
         email: guestEmail,
         phone: guestPhone,
-        address: fullAddress
+        address: guestAddress,
+        city: guestCity,
+        state: guestState,
+        zip: guestZip
       });
       if (result?.url) {
         window.location.href = result.url;

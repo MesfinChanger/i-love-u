@@ -14,7 +14,7 @@ export async function createDonationSession(
   amount: number, 
   currency: string, 
   userId: string, 
-  guestInfo?: { email?: string; phone?: string; address?: string }
+  details?: { email?: string; phone?: string; address?: string; city?: string; state?: string; zip?: string }
 ) {
   if (!isStripeConfigured) {
     return { error: 'PROSPERITY_BRIDGE_OFFLINE: Please configure your STRIPE_SECRET_KEY.' };
@@ -23,7 +23,7 @@ export async function createDonationSession(
   try {
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
-      customer_email: guestInfo?.email || undefined,
+      customer_email: details?.email || undefined,
       line_items: [
         {
           price_data: {
@@ -43,8 +43,12 @@ export async function createDonationSession(
       metadata: { 
         userId: userId || 'guest', 
         type: 'donation',
-        guestPhone: guestInfo?.phone || '',
-        guestAddress: guestInfo?.address || ''
+        email: details?.email || '',
+        phone: details?.phone || '',
+        address: details?.address || '',
+        city: details?.city || '',
+        state: details?.state || '',
+        zip: details?.zip || ''
       },
     });
 
@@ -127,7 +131,7 @@ export async function createGiftPurchaseSession(
   amount: number, 
   currency: string, 
   userId: string,
-  guestInfo?: { email?: string; phone?: string; address?: string }
+  details?: { email?: string; phone?: string; address?: string; city?: string; state?: string; zip?: string }
 ) {
   if (!isStripeConfigured) {
     return { error: 'GIFT_BRIDGE_OFFLINE: Please configure your STRIPE_SECRET_KEY.' };
@@ -136,7 +140,7 @@ export async function createGiftPurchaseSession(
   try {
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
-      customer_email: guestInfo?.email || undefined,
+      customer_email: details?.email || undefined,
       line_items: [
         {
           price_data: {
@@ -157,8 +161,12 @@ export async function createGiftPurchaseSession(
         userId: userId || 'guest', 
         type: 'gift_purchase', 
         productName,
-        guestPhone: guestInfo?.phone || '',
-        guestAddress: guestInfo?.address || ''
+        email: details?.email || '',
+        phone: details?.phone || '',
+        address: details?.address || '',
+        city: details?.city || '',
+        state: details?.state || '',
+        zip: details?.zip || ''
       },
     });
 

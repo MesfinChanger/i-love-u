@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
@@ -116,7 +115,17 @@ function ShopContent() {
     
     setIsPurchasing(product.id);
     try {
-      const result = await createGiftPurchaseSession(product.name, product.price, userCurrency, user.uid);
+      // Sync identity info from profile
+      const details = {
+        email: profile?.email || user.email || '',
+        phone: profile?.phoneNumber || '',
+        address: profile?.address1 || '',
+        city: profile?.city || '',
+        state: profile?.state || '',
+        zip: profile?.postalCode || ''
+      };
+
+      const result = await createGiftPurchaseSession(product.name, product.price, userCurrency, user.uid, details);
       if (result?.url) {
         window.location.href = result.url;
       } else if (result?.error) {
@@ -144,11 +153,13 @@ function ShopContent() {
     setIsPurchasing(pendingProduct.id);
     setShowGuestForm(false);
     try {
-      const fullAddress = `${guestAddress}, ${guestCity}, ${guestState}, ${guestZip}`;
       const result = await createGiftPurchaseSession(pendingProduct.name, pendingProduct.price, userCurrency, 'guest', {
         email: guestEmail,
         phone: guestPhone,
-        address: fullAddress
+        address: guestAddress,
+        city: guestCity,
+        state: guestState,
+        zip: guestZip
       });
       if (result?.url) {
         window.location.href = result.url;
