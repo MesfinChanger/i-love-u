@@ -9,8 +9,8 @@ I Love U is optimized for high-performance hosting on Firebase and mobile suppor
 ### Steps to Publish:
 
 1.  **Production Credentials**: 
-    - Provide a valid `NEXT_PUBLIC_FIREBASE_API_KEY` in your environment (see `.env`).
     - Verify Firebase configuration in `src/firebase/config.ts`.
+    - Provide a valid `NEXT_PUBLIC_FIREBASE_API_KEY` in your environment (see `.env`).
     - Set `NEXT_PUBLIC_BASE_URL` to your production domain: `https://studio-9260674464-8df20.web.app`.
 
 2.  **Deploy to Web**: 
@@ -29,18 +29,16 @@ I Love U is optimized for high-performance hosting on Firebase and mobile suppor
 
 ## 🛠 Features for Global Growth
 
-- **Stripe Integration**: Securely processing donations, ad budgets, and gift purchases to fund our mission.
-- **Spark Rooms**: Sacred dating spaces with "Relationship Witnessing" to vouch for success.
 - **Secure E2EE Messaging**: End-to-end encrypted private messaging using the Web Crypto API.
 - **Prosperity Mission**: Supporting community-driven opportunities, entrepreneurship, and economic growth through job creation.
 - **Mystery Discovery**: Identity (photos/age/name) revealed only after mutual connection.
 - **Respect Moderation**: Genkit AI-powered enforcement for community kindness.
+- **Spark Rooms**: Sacred dating spaces with "Relationship Witnessing" to vouch for success.
 - **Localized Marketplace**: Global currency support for gifts that empower local sellers.
 
 ## 📁 Essential Guides
 - [Testing Guide](./docs/TESTING_GUIDE.md) - Security, E2EE, and legal verification.
 - [Store Submission Guide](./docs/STORE_SUBMISSION_GUIDE.md) - Mobile publishing instructions.
-- [Upgrade Guide](./docs/UPGRADE_GUIDE.md) - How to scale the mission.
 - [Firebase Setup](./docs/FIREBASE_SETUP.md) - **Mandatory** Storage & CORS configuration.
 
 ---

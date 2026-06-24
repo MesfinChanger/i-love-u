@@ -12,10 +12,6 @@ service cloud.firestore {
       return isAuthenticated() && request.auth.uid == userId;
     }
 
-    function getUserData() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
-    }
-
     function isAdmin() {
       return isAuthenticated() && 
              exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
@@ -36,15 +32,12 @@ service cloud.firestore {
 
     // User Profiles: Private identity and mission data
     match /users/{userId} {
-      // Allow any authenticated heart to 'get' a profile snippet for matches/discovery
       allow get: if isAuthenticated();
-      // Only admins or the owner can 'list' (query) the private users collection
       allow list: if isAdmin() || isOwner(userId);
-      // Standard owner-only write permissions
       allow create, update, delete: if isOwner(userId);
     }
 
-    // Discovery Profiles: Publicly shared snippets for carousel (Normalized to camelCase)
+    // Discovery Profiles: Publicly shared snippets (camelCase normalization)
     match /publicProfiles/{userId} {
       allow read: if true;
       allow write: if isOwner(userId);
@@ -61,36 +54,13 @@ service cloud.firestore {
         allow create: if isMatchParticipant(matchId) && hasAcceptedPolicy();
         allow delete: if isMatchParticipant(matchId) && request.auth.uid == resource.data.senderId;
       }
-
-      match /calls/{callId} {
-        allow read, write: if isMatchParticipant(matchId);
-        
-        match /offerCandidates/{candidateId} {
-          allow read, write: if isMatchParticipant(matchId);
-        }
-        match /answerCandidates/{candidateId} {
-          allow read, write: if isMatchParticipant(matchId);
-        }
-      }
     }
 
     // Ads: Community reach campaigns
     match /ads/{adId} {
-      // Grant explicit public read for Discover feed and Sponsored sparks
       allow read, list, get: if true;
       allow create: if isAuthenticated() && request.resource.data.advertiserId == request.auth.uid;
       allow update: if isAuthenticated() && (resource.data.advertiserId == request.auth.uid || isAdmin());
-    }
-
-    // Shops: Global artisan storefronts
-    match /shops/{shopId} {
-      allow read: if true;
-      allow write: if isAuthenticated() && (request.resource.data.ownerId == request.auth.uid || resource.data.ownerId == request.auth.uid);
-    }
-
-    // Products: Global inventory
-    match /global_products/{productId} {
-      allow read: if true;
     }
 
     // Community Messages: The Global Wall
@@ -106,7 +76,7 @@ service cloud.firestore {
       allow read: if isAdmin();
     }
     
-    // Config: Platform settings (e.g. pricing)
+    // Config: Platform settings
     match /config/{configId} {
       allow read: if true;
       allow write: if isAdmin();
