@@ -37,15 +37,15 @@ service cloud.firestore {
 
     // User Profiles: Private identity and mission data
     match /users/{userId} {
-      // Explicit 'get' for authenticated hearts (essential for matches/discovery)
+      // Allow any authenticated heart to 'get' a profile for matches/discovery
       allow get: if isAuthenticated();
-      // Only admins or the owner can 'list' (query)
+      // Only admins or the owner can 'list' (query) the private users collection
       allow list: if isAdmin() || isOwner(userId);
       // Standard owner-only write permissions
       allow create, update, delete: if isOwner(userId);
     }
 
-    // Discovery Profiles: Publicly shared snippets for carousel
+    // Discovery Profiles: Publicly shared snippets for carousel (Normalized to camelCase)
     match /publicProfiles/{userId} {
       allow read: if true;
       allow write: if isOwner(userId);
@@ -77,7 +77,7 @@ service cloud.firestore {
 
     // Ads: Community reach campaigns
     match /ads/{adId} {
-      // Grant explicit public read for Discover feed
+      // Grant explicit public read for Discover feed and Sponsored sparks
       allow read, list, get: if true;
       allow create: if isAuthenticated() && request.resource.data.advertiserId == request.auth.uid;
       allow update: if isAuthenticated() && (resource.data.advertiserId == request.auth.uid || isAdmin());

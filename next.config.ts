@@ -35,7 +35,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  // In Next.js 15, some action configs are still nested in experimental for specific versions
+  // In Next.js 15, serverActions configuration must be nested inside experimental
   experimental: {
     serverActions: {
       bodySizeLimit: '50mb',
