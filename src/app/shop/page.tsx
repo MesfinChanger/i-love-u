@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, useMemo } from 'react';
 import { Header } from '@/components/Header';
 import { BottomNav } from '@/components/BottomNav';
 import { Button } from '@/components/ui/button';
@@ -22,16 +23,19 @@ import {
   ArrowRight,
   Building2,
   Map,
-  Hash
+  Hash,
+  Store,
+  ChevronRight,
+  Sparkles
 } from 'lucide-react';
 import Image from 'next/image';
 import { useFirestore, useCollection, useUser, useDoc } from '@/firebase';
-import { collection, query, addDoc, serverTimestamp, doc } from 'firebase/firestore';
+import { collection, query, addDoc, serverTimestamp, doc, where, limit } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { createGiftPurchaseSession } from '@/lib/stripe-actions';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { useTranslation } from '@/components/providers/LanguageProvider';
 import { CURRENCIES } from '@/lib/world-data';
@@ -42,6 +46,7 @@ import {
   DialogTitle, 
   DialogDescription 
 } from '@/components/ui/dialog';
+import { cn } from '@/lib/utils';
 
 const GIFT_CATEGORIES = ["Flowers", "Jewelry", "Electronics", "Apparel", "Home", "Ornamental"];
 
@@ -51,9 +56,68 @@ function ShopContent() {
   const { toast } = useToast();
   const { t } = useTranslation();
   const searchParams = useSearchParams();
+  const router = useRouter();
+  
   const [searchQuery, setSearchQuery] = useState('');
   const [isPurchasing, setIsPurchasing] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
+
+  // Recipient Context
+  const recipientId = searchParams.get('recipientId');
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const userRef = useMemoFirebase(() => {
+    if (!db || !user) return null;
+    return doc(db, 'users', user.uid);
+  }, [db, user]);
+  const { data: myProfile } = useDoc(userRef);
+
+  const recipientRef = useMemoFirebase(() => {
+    if (!db || !recipientId) return null;
+    return doc(db, 'users', recipientId);
+  }, [db, recipientId]);
+  const { data: recipientProfile } = useDoc(recipientRef);
+
+  // Determine target location for "Nearest" logic
+  const targetLocation = useMemo(() => {
+    if (recipientProfile) {
+      return {
+        city: recipientProfile.city,
+        state: recipientProfile.state,
+        country: recipientProfile.country,
+        name: recipientProfile.displayName || recipientProfile.publicNickname || "Partner"
+      };
+    }
+    return {
+      city: myProfile?.city,
+      state: myProfile?.state,
+      country: myProfile?.country,
+      name: "You"
+    };
+  }, [recipientProfile, myProfile]);
+
+  // Fetch local sellers
+  const localSellersQuery = useMemoFirebase(() => {
+    if (!db || !targetLocation.city) return null;
+    return query(
+      collection(db, 'users'),
+      where('isSeller', '==', true),
+      where('city', '==', targetLocation.city),
+      limit(10)
+    );
+  }, [db, targetLocation.city]);
+
+  const { data: localSellers, loading: sellersLoading } = useCollection(localSellersQuery);
+
+  const productsQuery = useMemoFirebase(() => {
+    if (!db) return null;
+    return query(collection(db, 'global_products'), limit(20));
+  }, [db]);
+
+  const { data: dbProducts, loading: productsLoading } = useCollection(productsQuery);
 
   // Guest State
   const [showGuestForm, setShowGuestForm] = useState(false);
@@ -66,16 +130,6 @@ function ShopContent() {
   const [pendingProduct, setPendingProduct] = useState<any>(null);
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const userRef = useMemoFirebase(() => {
-    if (!db || !user) return null;
-    return doc(db, 'users', user.uid);
-  }, [db, user]);
-  const { data: profile } = useDoc(userRef);
-
-  useEffect(() => {
     if (searchParams.get('success')) {
       toast({
         title: "Gift Secured!",
@@ -83,13 +137,6 @@ function ShopContent() {
       });
     }
   }, [searchParams, toast]);
-
-  const productsQuery = useMemoFirebase(() => {
-    if (!db) return null;
-    return query(collection(db, 'global_products'));
-  }, [db]);
-
-  const { data: dbProducts, loading: productsLoading } = useCollection(productsQuery);
 
   const mockProducts = [
     { id: '1', name: 'Premium Roses', price: 29.99, category: 'Flowers', imageUrl: 'https://picsum.photos/seed/roses/300/300' },
@@ -103,7 +150,7 @@ function ShopContent() {
   const displayProducts = (dbProducts && dbProducts.length > 0) ? dbProducts : mockProducts;
   const filteredProducts = displayProducts.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
-  const userCurrency = profile?.currency || 'USD';
+  const userCurrency = myProfile?.currency || 'USD';
   const currencySymbol = CURRENCIES.find(c => c.code === userCurrency)?.symbol || '$';
 
   const handlePurchase = async (product: any) => {
@@ -115,14 +162,13 @@ function ShopContent() {
     
     setIsPurchasing(product.id);
     try {
-      // Sync identity info from profile
       const details = {
-        email: profile?.email || user.email || '',
-        phone: profile?.phoneNumber || '',
-        address: profile?.address1 || '',
-        city: profile?.city || '',
-        state: profile?.state || '',
-        zip: profile?.postalCode || ''
+        email: myProfile?.email || user.email || '',
+        phone: myProfile?.phoneNumber || '',
+        address: myProfile?.address1 || '',
+        city: myProfile?.city || '',
+        state: myProfile?.state || '',
+        zip: myProfile?.postalCode || ''
       };
 
       const result = await createGiftPurchaseSession(product.name, product.price, userCurrency, user.uid, details);
@@ -191,58 +237,130 @@ function ShopContent() {
         </div>
       )}
 
-      <main className="container mx-auto px-4 py-4">
-        <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+      <main className="container mx-auto px-4 py-4 max-w-7xl">
+        <div className="flex flex-col md:flex-row justify-between items-center mb-10 gap-6">
           <div className="text-center md:text-left">
-            <h1 className="text-3xl font-black tracking-tighter flex items-center justify-center md:justify-start gap-3">
-              <ShoppingBag className="w-8 h-8 text-primary" />
+            <h1 className="text-4xl font-black tracking-tighter flex items-center justify-center md:justify-start gap-3">
+              <ShoppingBag className="w-10 h-10 text-primary" />
               {t('shop.title')}
             </h1>
-            <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">{t('shop.subtitle')}</p>
+            <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest mt-1">{t('shop.subtitle')}</p>
           </div>
-          <div className="flex gap-2 w-full md:w-auto flex-wrap justify-center">
-            <div className="relative flex-grow md:w-64 max-w-sm">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/40" />
-              <Input 
-                placeholder={t('shop.searchPlaceholder')} 
-                className="pl-10 h-11 rounded-full text-sm bg-white border-none shadow-sm" 
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-              />
-            </div>
-            <Button variant="outline" size="sm" className="rounded-full h-11 px-6 text-[10px] font-black uppercase tracking-widest border-2 hover:bg-white" asChild>
-              <a href="/shop/manage">{t('shop.sellerPortal')}</a>
-            </Button>
+          
+          <div className="flex flex-col items-center md:items-end gap-3 w-full md:w-auto">
+             {recipientProfile && (
+               <Badge className="bg-pink-100 text-pink-600 border-none px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2 animate-in slide-in-from-top-2">
+                 <Heart className="w-3 h-3 fill-pink-600" />
+                 Shopping for {targetLocation.name}
+                 <button onClick={() => { router.replace('/shop'); }} className="ml-2 hover:opacity-70"><X className="w-3 h-3" /></button>
+               </Badge>
+             )}
+             <div className="flex gap-2 w-full justify-center md:justify-end">
+                <div className="relative flex-grow md:w-64 max-w-sm">
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/40" />
+                  <Input 
+                    placeholder={t('shop.searchPlaceholder')} 
+                    className="pl-12 h-12 rounded-full text-sm bg-white border-none shadow-sm" 
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                  />
+                </div>
+                <Button variant="outline" size="sm" className="rounded-full h-12 px-6 text-[10px] font-black uppercase tracking-widest border-2 hover:bg-white" asChild>
+                  <a href="/shop/manage">{t('shop.sellerPortal')}</a>
+                </Button>
+             </div>
           </div>
         </div>
 
-        <div className="flex gap-2 overflow-x-auto pb-4 mb-4 no-scrollbar">
+        {/* NEAREST ARTISANS SECTION */}
+        {targetLocation.city && (
+          <section className="mb-12 space-y-6">
+            <div className="flex items-center justify-between px-2">
+               <div className="space-y-1">
+                  <h2 className="text-xl font-black tracking-tight flex items-center gap-2">
+                    <MapPin className="w-5 h-5 text-primary" />
+                    Artisans Near {targetLocation.city}
+                  </h2>
+                  <p className="text-[9px] font-black uppercase text-muted-foreground tracking-widest">Supporting local prosperity for {targetLocation.name}</p>
+               </div>
+               <Badge variant="outline" className="h-6 font-black uppercase text-[8px] tracking-widest">Local Priority</Badge>
+            </div>
+
+            <div className="flex gap-6 overflow-x-auto pb-4 no-scrollbar">
+              {sellersLoading ? (
+                Array(3).fill(0).map((_, i) => (
+                  <div key={i} className="min-w-[280px] h-32 bg-white rounded-[2rem] animate-pulse" />
+                ))
+              ) : localSellers && localSellers.length > 0 ? (
+                localSellers.map((seller: any) => (
+                  <Card key={seller.id} className="min-w-[300px] rounded-[2.5rem] border-none shadow-lg bg-white overflow-hidden group hover:scale-[1.02] transition-all cursor-pointer">
+                    <CardContent className="p-6 flex items-center gap-4">
+                      <div className="w-16 h-16 rounded-2xl bg-primary/5 flex items-center justify-center relative shrink-0">
+                         <Store className="w-8 h-8 text-primary" />
+                         <div className="absolute -top-1 -right-1 bg-green-500 w-3 h-3 rounded-full border-2 border-white" />
+                      </div>
+                      <div className="min-w-0">
+                         <h3 className="font-black text-lg truncate leading-none">{seller.publicNickname || seller.displayName || "Local Shop"}</h3>
+                         <p className="text-[10px] text-muted-foreground font-medium italic mt-1">{seller.city}, {seller.country}</p>
+                         <div className="flex items-center gap-1.5 mt-2">
+                            <Star className="w-3 h-3 text-secondary fill-secondary" />
+                            <span className="text-[9px] font-bold text-slate-400 uppercase">Verified Merchant</span>
+                         </div>
+                      </div>
+                      <Button variant="ghost" size="icon" className="ml-auto rounded-full bg-muted group-hover:bg-primary group-hover:text-white transition-colors">
+                        <ChevronRight className="w-4 h-4" />
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))
+              ) : (
+                <div className="w-full p-10 text-center bg-white/40 rounded-[2.5rem] border-2 border-dashed flex flex-col items-center gap-3">
+                   <Building2 className="w-8 h-8 text-muted-foreground/20" />
+                   <p className="text-xs font-bold text-muted-foreground italic">"Global hearts, local impact." Connecting to nearest artisans...</p>
+                </div>
+              )}
+            </div>
+          </section>
+        )}
+
+        <div className="flex gap-2 overflow-x-auto pb-6 mb-6 no-scrollbar">
           {GIFT_CATEGORIES.map(cat => (
-            <Badge key={cat} variant="secondary" className="px-4 py-1.5 text-[10px] font-black uppercase cursor-pointer hover:bg-primary hover:text-white transition-colors whitespace-nowrap shadow-sm">
+            <Badge key={cat} variant="secondary" className="px-5 py-2 text-[10px] font-black uppercase cursor-pointer hover:bg-primary hover:text-white transition-colors whitespace-nowrap shadow-sm">
               {cat}
             </Badge>
           ))}
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
           {filteredProducts.map((product: any) => (
-            <Card key={product.id} className="overflow-hidden border-none shadow-sm hover:shadow-xl transition-all group rounded-[2rem] bg-white flex flex-col">
-              <div className="relative aspect-square overflow-hidden">
+            <Card key={product.id} className="overflow-hidden border-none shadow-sm hover:shadow-2xl transition-all group rounded-[2.5rem] bg-white flex flex-col relative">
+              {targetLocation.city && Math.random() > 0.7 && (
+                <div className="absolute top-4 left-4 z-20">
+                   <Badge className="bg-primary text-white border-none text-[8px] font-black uppercase h-6 px-3 shadow-lg flex items-center gap-1.5">
+                     <Sparkles className="w-3 h-3" />
+                     LOCAL FAVORITE
+                   </Badge>
+                </div>
+              )}
+              <div className="relative aspect-square overflow-hidden m-2 rounded-[2rem]">
                 <Image src={product.imageUrl} alt={product.name} fill className="object-cover group-hover:scale-110 transition-transform duration-700" />
-                <Badge className="absolute top-3 right-3 bg-black/40 backdrop-blur-md border-none text-[8px] font-black uppercase tracking-widest px-2 h-5">{product.category}</Badge>
+                <Badge className="absolute bottom-4 right-4 bg-black/40 backdrop-blur-md border-none text-[8px] font-black uppercase tracking-widest px-3 h-6">{product.category}</Badge>
               </div>
-              <CardHeader className="p-5 pb-0 flex-grow">
-                <CardTitle className="text-base font-black truncate tracking-tight mb-1">{product.name}</CardTitle>
-                <p className="text-primary font-black text-xl">{currencySymbol}{product.price}</p>
+              <CardHeader className="p-6 pb-0 flex-grow">
+                <CardTitle className="text-lg font-black truncate tracking-tight mb-1">{product.name}</CardTitle>
+                <div className="flex items-center justify-between">
+                   <p className="text-primary font-black text-2xl">{currencySymbol}{product.price}</p>
+                   {recipientProfile && <p className="text-[9px] font-black uppercase text-pink-500">For {targetLocation.name}</p>}
+                </div>
               </CardHeader>
-              <CardFooter className="p-5 pt-3">
+              <CardFooter className="p-6 pt-4">
                 <Button 
-                  className="w-full h-12 rounded-2xl gradient-bg gap-2 font-black text-[10px] uppercase tracking-widest shadow-lg shadow-primary/10 active:scale-95 transition-all" 
+                  className="w-full h-14 rounded-2xl gradient-bg gap-3 font-black text-[11px] uppercase tracking-widest shadow-xl shadow-primary/10 active:scale-95 transition-all group/buy" 
                   onClick={() => handlePurchase(product)}
                   disabled={!!isPurchasing}
                 >
-                  {isPurchasing === product.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShoppingCart className="w-4 h-4" />}
-                  {t('shop.buy')}
+                  {isPurchasing === product.id ? <Loader2 className="w-5 h-5 animate-spin" /> : <ShoppingCart className="w-5 h-5 transition-transform group-hover/buy:-translate-y-1" />}
+                  {recipientProfile ? 'Secure for Partner' : t('shop.buy')}
                 </Button>
               </CardFooter>
             </Card>
@@ -338,7 +456,7 @@ function ShopContent() {
 
 export default function ShopPage() {
   return (
-    <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><Loader2 className="animate-spin text-primary" /></div>}>
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><Loader2 className="animate-spin text-primary w-10 h-10" /></div>}>
       <ShopContent />
     </Suspense>
   );
