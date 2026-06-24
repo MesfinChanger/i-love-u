@@ -90,21 +90,7 @@ export default function Home() {
 
   const canEdit = profile?.isAdmin || (user?.uid === pageOwnerId && pageOwnerId !== "");
 
-  // Immediate Policy Bridge Protocol
-  useEffect(() => {
-    if (user && !userLoading) {
-      const hasAccepted = localStorage.getItem('iloveu_policy_accepted') === 'true';
-      if (hasAccepted) {
-        // We allow admins to see the landing page to edit it, otherwise redirect to discover
-        if (!canEdit) {
-          router.push('/discover');
-        }
-      } else {
-        router.push('/policy/agree');
-      }
-    }
-  }, [user, userLoading, router, canEdit]);
-
+  // Home Page Navigation Protocol: Logged in users can freely visit the home base.
   useEffect(() => {
     setMounted(true);
     setCurrentYear(new Date().getFullYear().toString());
@@ -196,10 +182,18 @@ export default function Home() {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <Link href="/login" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors hidden sm:block">Login</Link>
-            <Button size="sm" className="rounded-full h-10 px-6 gradient-bg font-black uppercase text-[9px] tracking-widest shadow-xl" asChild>
-              <Link href="/login">Launch Spark</Link>
-            </Button>
+            {user ? (
+               <Button size="sm" className="rounded-full h-10 px-6 gradient-bg font-black uppercase text-[9px] tracking-widest shadow-xl" asChild>
+                <Link href="/discover">Back to Hearts</Link>
+               </Button>
+            ) : (
+              <>
+                <Link href="/login" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors hidden sm:block">Login</Link>
+                <Button size="sm" className="rounded-full h-10 px-6 gradient-bg font-black uppercase text-[9px] tracking-widest shadow-xl" asChild>
+                  <Link href="/login">Launch Spark</Link>
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </header>
@@ -230,8 +224,8 @@ export default function Home() {
 
               <div className="flex flex-wrap gap-4 mt-8">
                 <Button size="lg" className="h-20 px-10 rounded-[2rem] text-xl font-black gradient-bg shadow-2xl shadow-primary/20 hover:scale-105 transition-transform group" asChild>
-                  <Link href="/login" className="flex items-center gap-3">
-                    Launch Spark 🚀
+                  <Link href={user ? "/discover" : "/login"} className="flex items-center gap-3">
+                    {user ? "Discover Hearts ✨" : "Launch Spark 🚀"}
                     <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
                   </Link>
                 </Button>

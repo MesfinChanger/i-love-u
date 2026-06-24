@@ -96,17 +96,20 @@ export function Header() {
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur-md" role="banner">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        {/* Navigation Menu + Logo */}
+        {/* Logo Link + Navigation Menu */}
         <div className="flex items-center gap-1">
+          <Link href="/" className="flex items-center gap-3 group hover:opacity-80 transition-opacity" aria-label="Go to Home">
+            <div className="relative p-1.5 rounded-xl bg-primary/5">
+              <Heart className="w-10 h-10 fill-primary text-primary transition-transform group-hover:scale-110 animate-heartbeat" aria-hidden="true" />
+            </div>
+            <span className="font-black text-xl tracking-[0.3em] text-primary uppercase ml-1 whitespace-nowrap">I LOVE U</span>
+          </Link>
+
           <Sheet>
             <SheetTrigger asChild>
-              <div className="flex items-center gap-3 group cursor-pointer hover:opacity-80 transition-opacity" aria-label="Open Navigation">
-                <div className="relative p-1.5 rounded-xl bg-primary/5">
-                  <Heart className="w-10 h-10 fill-primary text-primary transition-transform group-hover:scale-110 animate-heartbeat" aria-hidden="true" />
-                </div>
-                <span className="font-black text-xl tracking-[0.3em] text-primary uppercase ml-1 whitespace-nowrap">I LOVE U</span>
-                <Menu className="w-4 h-4 text-primary/40 ml-1 group-hover:text-primary transition-colors" />
-              </div>
+              <Button variant="ghost" size="icon" className="text-primary/40 hover:text-primary transition-colors ml-1" aria-label="Open Navigation">
+                <Menu className="w-6 h-6" />
+              </Button>
             </SheetTrigger>
             <SheetContent side="left" className="w-[280px] p-0 border-none shadow-2xl rounded-r-[3rem] overflow-hidden flex flex-col bg-white">
               <SheetHeader className="p-8 bg-primary/5 border-b shrink-0 text-left">
