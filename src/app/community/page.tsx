@@ -30,7 +30,8 @@ import {
   TrendingUp,
   Heart,
   MessageCircle,
-  Sparkles
+  Sparkles,
+  Rocket
 } from 'lucide-react';
 import { 
   Popover, 
