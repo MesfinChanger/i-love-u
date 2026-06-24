@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "UserProfile": {
@@ -28,7 +29,8 @@
         "sellerStatus": { "type": "string", "enum": ["none", "pending", "approved", "rejected"] },
         "advertiserStatus": { "type": "string", "enum": ["none", "pending", "approved", "rejected"] },
         "isAdmin": { "type": "boolean", "default": false },
-        "policyAccepted": { "type": "boolean", "default": false }
+        "policyAccepted": { "type": "boolean", "default": false },
+        "idleTimeout": { "type": "number", "description": "Idle timeout in seconds before auto-logout.", "default": 300 }
       }
     },
     "Ad": {

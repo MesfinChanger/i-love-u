@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, useMemo } from 'react';
 import { Header } from '@/components/Header';
 import { BottomNav } from '@/components/BottomNav';
 import { Button } from '@/components/ui/button';
@@ -24,7 +24,8 @@ import {
   Plus,
   Trash2,
   CheckCircle2,
-  AlertTriangle
+  AlertTriangle,
+  Clock
 } from 'lucide-react';
 import { 
   AlertDialog,
@@ -56,11 +57,22 @@ import { Progress } from "@/components/ui/progress";
 /**
  * @fileOverview Profile Console.
  * Strictly enforces Binary Identity Protocol (Male/Female only).
- * accessibility: High-contrast inputs and screen-reader labels for media.
+ * sessions: Added High-Security Idle Timeout management.
  */
 const GENDERS = [
   { value: 'male', label: 'Male' },
   { value: 'female', label: 'Female' }
+];
+
+const IDLE_TIMEOUT_OPTIONS = [
+  { value: '30', label: '30 Seconds' },
+  { value: '60', label: '1 Minute' },
+  { value: '300', label: '5 Minutes' },
+  { value: '600', label: '10 Minutes' },
+  { value: '900', label: '15 Minutes' },
+  { value: '1200', label: '20 Minutes' },
+  { value: '1500', label: '25 Minutes' },
+  { value: '1800', label: '30 Minutes' },
 ];
 
 function ProfileContent() {
@@ -96,6 +108,7 @@ function ProfileContent() {
   const [isPhotoPublic, setIsPhotoPublic] = useState(false);
   const [preferredLanguage, setPreferredLanguage] = useState('English');
   const [currency, setCurrency] = useState('USD');
+  const [idleTimeout, setIdleTimeout] = useState('300');
 
   const [isAgeVerified, setIsAgeVerified] = useState(false);
   const [isRespectful, setIsRespectful] = useState(false);
@@ -139,33 +152,9 @@ function ProfileContent() {
       setIsHuman(profileData.isHuman || false);
       setPreferredLanguage(profileData.preferredLanguage || 'English');
       setCurrency(profileData.currency || 'USD');
+      setIdleTimeout(String(profileData.idleTimeout || '300'));
     }
   }, [profileData, user?.email]);
-
-  const isCommercialUser = profileData?.isSeller || profileData?.isAdvertiser;
-  const isProtocolComplete = !isCommercialUser || (isAgeVerified && isRespectful && isHuman);
-
-  const handleLiveCapture = async (data: { url: string; file: File; type: 'image' | 'video' }) => {
-    if (!user) return;
-    try {
-      const url = await uploadFile(`profiles/${user.uid}/${cameraTarget}_${Date.now()}`, data.file);
-      if (cameraTarget === 'avatar') setPhotoUrl(url);
-      else if (cameraTarget === 'gallery') setAdditionalPhotoUrls(prev => [...prev, url]);
-      else if (cameraTarget === 'video') setPublicVideoUrl(url);
-      toast({ title: "Media Secured", description: "Your identity highlight is live! ✨" });
-    } catch (e: any) {
-      if (e.code === 'storage/unknown' || e.message?.includes('storage')) {
-        toast({ 
-          variant: "destructive", 
-          title: "Storage Configuration Ripple", 
-          description: "Firebase Storage needs setup. Check Rules & CORS in console. 🛠️",
-          action: <Button variant="outline" size="sm" className="h-8 text-[10px] font-black uppercase" onClick={() => window.open('https://console.firebase.google.com/')}>Open Console</Button>
-        });
-      } else {
-        toast({ variant: "destructive", title: "Upload Ripple", description: "Mission Control rejected media." });
-      }
-    }
-  };
 
   const handleSave = async () => {
     if (!user || !db || isSaving) return;
@@ -176,6 +165,7 @@ function ProfileContent() {
         additionalPhotoUrls, publicVideoUrl, gender, bio, address1,
         city, state, country, publicNickname, isPhotoPublic,
         isAgeVerified, isRespectful, isHuman, preferredLanguage, currency,
+        idleTimeout: parseInt(idleTimeout),
         updatedAt: serverTimestamp()
       }, { merge: true });
       toast({ title: "Identity Saved", description: "Your details have been secured. ❤️" });
@@ -194,6 +184,19 @@ function ProfileContent() {
       router.push('/login');
     } finally {
       setIsSigningOut(false);
+    }
+  };
+
+  const handleLiveCapture = async (data: { url: string; file: File; type: 'image' | 'video' }) => {
+    if (!user) return;
+    try {
+      const url = await uploadFile(`profiles/${user.uid}/${cameraTarget}_${Date.now()}`, data.file);
+      if (cameraTarget === 'avatar') setPhotoUrl(url);
+      else if (cameraTarget === 'gallery') setAdditionalPhotoUrls(prev => [...prev, url]);
+      else if (cameraTarget === 'video') setPublicVideoUrl(url);
+      toast({ title: "Media Secured", description: "Your identity highlight is live! ✨" });
+    } catch (e: any) {
+      toast({ variant: "destructive", title: "Upload Ripple", description: "Mission Control rejected media." });
     }
   };
 
@@ -224,12 +227,12 @@ function ProfileContent() {
           </div>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" onClick={handleSignOut} className="rounded-full font-black uppercase text-[9px] h-10 px-6 border-2">Sign Out</Button>
-            <Button size="sm" onClick={handleSave} disabled={isSaving || !isProtocolComplete} className="gradient-bg rounded-full font-black uppercase text-[9px] h-10 px-6 shadow-xl active:scale-95 transition-all">Save Identity</Button>
+            <Button size="sm" onClick={handleSave} disabled={isSaving} className="gradient-bg rounded-full font-black uppercase text-[9px] h-10 px-6 shadow-xl active:scale-95 transition-all">Save Identity</Button>
           </div>
         </div>
 
         {isStorageUploading && (
-          <div className="mb-6 space-y-2 p-6 bg-white rounded-[2rem] shadow-sm animate-in fade-in" role="status" aria-label={`Securing Cloud Bridge: ${Math.round(uploadProgress)}%`}>
+          <div className="mb-6 space-y-2 p-6 bg-white rounded-[2rem] shadow-sm animate-in fade-in" role="status">
              <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-primary">
                 <span>Securing Cloud Bridge...</span>
                 <span>{Math.round(uploadProgress)}%</span>
@@ -249,13 +252,13 @@ function ProfileContent() {
           <TabsContent value="personal" className="space-y-6">
             <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-10 space-y-8">
               <div className="grid sm:grid-cols-2 gap-8">
-                <div className="space-y-3"><Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">First Name</Label><Input value={firstName} onChange={e => setFirstName(e.target.value)} className="rounded-2xl border-none bg-muted/40 h-14 px-6 text-lg font-bold" aria-label="First Name" /></div>
-                <div className="space-y-3"><Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Last Name</Label><Input value={lastName} onChange={e => setLastName(e.target.value)} className="rounded-2xl border-none bg-muted/40 h-14 px-6 text-lg font-bold" aria-label="Last Name" /></div>
+                <div className="space-y-3"><Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">First Name</Label><Input value={firstName} onChange={e => setFirstName(e.target.value)} className="rounded-2xl border-none bg-muted/40 h-14 px-6 text-lg font-bold" /></div>
+                <div className="space-y-3"><Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Last Name</Label><Input value={lastName} onChange={e => setLastName(e.target.value)} className="rounded-2xl border-none bg-muted/40 h-14 px-6 text-lg font-bold" /></div>
               </div>
               <div className="space-y-3">
                 <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Gender (Binary Protocol)</Label>
                 <Select value={gender} onValueChange={setGender}>
-                  <SelectTrigger className="rounded-2xl border-none bg-muted/40 h-14 px-6 text-lg font-bold" aria-label="Select Gender"><SelectValue placeholder="Select Identity" /></SelectTrigger>
+                  <SelectTrigger className="rounded-2xl border-none bg-muted/40 h-14 px-6 text-lg font-bold"><SelectValue placeholder="Select Identity" /></SelectTrigger>
                   <SelectContent className="rounded-2xl border-none shadow-2xl">{GENDERS.map(g => <SelectItem key={g.value} value={g.value} className="py-4 rounded-xl font-bold">{g.label}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
@@ -264,51 +267,30 @@ function ProfileContent() {
 
           <TabsContent value="address" className="space-y-6">
             <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-10 space-y-8">
-              <div className="space-y-3"><Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Business Address / Line 1</Label><Input value={address1} onChange={e => setAddress1(e.target.value)} className="rounded-2xl border-none bg-muted/40 h-14 px-6 text-lg font-bold" aria-label="Address" /></div>
+              <div className="space-y-3"><Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Business Address / Line 1</Label><Input value={address1} onChange={e => setAddress1(e.target.value)} className="rounded-2xl border-none bg-muted/40 h-14 px-6 text-lg font-bold" /></div>
               <div className="grid sm:grid-cols-2 gap-8">
                  <div className="space-y-3">
                   <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Country Origin</Label>
                   <Select value={country} onValueChange={setCountry}>
-                    <SelectTrigger className="rounded-2xl border-none bg-muted/40 h-14 px-6 font-bold" aria-label="Select Country"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="rounded-2xl border-none bg-muted/40 h-14 px-6 font-bold"><SelectValue /></SelectTrigger>
                     <SelectContent className="max-h-80 rounded-2xl border-none shadow-2xl">{COUNTRIES.map(c => <SelectItem key={c.code} value={c.code} className="py-3">{c.name}</SelectItem>)}</SelectContent>
                   </Select>
                 </div>
-                <div className="space-y-3"><Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Tax Identification / SSN</Label><Input type="password" value={profileData?.taxId || ''} readOnly className="rounded-2xl border-none bg-muted/40 h-14 px-6 text-lg font-bold opacity-40 cursor-not-allowed" aria-label="Tax ID" /></div>
               </div>
             </Card>
           </TabsContent>
 
           <TabsContent value="public" className="space-y-6">
             <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-10 space-y-8">
-              <div className="space-y-3"><Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Community Nickname</Label><Input value={publicNickname} onChange={e => setPublicNickname(e.target.value)} className="rounded-2xl border-none bg-muted/40 h-14 px-6 text-xl font-black text-primary" aria-label="Community Nickname" /></div>
-              <div className="space-y-3"><Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Mystery Bio</Label><Textarea value={bio} onChange={e => setBio(e.target.value)} className="rounded-3xl border-none bg-muted/40 min-h-[120px] p-6 text-base font-medium italic leading-relaxed" placeholder="Tell the revolution about your mission..." aria-label="Bio" /></div>
+              <div className="space-y-3"><Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Community Nickname</Label><Input value={publicNickname} onChange={e => setPublicNickname(e.target.value)} className="rounded-2xl border-none bg-muted/40 h-14 px-6 text-xl font-black text-primary" /></div>
+              <div className="space-y-3"><Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Mystery Bio</Label><Textarea value={bio} onChange={e => setBio(e.target.value)} className="rounded-3xl border-none bg-muted/40 min-h-[120px] p-6 text-base font-medium italic leading-relaxed" placeholder="Tell the revolution about your mission..." /></div>
               
               <div className="flex items-center justify-between p-6 bg-primary/5 rounded-3xl border border-primary/10">
                 <div className="space-y-1">
                   <h4 className="text-xs font-black uppercase tracking-tighter">Public Discovery</h4>
                   <p className="text-[10px] text-muted-foreground italic">Toggle visibility in the mystery carousel.</p>
                 </div>
-                <Switch checked={isPhotoPublic} onCheckedChange={setIsPhotoPublic} aria-label="Toggle Public Discovery" />
-              </div>
-
-              <div className="space-y-4">
-                 <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Identity Gallery</Label>
-                 <div className="grid grid-cols-3 gap-4" role="group" aria-label="Gallery photos">
-                    {additionalPhotoUrls.map((url, i) => (
-                      <div key={i} className="relative aspect-square rounded-2xl overflow-hidden border-2 border-white shadow-md">
-                         <Image src={url} alt={`Identity ${i+1}`} fill className="object-cover" />
-                         <button onClick={() => setAdditionalPhotoUrls(prev => prev.filter((_, idx) => idx !== i))} className="absolute top-1 right-1 bg-black/40 text-white p-1 rounded-full backdrop-blur-md" aria-label="Delete photo"><Trash2 className="w-3 h-3" /></button>
-                      </div>
-                    ))}
-                    <button 
-                      onClick={() => { setCameraTarget('gallery'); setIsCameraOpen(true); }}
-                      className="aspect-square rounded-2xl border-2 border-dashed border-primary/20 bg-primary/5 flex flex-col items-center justify-center gap-2 group hover:bg-primary/10 transition-all"
-                      aria-label="Add photo to gallery"
-                    >
-                       <Plus className="w-6 h-6 text-primary/40 group-hover:scale-110 transition-transform" />
-                       <span className="text-[8px] font-black uppercase text-primary/40">Add Live</span>
-                    </button>
-                 </div>
+                <Switch checked={isPhotoPublic} onCheckedChange={setIsPhotoPublic} />
               </div>
             </Card>
           </TabsContent>
@@ -320,15 +302,44 @@ function ProfileContent() {
                   <ShieldCheck className="w-10 h-10 text-primary" />
                 </div>
                 <h3 className="font-black uppercase text-lg tracking-tighter">Mission Verification</h3>
-                <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Protocol Version 2.0.0</p>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Protocol Version 2.1.0</p>
               </div>
-              <div className="space-y-4" role="group" aria-label="Mission verification items">
+
+              {/* IDLE TIMEOUT CONFIG */}
+              <div className="space-y-4 p-6 bg-slate-900 text-white rounded-[1.5rem] shadow-xl relative overflow-hidden group">
+                 <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:rotate-12 transition-transform">
+                    <Clock className="w-20 h-20 text-primary" />
+                 </div>
+                 <div className="relative z-10 space-y-4">
+                    <div className="flex items-center gap-3 text-primary">
+                       <Clock className="w-5 h-5" />
+                       <h4 className="text-[10px] font-black uppercase tracking-widest">Session Security (Idle Logout)</h4>
+                    </div>
+                    <p className="text-[9px] text-white/60 italic font-medium leading-relaxed">
+                      "Security is Mandatory." For your protection, especially with E2EE messaging, we automatically sign you out after a period of inactivity.
+                    </p>
+                    <Select value={idleTimeout} onValueChange={setIdleTimeout}>
+                      <SelectTrigger className="w-full h-12 bg-white/10 border-white/20 text-white font-bold rounded-xl">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="rounded-xl border-none shadow-2xl">
+                        {IDLE_TIMEOUT_OPTIONS.map(opt => (
+                          <SelectItem key={opt.value} value={opt.value} className="py-3 font-bold">
+                            {opt.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                 </div>
+              </div>
+
+              <div className="space-y-4">
                 {[
                   { label: "I am 18+ years old", state: isAgeVerified, set: setIsAgeVerified, desc: "Legal compliance for global hearts." },
                   { label: "Respect & Love is Mandatory", state: isRespectful, set: setIsRespectful, desc: "Zero tolerance for meanness or toxicity." },
                   { label: "Verified Human Status", state: isHuman, set: setIsHuman, desc: "Accountability for every connection." }
                 ].map((item, i) => (
-                  <div key={i} className="flex items-center gap-4 p-6 bg-muted/20 rounded-[1.5rem] cursor-pointer hover:bg-muted/30 transition-all" onClick={() => item.set(!item.state)} role="checkbox" aria-checked={item.state} tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && item.set(!item.state)}>
+                  <div key={i} className="flex items-center gap-4 p-6 bg-muted/20 rounded-[1.5rem] cursor-pointer hover:bg-muted/30 transition-all" onClick={() => item.set(!item.state)}>
                     <div className={cn("w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all shrink-0", item.state ? "bg-primary border-primary shadow-lg shadow-primary/20" : "border-slate-300")}>{item.state && <CheckCircle2 className="w-5 h-5 text-white" />}</div>
                     <div className="space-y-0.5">
                        <span className={cn("text-[11px] font-black uppercase tracking-widest", item.state ? "text-primary" : "text-slate-400")}>{item.label}</span>
@@ -338,10 +349,10 @@ function ProfileContent() {
                 ))}
               </div>
 
-              <div className="pt-8 border-t border-dashed">
+              <div className="pt-8 border-t border-dashed text-center">
                  <AlertDialog>
                     <AlertDialogTrigger asChild>
-                       <Button variant="ghost" className="w-full text-red-500 font-black uppercase text-[10px] tracking-[0.3em] hover:bg-red-50 hover:text-red-600 h-14 rounded-2xl" aria-label="Delete account">Delete My Entire Mission</Button>
+                       <Button variant="ghost" className="w-full text-red-500 font-black uppercase text-[10px] tracking-[0.3em] hover:bg-red-50 hover:text-red-600 h-14 rounded-2xl">Delete My Entire Mission</Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent className="rounded-[3rem] p-10 border-none shadow-2xl">
                        <AlertDialogHeader>

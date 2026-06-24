@@ -8,20 +8,23 @@ import { SparkAssistant } from '@/components/SparkAssistant';
 import { RegistrationReminder } from '@/components/RegistrationReminder';
 import { LanguageProvider } from './LanguageProvider';
 import { FeedbackBox } from '@/components/FeedbackBox';
+import { IdleLogoutProvider } from './IdleLogoutProvider';
 
 /**
  * @fileOverview Wraps all client-side providers for the application.
- * Ensures the Toast system, AI Assistant, Language, and Firebase are correctly initialized.
+ * Ensures the Toast system, AI Assistant, Language, Idle Monitor, and Firebase are correctly initialized.
  */
 export function ClientProviders({ children }: { children: React.ReactNode }) {
   return (
     <FirebaseClientProvider>
       <LanguageProvider>
-        {children}
-        <SparkAssistant />
-        <FeedbackBox />
-        <RegistrationReminder />
-        <Toaster />
+        <IdleLogoutProvider>
+          {children}
+          <SparkAssistant />
+          <FeedbackBox />
+          <RegistrationReminder />
+          <Toaster />
+        </IdleLogoutProvider>
       </LanguageProvider>
     </FirebaseClientProvider>
   );
