@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -20,7 +21,8 @@ import {
   Loader2,
   Languages,
   Check,
-  MessageSquare
+  MessageSquare,
+  Home
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DonationDialog } from '@/components/DonationDialog';
@@ -82,6 +84,7 @@ export function Header() {
   };
 
   const navItems = [
+    { href: '/', icon: Home, label: t('nav.home'), color: 'text-slate-600' },
     { href: '/discover', icon: Sparkles, label: t('nav.discover'), color: 'text-primary' },
     { href: '/search', icon: Search, label: t('nav.search'), color: 'text-blue-500' },
     { href: '/community', icon: Globe2, label: t('nav.global'), color: 'text-green-500' },
@@ -132,7 +135,7 @@ export function Header() {
                     >
                       <div className={cn(
                         "w-10 h-10 rounded-xl flex items-center justify-center transition-all",
-                        isActive ? "bg-primary text-white shadow-lg" : "bg-muted group-hover:bg-white group-hover:shadow-md"
+                        isActive ? "bg-primary text-white shadow-lg" : "bg-muted group-hover:bg-white group-hover:shadow-md transition-all"
                       )}>
                         <item.icon className="w-5 h-5" />
                       </div>
