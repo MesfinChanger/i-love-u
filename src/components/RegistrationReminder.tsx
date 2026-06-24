@@ -9,7 +9,7 @@ import { useState, useEffect } from 'react';
 
 /**
  * @fileOverview A persistent reminder for guests to join the "I Love U" community.
- * Optimized with local storage persistence to remember dismissal.
+ * Optimized with local storage persistence to remember dismissal and attractive mission support.
  */
 export function RegistrationReminder() {
   const { user, loading } = useUser();
@@ -68,10 +68,15 @@ export function RegistrationReminder() {
         </p>
         
         <div className="grid grid-cols-2 gap-3">
-          <Button asChild className="rounded-2xl h-12 gradient-bg font-black uppercase text-[10px] tracking-widest shadow-xl shadow-primary/10">
+          <Button asChild className="rounded-2xl h-12 gradient-bg font-black uppercase text-[10px] tracking-widest shadow-xl shadow-primary/10 transition-transform active:scale-95">
             <Link href="/login">Launch Spark</Link>
           </Button>
-          <Button variant="outline" asChild className="rounded-2xl h-12 border-2 font-black uppercase text-[10px] tracking-widest hover:bg-primary/5 transition-colors">
+          <Button 
+            variant="secondary" 
+            asChild 
+            onClick={handleDismiss}
+            className="rounded-2xl h-12 bg-secondary text-white font-black uppercase text-[10px] tracking-widest shadow-lg shadow-secondary/20 hover:scale-[1.02] active:scale-95 transition-all border-none"
+          >
             <Link href="/donate">Support Mission</Link>
           </Button>
         </div>
