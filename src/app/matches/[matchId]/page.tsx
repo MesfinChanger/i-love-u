@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect, useRef, use } from 'react';
@@ -23,7 +24,7 @@ import {
   Paperclip,
   FileIcon,
   Volume2,
-  Image as ImageIcon,
+  ImageIcon,
   EyeOff,
   ShieldAlert,
   Video,
@@ -32,7 +33,8 @@ import {
   Trash2,
   CheckCircle2,
   Square,
-  CheckSquare
+  CheckSquare,
+  TrendingDown
 } from 'lucide-react';
 import { 
   Popover, 
@@ -55,6 +57,7 @@ import { cn } from '@/lib/utils';
 import { LiveCamera } from '@/components/LiveCamera';
 import { Progress } from "@/components/ui/progress";
 import { compressImage, fileToDataUri } from '@/lib/image-utils';
+import { DonationDialog } from '@/components/DonationDialog';
 
 export default function ChatPage({ params }: { params: Promise<{ matchId: string }> }) {
   const { matchId } = use(params);
@@ -208,7 +211,10 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
         <Button variant="ghost" size="icon" onClick={() => router.back()} className="rounded-full"><ChevronLeft className="w-5 h-5" /></Button>
         <Avatar className="w-10 h-10 border-2 border-primary/20"><AvatarImage src={matchInfo.photoUrl || undefined} /><AvatarFallback>{matchInfo.name[0]}</AvatarFallback></Avatar>
         <div className="flex-grow text-left"><h2 className="font-black text-sm tracking-tight truncate">{matchInfo.name}</h2><p className="text-[8px] text-muted-foreground font-black uppercase tracking-widest leading-none">Spark Room</p></div>
-        <Button variant="ghost" size="sm" onClick={toggleSelectMode} className={cn("h-7 text-[8px] font-black uppercase tracking-widest px-3 rounded-full", isSelectMode ? "bg-primary text-white" : "text-muted-foreground")}>{isSelectMode ? 'Cancel' : 'Manage'}</Button>
+        <div className="flex items-center gap-1">
+          <DonationDialog />
+          <Button variant="ghost" size="sm" onClick={toggleSelectMode} className={cn("h-7 text-[8px] font-black uppercase tracking-widest px-3 rounded-full", isSelectMode ? "bg-primary text-white" : "text-muted-foreground")}>{isSelectMode ? 'Cancel' : 'Manage'}</Button>
+        </div>
       </header>
 
       <main ref={scrollRef} className="flex-grow overflow-y-auto p-6 space-y-6 no-scrollbar">
