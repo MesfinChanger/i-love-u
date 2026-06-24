@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
@@ -186,17 +185,17 @@ export default function CommunityPage() {
             <span className="text-[8px] font-black uppercase text-muted-foreground px-2">{msg.senderNickname}</span>
             <div className={cn("max-w-[85%] px-4 py-3 rounded-[1.5rem] shadow-sm", msg.senderId === user?.uid ? "bg-primary text-white" : "bg-white border text-slate-800")}>
               {msg.imageUrl && (
-                <div className="relative w-full aspect-square rounded-xl overflow-hidden mb-2">
+                <div className={cn("relative w-full aspect-square rounded-xl overflow-hidden", msg.text ? "mb-2" : "mb-0")}>
                   <Image src={msg.imageUrl} alt="Community share" fill className="object-cover" />
                 </div>
               )}
               {msg.videoUrl && (
-                <div className="relative w-full aspect-video rounded-xl overflow-hidden mb-2 bg-black">
+                <div className={cn("relative w-full aspect-video rounded-xl overflow-hidden bg-black", msg.text ? "mb-2" : "mb-0")}>
                    <video src={msg.videoUrl} controls className="w-full h-full" />
                 </div>
               )}
               {msg.fileUrl && (
-                <div className="flex items-center gap-3 bg-black/10 p-3 rounded-xl mb-2 border border-white/10">
+                <div className={cn("flex items-center gap-3 bg-black/10 p-3 rounded-xl border border-white/10", msg.text ? "mb-2" : "mb-0")}>
                    <FileIcon className="w-5 h-5 shrink-0" />
                    <div className="min-w-0 flex-grow">
                       <p className="text-[10px] font-bold truncate">{msg.fileName}</p>
