@@ -151,7 +151,7 @@ export default function PolicyAgreePage() {
                   className="h-16 rounded-2xl flex-1 gradient-bg font-black uppercase text-[11px] tracking-[0.2em] shadow-xl shadow-primary/20 gap-3 group"
                 >
                   {isAgreeing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4 group-hover:rotate-12 transition-transform" />}
-                  I Pledge & Commit
+                  I COMMIT
                 </Button>
               </div>
             </div>
