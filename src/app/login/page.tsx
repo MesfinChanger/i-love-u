@@ -14,6 +14,15 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
 import { 
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogDescription,
+  DialogClose
+} from '@/components/ui/dialog';
+import { 
   Heart, 
   Loader2, 
   ArrowLeft, 
@@ -26,7 +35,11 @@ import {
   Globe,
   Sparkles,
   Scale,
-  AlertTriangle
+  AlertTriangle,
+  ScrollText,
+  Gavel,
+  FileText,
+  X
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
@@ -247,9 +260,9 @@ function LoginContent() {
                       onCheckedChange={(checked) => setAgreedTerms(!!checked)} 
                       className="mt-1 border-slate-400 data-[state=checked]:bg-primary"
                     />
-                    <label htmlFor="terms-verify" className="text-[10px] font-black uppercase tracking-tight text-slate-700 cursor-pointer">
-                      I have read and agree to the <Link href="/terms" className="text-primary underline">Terms of Service</Link> and <Link href="/privacy" className="text-primary underline">Privacy Policy</Link>.
-                    </label>
+                    <div className="text-[10px] font-black uppercase tracking-tight text-slate-700">
+                      I have read and agree to the <TermsDialog /> and <Link href="/privacy" className="text-primary underline">Privacy Policy</Link>.
+                    </div>
                   </div>
 
                   <div className="flex items-start space-x-3 p-3 bg-primary/5 rounded-2xl border border-primary/10">
@@ -284,6 +297,136 @@ function LoginContent() {
           </Tabs>
         </Card>
       </div>
+    </div>
+  );
+}
+
+function TermsDialog() {
+  const [lastUpdated, setLastUpdated] = useState('');
+  useEffect(() => {
+    setLastUpdated(new Date().toLocaleDateString());
+  }, []);
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <button className="text-primary underline uppercase hover:text-primary/80 transition-colors">Terms of Service</button>
+      </DialogTrigger>
+      <DialogContent className="max-w-2xl h-[80vh] overflow-hidden flex flex-col p-0 rounded-[3rem] border-none shadow-2xl bg-white">
+        <DialogHeader className="p-8 bg-slate-900 text-white shrink-0 relative">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-primary/20 rounded-2xl flex items-center justify-center">
+              <Scale className="w-6 h-6 text-primary" />
+            </div>
+            <div className="text-left">
+              <DialogTitle className="text-2xl font-black tracking-tighter uppercase leading-none">Terms of Service</DialogTitle>
+              <DialogDescription className="text-[9px] font-black uppercase tracking-[0.2em] text-primary/60 mt-1">Legal Control • v2.1.0</DialogDescription>
+            </div>
+          </div>
+          <DialogClose className="absolute right-6 top-6 text-white/40 hover:text-white transition-colors">
+            <X className="w-6 h-6" />
+          </DialogClose>
+        </DialogHeader>
+
+        <div className="flex-grow overflow-y-auto p-10 space-y-10 no-scrollbar">
+          <div className="space-y-4">
+             <h2 className="text-xl font-black tracking-tighter uppercase">I LOVE U – TERMS OF SERVICE & LEGAL DISCLAIMER</h2>
+             <p className="text-xs text-muted-foreground font-bold italic">Last Updated: {lastUpdated}</p>
+          </div>
+
+          <div className="grid gap-10">
+            <LegalSection number="1" title="Acceptance of Terms">
+              By accessing, downloading, registering for, or using the I Love U platform ("Platform"), you agree to be legally bound by these Terms of Service, Privacy Policy, Community Standards, and all applicable laws and regulations. If you do not agree to these Terms, you must discontinue use of the Platform immediately.
+            </LegalSection>
+
+            <LegalSection number="2" title="Eligibility">
+              You represent and warrant that: You are at least 18 years of age; You possess legal capacity to enter into a binding agreement; You will provide accurate information; You are not prohibited from using the Platform under applicable laws. The Platform may suspend or terminate accounts that provide false information or violate eligibility requirements.
+            </LegalSection>
+
+            <LegalSection number="3" title="User Conduct">
+              Users agree not to: Harass, threaten, stalk, or abuse others; Publish unlawful, defamatory, misleading, fraudulent, or harmful content; Upload content that infringes intellectual property rights; Distribute malware, spam, or unauthorized advertising; Circumvent security protections; Create fake identities intended to deceive others.
+            </LegalSection>
+
+            <LegalSection number="4" title="User Generated Content">
+              Users retain ownership of content they submit. By posting content, you grant the Platform a worldwide, non-exclusive, royalty-free license to host, display, reproduce, distribute, and operate such content solely for purposes of providing and improving the service.
+            </LegalSection>
+
+            <LegalSection number="5" title="Community Guidelines">
+              Respect is mandatory. Users agree to engage in lawful, respectful, and non-discriminatory conduct. Content promoting violence, exploitation, hate speech, harassment, illegal activities, or abuse may be removed without notice.
+            </LegalSection>
+
+            <LegalSection number="6" title="Messaging and Communications">
+              The Platform may provide messaging features, including encrypted communications. While reasonable security measures may be implemented, no system can guarantee absolute security. Users acknowledge that electronic communications involve inherent risks.
+            </LegalSection>
+
+            <LegalSection number="7" title="Relationships and Personal Interactions">
+              The Platform facilitates introductions and communication between users. The Platform: Does not conduct comprehensive background investigations; Does not guarantee user identity; Does not guarantee compatibility; Does not guarantee relationship outcomes. Users assume full responsibility for their interactions and personal decisions.
+            </LegalSection>
+
+            <LegalSection number="8" title="Marketplace, Donations, and Payments">
+              Transactions are processed through third-party payment providers. The Platform is not responsible for: Banking failures, Payment processor interruptions, Currency fluctuations, Tax obligations, or Third-party merchant conduct. Users are responsible for compliance with applicable tax regulations.
+            </LegalSection>
+
+            <LegalSection number="9" title="Intellectual Property">
+              All trademarks, logos, branding, software, designs, graphics, and platform content are protected by intellectual property laws. No rights are granted except those expressly provided herein.
+            </LegalSection>
+
+            <div className="p-8 bg-red-50 rounded-[2rem] border-2 border-dashed border-red-200">
+               <h4 className="text-sm font-black uppercase text-red-600 mb-4 flex items-center gap-2">
+                 <AlertTriangle className="w-4 h-4" /> 10. Limitation of Liability
+               </h4>
+               <div className="text-[10px] text-red-900/60 font-black uppercase leading-relaxed tracking-widest italic space-y-4">
+                  <p>THE PLATFORM SHALL NOT BE LIABLE FOR: INDIRECT DAMAGES, INCIDENTAL DAMAGES, SPECIAL DAMAGES, CONSEQUENTIAL DAMAGES, LOSS OF PROFITS, LOSS OF DATA, OR PERSONAL INJURY.</p>
+               </div>
+            </div>
+
+            <LegalSection number="11" title="Indemnification">
+              You agree to defend, indemnify, and hold harmless the Platform, its owners, affiliates, and agents from claims arising from your use of the service, your content, your conduct, or your violation of these Terms.
+            </LegalSection>
+
+            <LegalSection number="12" title="Account Suspension and Termination">
+              The Platform may suspend, restrict, or terminate any account at any time for violations, fraud, security concerns, or legal compliance. Termination may occur without prior notice.
+            </LegalSection>
+
+            <LegalSection number="13" title="Privacy">
+              Collection and processing of personal information are governed by the Privacy Policy. By using the Platform, you consent to the collection, storage, and processing of information as described therein.
+            </LegalSection>
+
+            <LegalSection number="14" title="Governing Law">
+              These Terms shall be governed by and construed in accordance with the laws of the jurisdiction in which the Platform operator is established.
+            </LegalSection>
+
+            <LegalSection number="15" title="Changes to Terms">
+              The Platform may modify these Terms at any time. Continued use of the Platform after modifications constitutes acceptance of the revised Terms.
+            </LegalSection>
+
+            <LegalSection number="16" title="Contact">
+              Questions regarding these Terms may be submitted through the Platform's official support channels.
+            </LegalSection>
+          </div>
+        </div>
+
+        <div className="p-8 border-t bg-slate-50/50 flex flex-col items-center gap-4 text-center shrink-0">
+           <Heart className="w-6 h-6 text-primary" />
+           <p className="text-[8px] font-black uppercase tracking-[0.4em] opacity-40">
+             Eliminating World Poverty Together ❤️ Reaching Every Heart
+           </p>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function LegalSection({ number, title, children }: { number: string, title: string, children: React.ReactNode }) {
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center gap-3">
+        <span className="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center text-[10px] font-black shrink-0">{number}</span>
+        <h5 className="font-black text-xs uppercase tracking-tight">{title}</h5>
+      </div>
+      <p className="text-xs leading-relaxed text-muted-foreground font-medium pl-11">
+        {children}
+      </p>
     </div>
   );
 }
