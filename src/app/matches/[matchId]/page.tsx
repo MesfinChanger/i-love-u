@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect, useRef, use } from 'react';
@@ -212,7 +211,11 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
         <Avatar className="w-10 h-10 border-2 border-primary/20"><AvatarImage src={matchInfo.photoUrl || undefined} /><AvatarFallback>{matchInfo.name[0]}</AvatarFallback></Avatar>
         <div className="flex-grow text-left"><h2 className="font-black text-sm tracking-tight truncate">{matchInfo.name}</h2><p className="text-[8px] text-muted-foreground font-black uppercase tracking-widest leading-none">Spark Room</p></div>
         <div className="flex items-center gap-1">
-          <DonationDialog />
+          <DonationDialog trigger={
+            <Button variant="ghost" size="icon" className="text-primary hover:text-primary/80">
+              <TrendingDown className="w-5 h-5" />
+            </Button>
+          } />
           <Button variant="ghost" size="sm" onClick={toggleSelectMode} className={cn("h-7 text-[8px] font-black uppercase tracking-widest px-3 rounded-full", isSelectMode ? "bg-primary text-white" : "text-muted-foreground")}>{isSelectMode ? 'Cancel' : 'Manage'}</Button>
         </div>
       </header>

@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect, useMemo, useRef } from 'react';
@@ -90,7 +89,6 @@ export default function Home() {
 
   const canEdit = profile?.isAdmin || (user?.uid === pageOwnerId && pageOwnerId !== "");
 
-  // Home Page Navigation Protocol: Logged in users can freely visit the home base.
   useEffect(() => {
     setMounted(true);
     setCurrentYear(new Date().getFullYear().toString());

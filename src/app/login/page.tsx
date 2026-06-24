@@ -119,7 +119,6 @@ function LoginContent() {
             }
           }, { merge: true });
 
-          // Also create the public profile immediately
           await setDoc(doc(db, 'publicProfiles', res.user.uid), {
             uid: res.user.uid,
             publicNickname: nickname,
