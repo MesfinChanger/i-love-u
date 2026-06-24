@@ -181,7 +181,7 @@ function ProfileContent() {
     setIsSigningOut(true);
     try {
       await signOut(auth);
-      router.push('/login');
+      router.push('/'); // Redirect to home page
     } finally {
       setIsSigningOut(false);
     }

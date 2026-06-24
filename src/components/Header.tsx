@@ -74,7 +74,7 @@ export function Header() {
     setIsSigningOut(true);
     try {
       await signOut(auth);
-      router.push('/login');
+      router.push('/'); // Redirect to home page
       toast({ title: "Disconnected", description: "Successfully signed out. ❤️" });
     } catch (e) {
       toast({ variant: "destructive", title: "Error", description: "Sign out failed." });
