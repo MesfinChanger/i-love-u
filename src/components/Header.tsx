@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -22,7 +23,8 @@ import {
   Check,
   MessageSquare,
   Home,
-  TrendingDown
+  TrendingDown,
+  Waves
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DonationDialog } from '@/components/DonationDialog';
@@ -86,6 +88,7 @@ export function Header() {
   const navItems = [
     { href: '/', icon: Home, label: t('nav.home'), color: 'text-slate-600' },
     { href: '/discover', icon: Sparkles, label: t('nav.discover'), color: 'text-primary' },
+    { href: '/pool', icon: Waves, label: t('nav.pool'), color: 'text-blue-500' },
     { href: '/search', icon: Search, label: t('nav.search'), color: 'text-blue-500' },
     { href: '/community', icon: Globe2, label: t('nav.global'), color: 'text-green-500' },
     { href: '/matches', icon: Heart, label: t('nav.matches'), color: 'text-primary' },
@@ -102,7 +105,7 @@ export function Header() {
             <div className="relative p-1.5 rounded-xl bg-primary/5">
               <Heart className="w-10 h-10 fill-primary text-primary transition-transform group-hover:scale-110 animate-heartbeat" aria-hidden="true" />
             </div>
-            <span className="font-black text-xl tracking-[0.3em] text-primary uppercase ml-1 whitespace-nowrap">I LOVE U</span>
+            <span className="font-black text-xl tracking-[0.3em] text-primary uppercase ml-1 whitespace-nowrap hidden xs:inline-block">I LOVE U</span>
           </Link>
 
           <Sheet>
