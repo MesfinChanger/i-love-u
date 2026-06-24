@@ -35,9 +35,11 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  // In Next.js 15, serverActions configuration is stable and top-level
-  serverActions: {
-    bodySizeLimit: '50mb',
+  // In Next.js 15, some action configs are still nested in experimental for specific versions
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '50mb',
+    },
   },
 };
 
