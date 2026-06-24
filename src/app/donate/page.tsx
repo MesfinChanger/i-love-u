@@ -28,7 +28,7 @@ function DonateContent() {
   }, [db, user]);
   const { data: profile } = useDoc(userRef);
 
-  const [amount, setAmount] = useState('10');
+  const [amount, setAmount] = useState('25');
   const [isDonating, setIsDonating] = useState(false);
 
   useEffect(() => {
@@ -107,7 +107,7 @@ function DonateContent() {
             <CardContent className="p-10 space-y-8">
               <div className="space-y-6">
                 <div className="flex flex-wrap gap-3 justify-center">
-                  {['5', '20', '50', '100', '500'].map(val => (
+                  {['5', '25', '100', '250', '500'].map(val => (
                     <Button 
                       key={val}
                       variant={amount === val ? 'default' : 'outline'}

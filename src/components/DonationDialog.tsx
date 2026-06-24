@@ -45,7 +45,7 @@ export function DonationDialog({ trigger }: DonationDialogProps) {
   }, [db, user]);
   const { data: profile } = useDoc(userRef);
 
-  const [amount, setAmount] = useState('10');
+  const [amount, setAmount] = useState('25');
   const [isDonating, setIsDonating] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -97,7 +97,7 @@ export function DonationDialog({ trigger }: DonationDialogProps) {
         
         <div className="p-8 space-y-6">
           <div className="flex flex-wrap gap-2 justify-center">
-            {['5', '10', '25', '50'].map(val => (
+            {['5', '25', '100', '250'].map(val => (
               <Button 
                 key={val}
                 variant={amount === val ? 'default' : 'outline'}
