@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, Suspense } from 'react';
@@ -12,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Checkbox } from '@/components/ui/checkbox';
 import { 
   Heart, 
   Loader2, 
@@ -23,7 +25,9 @@ import {
   AtSign,
   Lock,
   Globe,
-  Sparkles
+  Sparkles,
+  Scale,
+  AlertTriangle
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
@@ -48,6 +52,10 @@ function LoginContent() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
+  // Pre-Sign-Up Consent State
+  const [agreedRespect, setAgreedRespect] = useState(false);
+  const [agreedDisclaimer, setAgreedDisclaimer] = useState(false);
+
   useEffect(() => {
     if (user && !authLoading) {
       const hasAccepted = localStorage.getItem('iloveu_policy_accepted') === 'true';
@@ -57,9 +65,16 @@ function LoginContent() {
 
   const handleAuth = async () => {
     if (!email || !password || !auth) return;
-    if (mode === 'signup' && !nickname) {
-      toast({ variant: "destructive", title: "Identity Required", description: "Please choose a community nickname. ❤️" });
-      return;
+    
+    if (mode === 'signup') {
+      if (!nickname) {
+        toast({ variant: "destructive", title: "Identity Required", description: "Please choose a community nickname. ❤️" });
+        return;
+      }
+      if (!agreedRespect || !agreedDisclaimer) {
+        toast({ variant: "destructive", title: "Consent Required", description: "You must agree to the Respect Policy and Disclaimer to join. ✨" });
+        return;
+      }
     }
 
     setIsLoading(true);
@@ -68,6 +83,8 @@ function LoginContent() {
         const res = await createUserWithEmailAndPassword(auth, email, password);
         const { publicKey, privateKey } = await generateKeyPair();
         localStorage.setItem(`spark_priv_${res.user.uid}`, privateKey);
+        localStorage.setItem('iloveu_policy_accepted', 'true');
+
         if (db) {
           await setDoc(doc(db, 'users', res.user.uid), {
             uid: res.user.uid, 
@@ -78,7 +95,8 @@ function LoginContent() {
             displayName: nickname,
             preferredLanguage: language,
             createdAt: serverTimestamp(),
-            policyAccepted: false
+            policyAccepted: true,
+            policyAcceptedAt: serverTimestamp()
           }, { merge: true });
 
           // Also create the public profile immediately
@@ -92,7 +110,7 @@ function LoginContent() {
             age: 18
           });
         }
-        router.push('/policy/agree');
+        router.push('/discover');
       } else {
         await signInWithEmailAndPassword(auth, email, password);
       }
@@ -107,6 +125,8 @@ function LoginContent() {
       setIsLoading(false);
     }
   };
+
+  const isSignupDisabled = isLoading || !email || !password || !nickname || !agreedRespect || !agreedDisclaimer;
 
   if (authLoading) return <div className="flex items-center justify-center min-h-screen"><Loader2 className="animate-spin text-primary" /></div>;
 
@@ -198,24 +218,58 @@ function LoginContent() {
                       {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
                   </div>
-                  
-                  {mode === 'signin' && (
-                    <div className="flex justify-end px-1">
-                      <Link 
-                        href="/login/reset" 
-                        className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-primary transition-colors"
-                      >
-                        Forgot Phrase?
-                      </Link>
-                    </div>
-                  )}
                 </div>
               </div>
+
+              {mode === 'signup' && (
+                <div className="space-y-4 pt-2 border-t border-dashed animate-in fade-in duration-500">
+                  <div className="flex items-start space-x-3 p-3 bg-primary/5 rounded-2xl border border-primary/10">
+                    <Checkbox 
+                      id="respect-policy" 
+                      checked={agreedRespect} 
+                      onCheckedChange={(checked) => setAgreedRespect(!!checked)} 
+                      className="mt-1 border-primary data-[state=checked]:bg-primary"
+                    />
+                    <div className="grid gap-1.5 leading-none">
+                      <label htmlFor="respect-policy" className="text-[10px] font-black uppercase tracking-tight text-slate-700 cursor-pointer">
+                        Respect & Love is Mandatory
+                      </label>
+                      <p className="text-[8px] text-muted-foreground italic leading-tight">
+                        I commit to zero tolerance for meanness, bullying, or toxicity. ❤️
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start space-x-3 p-3 bg-slate-50 rounded-2xl border border-slate-200">
+                    <Checkbox 
+                      id="disclaimer-policy" 
+                      checked={agreedDisclaimer} 
+                      onCheckedChange={(checked) => setAgreedDisclaimer(!!checked)} 
+                      className="mt-1 border-slate-400 data-[state=checked]:bg-slate-900 data-[state=checked]:border-slate-900"
+                    />
+                    <div className="grid gap-1.5 leading-none">
+                      <label htmlFor="disclaimer-policy" className="text-[10px] font-black uppercase tracking-tight text-slate-700 cursor-pointer">
+                        Legal Disclaimer & Waiver
+                      </label>
+                      <p className="text-[8px] text-muted-foreground italic leading-tight">
+                        I accept that the platform is provided "AS IS" and I assume 100% total responsibility for my safety. ⚖️
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="px-2 text-[8px] text-muted-foreground font-medium text-center italic">
+                    By joining, you agree to our 8-Point Community Protocol.
+                  </div>
+                </div>
+              )}
               
               <Button 
                 onClick={handleAuth} 
-                disabled={isLoading} 
-                className="w-full h-16 rounded-[1.8rem] gradient-bg font-black uppercase tracking-[0.2em] text-xs shadow-xl shadow-primary/20 active:scale-95 transition-all"
+                disabled={mode === 'signup' ? isSignupDisabled : (isLoading || !email || !password)} 
+                className={cn(
+                  "w-full h-16 rounded-[1.8rem] font-black uppercase tracking-[0.2em] text-xs shadow-xl transition-all active:scale-95",
+                  (mode === 'signup' && isSignupDisabled) ? "bg-slate-200 text-slate-400" : "gradient-bg shadow-primary/20"
+                )}
               >
                 {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : mode === 'signin' ? 'Launch Spark' : 'Join the Revolution'}
               </Button>
