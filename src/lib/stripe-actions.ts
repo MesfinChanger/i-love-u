@@ -1,19 +1,16 @@
+
 'use server';
 
-import Stripe from 'stripe';
+import { stripe } from './stripe-server';
 import { redirect } from 'next/navigation';
-
-// Use a fallback to prevent build-time crashes if environment variables are missing
-const stripeSecret = process.env.STRIPE_SECRET_KEY || 'sk_test_51PLACEHOLDER_KEY_DO_NOT_USE_IN_PRODUCTION';
-const stripe = new Stripe(stripeSecret, {
-  apiVersion: '2025-01-27.acacia',
-});
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:9002';
 
 /**
- * Creates a Stripe Checkout Session for a one-time donation.
+ * @fileOverview Unified Stripe Prosperity Bridge.
+ * Orchestrates checkout sessions with mandatory metadata for automated Firestore recording.
  */
+
 export async function createDonationSession(
   amount: number, 
   currency: string, 
@@ -37,8 +34,8 @@ export async function createDonationSession(
       },
     ],
     mode: 'payment',
-    success_url: `${BASE_URL}/donate?success=true`,
-    cancel_url: `${BASE_URL}/donate?canceled=true`,
+    success_url: `${BASE_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${BASE_URL}/payment-cancelled`,
     metadata: { 
       userId: userId || 'guest', 
       type: 'donation',
@@ -50,9 +47,6 @@ export async function createDonationSession(
   if (session.url) redirect(session.url);
 }
 
-/**
- * Creates a Stripe Checkout Session for an advertiser campaign.
- */
 export async function createAdCampaignSession(amount: number, currency: string, userId: string, campaignTitle: string) {
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ['card'],
@@ -70,17 +64,14 @@ export async function createAdCampaignSession(amount: number, currency: string, 
       },
     ],
     mode: 'payment',
-    success_url: `${BASE_URL}/ads/manage?success=true`,
-    cancel_url: `${BASE_URL}/ads/manage?canceled=true`,
-    metadata: { userId, campaignTitle, type: 'advertisement' },
+    success_url: `${BASE_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${BASE_URL}/payment-cancelled`,
+    metadata: { userId, type: 'advertisement', campaignTitle },
   });
 
   if (session.url) redirect(session.url);
 }
 
-/**
- * Creates a Stripe Checkout Session for a recurring seller subscription.
- */
 export async function createSubscriptionSession(planType: 'basic_seller' | 'pro_seller', currency: string, userId: string, adminSetPrice: number) {
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ['card'],
@@ -99,17 +90,14 @@ export async function createSubscriptionSession(planType: 'basic_seller' | 'pro_
       },
     ],
     mode: 'subscription',
-    success_url: `${BASE_URL}/shop/manage?success=true`,
-    cancel_url: `${BASE_URL}/shop/manage?canceled=true`,
-    metadata: { userId, planType },
+    success_url: `${BASE_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${BASE_URL}/payment-cancelled`,
+    metadata: { userId, type: 'subscription', planType },
   });
 
   if (session.url) redirect(session.url);
 }
 
-/**
- * Creates a Stripe Checkout Session for a product/gift purchase.
- */
 export async function createGiftPurchaseSession(
   productName: string, 
   amount: number, 
@@ -134,8 +122,8 @@ export async function createGiftPurchaseSession(
       },
     ],
     mode: 'payment',
-    success_url: `${BASE_URL}/shop?success=true`,
-    cancel_url: `${BASE_URL}/shop?canceled=true`,
+    success_url: `${BASE_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${BASE_URL}/payment-cancelled`,
     metadata: { 
       userId: userId || 'guest', 
       type: 'gift_purchase', 
