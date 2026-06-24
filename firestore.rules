@@ -1,4 +1,3 @@
-
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -37,7 +36,7 @@ service cloud.firestore {
 
     // User Profiles: Private identity and mission data
     match /users/{userId} {
-      // Allow any authenticated heart to 'get' a profile for matches/discovery
+      // Allow any authenticated heart to 'get' a profile snippet for matches/discovery
       allow get: if isAuthenticated();
       // Only admins or the owner can 'list' (query) the private users collection
       allow list: if isAdmin() || isOwner(userId);
