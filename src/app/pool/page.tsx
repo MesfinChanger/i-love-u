@@ -116,18 +116,21 @@ export default function ProsperityPoolPage() {
     <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
       <Header />
       
-      <section className="relative overflow-hidden bg-slate-900 py-16 px-6 text-white text-center">
+      <section className="relative overflow-hidden bg-slate-900 py-20 px-6 text-white text-center">
          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-blue-900/40 via-transparent to-transparent pointer-events-none" />
-         <div className="max-w-4xl mx-auto space-y-6 relative z-10">
-            <div className="w-20 h-20 bg-blue-500/20 backdrop-blur-md rounded-[2.5rem] flex items-center justify-center mx-auto border border-blue-400/30 animate-pulse">
-               <Waves className="w-10 h-10 text-blue-400" />
+         <div className="max-w-4xl mx-auto space-y-8 relative z-10">
+            {/* MAXIMIZED POOL ICON */}
+            <div className="w-48 h-48 bg-blue-500/10 backdrop-blur-3xl rounded-[4rem] flex items-center justify-center mx-auto border-4 border-blue-400/20 animate-pulse shadow-[0_0_80px_-10px_rgba(59,130,246,0.3)]">
+               <Waves className="w-24 h-24 text-blue-400 drop-shadow-[0_0_20px_rgba(59,130,246,0.5)]" />
             </div>
-            <h1 className="text-5xl md:text-7xl font-black tracking-tighter uppercase leading-none">
-               Prosperity <span className="text-blue-400">Pool</span>
-            </h1>
-            <p className="text-xl text-white/60 font-medium italic leading-relaxed max-w-2xl mx-auto">
-               "Dive into the global consciousness. Share thoughts that dismantle poverty and build a better world for every heart."
-            </p>
+            <div className="space-y-4">
+              <h1 className="text-5xl md:text-8xl font-black tracking-tighter uppercase leading-none">
+                 Prosperity <span className="text-blue-400">Pool</span>
+              </h1>
+              <p className="text-xl md:text-2xl text-white/60 font-medium italic leading-relaxed max-w-2xl mx-auto">
+                 "Dive into the global consciousness. Share thoughts that dismantle poverty and build a better world for every heart."
+              </p>
+            </div>
          </div>
       </section>
 
