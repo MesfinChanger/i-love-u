@@ -28,7 +28,8 @@ import {
   ChevronDown,
   ChevronUp,
   Wifi,
-  WifiOff
+  WifiOff,
+  CheckCircle2
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -63,8 +64,7 @@ import { useTranslation } from '@/components/providers/LanguageProvider';
 
 /**
  * @fileOverview Discovery Grid Protocol with Expandable Presence Sections.
- * Organizes hearts into "Live Now" and "Resting" collapsible groups.
- * Provides granular presence details for deeper connection context.
+ * Aligned with the publicProfiles schema: name, age, country, bio, photoUrl, verified.
  */
 export default function DiscoverPage() {
   const { user } = useUser();
@@ -108,47 +108,21 @@ export default function DiscoverPage() {
       ? (discoveryItems || [])
         .filter((u: any) => u.uid !== user?.uid)
         .map((u: any) => ({
-          id: u.uid,
-          name: u.publicNickname || "Mystery Heart", 
-          publicPhotoUrl: u.publicPhotoUrl || null,
-          publicVideoUrl: u.publicVideoUrl || null,
+          id: u.uid || u.id,
+          name: u.name || u.publicNickname || "Mystery Heart", 
+          age: u.age,
+          verified: u.verified === true,
+          photoUrl: u.photoUrl || u.publicPhotoUrl || null,
+          videoUrl: u.videoUrl || u.publicVideoUrl || null,
           additionalPhotoUrls: u.additionalPhotoUrls || [],
           interests: u.interests || [],
-          culturalInterests: u.culturalInterests || [],
-          bio: u.bio || "Sharing culture and looking for sparks.",
-          locationHint: u.locationHint || "Global Community",
+          bio: u.bio || "Sharing respect and looking for sparks.",
+          country: u.country || "Global Community",
           isOnline: u.isOnline ?? (Math.random() > 0.5),
           lastActive: u.lastActive || `${Math.floor(Math.random() * 59)}m ago`,
           type: 'profile'
         }))
-      : [
-          {
-            id: 'mock-1',
-            name: 'Amina',
-            publicPhotoUrl: PlaceHolderImages.find(img => img.id === 'user-2')?.imageUrl,
-            publicVideoUrl: null,
-            additionalPhotoUrls: ["https://picsum.photos/seed/africa-1/800/1200"],
-            interests: ['Textiles', 'Tea'],
-            bio: "Exploring the intersection of art and nature.",
-            locationHint: "Nairobi, KE",
-            isOnline: true,
-            lastActive: "Now",
-            type: 'profile'
-          },
-          {
-            id: 'mock-2',
-            name: 'Yuki',
-            publicPhotoUrl: PlaceHolderImages.find(img => img.id === 'user-1')?.imageUrl,
-            publicVideoUrl: null,
-            additionalPhotoUrls: ["https://picsum.photos/seed/japan-1/800/1200"],
-            interests: ['Coding', 'Jazz'],
-            bio: "Looking for a soul to share a quiet sunset with.",
-            locationHint: "Tokyo, JP",
-            isOnline: false,
-            lastActive: "4h ago",
-            type: 'profile'
-          }
-        ];
+      : [];
 
     const ads = (mounted && activeAds ? activeAds : [])
       .filter((ad: any) => {
@@ -177,10 +151,8 @@ export default function DiscoverPage() {
       toast({ variant: "destructive", title: "Interaction Locked", description: "You must agree to our Mandatory Policy before sparking. ✨" });
       return;
     }
-    if (!user || !db || targetId.startsWith('mock')) {
-      if (targetId.startsWith('mock')) toast({ title: "Prototype Invitation!", description: "In real mode, this would send a secure invitation. ✨" });
-      return;
-    }
+    if (!user || !db || targetId.startsWith('mock')) return;
+
     const uids = [user.uid, targetId].sort();
     const matchId = uids.join('_');
     try {
@@ -228,21 +200,6 @@ export default function DiscoverPage() {
                  <h1 className="text-4xl font-black tracking-tighter uppercase">Discover Hearts</h1>
               </div>
               <p className="text-muted-foreground text-sm font-medium italic">"Explore the community, divided by presence, unified by respect."</p>
-           </div>
-           
-           <div className="flex items-center gap-4 bg-white/50 backdrop-blur-md p-2 rounded-2xl border shadow-sm shrink-0">
-              <div className="flex -space-x-3">
-                 {[1,2,3].map(i => (
-                   <div key={i} className="w-10 h-10 rounded-full border-2 border-white bg-primary/10 flex items-center justify-center overflow-hidden">
-                      <img src={`https://picsum.photos/seed/heart-${i}/100/100`} alt="Member" className="w-full h-full object-cover opacity-60" />
-                   </div>
-                 ))}
-                 <div className="w-10 h-10 rounded-full border-2 border-white bg-slate-900 flex items-center justify-center text-[8px] font-black text-white">+{discoveryItems?.length || '18k'}</div>
-              </div>
-              <div className="pr-2">
-                 <p className="text-[9px] font-black uppercase tracking-widest text-slate-500">Live Presence</p>
-                 <p className="text-xs font-bold text-slate-900">Connecting Every Heart</p>
-              </div>
            </div>
         </div>
 
@@ -329,16 +286,6 @@ export default function DiscoverPage() {
               </div>
            </CollapsibleContent>
         </Collapsible>
-
-        {!usersLoading && liveHearts.length === 0 && restingHearts.length === 0 && (
-           <div className="flex flex-col items-center justify-center py-40 text-center space-y-6 opacity-40">
-             <Ghost className="w-20 h-20 text-muted-foreground/20 mx-auto" />
-             <div className="space-y-1">
-                <h2 className="text-2xl font-black uppercase tracking-tighter">{t('discover.allExplored')}</h2>
-                <p className="text-sm font-medium italic">"The network is resting. Come back in a heartbeat for new connections."</p>
-             </div>
-           </div>
-        )}
       </main>
 
       <BottomNav />
@@ -346,17 +293,11 @@ export default function DiscoverPage() {
   );
 }
 
-/**
- * Sub-component for individual Discovery Cards.
- * Features an internal media carousel and contextual spark actions.
- * Supports full-screen media lightbox and expandable presence status.
- */
 function DiscoverCard({ item, hasAcceptedPolicy, onAction }: any) {
   const [isMuted, setIsMuted] = useState(true);
   const [isStatusExpanded, setIsStatusExpanded] = useState(false);
   const { t } = useTranslation();
 
-  // RENDER AD CARD
   if (item.type === 'ad') {
     const isVideo = item.adType === 'video';
     return (
@@ -381,10 +322,9 @@ function DiscoverCard({ item, hasAcceptedPolicy, onAction }: any) {
     );
   }
 
-  // RENDER PROFILE CARD
   const mediaItems = [];
-  if (item.publicVideoUrl) mediaItems.push({ type: 'video', url: item.publicVideoUrl });
-  if (item.publicPhotoUrl) mediaItems.push({ type: 'image', url: item.publicPhotoUrl });
+  if (item.videoUrl) mediaItems.push({ type: 'video', url: item.videoUrl });
+  if (item.photoUrl) mediaItems.push({ type: 'image', url: item.photoUrl });
   (item.additionalPhotoUrls || []).forEach((url: string) => mediaItems.push({ type: 'image', url }));
 
   return (
@@ -421,8 +361,11 @@ function DiscoverCard({ item, hasAcceptedPolicy, onAction }: any) {
                    </DialogTrigger>
                    <DialogContent className="max-w-[95vw] max-h-[90vh] p-0 overflow-hidden bg-black border-none rounded-[3rem] shadow-2xl">
                       <DialogHeader className="absolute top-6 left-6 z-50 text-left pointer-events-none">
-                         <DialogTitle className="text-white font-black text-2xl tracking-tighter uppercase drop-shadow-md">{item.name}</DialogTitle>
-                         <p className="text-[10px] text-white/60 font-black uppercase tracking-widest drop-shadow-md">Public Highlight • {media.type.toUpperCase()}</p>
+                         <DialogTitle className="text-white font-black text-2xl tracking-tighter uppercase drop-shadow-md flex items-center gap-2">
+                           {item.name}
+                           {item.verified && <CheckCircle2 className="w-5 h-5 text-blue-400 fill-blue-400/20" />}
+                         </DialogTitle>
+                         <p className="text-[10px] text-white/60 font-black uppercase tracking-widest drop-shadow-md">{item.age} years • {item.country}</p>
                       </DialogHeader>
                       <div className="w-full h-full flex items-center justify-center p-4">
                          {media.type === 'video' ? (
@@ -436,25 +379,14 @@ function DiscoverCard({ item, hasAcceptedPolicy, onAction }: any) {
               </CarouselItem>
             ))}
           </CarouselContent>
-          <div className="absolute top-6 left-0 right-0 flex justify-center gap-1 z-20">
-             {mediaItems.map((_, i) => (
-               <div key={i} className="h-0.5 w-4 rounded-full bg-white/40" />
-             ))}
-          </div>
         </Carousel>
       ) : (
         <div className="w-full h-full bg-primary/5 flex flex-col items-center justify-center p-8 text-center space-y-4">
-           <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-sm border border-dashed border-primary/20">
-              <Heart className="w-8 h-8 text-primary/20 fill-primary/10" />
-           </div>
-           <div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-primary/60">{t('discover.mystery')}</p>
-              <p className="text-[8px] text-muted-foreground font-medium italic mt-1">Identity revealed after mutual spark.</p>
-           </div>
+           <Heart className="w-8 h-8 text-primary/20 fill-primary/10" />
+           <p className="text-[10px] font-black uppercase tracking-widest text-primary/60">{t('discover.mystery')}</p>
         </div>
       )}
 
-      {/* EXPANDABLE STATUS BADGE */}
       <div className="absolute top-6 left-6 z-30 flex flex-col items-start gap-1">
          <Badge 
            onClick={() => setIsStatusExpanded(!isStatusExpanded)}
@@ -466,7 +398,6 @@ function DiscoverCard({ item, hasAcceptedPolicy, onAction }: any) {
             {item.isOnline ? <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" /> : <Clock className="w-2.5 h-2.5" />}
             {item.isOnline ? 'Live Now' : 'Away'}
          </Badge>
-         
          {isStatusExpanded && (
            <div className="bg-white/90 backdrop-blur-md rounded-lg px-2 py-1 shadow-xl animate-in zoom-in-95 duration-200">
               <p className="text-[7px] font-black uppercase text-slate-800 tracking-tighter whitespace-nowrap">
@@ -479,17 +410,20 @@ function DiscoverCard({ item, hasAcceptedPolicy, onAction }: any) {
       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent pointer-events-none" />
 
       <div className="absolute bottom-0 left-0 right-0 p-6 z-10 space-y-4">
-         <div className="space-y-1">
+         <div className="space-y-1 text-left">
             <div className="flex items-center justify-between">
-               <h3 className="text-xl font-black text-white tracking-tighter truncate max-w-[70%]">{item.name}</h3>
-               <Badge className="bg-primary/20 text-white border border-white/20 backdrop-blur-md font-black text-[7px] uppercase h-5 px-2 tracking-widest">{t('discover.mystery')}</Badge>
+               <div className="flex items-center gap-2 overflow-hidden">
+                 <h3 className="text-xl font-black text-white tracking-tighter truncate">{item.name}</h3>
+                 {item.verified && <CheckCircle2 className="w-4 h-4 text-blue-400 shrink-0" />}
+               </div>
+               <Badge className="bg-primary/20 text-white border border-white/20 backdrop-blur-md font-black text-[7px] uppercase h-5 px-2 tracking-widest">{item.age}</Badge>
             </div>
             <div className="flex items-center gap-1.5 text-[8px] font-bold text-white/60 uppercase tracking-widest">
-               <MapPin className="w-2.5 h-2.5" /> {item.locationHint}
+               <MapPin className="w-2.5 h-2.5" /> {item.country}
             </div>
          </div>
 
-         <p className="text-[11px] text-white/80 leading-relaxed font-medium line-clamp-2 italic">"{item.bio}"</p>
+         <p className="text-[11px] text-white/80 leading-relaxed font-medium line-clamp-2 italic text-left">"{item.bio}"</p>
 
          <div className="flex gap-2 pt-2">
             <Button 
@@ -498,16 +432,14 @@ function DiscoverCard({ item, hasAcceptedPolicy, onAction }: any) {
               onClick={() => onAction('friend')}
               className={cn("flex-1 h-10 rounded-xl bg-white/10 backdrop-blur-md border-white/20 text-white hover:bg-white hover:text-blue-600 font-black uppercase text-[8px] tracking-widest gap-1.5 transition-all", !hasAcceptedPolicy && "opacity-40 cursor-not-allowed")}
             >
-              <Send className="w-3 h-3" />
-              Invite
+              <Send className="w-3 h-3" /> Invite
             </Button>
             <Button 
               size="sm"
               onClick={() => onAction('date')}
               className={cn("flex-1 h-10 rounded-xl gradient-bg shadow-lg font-black uppercase text-[8px] tracking-widest gap-1.5 transition-all active:scale-95", !hasAcceptedPolicy && "opacity-40 cursor-not-allowed")}
             >
-              <Heart className="w-3 h-3 fill-current" />
-              Spark
+              <Heart className="w-3 h-3 fill-current" /> Spark
             </Button>
          </div>
       </div>

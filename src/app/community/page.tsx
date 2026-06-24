@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import Image from 'next/image';
 import { Header } from '@/components/Header';
 import { BottomNav } from '@/components/BottomNav';
 import { Button } from '@/components/ui/button';
@@ -50,8 +49,7 @@ import { LiveCamera } from '@/components/LiveCamera';
 
 /**
  * @fileOverview Universal Global Wall with Select-to-Delete Protocol.
- * Merged with Luxury Hero & Glassmorphism Design.
- * Enforces "Respect is Mandatory" and enables live multi-media sharing.
+ * Renders Pics, Videos, and Files with high-fidelity previews.
  */
 export default function CommunityPage() {
   const { user } = useUser();
@@ -117,24 +115,15 @@ export default function CommunityPage() {
       if (newMessage.trim()) {
         const moderation = await moderateText({ text: newMessage });
         if (moderation.isFlagged) {
-          toast({
-            variant: "destructive",
-            title: "Respect Policy Ripple",
-            description: moderation.reason || "Your message violates the mandatory respect rule. ❤️"
-          });
+          toast({ variant: "destructive", title: "Respect Policy Ripple", description: moderation.reason });
           setIsSending(false);
           return;
         }
       }
 
-      let imageUrl = null;
-      let videoUrl = null;
-      let fileUrl = null;
-      let fileName = null;
+      let imageUrl = null, videoUrl = null, fileUrl = null, fileName = null;
 
       if (attachedMedia) {
-        toast({ title: "Securing Media...", description: "Your moment is reaching the cloud bridge. ✨" });
-        
         if (attachedMedia.type === 'image') {
           const compressed = await compressImage(attachedMedia.file, 0.65);
           const dataUri = await fileToDataUri(compressed);
@@ -166,9 +155,6 @@ export default function CommunityPage() {
       
       setNewMessage('');
       setAttachedMedia(null);
-      toast({ title: "Shared!", description: "Your post is live on the wall. ❤️" });
-    } catch (error: any) {
-      toast({ variant: "destructive", title: "Sharing Ripple", description: error.message || "Could not secure post." });
     } finally {
       setIsSending(false);
     }
@@ -179,8 +165,6 @@ export default function CommunityPage() {
     setIsSending(true);
     try {
       const idsToDelete = Array.from(selectedIds);
-      toast({ title: "Purging Moments...", description: `Cleaning ${idsToDelete.length} selected items. ✨` });
-      
       for (const id of idsToDelete) {
         const msg = messages?.find((m: any) => m.id === id);
         if (msg) {
@@ -190,318 +174,132 @@ export default function CommunityPage() {
           await deleteDoc(doc(db, 'communityMessages', id));
         }
       }
-      
-      toast({ title: "Purge Complete", description: "Selected moments have been cleared from the wall. ❤️" });
       setSelectedIds(new Set());
       setIsSelectMode(false);
-    } catch (e) {
-      toast({ variant: "destructive", title: "Error", description: "Could not complete purge protocol." });
+      toast({ title: "Moments Retracted", description: "Cleared from Global Wall. ❤️" });
     } finally {
       setIsSending(false);
     }
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-muted/30 overflow-x-hidden">
+    <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
       <Header />
       
-      {/* LUXURY HERO SECTION */}
-      <section className="max-w-7xl mx-auto w-full p-6 pt-8">
+      {/* LUXURY HERO */}
+      <section className="max-w-7xl mx-auto w-full p-6">
         <div className="relative overflow-hidden rounded-[40px] bg-gradient-to-br from-pink-50 via-white to-amber-50 shadow-2xl border border-white/50 mb-8">
-          
-          {/* Background Glow */}
-          <div className="absolute -top-32 -left-32 h-72 w-72 rounded-full bg-pink-300/20 blur-3xl" />
-          <div className="absolute -bottom-32 -right-32 h-72 w-72 rounded-full bg-orange-300/20 blur-3xl" />
-
           <div className="grid lg:grid-cols-2 gap-10 items-center p-8 lg:p-12">
-
-            {/* LEFT */}
-            <div>
+            <div className="text-left">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-pink-100 text-pink-600 font-bold text-sm mb-6">
-                <Shield className="w-4 h-4" />
-                GLOBAL WALL
+                <Shield className="w-4 h-4" /> GLOBAL WALL
               </div>
-
               <h1 className="text-5xl lg:text-7xl font-black leading-none tracking-tight">
-                Respect is
-                <span className="block bg-gradient-to-r from-pink-500 via-orange-400 to-yellow-400 bg-clip-text text-transparent">
-                  Mandatory.
-                </span>
+                Respect is <span className="block bg-gradient-to-r from-pink-500 to-orange-400 bg-clip-text text-transparent">Mandatory.</span>
               </h1>
-
               <p className="mt-6 text-xl text-slate-600 max-w-xl leading-relaxed">
-                Share your moments. Inspire people around the world.
-                Every respectful connection helps build a stronger global community.
+                Share your moments. Every respectful connection funds local job creation to end world poverty.
               </p>
-
               <div className="flex flex-wrap gap-4 mt-8">
-                <div className="flex items-center gap-2 bg-white px-5 py-3 rounded-full shadow-lg">
-                  <Globe className="w-5 h-5 text-blue-500" />
-                  <span className="font-bold">192 Countries</span>
-                </div>
-
-                <div className="flex items-center gap-2 bg-white px-5 py-3 rounded-full shadow-lg">
-                  <Heart className="w-5 h-5 text-pink-500" />
-                  <span className="font-bold">18.2K Members</span>
-                </div>
-
-                <div className="flex items-center gap-2 bg-white px-5 py-3 rounded-full shadow-lg">
-                  <Sparkles className="w-5 h-5 text-orange-500" />
-                  <span className="font-bold">Live Community</span>
-                </div>
-              </div>
-
-              <div className="flex gap-4 mt-8">
-                <button 
-                  onClick={() => window.scrollTo({ top: 400, behavior: 'smooth' })}
-                  className="rounded-full px-8 py-4 font-bold text-white bg-gradient-to-r from-pink-500 to-orange-400 shadow-xl hover:scale-105 transition"
-                >
-                  Share Moment
-                </button>
-
-                <button 
-                  onClick={() => window.location.href = '/discover'}
-                  className="rounded-full px-8 py-4 font-bold bg-white shadow-lg hover:scale-105 transition"
-                >
-                  Explore
-                </button>
+                <Badge variant="secondary" className="bg-white rounded-full px-5 py-2 shadow-sm border-none font-bold text-slate-600">🌎 192 Countries</Badge>
+                <Badge variant="secondary" className="bg-white rounded-full px-5 py-2 shadow-sm border-none font-bold text-slate-600">❤️ 18.2K Members</Badge>
+                <Badge variant="secondary" className="bg-white rounded-full px-5 py-2 shadow-sm border-none font-bold text-slate-600">✨ Live Community</Badge>
               </div>
             </div>
-
-            {/* RIGHT */}
             <div className="relative">
-              <div className="rounded-[35px] overflow-hidden bg-white p-3 shadow-2xl">
-                <div className="relative aspect-[4/3] overflow-hidden rounded-[28px]">
-                  <Image
-                    src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=1600"
-                    alt="Community"
-                    fill
-                    className="object-cover"
-                    priority
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                  <div className="absolute bottom-6 left-6 text-white text-left">
-                    <p className="text-sm font-bold uppercase tracking-widest">
-                      Global Community
-                    </p>
-                    <h3 className="text-3xl font-black">
-                      Connecting Hearts Worldwide
-                    </h3>
-                  </div>
-                </div>
-              </div>
-
-              {/* Floating Card */}
-              <div className="absolute -bottom-6 -left-6 bg-white rounded-3xl p-5 shadow-2xl hidden sm:block">
-                <div className="flex items-center gap-3">
-                  <TrendingUp className="text-green-500 w-6 h-6" />
-                  <div>
-                    <p className="text-xs text-slate-500">Today</p>
-                    <p className="font-black text-slate-900">+324 New Connections</p>
-                  </div>
-                </div>
+              <div className="rounded-[35px] overflow-hidden bg-white p-3 shadow-2xl aspect-video relative">
+                 <img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=1600" alt="Global Wall" className="w-full h-full object-cover rounded-[28px]" />
+                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                 <div className="absolute bottom-6 left-6 text-white text-left">
+                    <p className="text-sm font-bold uppercase tracking-widest">Global Community</p>
+                    <h3 className="text-3xl font-black">Connecting Hearts</h3>
+                 </div>
               </div>
             </div>
-
           </div>
         </div>
       </section>
 
-      <div className="bg-primary/5 border-y px-6 py-2 flex items-center justify-between backdrop-blur-md sticky top-16 z-30">
+      <div className="bg-primary/5 border-y px-6 py-2 flex items-center justify-between sticky top-16 z-30 backdrop-blur-md">
         <div className="flex items-center gap-2">
            <ShieldCheck className="w-3.5 h-3.5 text-primary animate-pulse" />
-           <p className="text-[9px] font-black uppercase tracking-widest text-primary/60">Global Circle • Mandatory Respect Policy Active</p>
+           <p className="text-[9px] font-black uppercase tracking-widest text-primary/60">Mandatory Respect Policy Active</p>
         </div>
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={toggleSelectMode}
-          className={cn("h-7 text-[9px] font-black uppercase tracking-widest px-4 rounded-full transition-all", isSelectMode ? "bg-primary text-white hover:bg-primary/90 shadow-lg" : "text-muted-foreground hover:bg-white")}
-        >
-          {isSelectMode ? 'Cancel Selection' : 'Manage My Posts'}
+        <Button variant="ghost" size="sm" onClick={toggleSelectMode} className={cn("h-7 text-[9px] font-black uppercase tracking-widest rounded-full px-4", isSelectMode ? "bg-primary text-white" : "text-muted-foreground")}>
+          {isSelectMode ? 'Cancel' : 'Manage My Posts'}
         </Button>
       </div>
 
-      {/* MAIN CONTENT GRID */}
-      <main className="max-w-7xl mx-auto w-full px-6 pb-32 grid lg:grid-cols-12 gap-8 mt-8">
-        
-        {/* POSTS FEED */}
+      <main className="max-w-7xl mx-auto w-full px-6 grid lg:grid-cols-12 gap-8 mt-8">
         <div className="lg:col-span-8 space-y-8">
-          
-          {/* CREATE POST BOX */}
           {!isSelectMode && (
-            <Card className="rounded-[2.5rem] border-none shadow-xl bg-white overflow-hidden animate-in slide-in-from-top-4 duration-500">
-               <div className="p-8 space-y-6">
-                 <div className="flex gap-4">
-                    <div className="w-12 h-12 rounded-2xl gradient-bg flex items-center justify-center text-white font-black shrink-0 shadow-lg">
-                       {myProfile?.publicNickname?.[0] || 'U'}
+            <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-8 space-y-6">
+               <div className="flex gap-4">
+                  <div className="w-12 h-12 rounded-2xl gradient-bg flex items-center justify-center text-white font-black shrink-0">
+                     {myProfile?.publicNickname?.[0] || 'U'}
+                  </div>
+                  <Input value={newMessage} onChange={e => setNewMessage(e.target.value)} placeholder="Share a respectful thought..." className="rounded-2xl border-none bg-muted/40 h-14 font-bold px-6 text-lg" />
+               </div>
+               
+               {attachedMedia && (
+                  <div className="flex items-center gap-4 p-4 bg-muted/20 rounded-2xl animate-in zoom-in-95">
+                    <div className="relative w-20 h-20 rounded-xl overflow-hidden shrink-0 bg-slate-900 border-2 border-white">
+                       {attachedMedia.type === 'image' ? <img src={attachedMedia.url} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-white"><Video className="w-8 h-8" /></div>}
                     </div>
-                    <div className="flex-grow">
-                      <Input 
-                        value={newMessage} 
-                        onChange={e => setNewMessage(e.target.value)} 
-                        placeholder="Share a respectful thought..." 
-                        className="rounded-2xl border-none bg-muted/40 h-14 font-bold px-6 text-lg focus-visible:ring-2 focus-visible:ring-primary/20"
-                      />
-                    </div>
-                 </div>
+                    <p className="text-xs font-black uppercase truncate flex-grow">{attachedMedia.file.name}</p>
+                    <Button variant="ghost" size="icon" onClick={() => setAttachedMedia(null)} className="rounded-full"><X className="w-5 h-5" /></Button>
+                  </div>
+                )}
 
-                 {attachedMedia && (
-                    <div className="flex items-center gap-4 p-4 bg-muted/20 rounded-2xl animate-in zoom-in-95">
-                      <div className="relative w-20 h-20 rounded-xl overflow-hidden shrink-0 bg-slate-900 border-2 border-white shadow-md">
-                         {attachedMedia.type === 'image' ? (
-                           <img src={attachedMedia.url} alt="Selected" className="w-full h-full object-cover" />
-                         ) : attachedMedia.type === 'video' ? (
-                           <div className="w-full h-full flex items-center justify-center"><Video className="w-8 h-8 text-white" /></div>
-                         ) : (
-                           <div className="w-full h-full flex items-center justify-center"><FileIcon className="w-8 h-8 text-white" /></div>
-                         )}
-                      </div>
-                      <div className="flex-grow min-w-0">
-                         <p className="text-xs font-black uppercase truncate">{attachedMedia.file.name}</p>
-                         <p className="text-[10px] text-muted-foreground italic">Ready to share with the world.</p>
-                      </div>
-                      <Button variant="ghost" size="icon" onClick={() => setAttachedMedia(null)} className="rounded-full h-10 w-10 hover:bg-red-50 hover:text-red-500">
-                        <X className="w-5 h-5" />
-                      </Button>
-                    </div>
-                  )}
-
-                 <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-dashed">
-                    <div className="flex gap-2">
-                       <input type="file" ref={galleryRef} onChange={(e) => handleFileSelect(e, 'image')} accept="image/*,video/*" className="hidden" />
-                       <input type="file" ref={fileRef} onChange={(e) => handleFileSelect(e, 'file')} className="hidden" />
-                       
-                       <Popover>
-                          <PopoverTrigger asChild>
-                             <Button variant="ghost" className="rounded-full h-10 px-4 gap-2 font-black uppercase text-[10px] tracking-widest text-slate-500 hover:bg-slate-50">
-                                <Camera className="w-4 h-4 text-primary" />
-                                Attach Media
-                             </Button>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-48 p-2 rounded-2xl border-none shadow-2xl" side="top" align="start">
-                            <div className="flex flex-col gap-1">
-                              <Button variant="ghost" size="sm" onClick={() => setIsCameraOpen(true)} className="justify-start gap-3 rounded-xl py-4 h-auto">
-                                 <Zap className="w-4 h-4 text-primary" />
-                                 <span className="font-bold text-xs">Live Camera</span>
-                              </Button>
-                              <Button variant="ghost" size="sm" onClick={() => galleryRef.current?.click()} className="justify-start gap-3 rounded-xl py-4 h-auto">
-                                 <LucideImageIcon className="w-4 h-4 text-primary" />
-                                 <span className="font-bold text-xs">Gallery</span>
-                              </Button>
-                              <Button variant="ghost" size="sm" onClick={() => fileRef.current?.click()} className="justify-start gap-3 rounded-xl py-4 h-auto border-t mt-1">
-                                 <Paperclip className="w-4 h-4 text-primary" />
-                                 <span className="font-bold text-xs">Share File</span>
-                              </Button>
-                            </div>
-                          </PopoverContent>
-                       </Popover>
-                    </div>
-
-                    <Button 
-                      onClick={handleSendMessage}
-                      disabled={isSending || (!newMessage.trim() && !attachedMedia)} 
-                      className="px-8 h-14 rounded-full gradient-bg text-sm font-black uppercase tracking-[0.2em] shadow-xl shadow-primary/20 active:scale-95 transition-all gap-2"
-                    >
-                      {isSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                      Share Moment
-                    </Button>
-                 </div>
-                 
-                 {isUploading && (
-                    <div className="space-y-2 px-2" role="status">
-                      <div className="flex justify-between text-[8px] font-black uppercase tracking-widest text-primary"><span>Securing Cloud Bridge...</span><span>{Math.round(progress)}%</span></div>
-                      <Progress value={progress} className="h-1 bg-primary/5" />
-                    </div>
-                  )}
+               <div className="flex items-center justify-between pt-4 border-t border-dashed">
+                  <div className="flex gap-2">
+                     <input type="file" ref={galleryRef} onChange={(e) => handleFileSelect(e, 'image')} className="hidden" />
+                     <input type="file" ref={fileRef} onChange={(e) => handleFileSelect(e, 'file')} className="hidden" />
+                     <Popover>
+                        <PopoverTrigger asChild><Button variant="ghost" className="rounded-full h-10 px-4 gap-2 font-black uppercase text-[10px] tracking-widest text-slate-500"><Camera className="w-4 h-4 text-primary" /> Attach</Button></PopoverTrigger>
+                        <PopoverContent className="w-48 p-2 rounded-2xl border-none shadow-2xl" side="top" align="start">
+                          <Button variant="ghost" onClick={() => setIsCameraOpen(true)} className="w-full justify-start gap-3 py-3 h-auto rounded-xl"><Zap className="w-4 h-4 text-primary" /><span className="text-xs font-bold uppercase">Live Camera</span></Button>
+                          <Button variant="ghost" onClick={() => galleryRef.current?.click()} className="w-full justify-start gap-3 py-3 h-auto rounded-xl"><LucideImageIcon className="w-4 h-4 text-primary" /><span className="text-xs font-bold uppercase">Gallery</span></Button>
+                          <Button variant="ghost" onClick={() => fileRef.current?.click()} className="w-full justify-start gap-3 py-3 h-auto rounded-xl border-t"><Paperclip className="w-4 h-4 text-primary" /><span className="text-xs font-bold uppercase">Document</span></Button>
+                        </PopoverContent>
+                     </Popover>
+                  </div>
+                  <Button onClick={handleSendMessage} disabled={isSending || (!newMessage.trim() && !attachedMedia)} className="px-8 h-14 rounded-full gradient-bg font-black uppercase text-[10px] tracking-widest">Post Heartbeat</Button>
                </div>
             </Card>
           )}
 
-          {/* POST LIST */}
           <div className="space-y-6">
             {loading ? (
               <div className="flex justify-center py-20"><Loader2 className="animate-spin text-primary opacity-20 w-12 h-12" /></div>
             ) : messages?.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-32 text-center bg-white rounded-[3rem] border-2 border-dashed opacity-40 space-y-6">
-                 <Globe className="w-20 h-20" />
-                 <div className="space-y-1">
-                    <p className="text-xl font-black uppercase tracking-tighter">The wall is silent</p>
-                    <p className="text-sm font-medium italic">"Every revolution starts with a single respectful spark."</p>
-                 </div>
+              <div className="py-32 text-center bg-white rounded-[3rem] border-2 border-dashed opacity-40">
+                 <Globe className="w-20 h-20 mx-auto mb-4" />
+                 <p className="font-black uppercase tracking-tighter">The wall is silent</p>
               </div>
             ) : [...messages].reverse().map((msg: any) => {
               const isOwn = msg.senderId === user?.uid;
               const isSelected = selectedIds.has(msg.id);
-
               return (
-                <Card 
-                  key={msg.id} 
-                  onClick={() => isSelectMode && isOwn && toggleSelection(msg.id)}
-                  className={cn(
-                    "rounded-[2.5rem] border-none shadow-lg bg-white overflow-hidden transition-all duration-300 relative group", 
-                    isSelectMode && isOwn ? "cursor-pointer scale-[0.98] ring-2 ring-primary ring-offset-4" : "",
-                    isSelected && "opacity-60"
-                  )}
-                >
+                <Card key={msg.id} onClick={() => isSelectMode && isOwn && toggleSelection(msg.id)} className={cn("rounded-[2.5rem] border-none shadow-lg bg-white overflow-hidden transition-all group", isSelectMode && isOwn && "cursor-pointer scale-[0.98] ring-2 ring-primary ring-offset-4")}>
                   <div className="p-8 space-y-6">
                     <div className="flex items-center justify-between">
                        <div className="flex items-center gap-4 text-left">
-                          <div className="w-12 h-12 rounded-2xl bg-primary/5 flex items-center justify-center text-primary font-black shadow-inner border border-primary/10">
-                            {msg.senderNickname?.[0] || 'U'}
-                          </div>
-                          <div>
-                            <h3 className="font-black text-lg tracking-tight text-slate-900">{msg.senderNickname}</h3>
-                            <div className="flex items-center gap-1.5 text-[9px] font-bold text-muted-foreground uppercase tracking-widest">
-                               <Globe className="w-3 h-3" />
-                               Global Heart • {msg.timestamp ? 'Recently Shared' : 'Just Now'}
-                            </div>
-                          </div>
+                          <div className="w-12 h-12 rounded-2xl bg-primary/5 flex items-center justify-center text-primary font-black">{msg.senderNickname?.[0] || 'U'}</div>
+                          <div><h3 className="font-black text-lg text-slate-900">{msg.senderNickname}</h3><p className="text-[9px] font-bold text-muted-foreground uppercase">Global Heart • Just Now</p></div>
                        </div>
-                       
-                       {isSelectMode && isOwn && (
-                         <div className="animate-in zoom-in-95">
-                           {isSelected ? <CheckSquare className="w-6 h-6 text-primary" /> : <Square className="w-6 h-6 text-muted-foreground/20" />}
-                         </div>
-                       )}
+                       {isSelectMode && isOwn && (isSelected ? <CheckSquare className="w-6 h-6 text-primary" /> : <Square className="w-6 h-6 text-muted-foreground/20" />)}
                     </div>
-
                     {msg.text && <p className="text-lg font-medium text-slate-700 leading-relaxed italic text-left">"{msg.text}"</p>}
-
-                    {msg.imageUrl && (
-                      <div className="relative w-full aspect-video rounded-3xl overflow-hidden border shadow-sm">
-                        <img 
-                          src={msg.imageUrl} 
-                          alt="Community moment" 
-                          className="w-full h-full object-cover" 
-                        />
-                      </div>
-                    )}
-
-                    {msg.videoUrl && (
-                      <div className="relative w-full aspect-video rounded-3xl overflow-hidden bg-black shadow-lg">
-                         <video src={msg.videoUrl} controls className="w-full h-full" />
-                      </div>
-                    )}
-
+                    {msg.imageUrl && <div className="rounded-3xl overflow-hidden border shadow-sm"><img src={msg.imageUrl} className="w-full h-auto object-contain" /></div>}
+                    {msg.videoUrl && <div className="rounded-3xl overflow-hidden bg-black shadow-lg aspect-video"><video src={msg.videoUrl} controls className="w-full h-full" /></div>}
                     {msg.fileUrl && (
-                      <div className="flex items-center gap-4 bg-primary/5 p-6 rounded-3xl border border-dashed border-primary/20 group/file">
-                         <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-primary shadow-sm group-hover/file:rotate-6 transition-transform">
-                            <FileIcon className="w-6 h-6" />
-                         </div>
-                         <div className="min-w-0 flex-grow text-left">
-                            <p className="text-xs font-black uppercase truncate text-slate-900">{msg.fileName}</p>
-                            <p className="text-[9px] font-bold text-primary uppercase tracking-widest">Secured Document</p>
-                         </div>
-                         {!isSelectMode && <Button size="sm" variant="outline" className="h-10 px-6 rounded-xl border-2 font-black uppercase text-[10px] tracking-widest" onClick={() => window.open(msg.fileUrl)}>Get File</Button>}
+                      <div className="flex items-center gap-4 bg-primary/5 p-6 rounded-3xl border border-dashed border-primary/20">
+                         <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-primary"><FileIcon className="w-6 h-6" /></div>
+                         <div className="min-w-0 flex-grow text-left"><p className="text-xs font-black uppercase truncate">{msg.fileName}</p><p className="text-[9px] font-bold text-primary uppercase">Secured Document</p></div>
+                         {!isSelectMode && <Button size="sm" variant="outline" className="rounded-xl h-10 px-4" onClick={() => window.open(msg.fileUrl)}>Get File</Button>}
                       </div>
                     )}
-                  </div>
-
-                  <div className="px-8 py-4 bg-slate-50 border-t flex gap-6 text-slate-400">
-                    <button className="flex items-center gap-2 hover:text-primary transition-colors font-black uppercase text-[10px] tracking-widest"><Heart className="w-4 h-4" /> 186</button>
-                    <button className="flex items-center gap-2 hover:text-blue-500 transition-colors font-black uppercase text-[10px] tracking-widest"><MessageCircle className="w-4 h-4" /> 24</button>
-                    <button className="flex items-center gap-2 hover:text-indigo-500 transition-colors font-black uppercase text-[10px] tracking-widest ml-auto"><Send className="w-4 h-4" /> Share</button>
                   </div>
                 </Card>
               );
@@ -509,106 +307,28 @@ export default function CommunityPage() {
           </div>
         </div>
 
-        {/* SIDEBAR */}
         <div className="lg:col-span-4 space-y-8">
-          <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-8 space-y-6">
-            <h3 className="font-black text-xl uppercase tracking-tighter flex items-center gap-2">
-              <Zap className="w-6 h-6 text-primary" />
-              What's Happening
-            </h3>
-
-            <div className="space-y-4">
-              {[
-                { label: "World Kindness Day", count: "12k Hearts", color: "bg-pink-50 text-pink-600" },
-                { label: "Entrepreneurship", count: "4.5k Posts", color: "bg-blue-50 text-blue-600" },
-                { label: "Eliminate Poverty", count: "8k Sparks", color: "bg-green-50 text-green-600" }
-              ].map((trend, i) => (
-                <div key={i} className="flex items-center justify-between p-4 rounded-2xl hover:bg-slate-50 cursor-pointer transition-colors group">
-                   <div className="text-left">
-                      <p className="font-black text-sm text-slate-800 group-hover:text-primary transition-colors">❤️ {trend.label}</p>
-                      <p className="text-[10px] font-bold text-muted-foreground uppercase mt-0.5">{trend.count}</p>
-                   </div>
-                   <TrendingUp className="w-4 h-4 text-slate-300 group-hover:text-primary transition-all group-hover:translate-x-1" />
-                </div>
-              ))}
-            </div>
-            
-            <Button variant="outline" className="w-full h-12 rounded-2xl font-black uppercase text-[9px] tracking-widest border-2">Explore All Topics</Button>
-          </Card>
-
-          <Card className="rounded-[2.5rem] border-none shadow-xl bg-slate-900 p-8 space-y-6 text-white relative overflow-hidden group">
-            <Star className="absolute top-4 right-4 w-12 h-12 text-primary opacity-10 group-hover:rotate-12 transition-transform" />
-            <h3 className="font-black text-xl uppercase tracking-tighter text-left">Community Stats</h3>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-white/5 backdrop-blur-md rounded-3xl p-6 border border-white/10 text-center space-y-1">
-                <p className="font-black text-3xl text-primary tracking-tighter">18.2K</p>
-                <p className="text-[9px] font-black uppercase tracking-widest text-white/40">Members</p>
+           <Card className="rounded-[2.5rem] border-none shadow-xl bg-slate-900 p-8 text-white text-left relative overflow-hidden group">
+              <Star className="absolute top-4 right-4 w-12 h-12 text-primary opacity-10" />
+              <h3 className="font-black text-xl uppercase tracking-tighter mb-6">Community Stats</h3>
+              <div className="grid grid-cols-2 gap-4">
+                 <div className="bg-white/5 p-6 rounded-3xl border border-white/10 text-center"><p className="font-black text-3xl text-primary">18.2K</p><p className="text-[9px] font-black uppercase text-white/40">Members</p></div>
+                 <div className="bg-white/5 p-6 rounded-3xl border border-white/10 text-center"><p className="font-black text-3xl text-secondary">47.6K</p><p className="text-[9px] font-black uppercase text-white/40">Posts</p></div>
               </div>
-
-              <div className="bg-white/5 backdrop-blur-md rounded-3xl p-6 border border-white/10 text-center space-y-1">
-                <p className="font-black text-3xl text-secondary tracking-tighter">47.6K</p>
-                <p className="text-[9px] font-black uppercase tracking-widest text-white/40">Posts</p>
-              </div>
-            </div>
-            
-            <div className="p-4 bg-primary/10 rounded-2xl border border-primary/20 flex items-start gap-3 text-left">
-               <ShieldCheck className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-               <p className="text-[10px] font-bold text-primary/80 uppercase leading-relaxed tracking-tight">
-                 Every member is verified for verified human status and respect compliance.
-               </p>
-            </div>
-          </Card>
-
-          <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-8 text-center space-y-4">
-             <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-2">
-                <Globe className="w-8 h-8 text-slate-400 opacity-40" />
-             </div>
-             <p className="text-[11px] text-muted-foreground font-medium italic leading-relaxed">
-               "Reaching hearts in every village and every global city. Prosperity is mandatory."
-             </p>
-          </Card>
+           </Card>
         </div>
       </main>
 
-      {/* BATCH ACTION BAR (Replaces Input in Select Mode) */}
       {isSelectMode && (
-        <div className="fixed bottom-24 left-0 right-0 z-[60] px-6 animate-in slide-in-from-bottom-10 duration-500">
-           <div className="max-w-3xl mx-auto bg-slate-900 text-white rounded-[2.5rem] p-6 shadow-2xl flex flex-col sm:flex-row items-center gap-6 border border-primary/20">
-             <div className="flex-grow text-center sm:text-left">
-                <p className="text-xl font-black tracking-tighter uppercase leading-none">{selectedIds.size} Moments Highlighted</p>
-                <p className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] mt-2 italic">Ready for secure cloud retraction.</p>
-             </div>
-             <div className="flex gap-4 w-full sm:w-auto">
-               <Button 
-                variant="outline" 
-                onClick={() => setIsSelectMode(false)}
-                className="flex-1 sm:flex-none h-14 rounded-2xl border-white/10 bg-white/5 text-white font-black uppercase text-[10px] tracking-widest hover:bg-white/10"
-               >
-                 Cancel
-               </Button>
-               <Button 
-                onClick={handleDeleteSelected}
-                disabled={isSending || selectedIds.size === 0}
-                className="flex-1 sm:flex-none h-14 rounded-2xl gradient-bg shadow-xl shadow-primary/20 flex items-center gap-3 font-black uppercase text-[10px] tracking-widest"
-               >
-                 {isSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-                 Purge Selected
-               </Button>
-             </div>
+        <div className="fixed bottom-24 left-0 right-0 z-50 px-6">
+           <div className="max-w-3xl mx-auto bg-slate-900 text-white rounded-[2.5rem] p-6 shadow-2xl flex items-center justify-between border border-primary/20 animate-in slide-in-from-bottom-10">
+              <div className="text-left"><p className="text-xl font-black uppercase">{selectedIds.size} Selected</p><p className="text-[9px] font-bold text-white/40 uppercase">Ready for retraction</p></div>
+              <div className="flex gap-3">
+                 <Button variant="outline" onClick={() => setIsSelectMode(false)} className="rounded-xl h-12 text-white border-white/10">Cancel</Button>
+                 <Button onClick={handleDeleteSelected} disabled={isSending || selectedIds.size === 0} className="rounded-xl h-12 gradient-bg px-6"><Trash2 className="w-4 h-4 mr-2" /> Purge Selected</Button>
+              </div>
            </div>
         </div>
-      )}
-
-      {/* FLOATING ACTION BUTTON */}
-      {!isSelectMode && (
-        <button 
-          onClick={() => window.scrollTo({ top: 400, behavior: 'smooth' })}
-          className="fixed bottom-24 right-8 w-16 h-16 rounded-[1.8rem] gradient-bg shadow-[0_20px_50px_-10px_rgba(255,51,102,0.5)] text-white flex items-center justify-center active:scale-90 transition-all hover:rotate-6 z-50 group"
-          aria-label="Create Post"
-        >
-          <Plus className="w-8 h-8 group-hover:scale-110 transition-transform" />
-        </button>
       )}
 
       <BottomNav />
