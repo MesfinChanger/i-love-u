@@ -10,7 +10,6 @@ import React from 'react';
 /**
  * @fileOverview Hook for Google Cloud Storage operations.
  * Optimized for high-performance resumable uploads and secure deletions.
- * Includes descriptive diagnostic feedback for setup ripples.
  */
 export function useFirebaseStorage() {
   const storage = useStorage();
@@ -36,12 +35,10 @@ export function useFirebaseStorage() {
     }
 
     return new Promise((resolve, reject) => {
-      // Use uploadBytesResumable for high network resilience
       const uploadTask = uploadBytesResumable(storageRef, blob);
       
       uploadTask.on('state_changed',
         (snapshot) => {
-          // Precise byte-accurate progress calculation
           const p = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
           setProgress(p);
         },
@@ -49,12 +46,11 @@ export function useFirebaseStorage() {
           setError(err);
           setIsUploading(false);
           
-          // Enhanced Diagnostic Protocol
           if (err.code === 'storage/unknown' || err.message?.toLowerCase().includes('permission') || err.message?.toLowerCase().includes('cors')) {
             toast({
               variant: "destructive",
               title: "Storage Configuration Ripple",
-              description: "Mission Control requires Rules & CORS setup for web uploads. See docs/FIREBASE_SETUP.md for the fix. ❤️",
+              description: "Mission Control requires Rules & CORS setup for web uploads. ❤️",
               action: (
                 <Button 
                   variant="outline" 
@@ -87,10 +83,10 @@ export function useFirebaseStorage() {
   const deleteFile = async (pathOrUrl: string): Promise<void> => {
     if (!storage || !pathOrUrl) return;
     try {
+      // ref() intelligently handles full URLs
       const storageRef = ref(storage, pathOrUrl);
       await deleteObject(storageRef);
     } catch (err: any) {
-      // If the file is already gone, we consider it a success for the UI state
       if (err.code !== 'storage/object-not-found') {
         console.warn("I Love U: Storage deletion ripple:", err);
       }

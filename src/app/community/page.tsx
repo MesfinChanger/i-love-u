@@ -40,7 +40,7 @@ import { LiveCamera } from '@/components/LiveCamera';
 /**
  * @fileOverview Universal Global Wall.
  * Enforces "Respect is Mandatory" and enables live pic, video, and file sharing.
- * Optimized for accessibility and high-fidelity feedback.
+ * Optimized for high-fidelity media display and secure deletion.
  */
 export default function CommunityPage() {
   const { user } = useUser();
@@ -142,20 +142,7 @@ export default function CommunityPage() {
       setAttachedMedia(null);
       toast({ title: "Shared!", description: "Your post is live on the wall. ❤️" });
     } catch (error: any) {
-      if (error.code === 'storage/unknown' || error.message?.includes('storage')) {
-        toast({ 
-          variant: "destructive", 
-          title: "Storage Configuration Ripple", 
-          description: "Firebase Storage needs setup. Check Rules & CORS in console. 🛠️",
-          action: <Button variant="outline" size="sm" className="h-8 text-[10px]" onClick={() => window.open('https://console.firebase.google.com/')}>Setup Now</Button>
-        });
-      } else {
-        toast({ 
-          variant: "destructive", 
-          title: "Sharing Ripple", 
-          description: error.message || "Could not secure post right now." 
-        });
-      }
+      toast({ variant: "destructive", title: "Sharing Ripple", description: error.message || "Could not secure post." });
     } finally {
       setIsSending(false);
     }
@@ -165,7 +152,7 @@ export default function CommunityPage() {
     if (!db || isDeleting) return;
     setIsDeleting(msg.id);
     try {
-      // 1. Cleanup Storage first
+      // 1. Cleanup Storage first to prevent orphaned files
       if (msg.imageUrl) await deleteFile(msg.imageUrl);
       if (msg.videoUrl) await deleteFile(msg.videoUrl);
       if (msg.fileUrl) await deleteFile(msg.fileUrl);
@@ -174,7 +161,7 @@ export default function CommunityPage() {
       await deleteDoc(doc(db, 'communityMessages', msg.id));
       toast({ title: "Post Retracted", description: "Your moment has been cleared from the wall. ❤️" });
     } catch (e) {
-      toast({ variant: "destructive", title: "Error", description: "Could not retract post right now." });
+      toast({ variant: "destructive", title: "Error", description: "Could not retract post." });
     } finally {
       setIsDeleting(null);
     }
@@ -195,7 +182,7 @@ export default function CommunityPage() {
         aria-label="Community conversation wall"
       >
         {loading ? (
-          <div className="flex justify-center py-20"><Loader2 className="animate-spin text-primary opacity-20" aria-label="Loading messages" /></div>
+          <div className="flex justify-center py-20"><Loader2 className="animate-spin text-primary opacity-20" /></div>
         ) : messages?.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-32 text-center opacity-20 space-y-4">
              <Globe2 className="w-16 h-16" />
@@ -236,7 +223,7 @@ export default function CommunityPage() {
                    <Button size="sm" variant="ghost" className="h-7 text-[8px] font-black uppercase" onClick={() => window.open(msg.fileUrl)}>Get</Button>
                 </div>
               )}
-              {msg.text && <p className="text-sm font-medium">{msg.text}</p>}
+              {msg.text && <p className="text-sm font-medium leading-relaxed">{msg.text}</p>}
             </div>
           </div>
         ))}
@@ -244,7 +231,7 @@ export default function CommunityPage() {
 
       <footer className="p-4 bg-white/80 backdrop-blur-xl border-t pb-24 shrink-0 space-y-3">
         {isUploading && (
-          <div className="space-y-1" role="status" aria-label={`Uploading media: ${Math.round(progress)}%`}>
+          <div className="space-y-1" role="status" aria-label={`Uploading: ${Math.round(progress)}%`}>
             <Progress value={progress} className="h-1" />
             <p className="text-[8px] font-black uppercase text-primary">Securing Media {Math.round(progress)}%</p>
           </div>
@@ -262,7 +249,7 @@ export default function CommunityPage() {
                )}
             </div>
             <p className="text-[10px] font-bold truncate flex-grow">{attachedMedia.file.name}</p>
-            <Button variant="ghost" size="icon" onClick={() => setAttachedMedia(null)} className="rounded-full h-8 w-8 hover:bg-red-50 hover:text-red-500" aria-label="Remove attachment">
+            <Button variant="ghost" size="icon" onClick={() => setAttachedMedia(null)} className="rounded-full h-8 w-8 hover:bg-red-50 hover:text-red-500">
               <X className="w-4 h-4" />
             </Button>
           </div>
@@ -308,13 +295,11 @@ export default function CommunityPage() {
               onChange={e => setNewMessage(e.target.value)} 
               placeholder="Share a respectful thought..." 
               className="rounded-2xl border-none bg-muted/40 h-12 font-bold px-6"
-              aria-label="Message text"
             />
             <Button 
               type="submit" 
               disabled={isSending || (!newMessage.trim() && !attachedMedia)} 
               className="rounded-xl h-12 gradient-bg shadow-lg px-6 shrink-0"
-              aria-label="Post to wall"
             >
               {isSending ? <Loader2 className="animate-spin" /> : <Send className="w-5 h-5" />}
             </Button>
