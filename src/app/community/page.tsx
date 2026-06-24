@@ -5,6 +5,8 @@ import { Header } from '@/components/Header';
 import { BottomNav } from '@/components/BottomNav';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { 
   Globe2, 
   Send, 
@@ -25,7 +27,9 @@ import {
   Shield,
   Star,
   TrendingUp,
-  Users
+  Heart,
+  MessageCircle,
+  Globe
 } from 'lucide-react';
 import { 
   Popover, 
