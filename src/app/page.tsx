@@ -1,7 +1,6 @@
-
 "use client";
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -15,7 +14,8 @@ import {
   Sparkles,
   Languages,
   Check,
-  Loader2
+  Loader2,
+  Camera
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -28,8 +28,12 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/components/providers/LanguageProvider';
 import { SUPPORTED_LANGUAGES } from '@/lib/world-data';
-import { useUser } from '@/firebase';
+import { useUser, useFirestore, useDoc, useFirebaseApp } from '@/firebase';
 import { useRouter } from 'next/navigation';
+import { doc, getDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { useMemoFirebase } from '@/firebase/use-memo-firebase';
+import { useToast } from '@/hooks/use-toast';
 
 const LOVE_TRANSLATIONS = [
   { lang: "English", text: "I Love U", icon: "❤️" },
@@ -41,8 +45,12 @@ const LOVE_TRANSLATIONS = [
 
 export default function Home() {
   const { user, loading: userLoading } = useUser();
+  const db = useFirestore();
+  const app = useFirebaseApp();
   const router = useRouter();
+  const { toast } = useToast();
   const { language, setLanguage, t } = useTranslation();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const dynamicImages = useMemo(() => (PlaceHolderImages || []).filter(img => img.id.startsWith('user-')), []);
   
@@ -50,6 +58,34 @@ export default function Home() {
   const [imageIndex, setImageIndex] = useState(0);
   const [mounted, setMounted] = useState(false);
   const [currentYear, setCurrentYear] = useState('');
+  const [heroImage, setHeroImage] = useState("");
+  const [pageOwnerId, setPageOwnerId] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
+
+  // Profile data for Admin check
+  const userRef = useMemoFirebase(() => {
+    if (!db || !user) return null;
+    return doc(db, 'users', user.uid);
+  }, [db, user]);
+  const { data: profile } = useDoc(userRef);
+
+  // Load Settings
+  useEffect(() => {
+    if (!db) return;
+    const loadSettings = async () => {
+      const docRef = doc(db, "siteSettings", "homepage");
+      const snap = await getDoc(docRef);
+
+      if (snap.exists()) {
+        const data = snap.data();
+        setHeroImage(data.heroImageUrl || "");
+        setPageOwnerId(data.ownerId || "");
+      }
+    };
+    loadSettings();
+  }, [db]);
+
+  const canEdit = profile?.isAdmin || (user?.uid === pageOwnerId && pageOwnerId !== "");
 
   // Immediate Policy Bridge Protocol
   useEffect(() => {
@@ -80,6 +116,33 @@ export default function Home() {
       clearInterval(imageInterval);
     };
   }, [dynamicImages.length]);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !app || !db) return;
+
+    setIsUploading(true);
+    try {
+      const storage = getStorage(app);
+      const storageRef = ref(storage, `hero-images/${Date.now()}-${file.name}`);
+
+      await uploadBytes(storageRef, file);
+      const url = await getDownloadURL(storageRef);
+
+      await updateDoc(doc(db, "siteSettings", "homepage"), {
+        heroImageUrl: url,
+        updatedAt: serverTimestamp(),
+      });
+
+      setHeroImage(url);
+      toast({ title: "Hero Updated", description: "The vision has been updated globally. ✨" });
+    } catch (err) {
+      console.error(err);
+      toast({ variant: "destructive", title: "Upload Failed", description: "Could not update hero image." });
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   const heroTitle = useMemo(() => t('home.heroTitle') || "Spark Love. End Poverty.", [t]);
   const metricTitle = useMemo(() => t('home.metricTitle') || "Happiness is the Only Metric.", [t]);
@@ -137,28 +200,63 @@ export default function Home() {
       <main className="flex-grow">
         <section className="relative h-[100vh] w-full flex items-center overflow-hidden">
           <div className="absolute inset-0 z-0">
-            {(dynamicImages || []).map((img, i) => (
-              <div 
-                key={img.id}
-                className={cn(
-                  "absolute inset-0 transition-all duration-[3000ms] ease-in-out",
-                  imageIndex === i ? "opacity-100 scale-105 blur-0" : "opacity-0 scale-100 blur-sm"
-                )}
-              >
+            {/* Dynamic Hero Image with Fallback Carousel */}
+            {heroImage ? (
+              <div className="absolute inset-0 scale-105">
                 <Image 
-                  src={img.imageUrl} 
-                  alt="Global Heart Connection" 
+                  src={heroImage} 
+                  alt="Dynamic Hero" 
                   fill 
-                  className="object-cover brightness-90"
-                  priority={i === 0}
-                  data-ai-hint="woman portrait"
+                  className="object-cover brightness-75"
+                  priority
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
               </div>
-            ))}
+            ) : (
+              (dynamicImages || []).map((img, i) => (
+                <div 
+                  key={img.id}
+                  className={cn(
+                    "absolute inset-0 transition-all duration-[3000ms] ease-in-out",
+                    imageIndex === i ? "opacity-100 scale-105 blur-0" : "opacity-0 scale-100 blur-sm"
+                  )}
+                >
+                  <Image 
+                    src={img.imageUrl} 
+                    alt="Global Heart Connection" 
+                    fill 
+                    className="object-cover brightness-90"
+                    priority={i === 0}
+                    data-ai-hint="woman portrait"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                </div>
+              ))
+            )}
           </div>
 
           <div className="container mx-auto px-6 relative z-10 pt-20">
+            {/* Admin Controls */}
+            {canEdit && (
+              <div className="absolute top-0 right-6 z-20 flex gap-2">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleImageUpload}
+                />
+                <Button 
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isUploading}
+                  className="bg-white/90 text-slate-900 hover:bg-white rounded-full px-6 h-12 shadow-2xl font-black uppercase text-[10px] tracking-widest gap-2 backdrop-blur-md"
+                >
+                  {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Camera className="w-4 h-4" />}
+                  Change Global Vision
+                </Button>
+              </div>
+            )}
+
             <div className="max-w-4xl space-y-12">
               <div className="bg-white/10 backdrop-blur-2xl px-6 py-4 rounded-[2rem] border border-white/20 shadow-2xl inline-flex animate-bounce duration-[3000ms] group hover:bg-white/20 transition-all">
                 <div className="flex items-center gap-4">
