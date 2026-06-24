@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from 'firebase/storage';
 import { useStorage } from '../provider';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -9,7 +9,7 @@ import React from 'react';
 
 /**
  * @fileOverview Hook for Google Cloud Storage operations.
- * Optimized for high-performance resumable uploads mirroring high-resilience Dart logic.
+ * Optimized for high-performance resumable uploads and secure deletions.
  * Includes descriptive diagnostic feedback for setup ripples.
  */
 export function useFirebaseStorage() {
@@ -80,5 +80,22 @@ export function useFirebaseStorage() {
     });
   };
 
-  return { uploadFile, isUploading, progress, error };
+  /**
+   * Securely deletes a file from the cloud bridge.
+   * Handles both storage paths and full download URLs.
+   */
+  const deleteFile = async (pathOrUrl: string): Promise<void> => {
+    if (!storage || !pathOrUrl) return;
+    try {
+      const storageRef = ref(storage, pathOrUrl);
+      await deleteObject(storageRef);
+    } catch (err: any) {
+      // If the file is already gone, we consider it a success for the UI state
+      if (err.code !== 'storage/object-not-found') {
+        console.warn("I Love U: Storage deletion ripple:", err);
+      }
+    }
+  };
+
+  return { uploadFile, deleteFile, isUploading, progress, error };
 }

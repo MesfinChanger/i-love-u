@@ -81,7 +81,7 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
   const { matchId } = use(params);
   const { user } = useUser();
   const db = useFirestore();
-  const { uploadFile, isUploading: isStorageUploading, progress: uploadProgress } = useFirebaseStorage();
+  const { uploadFile, deleteFile, isUploading: isStorageUploading, progress: uploadProgress } = useFirebaseStorage();
   const router = useRouter();
   const { toast } = useToast();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -240,6 +240,14 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
     if (!db || !matchId || isDeleting) return;
     setIsDeleting(id);
     try {
+      // Cleanup storage media first if it exists
+      const msgToDelete = messages?.find((m: any) => m.id === id);
+      if (msgToDelete) {
+        if (msgToDelete.imageUrl) await deleteFile(msgToDelete.imageUrl);
+        if (msgToDelete.videoUrl) await deleteFile(msgToDelete.videoUrl);
+        if (msgToDelete.fileUrl) await deleteFile(msgToDelete.fileUrl);
+      }
+
       await deleteDoc(doc(db, 'matches', matchId, 'messages', id));
       toast({ title: "Message Retracted", description: "Cleared from sacred space. ❤️" });
     } catch (e) {

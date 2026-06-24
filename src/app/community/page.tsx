@@ -17,6 +17,7 @@ import {
   FileIcon,
   Paperclip,
   Zap,
+  Trash2,
   Image as LucideImageIcon
 } from 'lucide-react';
 import { 
@@ -25,7 +26,7 @@ import {
   PopoverTrigger 
 } from '@/components/ui/popover';
 import { useUser, useFirestore, useCollection, useDoc, useFirebaseStorage } from '@/firebase';
-import { collection, addDoc, query, orderBy, serverTimestamp, limit, doc } from 'firebase/firestore';
+import { collection, addDoc, query, orderBy, serverTimestamp, limit, doc, deleteDoc } from 'firebase/firestore';
 import { moderateText } from '@/ai/flows/moderate-text-flow';
 import { moderateImage } from '@/ai/flows/moderate-image-flow';
 import { useToast } from '@/hooks/use-toast';
@@ -44,7 +45,7 @@ import { LiveCamera } from '@/components/LiveCamera';
 export default function CommunityPage() {
   const { user } = useUser();
   const db = useFirestore();
-  const { uploadFile, isUploading, progress } = useFirebaseStorage();
+  const { uploadFile, deleteFile, isUploading, progress } = useFirebaseStorage();
   const { toast } = useToast();
   const scrollRef = useRef<HTMLDivElement>(null);
   const galleryRef = useRef<HTMLInputElement>(null);
@@ -52,6 +53,7 @@ export default function CommunityPage() {
 
   const [newMessage, setNewMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
+  const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [attachedMedia, setAttachedMedia] = useState<{ 
     file: File; 
@@ -159,6 +161,25 @@ export default function CommunityPage() {
     }
   };
 
+  const handleDeletePost = async (msg: any) => {
+    if (!db || isDeleting) return;
+    setIsDeleting(msg.id);
+    try {
+      // 1. Cleanup Storage first
+      if (msg.imageUrl) await deleteFile(msg.imageUrl);
+      if (msg.videoUrl) await deleteFile(msg.videoUrl);
+      if (msg.fileUrl) await deleteFile(msg.fileUrl);
+
+      // 2. Delete Firestore Record
+      await deleteDoc(doc(db, 'communityMessages', msg.id));
+      toast({ title: "Post Retracted", description: "Your moment has been cleared from the wall. ❤️" });
+    } catch (e) {
+      toast({ variant: "destructive", title: "Error", description: "Could not retract post right now." });
+    } finally {
+      setIsDeleting(null);
+    }
+  };
+
   return (
     <div className="flex flex-col h-[100dvh] bg-muted/30 overflow-hidden">
       <Header />
@@ -182,7 +203,19 @@ export default function CommunityPage() {
           </div>
         ) : messages?.map((msg: any) => (
           <div key={msg.id} className={cn("flex flex-col gap-1 animate-in fade-in slide-in-from-bottom-2", msg.senderId === user?.uid ? "items-end" : "items-start")}>
-            <span className="text-[8px] font-black uppercase text-muted-foreground px-2">{msg.senderNickname}</span>
+            <div className="flex items-center gap-2 px-2">
+              <span className="text-[8px] font-black uppercase text-muted-foreground">{msg.senderNickname}</span>
+              {msg.senderId === user?.uid && (
+                <button 
+                  onClick={() => handleDeletePost(msg)}
+                  disabled={isDeleting === msg.id}
+                  className="text-muted-foreground/30 hover:text-red-500 transition-colors"
+                  aria-label="Delete post"
+                >
+                  {isDeleting === msg.id ? <Loader2 className="w-2.5 h-2.5 animate-spin" /> : <Trash2 className="w-2.5 h-2.5" />}
+                </button>
+              )}
+            </div>
             <div className={cn("max-w-[85%] px-4 py-3 rounded-[1.5rem] shadow-sm", msg.senderId === user?.uid ? "bg-primary text-white" : "bg-white border text-slate-800")}>
               {msg.imageUrl && (
                 <div className={cn("relative w-full aspect-square rounded-xl overflow-hidden", msg.text ? "mb-2" : "mb-0")}>
