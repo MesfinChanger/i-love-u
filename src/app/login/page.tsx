@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect, Suspense } from 'react';
@@ -35,6 +34,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { generateKeyPair } from '@/lib/crypto';
 import { COUNTRIES } from '@/lib/world-data';
 import { useTranslation } from '@/components/providers/LanguageProvider';
+import { cn } from '@/lib/utils';
 
 function LoginContent() {
   const auth = useAuth();
