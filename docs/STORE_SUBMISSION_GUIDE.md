@@ -32,7 +32,17 @@ npx cap sync
 Update `capacitor.config.ts`:
 - Ensure `server.url` points to your production URL (e.g., `https://spark-dating.web.app`).
 
-## 5. Store Specific Requirements
+## 5. Android Production Signing
+To secure your production release, you must provide the SHA-1 or SHA-256 fingerprint from your production keystore to the Firebase Console.
+
+Run the following command to retrieve your fingerprints:
+```bash
+keytool -list -v \
+-alias <your-key-name> -keystore <path-to-production-keystore>
+```
+*Note: Replace `<your-key-name>` and `<path-to-production-keystore>` with your specific credentials.*
+
+## 6. Store Specific Requirements
 
 ### Apple App Store (iOS)
 - **Safety**: Provide a "Demo Account" for the reviewer.
@@ -43,5 +53,5 @@ Update `capacitor.config.ts`:
 - **Data Safety**: Disclose that you collect location data for "Accountability and Anti-Cheating" in dating matches.
 - **Encryption**: Highlight that private chats are End-to-End Encrypted.
 
-## 6. Post-Launch
+## 7. Post-Launch
 Once live, you can adjust the `config/pricing` document in Firestore to change seller fees globally based on demand.

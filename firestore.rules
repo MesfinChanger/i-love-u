@@ -1,3 +1,4 @@
+
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -45,7 +46,6 @@ service cloud.firestore {
     }
 
     // Discovery Profiles: Publicly shared snippets for carousel
-    // Support both requested naming conventions for maximum resilience
     match /publicProfiles/{userId} {
       allow read: if true;
       allow write: if isOwner(userId);
@@ -53,7 +53,7 @@ service cloud.firestore {
 
     match /PublicProfile/{userId} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow write: if isAuthenticated();
     }
 
     // Matches: Sacred connection spaces
@@ -82,7 +82,7 @@ service cloud.firestore {
 
     // Ads: Community reach campaigns
     match /ads/{adId} {
-      // Grant explicit read (list/get) to all hearts for Discover feed
+      // Grant explicit public read for Discover feed
       allow read, list, get: if true;
       allow create: if isAuthenticated() && request.resource.data.advertiserId == request.auth.uid;
       allow update: if isAuthenticated() && (resource.data.advertiserId == request.auth.uid || isAdmin());
