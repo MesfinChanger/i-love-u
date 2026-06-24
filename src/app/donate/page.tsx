@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useMemo, useEffect, Suspense } from 'react';
@@ -95,10 +96,19 @@ function DonateContent() {
 
     setIsDonating(true);
     try {
-      await createDonationSession(donationAmount, userCurrency, user.uid);
-    } catch (e) {
+      const result = await createDonationSession(donationAmount, userCurrency, user.uid);
+      if (result?.url) {
+        window.location.href = result.url;
+      } else if (result?.error) {
+        throw new Error(result.error);
+      }
+    } catch (e: any) {
       console.error(e);
-      toast({ variant: "destructive", title: "Error", description: "Could not initiate payment." });
+      toast({ 
+        variant: "destructive", 
+        title: "Bridge Disconnected", 
+        description: e.message || "Could not reach the payment cloud. Please try again later. ❤️" 
+      });
       setIsDonating(false);
     }
   };
@@ -118,13 +128,18 @@ function DonateContent() {
     setIsDonating(true);
     setShowGuestForm(false);
     try {
-      await createDonationSession(parseFloat(pendingAmount), userCurrency, 'guest', {
+      const result = await createDonationSession(parseFloat(pendingAmount), userCurrency, 'guest', {
         email: guestEmail,
         phone: guestPhone,
         address: guestAddress
       });
-    } catch (e) {
-      toast({ variant: "destructive", title: "Error", description: "Payment bridge failed." });
+      if (result?.url) {
+        window.location.href = result.url;
+      } else if (result?.error) {
+        throw new Error(result.error);
+      }
+    } catch (e: any) {
+      toast({ variant: "destructive", title: "Error", description: e.message || "Payment bridge failed." });
       setIsDonating(false);
     }
   };

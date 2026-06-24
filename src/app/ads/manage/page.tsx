@@ -193,7 +193,12 @@ function AdvertiserManageContent() {
       localStorage.removeItem(`ad_draft_${user.uid}`);
 
       if (amount > 0) {
-        await createAdCampaignSession(amount, userCurrency, user.uid, title);
+        const result = await createAdCampaignSession(amount, userCurrency, user.uid, title);
+        if (result?.url) {
+          window.location.href = result.url;
+        } else if (result?.error) {
+          throw new Error(result.error);
+        }
       } else {
         toast({
           title: "Free Campaign Launched!",
@@ -205,9 +210,9 @@ function AdvertiserManageContent() {
         setVideoUrl('');
         setIsCreating(false);
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
-      toast({ variant: "destructive", title: "Error", description: "Operation failed." });
+      toast({ variant: "destructive", title: "Error", description: e.message || "Operation failed." });
       setIsCreating(false);
     }
   };

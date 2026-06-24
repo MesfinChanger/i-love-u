@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect, Suspense } from 'react';
@@ -123,9 +124,14 @@ function SellerManageContent() {
       }
 
       const priceToCharge = plan === 'basic_seller' ? basicPrice : proPrice;
-      await createSubscriptionSession(plan, userCurrency, user.uid, priceToCharge);
-    } catch (e) {
-      toast({ variant: "destructive", title: "Error", description: "Payment redirect failed." });
+      const result = await createSubscriptionSession(plan, userCurrency, user.uid, priceToCharge);
+      if (result?.url) {
+        window.location.href = result.url;
+      } else if (result?.error) {
+        throw new Error(result.error);
+      }
+    } catch (e: any) {
+      toast({ variant: "destructive", title: "Error", description: e.message || "Payment redirect failed." });
       setIsSubscribing(false);
     }
   };

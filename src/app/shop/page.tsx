@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
@@ -109,10 +110,15 @@ function ShopContent() {
     
     setIsPurchasing(product.id);
     try {
-      await createGiftPurchaseSession(product.name, product.price, userCurrency, user.uid);
-    } catch (e) {
+      const result = await createGiftPurchaseSession(product.name, product.price, userCurrency, user.uid);
+      if (result?.url) {
+        window.location.href = result.url;
+      } else if (result?.error) {
+        throw new Error(result.error);
+      }
+    } catch (e: any) {
       console.error(e);
-      toast({ variant: "destructive", title: "Error", description: "Payment redirect failed." });
+      toast({ variant: "destructive", title: "Bridge Disconnected", description: e.message || "Payment bridge failure. ❤️" });
       setIsPurchasing(null);
     }
   };
@@ -132,13 +138,18 @@ function ShopContent() {
     setIsPurchasing(pendingProduct.id);
     setShowGuestForm(false);
     try {
-      await createGiftPurchaseSession(pendingProduct.name, pendingProduct.price, userCurrency, 'guest', {
+      const result = await createGiftPurchaseSession(pendingProduct.name, pendingProduct.price, userCurrency, 'guest', {
         email: guestEmail,
         phone: guestPhone,
         address: guestAddress
       });
-    } catch (e) {
-      toast({ variant: "destructive", title: "Error", description: "Payment bridge failed." });
+      if (result?.url) {
+        window.location.href = result.url;
+      } else if (result?.error) {
+        throw new Error(result.error);
+      }
+    } catch (e: any) {
+      toast({ variant: "destructive", title: "Error", description: e.message || "Payment bridge failed." });
       setIsPurchasing(null);
     }
   };
@@ -271,7 +282,7 @@ function ShopContent() {
                        />
                     </div>
                  </div>
-                 <p className="text-[9px] text-muted-foreground italic font-medium text-center">
+                 <p className="text-[9px] text-muted-foreground italic font-medium leading-tight text-center">
                     Billing address and contact (email/phone) are required for guest hearts. ❤️
                  </p>
               </div>
