@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import Image from 'next/image';
 import { Header } from '@/components/Header';
 import { BottomNav } from '@/components/BottomNav';
 import { Button } from '@/components/ui/button';
@@ -8,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { 
-  Globe2, 
+  Globe, 
   Send, 
   Loader2, 
   ShieldCheck, 
@@ -29,7 +30,7 @@ import {
   TrendingUp,
   Heart,
   MessageCircle,
-  Globe
+  Sparkles
 } from 'lucide-react';
 import { 
   Popover, 
@@ -49,7 +50,7 @@ import { LiveCamera } from '@/components/LiveCamera';
 
 /**
  * @fileOverview Universal Global Wall with Select-to-Delete Protocol.
- * Merged with High-Impact Mission UI.
+ * Merged with Luxury Hero & Glassmorphism Design.
  * Enforces "Respect is Mandatory" and enables live multi-media sharing.
  */
 export default function CommunityPage() {
@@ -204,51 +205,104 @@ export default function CommunityPage() {
     <div className="flex flex-col min-h-screen bg-muted/30 overflow-x-hidden">
       <Header />
       
-      {/* MISSION HERO SECTION */}
+      {/* LUXURY HERO SECTION */}
       <section className="max-w-7xl mx-auto w-full p-6 pt-8">
-        <div className="rounded-[3rem] overflow-hidden bg-gradient-to-r from-pink-100 via-white to-orange-100 shadow-xl border border-white/50">
-          <div className="grid lg:grid-cols-2 gap-8 p-10 items-center">
-            <div className="space-y-6">
-              <div className="flex items-center gap-3 text-primary font-black uppercase tracking-[0.2em] text-xs">
-                <Shield className="w-5 h-5" />
-                Global Wall
+        <div className="relative overflow-hidden rounded-[40px] bg-gradient-to-br from-pink-50 via-white to-amber-50 shadow-2xl border border-white/50 mb-8">
+          
+          {/* Background Glow */}
+          <div className="absolute -top-32 -left-32 h-72 w-72 rounded-full bg-pink-300/20 blur-3xl" />
+          <div className="absolute -bottom-32 -right-32 h-72 w-72 rounded-full bg-orange-300/20 blur-3xl" />
+
+          <div className="grid lg:grid-cols-2 gap-10 items-center p-8 lg:p-12">
+
+            {/* LEFT */}
+            <div>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-pink-100 text-pink-600 font-bold text-sm mb-6">
+                <Shield className="w-4 h-4" />
+                GLOBAL WALL
               </div>
 
-              <h2 className="text-5xl lg:text-6xl font-black tracking-tighter text-slate-900 leading-[0.9]">
-                Respect is <br/><span className="gradient-text">Mandatory.</span>
-              </h2>
+              <h1 className="text-5xl lg:text-7xl font-black leading-none tracking-tight">
+                Respect is
+                <span className="block bg-gradient-to-r from-pink-500 via-orange-400 to-yellow-400 bg-clip-text text-transparent">
+                  Mandatory.
+                </span>
+              </h1>
 
-              <p className="text-slate-600 text-lg font-medium italic max-w-md">
-                "Share with love. Inspire the world. Every respectful post funds local job creation to end poverty."
+              <p className="mt-6 text-xl text-slate-600 max-w-xl leading-relaxed">
+                Share your moments. Inspire people around the world.
+                Every respectful connection helps build a stronger global community.
               </p>
 
-              <div className="flex flex-wrap gap-3">
-                <Badge variant="secondary" className="bg-white rounded-full px-5 py-2 shadow-sm border-none font-bold text-slate-600">
-                  🌎 192 Countries
-                </Badge>
-                <Badge variant="secondary" className="bg-white rounded-full px-5 py-2 shadow-sm border-none font-bold text-slate-600">
-                  ❤️ 18.2K Members
-                </Badge>
-                <Badge variant="secondary" className="bg-white rounded-full px-5 py-2 shadow-sm border-none font-bold text-slate-600">
-                  ✨ {messages?.length || '0'} Live Moments
-                </Badge>
+              <div className="flex flex-wrap gap-4 mt-8">
+                <div className="flex items-center gap-2 bg-white px-5 py-3 rounded-full shadow-lg">
+                  <Globe className="w-5 h-5 text-blue-500" />
+                  <span className="font-bold">192 Countries</span>
+                </div>
+
+                <div className="flex items-center gap-2 bg-white px-5 py-3 rounded-full shadow-lg">
+                  <Heart className="w-5 h-5 text-pink-500" />
+                  <span className="font-bold">18.2K Members</span>
+                </div>
+
+                <div className="flex items-center gap-2 bg-white px-5 py-3 rounded-full shadow-lg">
+                  <Sparkles className="w-5 h-5 text-orange-500" />
+                  <span className="font-bold">Live Community</span>
+                </div>
+              </div>
+
+              <div className="flex gap-4 mt-8">
+                <button 
+                  onClick={() => window.scrollTo({ top: 400, behavior: 'smooth' })}
+                  className="rounded-full px-8 py-4 font-bold text-white bg-gradient-to-r from-pink-500 to-orange-400 shadow-xl hover:scale-105 transition"
+                >
+                  Share Moment
+                </button>
+
+                <button 
+                  onClick={() => window.location.href = '/discover'}
+                  className="rounded-full px-8 py-4 font-bold bg-white shadow-lg hover:scale-105 transition"
+                >
+                  Explore
+                </button>
               </div>
             </div>
 
-            <div className="relative aspect-video rounded-[2.5rem] overflow-hidden shadow-2xl border-8 border-white group">
-              <img
-                src="https://picsum.photos/seed/community-hero/800/600"
-                alt="Global Community"
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-              <div className="absolute bottom-6 left-6 flex items-center gap-3">
-                 <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center">
-                    <Globe2 className="w-6 h-6 text-white" />
-                 </div>
-                 <p className="text-white font-black uppercase tracking-widest text-[10px]">Reaching every village</p>
+            {/* RIGHT */}
+            <div className="relative">
+              <div className="rounded-[35px] overflow-hidden bg-white p-3 shadow-2xl">
+                <div className="relative aspect-[4/3] overflow-hidden rounded-[28px]">
+                  <Image
+                    src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=1600"
+                    alt="Community"
+                    fill
+                    className="object-cover"
+                    priority
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                  <div className="absolute bottom-6 left-6 text-white text-left">
+                    <p className="text-sm font-bold uppercase tracking-widest">
+                      Global Community
+                    </p>
+                    <h3 className="text-3xl font-black">
+                      Connecting Hearts Worldwide
+                    </h3>
+                  </div>
+                </div>
+              </div>
+
+              {/* Floating Card */}
+              <div className="absolute -bottom-6 -left-6 bg-white rounded-3xl p-5 shadow-2xl hidden sm:block">
+                <div className="flex items-center gap-3">
+                  <TrendingUp className="text-green-500 w-6 h-6" />
+                  <div>
+                    <p className="text-xs text-slate-500">Today</p>
+                    <p className="font-black text-slate-900">+324 New Connections</p>
+                  </div>
+                </div>
               </div>
             </div>
+
           </div>
         </div>
       </section>
@@ -370,7 +424,7 @@ export default function CommunityPage() {
               <div className="flex justify-center py-20"><Loader2 className="animate-spin text-primary opacity-20 w-12 h-12" /></div>
             ) : messages?.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-32 text-center bg-white rounded-[3rem] border-2 border-dashed opacity-40 space-y-6">
-                 <Globe2 className="w-20 h-20" />
+                 <Globe className="w-20 h-20" />
                  <div className="space-y-1">
                     <p className="text-xl font-black uppercase tracking-tighter">The wall is silent</p>
                     <p className="text-sm font-medium italic">"Every revolution starts with a single respectful spark."</p>
@@ -392,14 +446,14 @@ export default function CommunityPage() {
                 >
                   <div className="p-8 space-y-6">
                     <div className="flex items-center justify-between">
-                       <div className="flex items-center gap-4">
+                       <div className="flex items-center gap-4 text-left">
                           <div className="w-12 h-12 rounded-2xl bg-primary/5 flex items-center justify-center text-primary font-black shadow-inner border border-primary/10">
                             {msg.senderNickname?.[0] || 'U'}
                           </div>
                           <div>
                             <h3 className="font-black text-lg tracking-tight text-slate-900">{msg.senderNickname}</h3>
                             <div className="flex items-center gap-1.5 text-[9px] font-bold text-muted-foreground uppercase tracking-widest">
-                               <Globe2 className="w-3 h-3" />
+                               <Globe className="w-3 h-3" />
                                Global Heart • {msg.timestamp ? 'Recently Shared' : 'Just Now'}
                             </div>
                           </div>
@@ -412,7 +466,7 @@ export default function CommunityPage() {
                        )}
                     </div>
 
-                    {msg.text && <p className="text-lg font-medium text-slate-700 leading-relaxed italic">"{msg.text}"</p>}
+                    {msg.text && <p className="text-lg font-medium text-slate-700 leading-relaxed italic text-left">"{msg.text}"</p>}
 
                     {msg.imageUrl && (
                       <div className="relative w-full aspect-video rounded-3xl overflow-hidden border shadow-sm">
@@ -435,7 +489,7 @@ export default function CommunityPage() {
                          <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-primary shadow-sm group-hover/file:rotate-6 transition-transform">
                             <FileIcon className="w-6 h-6" />
                          </div>
-                         <div className="min-w-0 flex-grow">
+                         <div className="min-w-0 flex-grow text-left">
                             <p className="text-xs font-black uppercase truncate text-slate-900">{msg.fileName}</p>
                             <p className="text-[9px] font-bold text-primary uppercase tracking-widest">Secured Document</p>
                          </div>
@@ -470,7 +524,7 @@ export default function CommunityPage() {
                 { label: "Eliminate Poverty", count: "8k Sparks", color: "bg-green-50 text-green-600" }
               ].map((trend, i) => (
                 <div key={i} className="flex items-center justify-between p-4 rounded-2xl hover:bg-slate-50 cursor-pointer transition-colors group">
-                   <div>
+                   <div className="text-left">
                       <p className="font-black text-sm text-slate-800 group-hover:text-primary transition-colors">❤️ {trend.label}</p>
                       <p className="text-[10px] font-bold text-muted-foreground uppercase mt-0.5">{trend.count}</p>
                    </div>
@@ -484,7 +538,7 @@ export default function CommunityPage() {
 
           <Card className="rounded-[2.5rem] border-none shadow-xl bg-slate-900 p-8 space-y-6 text-white relative overflow-hidden group">
             <Star className="absolute top-4 right-4 w-12 h-12 text-primary opacity-10 group-hover:rotate-12 transition-transform" />
-            <h3 className="font-black text-xl uppercase tracking-tighter">Community Stats</h3>
+            <h3 className="font-black text-xl uppercase tracking-tighter text-left">Community Stats</h3>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-white/5 backdrop-blur-md rounded-3xl p-6 border border-white/10 text-center space-y-1">
@@ -498,7 +552,7 @@ export default function CommunityPage() {
               </div>
             </div>
             
-            <div className="p-4 bg-primary/10 rounded-2xl border border-primary/20 flex items-start gap-3">
+            <div className="p-4 bg-primary/10 rounded-2xl border border-primary/20 flex items-start gap-3 text-left">
                <ShieldCheck className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                <p className="text-[10px] font-bold text-primary/80 uppercase leading-relaxed tracking-tight">
                  Every member is verified for verified human status and respect compliance.
@@ -508,7 +562,7 @@ export default function CommunityPage() {
 
           <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-8 text-center space-y-4">
              <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-2">
-                <Globe2 className="w-8 h-8 text-slate-400 opacity-40" />
+                <Globe className="w-8 h-8 text-slate-400 opacity-40" />
              </div>
              <p className="text-[11px] text-muted-foreground font-medium italic leading-relaxed">
                "Reaching hearts in every village and every global city. Prosperity is mandatory."
@@ -549,7 +603,7 @@ export default function CommunityPage() {
       {/* FLOATING ACTION BUTTON */}
       {!isSelectMode && (
         <button 
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          onClick={() => window.scrollTo({ top: 400, behavior: 'smooth' })}
           className="fixed bottom-24 right-8 w-16 h-16 rounded-[1.8rem] gradient-bg shadow-[0_20px_50px_-10px_rgba(255,51,102,0.5)] text-white flex items-center justify-center active:scale-90 transition-all hover:rotate-6 z-50 group"
           aria-label="Create Post"
         >
