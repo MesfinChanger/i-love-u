@@ -1,4 +1,3 @@
-
 'use client';
 
 import React from 'react';
@@ -6,6 +5,7 @@ import { FirebaseClientProvider } from '@/firebase';
 import { Toaster } from '@/components/ui/toaster';
 import { SparkAssistant } from '@/components/SparkAssistant';
 import { RegistrationReminder } from '@/components/RegistrationReminder';
+import { MissionNudge } from '@/components/MissionNudge';
 import { LanguageProvider } from './LanguageProvider';
 import { FeedbackBox } from '@/components/FeedbackBox';
 import { IdleLogoutProvider } from './IdleLogoutProvider';
@@ -23,6 +23,7 @@ export function ClientProviders({ children }: { children: React.ReactNode }) {
           <SparkAssistant />
           <FeedbackBox />
           <RegistrationReminder />
+          <MissionNudge />
           <Toaster />
         </IdleLogoutProvider>
       </LanguageProvider>
