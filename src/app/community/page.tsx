@@ -42,14 +42,12 @@ import { moderateText } from '@/ai/flows/moderate-text-flow';
 import { moderateImage } from '@/ai/flows/moderate-image-flow';
 import { useToast } from '@/hooks/use-toast';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
-import { Progress } from "@/components/ui/progress";
 import { compressImage, fileToDataUri } from '@/lib/image-utils';
 import { cn } from '@/lib/utils';
 import { LiveCamera } from '@/components/LiveCamera';
 
 /**
- * @fileOverview Universal Global Wall with Select-to-Delete Protocol.
- * Renders Pics, Videos, and Files with high-fidelity previews.
+ * @fileOverview Universal Global Wall with Floating Hero Design & Select-to-Delete Protocol.
  */
 export default function CommunityPage() {
   const { user } = useUser();
@@ -206,14 +204,61 @@ export default function CommunityPage() {
                 <Badge variant="secondary" className="bg-white rounded-full px-5 py-2 shadow-sm border-none font-bold text-slate-600">✨ Live Community</Badge>
               </div>
             </div>
+            
+            {/* FLOATING DESIGN BLOCK */}
             <div className="relative">
-              <div className="rounded-[35px] overflow-hidden bg-white p-3 shadow-2xl aspect-video relative">
-                 <img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=1600" alt="Global Wall" className="w-full h-full object-cover rounded-[28px]" />
-                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                 <div className="absolute bottom-6 left-6 text-white text-left">
-                    <p className="text-sm font-bold uppercase tracking-widest">Global Community</p>
-                    <h3 className="text-3xl font-black">Connecting Hearts</h3>
-                 </div>
+              {/* Main Image Card */}
+              <div className="relative overflow-hidden rounded-[40px] shadow-2xl group transition-transform hover:scale-[1.01] duration-700">
+                <img
+                  src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=1600"
+                  alt="Community"
+                  className="w-full h-[550px] object-cover transition-transform duration-[2000ms] group-hover:scale-110"
+                />
+
+                {/* Dark Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
+
+                {/* Text */}
+                <div className="absolute bottom-8 left-8 text-white text-left">
+                  <h3 className="text-5xl font-black mb-3 drop-shadow-xl">
+                    Together We Build
+                  </h3>
+                  <p className="text-xl opacity-90 font-medium italic">
+                    Connecting hearts around the world ❤️
+                  </p>
+                </div>
+              </div>
+
+              {/* Floating Members Card */}
+              <div className="absolute -top-6 -left-6 bg-white rounded-3xl p-6 shadow-2xl border border-pink-50 animate-bounce duration-[5000ms] hover:animate-none transition-all">
+                <div className="text-pink-500 text-4xl mb-2">
+                  ❤️
+                </div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                  Live Community
+                </p>
+                <h4 className="text-3xl font-black tracking-tighter">
+                  18.2K+
+                </h4>
+                <div className="flex items-center gap-1.5 mt-1">
+                   <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                   <p className="text-green-600 font-bold text-[10px] uppercase tracking-widest">
+                     Online Now
+                   </p>
+                </div>
+              </div>
+
+              {/* Floating Countries Card */}
+              <div className="absolute bottom-6 right-6 bg-white rounded-3xl p-6 shadow-2xl border border-slate-50 transition-transform hover:scale-110">
+                <div className="text-4xl mb-2">
+                  🌎
+                </div>
+                <h4 className="text-3xl font-black tracking-tighter">
+                  192
+                </h4>
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                  Countries
+                </p>
               </div>
             </div>
           </div>
