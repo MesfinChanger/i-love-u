@@ -15,6 +15,7 @@ import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { createDonationSession } from '@/lib/stripe-actions';
 import { useSearchParams } from 'next/navigation';
 import { CURRENCIES } from '@/lib/world-data';
+import { cn } from '@/lib/utils';
 
 function DonateContent() {
   const { user } = useUser();
@@ -28,7 +29,7 @@ function DonateContent() {
   }, [db, user]);
   const { data: profile } = useDoc(userRef);
 
-  const [amount, setAmount] = useState('25');
+  const [amount, setAmount] = useState('5');
   const [isDonating, setIsDonating] = useState(false);
 
   useEffect(() => {
@@ -65,6 +66,14 @@ function DonateContent() {
       setIsDonating(false);
     }
   };
+
+  const presetOptions = [
+    { val: '0.25', color: 'bg-slate-100 text-slate-600 border-slate-200' },
+    { val: '5', color: 'bg-pink-100 text-pink-600 border-pink-200' },
+    { val: '25', color: 'bg-amber-100 text-amber-600 border-amber-200' },
+    { val: '100', color: 'bg-blue-100 text-blue-600 border-blue-200' },
+    { val: '250', color: 'bg-purple-100 text-purple-600 border-purple-200' },
+  ];
 
   return (
     <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
@@ -106,16 +115,19 @@ function DonateContent() {
             </CardHeader>
             <CardContent className="p-10 space-y-8">
               <div className="space-y-6">
-                <div className="flex flex-wrap gap-3 justify-center">
-                  {['0.25', '5', '25', '100', '250'].map(val => (
-                    <Button 
-                      key={val}
-                      variant={amount === val ? 'default' : 'outline'}
-                      className="rounded-full px-8 h-12 font-black text-sm"
-                      onClick={() => setAmount(val)}
+                <div className="flex flex-wrap gap-4 justify-center">
+                  {presetOptions.map(opt => (
+                    <button 
+                      key={opt.val}
+                      onClick={() => setAmount(opt.val)}
+                      className={cn(
+                        "w-16 h-16 rounded-full flex items-center justify-center font-black text-[10px] transition-all border-2 shadow-sm active:scale-95",
+                        opt.color,
+                        amount === opt.val ? "ring-4 ring-primary ring-offset-2 scale-110 border-primary" : "opacity-80 hover:opacity-100"
+                      )}
                     >
-                      {currencySymbol}{val}
-                    </Button>
+                      {currencySymbol}{opt.val}
+                    </button>
                   ))}
                 </div>
 

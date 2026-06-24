@@ -18,6 +18,7 @@ import { doc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { createDonationSession } from '@/lib/stripe-actions';
+import { cn } from '@/lib/utils';
 
 const CURRENCIES = [
   { code: 'USD', symbol: '$' },
@@ -45,7 +46,7 @@ export function DonationDialog({ trigger }: DonationDialogProps) {
   }, [db, user]);
   const { data: profile } = useDoc(userRef);
 
-  const [amount, setAmount] = useState('25');
+  const [amount, setAmount] = useState('5');
   const [isDonating, setIsDonating] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -75,6 +76,13 @@ export function DonationDialog({ trigger }: DonationDialogProps) {
     }
   };
 
+  const presetOptions = [
+    { val: '0.25', color: 'bg-slate-100 text-slate-600 border-slate-200' },
+    { val: '5', color: 'bg-pink-100 text-pink-600 border-pink-200' },
+    { val: '25', color: 'bg-amber-100 text-amber-600 border-amber-200' },
+    { val: '100', color: 'bg-blue-100 text-blue-600 border-blue-200' },
+  ];
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
@@ -96,16 +104,19 @@ export function DonationDialog({ trigger }: DonationDialogProps) {
         </div>
         
         <div className="p-8 space-y-6">
-          <div className="flex flex-wrap gap-2 justify-center">
-            {['0.25', '5', '25', '100'].map(val => (
-              <Button 
-                key={val}
-                variant={amount === val ? 'default' : 'outline'}
-                className="rounded-full px-5 h-10 text-xs font-bold"
-                onClick={() => setAmount(val)}
+          <div className="flex flex-wrap gap-3 justify-center">
+            {presetOptions.map(opt => (
+              <button 
+                key={opt.val}
+                onClick={() => setAmount(opt.val)}
+                className={cn(
+                  "w-12 h-12 rounded-full flex items-center justify-center font-black text-[9px] transition-all border-2 shadow-sm active:scale-95",
+                  opt.color,
+                  amount === opt.val ? "ring-2 ring-primary ring-offset-2 scale-110 border-primary" : "opacity-80 hover:opacity-100"
+                )}
               >
-                {currencySymbol}{val}
-              </Button>
+                {currencySymbol}{opt.val}
+              </button>
             ))}
           </div>
 
