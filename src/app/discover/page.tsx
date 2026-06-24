@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -64,7 +65,7 @@ import { useTranslation } from '@/components/providers/LanguageProvider';
 
 /**
  * @fileOverview Discovery Grid Protocol with Expandable Presence Sections.
- * Aligned with the publicProfiles schema: name, age, country, bio, photoUrl, verified.
+ * Hardened to prevent hydration mismatches from random status values.
  */
 export default function DiscoverPage() {
   const { user } = useUser();
@@ -75,6 +76,9 @@ export default function DiscoverPage() {
   const [mounted, setMounted] = useState(false);
   const [isLiveExpanded, setIsLiveExpanded] = useState(true);
   const [isOfflineExpanded, setIsOfflineExpanded] = useState(true);
+  
+  // Presence Shimmer: Store randomized presence data after mount to avoid hydration mismatch
+  const [presenceOverrides, setPresenceShimmer] = useState<Record<string, { isOnline: boolean, lastActive: string }>>({});
 
   useEffect(() => {
     setMounted(true);
@@ -101,27 +105,50 @@ export default function DiscoverPage() {
   const viewerCountry = myProfile?.country || 'GLOBAL';
   const hasAcceptedPolicy = myProfile?.policyAccepted === true;
   
+  // Presence Stabilization Logic
+  useEffect(() => {
+    if (discoveryItems && discoveryItems.length > 0) {
+      const newOverrides: Record<string, { isOnline: boolean, lastActive: string }> = {};
+      discoveryItems.forEach((u: any) => {
+        const id = u.uid || u.id;
+        if (!presenceOverrides[id]) {
+          newOverrides[id] = {
+            isOnline: u.isOnline ?? (Math.random() > 0.5),
+            lastActive: u.lastActive || `${Math.floor(Math.random() * 59)}m ago`
+          };
+        }
+      });
+      if (Object.keys(newOverrides).length > 0) {
+        setPresenceShimmer(prev => ({ ...prev, ...newOverrides }));
+      }
+    }
+  }, [discoveryItems]);
+
   const { liveHearts, restingHearts, adItems } = useMemo(() => {
     const hasItems = mounted && discoveryItems && discoveryItems.length > 0;
     
     const allHearts = hasItems 
       ? (discoveryItems || [])
         .filter((u: any) => u.uid !== user?.uid)
-        .map((u: any) => ({
-          id: u.uid || u.id,
-          name: u.name || u.publicNickname || "Mystery Heart", 
-          age: u.age,
-          verified: u.verified === true,
-          photoUrl: u.photoUrl || u.publicPhotoUrl || null,
-          videoUrl: u.videoUrl || u.publicVideoUrl || null,
-          additionalPhotoUrls: u.additionalPhotoUrls || [],
-          interests: u.interests || [],
-          bio: u.bio || "Sharing respect and looking for sparks.",
-          country: u.country || "Global Community",
-          isOnline: u.isOnline ?? (Math.random() > 0.5),
-          lastActive: u.lastActive || `${Math.floor(Math.random() * 59)}m ago`,
-          type: 'profile'
-        }))
+        .map((u: any) => {
+          const id = u.uid || u.id;
+          const override = presenceOverrides[id];
+          return {
+            id,
+            name: u.name || u.publicNickname || "Mystery Heart", 
+            age: u.age,
+            verified: u.verified === true,
+            photoUrl: u.photoUrl || u.publicPhotoUrl || null,
+            videoUrl: u.videoUrl || u.publicVideoUrl || null,
+            additionalPhotoUrls: u.additionalPhotoUrls || [],
+            interests: u.interests || [],
+            bio: u.bio || "Sharing respect and looking for sparks.",
+            country: u.country || "Global Community",
+            isOnline: override?.isOnline ?? false,
+            lastActive: override?.lastActive || "Recently Active",
+            type: 'profile'
+          };
+        })
       : [];
 
     const ads = (mounted && activeAds ? activeAds : [])
@@ -144,7 +171,7 @@ export default function DiscoverPage() {
       restingHearts: allHearts.filter((h: any) => !h.isOnline),
       adItems: ads
     };
-  }, [discoveryItems, activeAds, user, viewerCountry, mounted]);
+  }, [discoveryItems, activeAds, user, viewerCountry, mounted, presenceOverrides]);
 
   const handleSparkAction = async (targetId: string, type: 'friend' | 'date') => {
     if (!hasAcceptedPolicy) {
