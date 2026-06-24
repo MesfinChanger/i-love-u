@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Heart, Loader2, Sparkles, ShieldCheck, CheckCircle, Globe, Briefcase, TrendingDown, Star } from 'lucide-react';
+import { Heart, Loader2, Sparkles, ShieldCheck, CheckCircle, Globe, TrendingDown, Star, Zap } from 'lucide-react';
 import { useUser, useFirestore, useDoc } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
@@ -104,7 +104,21 @@ function DonateContent() {
              <Button className="w-full h-14 rounded-2xl gradient-bg font-bold" onClick={() => window.location.href = '/discover'}>Back to Hearts</Button>
           </Card>
         ) : (
-          <Card className="rounded-[2.5rem] border-none shadow-xl bg-white overflow-hidden">
+          <Card className="rounded-[2.5rem] border-none shadow-xl bg-white overflow-hidden relative">
+            {isDonating && (
+              <div className="absolute inset-0 z-50 bg-white/90 backdrop-blur-sm flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-300">
+                <div className="w-20 h-20 bg-primary/10 rounded-[2.5rem] flex items-center justify-center mb-6">
+                  <Loader2 className="w-10 h-10 text-primary animate-spin" />
+                </div>
+                <h3 className="text-2xl font-black tracking-tighter uppercase">Securing Cloud Bridge</h3>
+                <p className="text-muted-foreground text-sm font-medium italic mt-2">Connecting to the Prosperity Network. Please wait... ❤️</p>
+                <div className="mt-8 flex items-center gap-2 opacity-30">
+                   <Zap className="w-3.5 h-3.5 text-primary" />
+                   <p className="text-[9px] font-black uppercase tracking-widest">Encrypted Payment Window</p>
+                </div>
+              </div>
+            )}
+
             <CardHeader className="bg-primary/5 text-center py-12">
               <CardTitle className="text-primary text-4xl font-black flex items-center justify-center gap-3">
                 <Globe className="w-10 h-10" />

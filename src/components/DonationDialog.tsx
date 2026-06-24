@@ -12,7 +12,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Heart, Loader2, Sparkles, Coins, ShieldCheck, Briefcase, TrendingDown } from 'lucide-react';
+import { Heart, Loader2, Sparkles, Coins, ShieldCheck, Briefcase, TrendingDown, Zap } from 'lucide-react';
 import { useUser, useFirestore, useDoc } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
@@ -94,7 +94,17 @@ export function DonationDialog({ trigger }: DonationDialogProps) {
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden">
+      <DialogContent className="sm:max-w-md rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden relative">
+        {isDonating && (
+          <div className="absolute inset-0 z-50 bg-white/90 backdrop-blur-sm flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-300">
+            <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-6">
+              <Loader2 className="w-8 h-8 text-primary animate-spin" />
+            </div>
+            <h3 className="text-xl font-black tracking-tighter uppercase">Opening Payment Window</h3>
+            <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mt-2">Linking to Fund... ❤️</p>
+          </div>
+        )}
+
         <div className="bg-primary/5 py-8 text-center border-b">
            <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto shadow-sm mb-3">
               <TrendingDown className="w-8 h-8 text-primary" />

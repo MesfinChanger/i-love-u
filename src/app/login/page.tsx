@@ -36,10 +36,8 @@ import {
   Sparkles,
   Scale,
   AlertTriangle,
-  ScrollText,
-  Gavel,
-  FileText,
-  X
+  X,
+  BotOff
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
@@ -55,7 +53,7 @@ function LoginContent() {
   const { user, loading: authLoading } = useUser();
   const router = useRouter();
   const { toast } = useToast();
-  const { t, language } = useTranslation();
+  const { language } = useTranslation();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -69,6 +67,7 @@ function LoginContent() {
   const [agreedAge, setAgreedAge] = useState(false);
   const [agreedTerms, setAgreedTerms] = useState(false);
   const [agreedResponsibility, setAgreedResponsibility] = useState(false);
+  const [agreedHuman, setAgreedHuman] = useState(false);
 
   useEffect(() => {
     if (user && !authLoading) {
@@ -85,7 +84,7 @@ function LoginContent() {
         toast({ variant: "destructive", title: "Identity Required", description: "Please choose a community nickname. ❤️" });
         return;
       }
-      if (!agreedAge || !agreedTerms || !agreedResponsibility) {
+      if (!agreedAge || !agreedTerms || !agreedResponsibility || !agreedHuman) {
         toast({ variant: "destructive", title: "Consent Required", description: "You must check all mandatory agreements to join. ✨" });
         return;
       }
@@ -111,10 +110,12 @@ function LoginContent() {
             createdAt: serverTimestamp(),
             policyAccepted: true,
             policyAcceptedAt: serverTimestamp(),
+            isHuman: true,
             legalConsent: {
               ageVerified: true,
               termsAgreed: true,
               responsibilityAcknowledged: true,
+              humanVerified: true,
               timestamp: new Date().toISOString()
             }
           }, { merge: true });
@@ -145,7 +146,7 @@ function LoginContent() {
     }
   };
 
-  const isSignupDisabled = isLoading || !email || !password || !nickname || !agreedAge || !agreedTerms || !agreedResponsibility;
+  const isSignupDisabled = isLoading || !email || !password || !nickname || !agreedAge || !agreedTerms || !agreedResponsibility || !agreedHuman;
 
   if (authLoading) return <div className="flex items-center justify-center min-h-screen"><Loader2 className="animate-spin text-primary" /></div>;
 
@@ -272,6 +273,19 @@ function LoginContent() {
                     </div>
                   </div>
 
+                  <div className="flex items-start space-x-3 p-3 bg-slate-50 rounded-2xl border border-slate-200">
+                    <Checkbox 
+                      id="human-verify" 
+                      checked={agreedHuman} 
+                      onCheckedChange={(checked) => setAgreedHuman(!!checked)} 
+                      className="mt-1 border-slate-400 data-[state=checked]:bg-primary"
+                    />
+                    <label htmlFor="human-verify" className="text-[10px] font-black uppercase tracking-tight text-slate-700 cursor-pointer flex items-center gap-2">
+                      <BotOff className="w-3.5 h-3.5" />
+                      I am a verified human status (Anti-bot protocol).
+                    </label>
+                  </div>
+
                   <div className="flex items-start space-x-3 p-3 bg-primary/5 rounded-2xl border border-primary/10">
                     <Checkbox 
                       id="responsibility-verify" 
@@ -388,7 +402,7 @@ function TermsDialog() {
             </div>
 
             <LegalSection number="11" title="Indemnification">
-              You agree to defend, indemnify, and hold harmless the Platform, its owners, affiliates, and agents from claims arising from your use of the service, your content, your conduct, or your violation of these Terms.
+              You agree to defend, indemnify, and hold harmless the Platform, its owners, affiliates, officers, employees, volunteers, agents, and partners from claims arising from your use of the service, your content, your conduct, or your violation of these Terms.
             </LegalSection>
 
             <LegalSection number="12" title="Account Suspension and Termination">

@@ -16,6 +16,7 @@ import { createGiftPurchaseSession } from '@/lib/stripe-actions';
 import { useSearchParams } from 'next/navigation';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { useTranslation } from '@/components/providers/LanguageProvider';
+import { CURRENCIES } from '@/lib/world-data';
 
 const GIFT_CATEGORIES = ["Flowers", "Jewelry", "Electronics", "Apparel", "Home", "Ornamental"];
 
@@ -68,6 +69,7 @@ function ShopContent() {
   const filteredProducts = displayProducts.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
   const userCurrency = profile?.currency || 'USD';
+  const currencySymbol = CURRENCIES.find(c => c.code === userCurrency)?.symbol || '$';
 
   const handlePurchase = async (product: any) => {
     if (!user) {
@@ -90,8 +92,24 @@ function ShopContent() {
   );
 
   return (
-    <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
+    <div className="flex flex-col min-h-screen bg-muted/30 pb-24 relative">
       <Header />
+      
+      {isPurchasing && (
+        <div className="fixed inset-0 z-[100] bg-white/95 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-300">
+           <div className="w-24 h-24 bg-primary/10 rounded-[3rem] flex items-center justify-center mb-8 relative">
+              <Loader2 className="w-12 h-12 text-primary animate-spin" />
+              <ShoppingCart className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 text-primary/40" />
+           </div>
+           <h2 className="text-3xl font-black tracking-tighter uppercase">Securing Shop Window</h2>
+           <p className="text-muted-foreground text-lg font-medium italic mt-2">Opening the Payment Bridge... ❤️</p>
+           <div className="mt-12 flex items-center gap-3 opacity-30">
+              <Zap className="w-5 h-5 text-primary" />
+              <p className="text-[10px] font-black uppercase tracking-[0.4em]">Encrypted Transaction Protocol</p>
+           </div>
+        </div>
+      )}
+
       <main className="container mx-auto px-4 py-4">
         <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
           <div className="text-center md:text-left">
@@ -146,13 +164,13 @@ function ShopContent() {
               </div>
               <CardHeader className="p-5 pb-0 flex-grow">
                 <CardTitle className="text-base font-black truncate tracking-tight mb-1">{product.name}</CardTitle>
-                <p className="text-primary font-black text-xl">{userCurrency === 'USD' ? '$' : ''}{product.price}</p>
+                <p className="text-primary font-black text-xl">{currencySymbol}{product.price}</p>
               </CardHeader>
               <CardFooter className="p-5 pt-3">
                 <Button 
                   className="w-full h-12 rounded-2xl gradient-bg gap-2 font-black text-[10px] uppercase tracking-widest shadow-lg shadow-primary/10 active:scale-95 transition-all" 
                   onClick={() => handlePurchase(product)}
-                  disabled={isPurchasing === product.id}
+                  disabled={!!isPurchasing}
                 >
                   {isPurchasing === product.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShoppingCart className="w-4 h-4" />}
                   {t('shop.buy')}
