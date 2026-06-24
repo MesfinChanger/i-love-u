@@ -22,7 +22,9 @@ import {
   Info,
   Zap,
   Clock,
-  Maximize2
+  Maximize2,
+  Activity,
+  Circle
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -47,13 +49,14 @@ import {
   DialogTitle,
   DialogHeader
 } from "@/components/ui/dialog";
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Link from 'next/link';
 import { useTranslation } from '@/components/providers/LanguageProvider';
 
 /**
- * @fileOverview Discovery Grid Protocol.
- * Replaces the one-by-one carousel with a high-impact scrollable grid of mystery hearts.
- * Media items are now openable in full-screen lightbox mode.
+ * @fileOverview Discovery Grid Protocol with Presence Filtering.
+ * Supports "All", "Live", and "Offline" member filters.
+ * Media items are openable in full-screen lightbox mode.
  */
 export default function DiscoverPage() {
   const { user } = useUser();
@@ -62,6 +65,8 @@ export default function DiscoverPage() {
   const { t } = useTranslation();
 
   const [mounted, setMounted] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<'all' | 'live' | 'offline'>('all');
+
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -103,6 +108,7 @@ export default function DiscoverPage() {
           culturalInterests: u.culturalInterests || [],
           bio: u.bio || "Sharing culture and looking for sparks.",
           locationHint: u.locationHint || "Global Community",
+          isOnline: u.isOnline ?? (Math.random() > 0.5), // Simulated for prototype
           type: 'profile'
         }))
       : [
@@ -119,6 +125,7 @@ export default function DiscoverPage() {
             culturalInterests: ['Swahili History'],
             bio: "Exploring the intersection of art and nature.",
             locationHint: "Nairobi, KE",
+            isOnline: true,
             type: 'profile'
           },
           {
@@ -133,9 +140,18 @@ export default function DiscoverPage() {
             culturalInterests: ['Japanese Tea Ceremony'],
             bio: "Looking for a soul to share a quiet sunset with.",
             locationHint: "Tokyo, JP",
+            isOnline: false,
             type: 'profile'
           }
         ];
+
+    // APPLY STATUS FILTER
+    const filteredBase = baseProfiles.filter((p: any) => {
+      if (statusFilter === 'all') return true;
+      if (statusFilter === 'live') return p.isOnline === true;
+      if (statusFilter === 'offline') return p.isOnline !== true;
+      return true;
+    });
 
     const adItems = (mounted && activeAds ? activeAds : [])
       .filter((ad: any) => {
@@ -153,7 +169,7 @@ export default function DiscoverPage() {
       }));
 
     const finalFeed = [];
-    const pool = [...baseProfiles];
+    const pool = [...filteredBase];
     for (let i = 0; i < pool.length; i++) {
       finalFeed.push(pool[i]);
       if ((i + 1) % 4 === 0 && adItems.length > 0) {
@@ -162,7 +178,7 @@ export default function DiscoverPage() {
     }
     
     return finalFeed;
-  }, [discoveryItems, activeAds, user, viewerCountry, mounted]);
+  }, [discoveryItems, activeAds, user, viewerCountry, mounted, statusFilter]);
 
   if (!mounted || (usersLoading && db && user)) return (
     <div className="flex flex-col min-h-screen items-center justify-center bg-muted/30">
@@ -187,7 +203,7 @@ export default function DiscoverPage() {
       )}
 
       <main className="container mx-auto px-6 py-10 max-w-7xl">
-        <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
+        <div className="flex flex-col md:flex-row justify-between items-end mb-8 gap-6">
            <div className="space-y-2">
               <div className="flex items-center gap-3 text-primary">
                  <Sparkles className="w-6 h-6 animate-pulse" />
@@ -196,19 +212,32 @@ export default function DiscoverPage() {
               <p className="text-muted-foreground text-sm font-medium italic">"Every mystery heart is a potential spark for prosperity."</p>
            </div>
            
-           <div className="flex items-center gap-4 bg-white/50 backdrop-blur-md p-2 rounded-2xl border shadow-sm shrink-0">
-              <div className="flex -space-x-3">
-                 {[1,2,3].map(i => (
-                   <div key={i} className="w-10 h-10 rounded-full border-2 border-white bg-primary/10 flex items-center justify-center overflow-hidden">
-                      <img src={`https://picsum.photos/seed/heart-${i}/100/100`} alt="Member" className="w-full h-full object-cover opacity-60" />
-                   </div>
-                 ))}
-                 <div className="w-10 h-10 rounded-full border-2 border-white bg-slate-900 flex items-center justify-center text-[8px] font-black text-white">+18k</div>
-              </div>
-              <div className="pr-2">
-                 <p className="text-[9px] font-black uppercase tracking-widest text-slate-500">Live Mission</p>
-                 <p className="text-xs font-bold text-slate-900">Reaching Every Village</p>
-              </div>
+           <div className="flex flex-col items-end gap-4 shrink-0">
+             <Tabs value={statusFilter} onValueChange={(v: any) => setStatusFilter(v)} className="bg-white/50 p-1 rounded-2xl border shadow-sm backdrop-blur-md">
+                <TabsList className="bg-transparent h-10 gap-1">
+                   <TabsTrigger value="all" className="rounded-xl px-4 text-[9px] font-black uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:shadow-sm">All</TabsTrigger>
+                   <TabsTrigger value="live" className="rounded-xl px-4 text-[9px] font-black uppercase tracking-widest gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-green-600">
+                      <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                      Live
+                   </TabsTrigger>
+                   <TabsTrigger value="offline" className="rounded-xl px-4 text-[9px] font-black uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:shadow-sm">Offline</TabsTrigger>
+                </TabsList>
+             </Tabs>
+
+             <div className="flex items-center gap-4 bg-white/50 backdrop-blur-md p-2 rounded-2xl border shadow-sm">
+                <div className="flex -space-x-3">
+                   {[1,2,3].map(i => (
+                     <div key={i} className="w-10 h-10 rounded-full border-2 border-white bg-primary/10 flex items-center justify-center overflow-hidden">
+                        <img src={`https://picsum.photos/seed/heart-${i}/100/100`} alt="Member" className="w-full h-full object-cover opacity-60" />
+                     </div>
+                   ))}
+                   <div className="w-10 h-10 rounded-full border-2 border-white bg-slate-900 flex items-center justify-center text-[8px] font-black text-white">+18k</div>
+                </div>
+                <div className="pr-2">
+                   <p className="text-[9px] font-black uppercase tracking-widest text-slate-500">Live Mission</p>
+                   <p className="text-xs font-bold text-slate-900">Reaching Every Village</p>
+                </div>
+             </div>
            </div>
         </div>
 
@@ -251,8 +280,11 @@ export default function DiscoverPage() {
            <div className="flex flex-col items-center justify-center py-40 text-center space-y-6 opacity-40">
              <Ghost className="w-20 h-20 text-muted-foreground/20 mx-auto" />
              <div className="space-y-1">
-                <h2 className="text-2xl font-black uppercase tracking-tighter">{t('discover.allExplored')}</h2>
+                <h2 className="text-2xl font-black uppercase tracking-tighter">
+                   {statusFilter === 'live' ? 'No hearts live right now' : t('discover.allExplored')}
+                </h2>
                 <p className="text-sm font-medium italic">"The network is resting. Come back in a heartbeat for new connections."</p>
+                <Button variant="ghost" className="mt-4 font-black uppercase text-[10px] tracking-widest text-primary" onClick={() => setStatusFilter('all')}>View All Hearts</Button>
              </div>
            </div>
         )}
@@ -270,7 +302,6 @@ export default function DiscoverPage() {
  */
 function DiscoverCard({ item, hasAcceptedPolicy, onAction }: any) {
   const [isMuted, setIsMuted] = useState(true);
-  const [activeMedia, setActiveMedia] = useState<any>(null);
   const { t } = useTranslation();
 
   // RENDER AD CARD
@@ -371,6 +402,20 @@ function DiscoverCard({ item, hasAcceptedPolicy, onAction }: any) {
            </div>
         </div>
       )}
+
+      {/* LIVE INDICATOR BADGE */}
+      <div className="absolute top-6 left-6 z-30">
+         {item.isOnline ? (
+           <Badge className="bg-green-500 text-white border-none px-3 h-6 flex items-center gap-1.5 uppercase font-black text-[7px] tracking-widest shadow-lg animate-in zoom-in-95">
+              <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
+              Live Now
+           </Badge>
+         ) : (
+           <Badge className="bg-black/40 text-white/70 backdrop-blur-md border-none px-3 h-6 flex items-center gap-1.5 uppercase font-black text-[7px] tracking-widest">
+              Away
+           </Badge>
+         )}
+      </div>
 
       {/* OVERLAY GRADIENT */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent pointer-events-none" />
