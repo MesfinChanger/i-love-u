@@ -56,11 +56,11 @@ export function DonationDialog({ trigger }: DonationDialogProps) {
     if (!user || !db || !amount) return;
     
     const donationAmount = parseFloat(amount);
-    if (isNaN(donationAmount) || donationAmount < 1) {
+    if (isNaN(donationAmount) || donationAmount < 0.25) {
       toast({
         variant: "destructive",
         title: "Invalid Amount",
-        description: `Minimum contribution is 1 ${userCurrency}. ✨`
+        description: `Minimum contribution is 0.25 ${userCurrency}. ✨`
       });
       return;
     }
@@ -97,7 +97,7 @@ export function DonationDialog({ trigger }: DonationDialogProps) {
         
         <div className="p-8 space-y-6">
           <div className="flex flex-wrap gap-2 justify-center">
-            {['5', '25', '100', '250'].map(val => (
+            {['0.25', '5', '25', '100'].map(val => (
               <Button 
                 key={val}
                 variant={amount === val ? 'default' : 'outline'}
@@ -116,7 +116,8 @@ export function DonationDialog({ trigger }: DonationDialogProps) {
               <Input 
                 id="dialog-amount" 
                 type="number" 
-                min="1"
+                min="0.25"
+                step="0.01"
                 placeholder="1.00" 
                 className="pl-10 h-12 rounded-xl text-lg font-bold"
                 value={amount}

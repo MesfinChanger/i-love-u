@@ -47,11 +47,11 @@ function DonateContent() {
     if (!user || !db || !amount) return;
     
     const donationAmount = parseFloat(amount);
-    if (isNaN(donationAmount) || donationAmount < 1) {
+    if (isNaN(donationAmount) || donationAmount < 0.25) {
       toast({
         variant: "destructive",
         title: "Invalid Amount",
-        description: `Minimum investment is 1 ${userCurrency}. ✨`
+        description: `Minimum investment is 0.25 ${userCurrency}. ✨`
       });
       return;
     }
@@ -107,7 +107,7 @@ function DonateContent() {
             <CardContent className="p-10 space-y-8">
               <div className="space-y-6">
                 <div className="flex flex-wrap gap-3 justify-center">
-                  {['5', '25', '100', '250', '500'].map(val => (
+                  {['0.25', '5', '25', '100', '250'].map(val => (
                     <Button 
                       key={val}
                       variant={amount === val ? 'default' : 'outline'}
@@ -126,7 +126,8 @@ function DonateContent() {
                     <Input 
                       id="custom-amount" 
                       type="number" 
-                      min="1"
+                      min="0.25"
+                      step="0.01"
                       placeholder="0.00" 
                       className="pl-12 h-20 rounded-[1.5rem] text-4xl font-black border-2 border-primary/5 focus-visible:border-primary/20"
                       value={amount}
