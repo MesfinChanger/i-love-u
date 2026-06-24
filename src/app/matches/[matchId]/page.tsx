@@ -29,7 +29,10 @@ import {
   Video,
   Zap,
   X,
-  Trash2
+  Trash2,
+  CheckCircle2,
+  Square,
+  CheckSquare
 } from 'lucide-react';
 import { 
   Popover, 
@@ -88,15 +91,11 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [newMessage, setNewMessage] = useState('');
-  const [isGenerating, setIsGenerating] = useState(false);
   const [isSending, setIsSending] = useState(false);
-  const [isDeleting, setIsDeleting] = useState<string | null>(null);
-  const [isUnconnecting, setIsUnconnecting] = useState(false);
-  const [isInvitingWitness, setIsInvitingWitness] = useState(false);
-  const [witnessUid, setWitnessUid] = useState('');
+  const [isSelectMode, setIsSelectMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [decryptedMessages, setDecryptedMessages] = useState<Record<string, string>>({});
   const [translatingIds, setTranslatingIds] = useState<Set<string>>(new Set());
-  const [speakingIds, setSpeakingIds] = useState<Set<string>>(new Set());
   const [isCameraOpen, setIsCameraOpen] = useState(false);
 
   const userRef = useMemoFirebase(() => db && user ? doc(db, 'users', user.uid) : null, [db, user]);
@@ -147,22 +146,45 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
   }, [messages, user]);
 
   useEffect(() => {
-    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-  }, [messages]);
+    if (scrollRef.current && !isSelectMode) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+  }, [messages, isSelectMode]);
 
-  const handleDeleteMessage = async (msg: any) => {
-    if (!db || !matchId || isDeleting) return;
-    setIsDeleting(msg.id);
+  const toggleSelectMode = () => {
+    setIsSelectMode(!isSelectMode);
+    setSelectedIds(new Set());
+  };
+
+  const toggleSelection = (id: string) => {
+    const newSelected = new Set(selectedIds);
+    if (newSelected.has(id)) newSelected.delete(id);
+    else newSelected.add(id);
+    setSelectedIds(newSelected);
+  };
+
+  const handleDeleteSelected = async () => {
+    if (!db || !matchId || isSending || selectedIds.size === 0) return;
+    setIsSending(true);
     try {
-      if (msg.imageUrl) await deleteFile(msg.imageUrl);
-      if (msg.videoUrl) await deleteFile(msg.videoUrl);
-      if (msg.fileUrl) await deleteFile(msg.fileUrl);
-      await deleteDoc(doc(db, 'matches', matchId, 'messages', msg.id));
-      toast({ title: "Message Retracted", description: "Cleared from sacred space. ❤️" });
+      const idsToDelete = Array.from(selectedIds);
+      toast({ title: "Retracting Messages...", description: `Clearing ${idsToDelete.length} moments from room. ✨` });
+      
+      for (const id of idsToDelete) {
+        const msg = messages?.find((m: any) => m.id === id);
+        if (msg) {
+          if (msg.imageUrl) await deleteFile(msg.imageUrl);
+          if (msg.videoUrl) await deleteFile(msg.videoUrl);
+          if (msg.fileUrl) await deleteFile(msg.fileUrl);
+          await deleteDoc(doc(db, 'matches', matchId, 'messages', id));
+        }
+      }
+      
+      toast({ title: "Room Secured", description: "Selected moments have been purged. ❤️" });
+      setSelectedIds(new Set());
+      setIsSelectMode(false);
     } catch (e) {
-      toast({ variant: "destructive", title: "Error", description: "Could not retract message." });
+      toast({ variant: "destructive", title: "Error", description: "Purge protocol interrupted." });
     } finally {
-      setIsDeleting(null);
+      setIsSending(false);
     }
   };
 
@@ -261,6 +283,14 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
           <h2 className="font-black text-sm tracking-tight truncate">{matchInfo.name}</h2>
           <p className="text-[8px] text-muted-foreground font-black uppercase tracking-widest leading-none">{isDatingMatch ? "Spark Room" : "Friendship"}</p>
         </div>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={toggleSelectMode}
+          className={cn("h-7 text-[8px] font-black uppercase tracking-widest px-3 rounded-full", isSelectMode ? "bg-primary text-white" : "text-muted-foreground")}
+        >
+          {isSelectMode ? 'Cancel' : 'Manage'}
+        </Button>
       </header>
 
       {!hasAcceptedPolicy && (
@@ -276,14 +306,34 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
         ) : (
           messages?.map((msg: any) => {
             const isMe = msg.senderId === user?.uid;
+            const isSelected = selectedIds.has(msg.id);
             const textToShow = msg.encryptedText ? (decryptedMessages[msg.id] || "...") : msg.text;
             const translation = msg.translations?.[myProfile?.preferredLanguage || 'English'];
             const actualText = translation || textToShow;
 
             return (
-              <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 group`}>
+              <div 
+                key={msg.id} 
+                onClick={() => isSelectMode && isMe && toggleSelection(msg.id)}
+                className={cn(
+                  "flex animate-in fade-in slide-in-from-bottom-2 group", 
+                  isMe ? 'justify-end' : 'justify-start',
+                  isSelectMode && isMe ? "cursor-pointer" : ""
+                )}
+              >
                 <div className="flex flex-col gap-1 items-end max-w-[85%]">
-                  <div className={cn("px-5 py-4 rounded-[2.2rem] text-sm shadow-sm transition-all relative", isMe ? 'bg-primary text-white rounded-tr-none' : 'bg-white text-foreground rounded-tl-none border')}>
+                  <div className="flex items-center gap-2 mb-1">
+                    {isSelectMode && isMe && (
+                      <div className="animate-in zoom-in-95">
+                        {isSelected ? <CheckSquare className="w-4 h-4 text-primary" /> : <Square className="w-4 h-4 text-muted-foreground/30" />}
+                      </div>
+                    )}
+                  </div>
+                  <div className={cn(
+                    "px-5 py-4 rounded-[2.2rem] text-sm shadow-sm transition-all relative", 
+                    isMe ? 'bg-primary text-white rounded-tr-none' : 'bg-white text-foreground rounded-tl-none border',
+                    isSelected && "ring-2 ring-primary ring-offset-2 opacity-60"
+                  )}>
                     {msg.imageUrl ? (
                       <div className="relative w-60 h-72 rounded-[1.8rem] overflow-hidden"><Image src={msg.imageUrl} alt="Moment" fill className="object-cover" /></div>
                     ) : msg.videoUrl ? (
@@ -295,24 +345,26 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
                           <p className="font-bold text-xs truncate">{msg.fileName}</p>
                           <p className="text-[8px] font-black uppercase">{(msg.fileSize / 1024 / 1024).toFixed(2)} MB</p>
                         </div>
-                        <Button size="sm" variant="ghost" className="text-primary text-[9px] font-black" onClick={() => window.open(msg.fileUrl)}>Get</Button>
+                        {!isSelectMode && <Button size="sm" variant="ghost" className="text-primary text-[9px] font-black" onClick={() => window.open(msg.fileUrl)}>Get</Button>}
                       </div>
                     ) : (
                       <div className="flex flex-col gap-2">
                         <span className="font-semibold">{actualText}</span>
-                        <div className="flex items-center gap-3 mt-1 opacity-40 justify-end">
-                          {!isMe && !translation && textToShow !== "..." && <button onClick={() => handleTranslate(msg.id, textToShow)} className="flex items-center gap-1 hover:text-primary"><Languages className="w-2.5 h-2.5" /><span className="text-[8px] font-black uppercase">Translate</span></button>}
-                          {actualText && actualText !== "..." && <button onClick={() => handleSpeak(actualText)} className="flex items-center gap-1 hover:text-primary"><Volume2 className="w-2.5 h-2.5" /><span className="text-[8px] font-black uppercase">Listen</span></button>}
-                          <Lock className="w-2.5 h-2.5" />
-                        </div>
+                        {!isSelectMode && (
+                          <div className="flex items-center gap-3 mt-1 opacity-40 justify-end">
+                            {!isMe && !translation && textToShow !== "..." && <button onClick={() => handleTranslate(msg.id, textToShow)} className="flex items-center gap-1 hover:text-primary"><Languages className="w-2.5 h-2.5" /><span className="text-[8px] font-black uppercase">Translate</span></button>}
+                            {actualText && actualText !== "..." && <button onClick={() => handleSpeak(actualText)} className="flex items-center gap-1 hover:text-primary"><Volume2 className="w-2.5 h-2.5" /><span className="text-[8px] font-black uppercase">Listen</span></button>}
+                            <Lock className="w-2.5 h-2.5" />
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    {isSelected && (
+                      <div className="absolute inset-0 bg-primary/20 flex items-center justify-center backdrop-blur-[1px] rounded-[2.2rem]">
+                         <CheckCircle2 className="w-8 h-8 text-white" />
                       </div>
                     )}
                   </div>
-                  {isMe && (
-                    <button onClick={() => handleDeleteMessage(msg)} className="text-[8px] font-black uppercase text-muted-foreground/40 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 mr-4">
-                      {isDeleting === msg.id ? <Loader2 className="w-2 h-2 animate-spin" /> : <Trash2 className="w-2 h-2" />} Retract
-                    </button>
-                  )}
                 </div>
               </div>
             );
@@ -321,37 +373,57 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
       </main>
 
       <footer className="p-4 border-t pb-8 bg-white/80 backdrop-blur-xl shrink-0 space-y-3">
-        {isStorageUploading && (
-          <div className="px-4 animate-in fade-in slide-in-from-bottom-2">
-            <div className="flex justify-between text-[8px] font-black uppercase text-primary mb-1"><span>Securing Media...</span><span>{Math.round(uploadProgress)}%</span></div>
-            <Progress value={uploadProgress} className="h-1 bg-primary/10" />
-          </div>
-        )}
-
-        <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1">
-           {CHAT_SHORTCUTS.map((s) => <Button key={shortcut.id} variant="outline" size="sm" onClick={() => setIsCameraOpen(true)} className="rounded-full shrink-0 h-9 gap-2 border-primary/10 text-primary font-black text-[9px] uppercase tracking-widest px-4" disabled={!hasAcceptedPolicy}><s.icon className="w-3.5 h-3.5" /> {s.label}</Button>)}
-        </div>
-
-        <div className="flex items-center gap-2">
-          <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" />
-          <input type="file" accept="image/*" onChange={async (e) => { const f = e.target.files?.[0]; if (f) { const c = await compressImage(f, 0.65); const u = await fileToDataUri(c); handleLiveCapture({ url: u, file: c, type: 'image' }); }}} ref={galleryInputRef} className="hidden" />
-          
-          <Popover>
-            <PopoverTrigger asChild><Button variant="ghost" size="icon" className="rounded-xl shrink-0 bg-muted/40 h-12 w-12 text-muted-foreground" disabled={isSending || isStorageUploading || !hasAcceptedPolicy}><Camera className="w-6 h-6" /></Button></PopoverTrigger>
-            <PopoverContent className="w-48 p-2 rounded-2xl border-none shadow-2xl" side="top" align="start">
-              <div className="flex flex-col gap-1">
-                <Button variant="ghost" size="sm" onClick={() => setIsCameraOpen(true)} className="justify-start gap-3 rounded-xl py-5 h-auto"><Zap className="w-4 h-4 text-primary" /><span className="font-bold text-xs uppercase">Live Camera</span></Button>
-                <Button variant="ghost" size="sm" onClick={() => galleryInputRef.current?.click()} className="justify-start gap-3 rounded-xl py-5 h-auto"><ImageIcon className="w-4 h-4 text-primary" /><span className="font-bold text-xs uppercase">Gallery</span></Button>
-                <Button variant="ghost" size="sm" onClick={() => fileInputRef.current?.click()} className="justify-start gap-3 rounded-xl py-5 h-auto border-t mt-1"><Paperclip className="w-4 h-4 text-primary" /><span className="font-bold text-xs uppercase">Share File</span></Button>
+        {isSelectMode ? (
+           <div className="flex items-center gap-4 animate-in slide-in-from-bottom-4 duration-300">
+             <div className="flex-grow">
+                <p className="text-[10px] font-black uppercase tracking-widest text-primary">{selectedIds.size} Retractions Queued</p>
+                <p className="text-[9px] text-muted-foreground italic">Batch cloud purge protocol.</p>
+             </div>
+             <Button variant="outline" onClick={() => setIsSelectMode(false)} className="rounded-xl h-12 px-6 font-black uppercase text-[10px] border-2">Cancel</Button>
+             <Button 
+                onClick={handleDeleteSelected} 
+                disabled={isSending || selectedIds.size === 0} 
+                className="rounded-xl h-12 px-6 gradient-bg shadow-xl flex items-center gap-2 font-black uppercase text-[10px]"
+             >
+               {isSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+               Purge selected
+             </Button>
+           </div>
+        ) : (
+          <>
+            {isStorageUploading && (
+              <div className="px-4 animate-in fade-in slide-in-from-bottom-2">
+                <div className="flex justify-between text-[8px] font-black uppercase text-primary mb-1"><span>Securing Media...</span><span>{Math.round(uploadProgress)}%</span></div>
+                <Progress value={uploadProgress} className="h-1 bg-primary/10" />
               </div>
-            </PopoverContent>
-          </Popover>
+            )}
 
-          <form onSubmit={handleSendMessage} className="flex-grow flex gap-2">
-            <Input value={newMessage} onChange={e => setNewMessage(e.target.value)} placeholder={hasAcceptedPolicy ? "Respectful message..." : "Agree to policy"} className="rounded-2xl bg-muted/40 border-none h-12 px-6 font-bold" disabled={isSending || !hasAcceptedPolicy} />
-            <Button type="submit" size="icon" className="rounded-xl h-12 w-12 gradient-bg shrink-0 shadow-lg" disabled={!newMessage.trim() || isSending || !hasAcceptedPolicy}>{isSending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}</Button>
-          </form>
-        </div>
+            <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1">
+               {CHAT_SHORTCUTS.map((shortcut) => <Button key={shortcut.id} variant="outline" size="sm" onClick={() => setIsCameraOpen(true)} className="rounded-full shrink-0 h-9 gap-2 border-primary/10 text-primary font-black text-[9px] uppercase tracking-widest px-4" disabled={!hasAcceptedPolicy}><shortcut.icon className="w-3.5 h-3.5" /> {shortcut.label}</Button>)}
+            </div>
+
+            <div className="flex items-center gap-2">
+              <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" />
+              <input type="file" accept="image/*" onChange={async (e) => { const f = e.target.files?.[0]; if (f) { const c = await compressImage(f, 0.65); const u = await fileToDataUri(c); handleLiveCapture({ url: u, file: c, type: 'image' }); }}} ref={galleryInputRef} className="hidden" />
+              
+              <Popover>
+                <PopoverTrigger asChild><Button variant="ghost" size="icon" className="rounded-xl shrink-0 bg-muted/40 h-12 w-12 text-muted-foreground" disabled={isSending || isStorageUploading || !hasAcceptedPolicy}><Camera className="w-6 h-6" /></Button></PopoverTrigger>
+                <PopoverContent className="w-48 p-2 rounded-2xl border-none shadow-2xl" side="top" align="start">
+                  <div className="flex flex-col gap-1">
+                    <Button variant="ghost" size="sm" onClick={() => setIsCameraOpen(true)} className="justify-start gap-3 rounded-xl py-5 h-auto"><Zap className="w-4 h-4 text-primary" /><span className="font-bold text-xs uppercase">Live Camera</span></Button>
+                    <Button variant="ghost" size="sm" onClick={() => galleryInputRef.current?.click()} className="justify-start gap-3 rounded-xl py-5 h-auto"><ImageIcon className="w-4 h-4 text-primary" /><span className="font-bold text-xs uppercase">Gallery</span></Button>
+                    <Button variant="ghost" size="sm" onClick={() => fileInputRef.current?.click()} className="justify-start gap-3 rounded-xl py-5 h-auto border-t mt-1"><Paperclip className="w-4 h-4 text-primary" /><span className="font-bold text-xs uppercase">Share File</span></Button>
+                  </div>
+                </PopoverContent>
+              </Popover>
+
+              <form onSubmit={handleSendMessage} className="flex-grow flex gap-2">
+                <Input value={newMessage} onChange={e => setNewMessage(e.target.value)} placeholder={hasAcceptedPolicy ? "Respectful message..." : "Agree to policy"} className="rounded-2xl bg-muted/40 border-none h-12 px-6 font-bold" disabled={isSending || !hasAcceptedPolicy} />
+                <Button type="submit" size="icon" className="rounded-xl h-12 w-12 gradient-bg shrink-0 shadow-lg" disabled={!newMessage.trim() || isSending || !hasAcceptedPolicy}>{isSending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}</Button>
+              </form>
+            </div>
+          </>
+        )}
       </footer>
       <LiveCamera isOpen={isCameraOpen} onClose={() => setIsCameraOpen(false)} onCapture={handleLiveCapture} />
     </div>
