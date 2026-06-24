@@ -46,8 +46,14 @@ service cloud.firestore {
 
     // Idea Pool: The Global Knowledge Swimming Pool
     match /ideaPool/{postId} {
+      // Any body can read the pool to find inspiration
       allow read: if true;
+      
+      // Swimming (posting) requires authentication and policy commitment
       allow create: if isAuthenticated() && hasAcceptedPolicy() && request.resource.data.uid == request.auth.uid;
+      
+      // Update and Delete reserved for the author or admin
+      allow update: if isAuthenticated() && (isAdmin() || resource.data.uid == request.auth.uid);
       allow delete: if isAdmin() || (isAuthenticated() && resource.data.uid == request.auth.uid);
     }
 
