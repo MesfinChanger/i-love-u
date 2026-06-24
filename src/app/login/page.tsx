@@ -53,8 +53,9 @@ function LoginContent() {
   const [showPassword, setShowPassword] = useState(false);
 
   // Pre-Sign-Up Consent State
-  const [agreedRespect, setAgreedRespect] = useState(false);
-  const [agreedDisclaimer, setAgreedDisclaimer] = useState(false);
+  const [agreedAge, setAgreedAge] = useState(false);
+  const [agreedTerms, setAgreedTerms] = useState(false);
+  const [agreedResponsibility, setAgreedResponsibility] = useState(false);
 
   useEffect(() => {
     if (user && !authLoading) {
@@ -71,8 +72,8 @@ function LoginContent() {
         toast({ variant: "destructive", title: "Identity Required", description: "Please choose a community nickname. ❤️" });
         return;
       }
-      if (!agreedRespect || !agreedDisclaimer) {
-        toast({ variant: "destructive", title: "Consent Required", description: "You must agree to the Respect Policy and Disclaimer to join. ✨" });
+      if (!agreedAge || !agreedTerms || !agreedResponsibility) {
+        toast({ variant: "destructive", title: "Consent Required", description: "You must check all mandatory agreements to join. ✨" });
         return;
       }
     }
@@ -96,7 +97,13 @@ function LoginContent() {
             preferredLanguage: language,
             createdAt: serverTimestamp(),
             policyAccepted: true,
-            policyAcceptedAt: serverTimestamp()
+            policyAcceptedAt: serverTimestamp(),
+            legalConsent: {
+              ageVerified: true,
+              termsAgreed: true,
+              responsibilityAcknowledged: true,
+              timestamp: new Date().toISOString()
+            }
           }, { merge: true });
 
           // Also create the public profile immediately
@@ -126,13 +133,12 @@ function LoginContent() {
     }
   };
 
-  const isSignupDisabled = isLoading || !email || !password || !nickname || !agreedRespect || !agreedDisclaimer;
+  const isSignupDisabled = isLoading || !email || !password || !nickname || !agreedAge || !agreedTerms || !agreedResponsibility;
 
   if (authLoading) return <div className="flex items-center justify-center min-h-screen"><Loader2 className="animate-spin text-primary" /></div>;
 
   return (
     <div className="flex flex-col min-h-screen bg-[#fcfcfc] items-center justify-center p-6 relative overflow-hidden">
-      {/* Background Ambience */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-3xl -z-10" />
       
       <Link href="/" className="absolute top-12 left-10 flex items-center gap-2 text-slate-400 hover:text-primary transition-colors font-bold text-[10px] uppercase tracking-widest">
@@ -213,7 +219,6 @@ function LoginContent() {
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-primary transition-colors"
-                      aria-label={showPassword ? "Hide password" : "Show password"}
                     >
                       {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
@@ -223,42 +228,40 @@ function LoginContent() {
 
               {mode === 'signup' && (
                 <div className="space-y-4 pt-2 border-t border-dashed animate-in fade-in duration-500">
-                  <div className="flex items-start space-x-3 p-3 bg-primary/5 rounded-2xl border border-primary/10">
+                  <div className="flex items-start space-x-3 p-3 bg-slate-50 rounded-2xl border border-slate-200">
                     <Checkbox 
-                      id="respect-policy" 
-                      checked={agreedRespect} 
-                      onCheckedChange={(checked) => setAgreedRespect(!!checked)} 
-                      className="mt-1 border-primary data-[state=checked]:bg-primary"
+                      id="age-verify" 
+                      checked={agreedAge} 
+                      onCheckedChange={(checked) => setAgreedAge(!!checked)} 
+                      className="mt-1 border-slate-400 data-[state=checked]:bg-primary"
                     />
-                    <div className="grid gap-1.5 leading-none">
-                      <label htmlFor="respect-policy" className="text-[10px] font-black uppercase tracking-tight text-slate-700 cursor-pointer">
-                        Respect & Love is Mandatory
-                      </label>
-                      <p className="text-[8px] text-muted-foreground italic leading-tight">
-                        I commit to zero tolerance for meanness, bullying, or toxicity. ❤️
-                      </p>
-                    </div>
+                    <label htmlFor="age-verify" className="text-[10px] font-black uppercase tracking-tight text-slate-700 cursor-pointer">
+                      I am at least 18 years old.
+                    </label>
                   </div>
 
                   <div className="flex items-start space-x-3 p-3 bg-slate-50 rounded-2xl border border-slate-200">
                     <Checkbox 
-                      id="disclaimer-policy" 
-                      checked={agreedDisclaimer} 
-                      onCheckedChange={(checked) => setAgreedDisclaimer(!!checked)} 
-                      className="mt-1 border-slate-400 data-[state=checked]:bg-slate-900 data-[state=checked]:border-slate-900"
+                      id="terms-verify" 
+                      checked={agreedTerms} 
+                      onCheckedChange={(checked) => setAgreedTerms(!!checked)} 
+                      className="mt-1 border-slate-400 data-[state=checked]:bg-primary"
                     />
-                    <div className="grid gap-1.5 leading-none">
-                      <label htmlFor="disclaimer-policy" className="text-[10px] font-black uppercase tracking-tight text-slate-700 cursor-pointer">
-                        Legal Disclaimer & Waiver
-                      </label>
-                      <p className="text-[8px] text-muted-foreground italic leading-tight">
-                        I accept that the platform is provided "AS IS" and I assume 100% total responsibility for my safety. ⚖️
-                      </p>
-                    </div>
+                    <label htmlFor="terms-verify" className="text-[10px] font-black uppercase tracking-tight text-slate-700 cursor-pointer">
+                      I have read and agree to the <Link href="/terms" className="text-primary underline">Terms of Service</Link> and <Link href="/privacy" className="text-primary underline">Privacy Policy</Link>.
+                    </label>
                   </div>
-                  
-                  <div className="px-2 text-[8px] text-muted-foreground font-medium text-center italic">
-                    By joining, you agree to our 8-Point Community Protocol.
+
+                  <div className="flex items-start space-x-3 p-3 bg-primary/5 rounded-2xl border border-primary/10">
+                    <Checkbox 
+                      id="responsibility-verify" 
+                      checked={agreedResponsibility} 
+                      onCheckedChange={(checked) => setAgreedResponsibility(!!checked)} 
+                      className="mt-1 border-primary data-[state=checked]:bg-primary"
+                    />
+                    <label htmlFor="responsibility-verify" className="text-[10px] font-black uppercase tracking-tight text-slate-700 cursor-pointer">
+                      I understand that interactions with other users are my own responsibility and that the platform does not guarantee identity, safety, compatibility, employment, business opportunities, or relationship outcomes.
+                    </label>
                   </div>
                 </div>
               )}
