@@ -36,10 +36,10 @@ service cloud.firestore {
 
     // User Profiles: Private identity and mission data
     match /users/{userId} {
-      // Allow any authenticated heart to 'get' a profile (for revealing after match/discovery)
+      // Explicit 'get' for all authenticated hearts (essential for matches/discovery)
       allow get: if isAuthenticated();
-      // Only admins can 'list' (query) the entire users collection
-      allow list: if isAdmin();
+      // Only admins or the owner can 'list' (query)
+      allow list: if isAdmin() || isOwner(userId);
       // Standard owner-only write permissions
       allow create, update, delete: if isOwner(userId);
     }
@@ -76,8 +76,8 @@ service cloud.firestore {
 
     // Ads: Community reach campaigns
     match /ads/{adId} {
-      // Grant read (list/get) access to all authenticated hearts to see campaigns in Discover
-      allow read: if isAuthenticated();
+      // Grant explicit read (list/get) to all authenticated hearts for Discover feed
+      allow read, list, get: if isAuthenticated();
       allow create: if isAuthenticated() && request.resource.data.advertiserId == request.auth.uid;
       allow update: if isAuthenticated() && (resource.data.advertiserId == request.auth.uid || isAdmin());
     }

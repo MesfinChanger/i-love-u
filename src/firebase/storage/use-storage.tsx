@@ -50,11 +50,11 @@ export function useFirebaseStorage() {
           setIsUploading(false);
           
           // Enhanced Diagnostic Protocol
-          if (err.code === 'storage/unknown' || err.message?.includes('storage')) {
+          if (err.code === 'storage/unknown' || err.message?.toLowerCase().includes('permission') || err.message?.toLowerCase().includes('cors')) {
             toast({
               variant: "destructive",
               title: "Storage Configuration Ripple",
-              description: "Mission Control needs Rules & CORS setup. Check docs/FIREBASE_SETUP.md for the fix. ❤️",
+              description: "Mission Control requires Rules & CORS setup for web uploads. See docs/FIREBASE_SETUP.md for the fix. ❤️",
               action: (
                 <Button 
                   variant="outline" 
