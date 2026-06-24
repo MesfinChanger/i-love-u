@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "node -e \"const { spawn } = require('child_process'); const args = process.argv.slice(2).filter((arg, i, arr) => arg !== '--host' && arr[i-1] !== '--host'); spawn('./node_modules/.bin/next', ['dev', '--hostname', '0.0.0.0', ...args], { stdio: 'inherit', shell: true });\"",
+    "dev": "node dev-shim.js",
     "genkit:dev": "genkit start -- tsx src/ai/dev.ts",
     "genkit:watch": "genkit start -- tsx --watch src/ai/dev.ts",
     "build": "NODE_ENV=production next build",
