@@ -236,6 +236,14 @@ function LoginContent() {
                       {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
                   </div>
+                  
+                  {mode === 'signin' && (
+                    <div className="flex justify-end px-1">
+                      <Link href="/login/reset" className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-primary transition-colors">
+                        Forgot Secure Phrase?
+                      </Link>
+                    </div>
+                  )}
                 </div>
               </div>
 
