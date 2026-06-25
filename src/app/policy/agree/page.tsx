@@ -20,26 +20,29 @@ export default function PolicyAgreePage() {
   const [isAgreeing, setIsAgreeing] = useState(false);
 
   const userRef = useMemoFirebase(() => {
-    if (!db || !user) return null;
+    if (!db || !user?.uid) return null;
     return doc(db, 'users', user.uid);
-  }, [db, user]);
+  }, [db, user?.uid]);
   
   const { data: profile } = useDoc(userRef);
 
-  // Hybrid Bridge: Resilience against local state loss
+  // Protocol Synchronization: If cloud profile already has acceptance, 
+  // immediately update local state and proceed to discovery.
   useEffect(() => {
     if (profile?.policyAccepted) {
-      localStorage.setItem('iloveu_policy_accepted', 'true');
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('iloveu_policy_accepted', 'true');
+      }
       router.push('/discover');
     }
-  }, [profile, router]);
+  }, [profile?.policyAccepted, router]);
 
   const handleAgree = async () => {
     if (!user || !db || isAgreeing) return;
 
     setIsAgreeing(true);
     try {
-      // Immediate Local Persistence (Snappy Logic)
+      // Immediate Local Persistence (Snappy UI Feedback)
       if (typeof window !== 'undefined') {
         localStorage.setItem('iloveu_policy_accepted', 'true');
       }

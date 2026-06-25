@@ -70,9 +70,10 @@ function LoginContent() {
   const [agreedHuman, setAgreedHuman] = useState(false);
 
   useEffect(() => {
+    // Protocol Shift: Send to discovery. Discovery/Matches will handle the 
+    // "View Only" state based on the actual DB profile status.
     if (user && !authLoading) {
-      const hasAccepted = localStorage.getItem('iloveu_policy_accepted') === 'true';
-      router.push(hasAccepted ? '/discover' : '/policy/agree');
+      router.push('/discover');
     }
   }, [user, authLoading, router]);
 
