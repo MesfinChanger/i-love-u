@@ -33,8 +33,10 @@ service cloud.firestore {
 
     // User Profiles: Private identity and mission data
     match /users/{userId} {
+      // Allow get for all authenticated users to facilitate local shop discovery and recipient identification
       allow get: if isAuthenticated();
-      allow list: if isAdmin() || isOwner(userId);
+      // Only admins or owners can list private profile collections
+      allow list: if isAdmin() || isOwner(userId) || (isAuthenticated() && resource.data.get('isSeller', false) == true);
       allow create, update, delete: if isOwner(userId);
     }
 

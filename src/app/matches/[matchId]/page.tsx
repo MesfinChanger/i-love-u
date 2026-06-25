@@ -80,15 +80,28 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
   const [translatingIds, setTranslatingIds] = useState<Set<string>>(new Set());
   const [isCameraOpen, setIsCameraOpen] = useState(false);
 
-  const userRef = useMemoFirebase(() => db && user?.uid ? doc(db, 'users', user.uid) : null, [db, user?.uid]);
+  // Stable string-based dependency tracking to prevent assertion loops
+  const currentUserId = user?.uid;
+
+  const userRef = useMemoFirebase(() => {
+    if (!db || !currentUserId) return null;
+    return doc(db, 'users', currentUserId);
+  }, [db, currentUserId]);
   const { data: myProfile } = useDoc(userRef);
   const hasAcceptedPolicy = myProfile?.policyAccepted === true;
 
-  const matchRef = useMemoFirebase(() => db && matchId ? doc(db, 'matches', matchId) : null, [db, matchId]);
+  const matchRef = useMemoFirebase(() => {
+    if (!db || !matchId) return null;
+    return doc(db, 'matches', matchId);
+  }, [db, matchId]);
   const { data: matchData, loading: matchLoading } = useDoc(matchRef);
 
-  const partnerId = useMemo(() => matchData?.userIds?.find((id: string) => id !== user?.uid), [matchData?.userIds, user?.uid]);
-  const partnerRef = useMemoFirebase(() => db && partnerId ? doc(db, 'users', partnerId) : null, [db, partnerId]);
+  const partnerId = useMemo(() => matchData?.userIds?.find((id: string) => id !== currentUserId), [matchData?.userIds, currentUserId]);
+  
+  const partnerRef = useMemoFirebase(() => {
+    if (!db || !partnerId) return null;
+    return doc(db, 'users', partnerId);
+  }, [db, partnerId]);
   const { data: partnerProfile } = useDoc(partnerRef);
 
   const matchInfo = useMemo(() => {
@@ -106,8 +119,8 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
 
   useEffect(() => {
     const decryptAll = async () => {
-      if (!messages || !user?.uid) return;
-      const privKey = localStorage.getItem(`spark_priv_${user.uid}`);
+      if (!messages || !currentUserId) return;
+      const privKey = localStorage.getItem(`spark_priv_${currentUserId}`);
       if (!privKey) return;
       const newDecrypted = { ...decryptedMessages };
       let changed = false;
@@ -124,7 +137,7 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
       if (changed) setDecryptedMessages(newDecrypted);
     };
     decryptAll();
-  }, [messages, user?.uid]);
+  }, [messages, currentUserId]);
 
   useEffect(() => {
     if (scrollRef.current && !isSelectMode) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -215,12 +228,12 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
         <div className="flex-grow text-left"><h2 className="font-black text-sm tracking-tight truncate">{matchInfo.name}</h2><p className="text-[8px] text-muted-foreground font-black uppercase tracking-widest leading-none">Spark Room</p></div>
         <div className="flex items-center gap-1">
           <Link href={`/shop?recipientId=${partnerId}`}>
-             <Button variant="ghost" size="icon" className="text-pink-500 hover:text-pink-600 hover:bg-pink-50 rounded-full">
+             <Button variant="ghost" size="icon" className="text-pink-500 hover:text-pink-600 hover:bg-pink-50 rounded-full" title="Send Gift">
                <ShoppingBag className="w-5 h-5" />
              </Button>
           </Link>
           <DonationDialog trigger={
-            <Button variant="ghost" size="icon" className="text-primary hover:text-primary/80 rounded-full">
+            <Button variant="ghost" size="icon" className="text-primary hover:text-primary/80 rounded-full" title="Fund Mission">
               <TrendingDown className="w-5 h-5" />
             </Button>
           } />
@@ -233,14 +246,14 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
           <div className="flex justify-center py-20"><Loader2 className="animate-spin text-primary opacity-20" /></div>
         ) : (
           messages?.map((msg: any) => {
-            const isMe = msg.senderId === user?.uid;
+            const isMe = msg.senderId === currentUserId;
             const isSelected = selectedIds.has(msg.id);
             const textToShow = msg.encryptedText ? (decryptedMessages[msg.id] || "...") : msg.text;
             return (
               <div key={msg.id} onClick={() => isSelectMode && isMe && toggleSelection(msg.id)} className={cn("flex group", isMe ? 'justify-end' : 'justify-start', isSelectMode && isMe ? "cursor-pointer" : "")}>
                 <div className="flex flex-col gap-1 items-end max-w-[85%]">
                   <div className={cn("px-5 py-4 rounded-[2.2rem] text-sm shadow-sm transition-all relative", isMe ? 'bg-primary text-white rounded-tr-none' : 'bg-white text-foreground rounded-tl-none border', isSelected && "ring-2 ring-primary ring-offset-2 opacity-60")}>
-                    {msg.imageUrl && <div className="rounded-[1.8rem] overflow-hidden w-60 h-72"><img src={msg.imageUrl} className="w-full h-full object-cover" /></div>}
+                    {msg.imageUrl && <div className="rounded-[1.8rem] overflow-hidden w-60 h-72"><img src={msg.imageUrl} className="w-full h-full object-cover" alt="Chat shared" /></div>}
                     {msg.videoUrl && <div className="rounded-2xl overflow-hidden w-60 aspect-video bg-black"><video src={msg.videoUrl} controls className="w-full h-full" /></div>}
                     {msg.fileUrl && (
                       <div className="flex items-center gap-4 bg-muted/20 p-4 rounded-2xl border border-dashed text-left">
@@ -267,7 +280,7 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
            </div>
         ) : (
           <div className="flex items-center gap-2">
-            <input type="file" ref={fileInputRef} onChange={async (e) => { const f = e.target.files?.[0]; if (f) { const url = await uploadFile(`matches/${matchId}/${Date.now()}-${f.name}`, f); await addDoc(collection(db!, 'matches', matchId, 'messages'), { senderId: user?.uid, fileUrl: url, fileName: f.name, timestamp: serverTimestamp() }); }}} className="hidden" />
+            <input type="file" ref={fileInputRef} onChange={async (e) => { const f = e.target.files?.[0]; if (f) { const url = await uploadFile(`matches/${matchId}/${Date.now()}-${f.name}`, f); await addDoc(collection(db!, 'matches', matchId, 'messages'), { senderId: currentUserId, fileUrl: url, fileName: f.name, timestamp: serverTimestamp() }); }}} className="hidden" />
             <Popover>
               <PopoverTrigger asChild><Button variant="ghost" size="icon" className="rounded-xl bg-muted/40 h-12 w-12"><Camera className="w-6 h-6" /></Button></PopoverTrigger>
               <PopoverContent className="w-48 p-2 rounded-2xl border-none shadow-2xl" side="top" align="start">
@@ -277,7 +290,7 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
             </Popover>
             <form onSubmit={handleSendMessage} className="flex-grow flex gap-2">
               <Input value={newMessage} onChange={e => setNewMessage(e.target.value)} placeholder="Respectful message..." className="rounded-2xl bg-muted/40 border-none h-12 px-6" />
-              <Button type="submit" size="icon" className="rounded-xl h-12 w-12 gradient-bg shrink-0 shadow-lg shadow-primary/20 transition-all active:scale-90" disabled={!newMessage.trim() || isSending}><Send className="w-5 h-5" /></Button>
+              <Button type="submit" size="icon" className="rounded-xl h-12 w-12 gradient-bg shrink-0 shadow-lg shadow-primary/20 transition-all active:scale-90" disabled={!newMessage.trim() || isSending} aria-label="Send Message"><Send className="w-5 h-5" /></Button>
             </form>
           </div>
         )}

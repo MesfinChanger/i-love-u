@@ -63,7 +63,7 @@ function ShopContent() {
   const [isPurchasing, setIsPurchasing] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
 
-  // Recipient Context
+  // Recipient Context: Fetch recipient ID from URL
   const recipientId = searchParams.get('recipientId');
 
   useEffect(() => {
@@ -100,7 +100,7 @@ function ShopContent() {
     };
   }, [recipientProfile, myProfile]);
 
-  // Fetch local sellers
+  // Fetch local sellers based on target city
   const localSellersQuery = useMemoFirebase(() => {
     if (!db || !targetLocation.city) return null;
     return query(
@@ -219,9 +219,7 @@ function ShopContent() {
     }
   };
 
-  if (!mounted) return (
-    <div className="flex items-center justify-center min-h-screen"><Loader2 className="animate-spin text-primary" /></div>
-  );
+  if (!mounted) return <div className="flex items-center justify-center min-h-screen"><Loader2 className="animate-spin text-primary" /></div>;
 
   return (
     <div className="flex flex-col min-h-screen bg-muted/30 pb-24 relative">
@@ -253,7 +251,7 @@ function ShopContent() {
                <Badge className="bg-pink-100 text-pink-600 border-none px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2 animate-in slide-in-from-top-2">
                  <Heart className="w-3 h-3 fill-pink-600" />
                  Shopping for {targetLocation.name}
-                 <button onClick={() => { router.replace('/shop'); }} className="ml-2 hover:opacity-70"><X className="w-3 h-3" /></button>
+                 <button onClick={() => { router.replace('/shop'); }} className="ml-2 hover:opacity-70" aria-label="Clear recipient"><X className="w-3 h-3" /></button>
                </Badge>
              )}
              <div className="flex gap-2 w-full justify-center md:justify-end">
@@ -273,7 +271,7 @@ function ShopContent() {
           </div>
         </div>
 
-        {/* NEAREST ARTISANS SECTION */}
+        {/* NEAREST ARTISANS SECTION - Prioritizes recipient's location */}
         {targetLocation.city && (
           <section className="mb-12 space-y-6">
             <div className="flex items-center justify-between px-2">
@@ -317,7 +315,7 @@ function ShopContent() {
               ) : (
                 <div className="w-full p-10 text-center bg-white/40 rounded-[2.5rem] border-2 border-dashed flex flex-col items-center gap-3">
                    <Building2 className="w-8 h-8 text-muted-foreground/20" />
-                   <p className="text-xs font-bold text-muted-foreground italic">"Global hearts, local impact." Connecting to nearest artisans...</p>
+                   <p className="text-xs font-bold text-muted-foreground italic">"Global hearts, local impact." Searching for nearest artisans...</p>
                 </div>
               )}
             </div>
@@ -369,7 +367,6 @@ function ShopContent() {
         </div>
       </main>
 
-      {/* Guest Billing Form Dialog */}
       <Dialog open={showGuestForm} onOpenChange={setShowGuestForm}>
         <DialogContent className="sm:max-w-md rounded-[3rem] border-none shadow-2xl p-0 overflow-hidden bg-white max-h-[90vh] overflow-y-auto">
            <DialogHeader className="p-8 bg-slate-900 text-white text-center">
