@@ -61,7 +61,7 @@ export default function ProsperityPoolPage() {
     setMounted(true);
   }, []);
 
-  const userRef = useMemoFirebase(() => db && user ? doc(db, 'users', user.uid) : null, [db, user]);
+  const userRef = useMemoFirebase(() => db && user?.uid ? doc(db, 'users', user.uid) : null, [db, user?.uid]);
   const { data: myProfile } = useDoc(userRef);
 
   const poolQuery = useMemoFirebase(() => {

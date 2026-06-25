@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useMemo, useState, useEffect, Suspense } from 'react';
@@ -45,13 +46,13 @@ function MatchesContent() {
   }, []);
   
   const matchesQuery = useMemoFirebase(() => {
-    if (!user || !db) return null;
+    if (!user?.uid || !db) return null;
     return query(
       collection(db, 'matches'),
       where('userIds', 'array-contains', user.uid),
       orderBy('timestamp', 'desc')
     );
-  }, [user, db]);
+  }, [user?.uid, db]);
 
   const { data: allMatches, loading } = useCollection(matchesQuery);
 
@@ -63,7 +64,7 @@ function MatchesContent() {
       friendMatches: allMatches.filter((m: any) => m.status === 'active' && m.type === 'friend'),
       invitations: allMatches.filter((m: any) => m.status === 'pending' && m.invitedBy !== user?.uid)
     };
-  }, [allMatches, user]);
+  }, [allMatches, user?.uid]);
 
   const handleAccept = async (matchId: string) => {
     if (!db) return;

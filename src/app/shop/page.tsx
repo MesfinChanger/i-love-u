@@ -26,7 +26,8 @@ import {
   Hash,
   Store,
   ChevronRight,
-  Sparkles
+  Sparkles,
+  X
 } from 'lucide-react';
 import Image from 'next/image';
 import { useFirestore, useCollection, useUser, useDoc } from '@/firebase';
@@ -70,9 +71,9 @@ function ShopContent() {
   }, []);
 
   const userRef = useMemoFirebase(() => {
-    if (!db || !user) return null;
+    if (!db || !user?.uid) return null;
     return doc(db, 'users', user.uid);
-  }, [db, user]);
+  }, [db, user?.uid]);
   const { data: myProfile } = useDoc(userRef);
 
   const recipientRef = useMemoFirebase(() => {

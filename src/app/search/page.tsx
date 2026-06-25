@@ -45,10 +45,10 @@ function SearchContent() {
   }, []);
 
   const profilesQuery = useMemoFirebase(() => {
-    // Only query if we have a user, as security rules require authentication
-    if (!db || !user) return null;
+    // Only query if we have a user and uid, as security rules require authentication
+    if (!db || !user?.uid) return null;
     return query(collection(db, 'publicProfiles'), limit(100));
-  }, [db, user]);
+  }, [db, user?.uid]);
 
   const { data: allProfiles, loading } = useCollection(profilesQuery);
 
@@ -62,7 +62,7 @@ function SearchContent() {
       const bioMatch = p.bio?.toLowerCase().includes(queryStr);
       return queryStr === '' || nicknameMatch || interestMatch || bioMatch;
     });
-  }, [allProfiles, searchTerm, user]);
+  }, [allProfiles, searchTerm, user?.uid]);
 
   const handleAction = async (targetUid: string, type: 'friend' | 'date') => {
     if (!user || !db) return;

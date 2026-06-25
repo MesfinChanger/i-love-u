@@ -80,14 +80,14 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
   const [translatingIds, setTranslatingIds] = useState<Set<string>>(new Set());
   const [isCameraOpen, setIsCameraOpen] = useState(false);
 
-  const userRef = useMemoFirebase(() => db && user ? doc(db, 'users', user.uid) : null, [db, user]);
+  const userRef = useMemoFirebase(() => db && user?.uid ? doc(db, 'users', user.uid) : null, [db, user?.uid]);
   const { data: myProfile } = useDoc(userRef);
   const hasAcceptedPolicy = myProfile?.policyAccepted === true;
 
   const matchRef = useMemoFirebase(() => db && matchId ? doc(db, 'matches', matchId) : null, [db, matchId]);
   const { data: matchData, loading: matchLoading } = useDoc(matchRef);
 
-  const partnerId = useMemo(() => matchData?.userIds?.find((id: string) => id !== user?.uid), [matchData, user]);
+  const partnerId = useMemo(() => matchData?.userIds?.find((id: string) => id !== user?.uid), [matchData?.userIds, user?.uid]);
   const partnerRef = useMemoFirebase(() => db && partnerId ? doc(db, 'users', partnerId) : null, [db, partnerId]);
   const { data: partnerProfile } = useDoc(partnerRef);
 
@@ -96,7 +96,7 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
       name: partnerProfile?.displayName || partnerProfile?.publicNickname || "Mystery Heart",
       photoUrl: partnerProfile?.photoUrl || null
     };
-  }, [partnerProfile]);
+  }, [partnerProfile?.displayName, partnerProfile?.publicNickname, partnerProfile?.photoUrl]);
 
   const messagesQuery = useMemoFirebase(() => {
     if (!db || !matchId) return null;
@@ -106,7 +106,7 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
 
   useEffect(() => {
     const decryptAll = async () => {
-      if (!messages || !user) return;
+      if (!messages || !user?.uid) return;
       const privKey = localStorage.getItem(`spark_priv_${user.uid}`);
       if (!privKey) return;
       const newDecrypted = { ...decryptedMessages };
@@ -124,7 +124,7 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
       if (changed) setDecryptedMessages(newDecrypted);
     };
     decryptAll();
-  }, [messages, user]);
+  }, [messages, user?.uid]);
 
   useEffect(() => {
     if (scrollRef.current && !isSelectMode) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;

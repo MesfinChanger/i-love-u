@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, use } from 'react';
@@ -39,16 +40,19 @@ export default function WitnessVerificationPage({ params }: { params: Promise<{ 
   }, [db, matchId]);
   const { data: matchData, loading: matchLoading } = useDoc(matchRef);
 
+  const user1Uid = matchData?.userIds?.[0];
+  const user2Uid = matchData?.userIds?.[1];
+
   const user1Ref = useMemoFirebase(() => {
-    if (!db || !matchData?.userIds?.[0]) return null;
-    return doc(db, 'users', matchData.userIds[0]);
-  }, [db, matchData]);
+    if (!db || !user1Uid) return null;
+    return doc(db, 'users', user1Uid);
+  }, [db, user1Uid]);
   const { data: user1 } = useDoc(user1Ref);
 
   const user2Ref = useMemoFirebase(() => {
-    if (!db || !matchData?.userIds?.[1]) return null;
-    return doc(db, 'users', matchData.userIds[1]);
-  }, [db, matchData]);
+    if (!db || !user2Uid) return null;
+    return doc(db, 'users', user2Uid);
+  }, [db, user2Uid]);
   const { data: user2 } = useDoc(user2Ref);
 
   const isWitnessAuthorized = matchData?.witnessId === user?.uid;

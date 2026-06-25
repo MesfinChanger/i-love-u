@@ -65,7 +65,7 @@ import { useTranslation } from '@/components/providers/LanguageProvider';
 
 /**
  * @fileOverview Discovery Grid Protocol with Expandable Presence Sections.
- * Hardened to prevent hydration mismatches from random status values.
+ * Hardened to prevent hydration mismatches and Firestore assertion ripples.
  */
 export default function DiscoverPage() {
   const { user } = useUser();
@@ -85,21 +85,21 @@ export default function DiscoverPage() {
   }, []);
 
   const userRef = useMemoFirebase(() => {
-    if (!db || !user) return null;
+    if (!db || !user?.uid) return null;
     return doc(db, 'users', user.uid);
-  }, [db, user]);
+  }, [db, user?.uid]);
   const { data: myProfile } = useDoc(userRef);
 
   const discoveryQuery = useMemoFirebase(() => {
-    if (!db || !user) return null;
+    if (!db || !user?.uid) return null;
     return query(collection(db, 'publicProfiles'));
-  }, [db, user]);
+  }, [db, user?.uid]);
   const { data: discoveryItems, loading: usersLoading } = useCollection(discoveryQuery);
 
   const adsQuery = useMemoFirebase(() => {
-    if (!db || !user) return null;
+    if (!db || !user?.uid) return null;
     return query(collection(db, 'ads'), where('status', '==', 'active'));
-  }, [db, user]);
+  }, [db, user?.uid]);
   const { data: activeAds } = useCollection(adsQuery);
 
   const viewerCountry = myProfile?.country || 'GLOBAL';
@@ -171,7 +171,7 @@ export default function DiscoverPage() {
       restingHearts: allHearts.filter((h: any) => !h.isOnline),
       adItems: ads
     };
-  }, [discoveryItems, activeAds, user, viewerCountry, mounted, presenceOverrides]);
+  }, [discoveryItems, activeAds, user?.uid, viewerCountry, mounted, presenceOverrides]);
 
   const handleSparkAction = async (targetId: string, type: 'friend' | 'date') => {
     if (!hasAcceptedPolicy) {
@@ -197,7 +197,7 @@ export default function DiscoverPage() {
     }
   };
 
-  if (!mounted || (usersLoading && db && user)) return (
+  if (!mounted || (usersLoading && db && user?.uid)) return (
     <div className="flex flex-col min-h-screen items-center justify-center bg-muted/30">
       <Loader2 className="w-10 h-10 animate-spin text-primary opacity-20" />
     </div>

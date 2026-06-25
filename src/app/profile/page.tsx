@@ -122,9 +122,9 @@ function ProfileContent() {
   }, []);
 
   const userRef = useMemoFirebase(() => {
-    if (!db || !user) return null;
+    if (!db || !user?.uid) return null;
     return doc(db, 'users', user.uid);
-  }, [db, user]);
+  }, [db, user?.uid]);
 
   const { data: profileData, loading: profileLoading } = useDoc(userRef);
 
