@@ -30,6 +30,7 @@ import HeroImage from '@/components/HeroImage';
 /**
  * @fileOverview The I LOVE U Homepage.
  * Cinematic mission vision with Dynamic Global Storytelling and "Alive" UI layer.
+ * Strictly implements the h-[640px], rounded-[40px], and high-impact layout.
  */
 export default function Home() {
   const { user } = useUser();
@@ -142,7 +143,7 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Floating Action Badge */}
+            {/* Floating Action Overlay Text */}
             <div className="absolute bottom-10 left-10 z-20 text-white drop-shadow-lg hidden sm:block">
                <h2 className="text-4xl font-bold tracking-tight">Love Knows No Borders</h2>
                <p className="text-lg opacity-80 mt-2">Together we can end poverty through kindness.</p>

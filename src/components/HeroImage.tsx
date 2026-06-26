@@ -8,6 +8,7 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 /**
  * @fileOverview Cinematic Dynamic Hero Component.
  * Features a rotating global story using framer-motion for high-fidelity transitions.
+ * Hardened to be hydration-safe and performant.
  */
 export default function HeroImage() {
   const [index, setIndex] = useState(0);
@@ -31,7 +32,9 @@ export default function HeroImage() {
     return () => clearInterval(timer);
   }, [images.length]);
 
-  if (!mounted || images.length === 0) return null;
+  if (!mounted || images.length === 0) return (
+    <div className="absolute inset-0 w-full h-full bg-slate-100 animate-pulse" />
+  );
 
   return (
     <div className="absolute inset-0 w-full h-full">
