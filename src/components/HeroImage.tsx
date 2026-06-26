@@ -8,13 +8,11 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 /**
  * @fileOverview Cinematic Dynamic Hero Component.
  * Features a rotating global story using framer-motion for high-fidelity transitions.
- * Optimizes assets from the centralized placeholder registry.
  */
 export default function HeroImage() {
   const [index, setIndex] = useState(0);
   const [mounted, setMounted] = useState(false);
 
-  // Extract core mission visuals from registry
   const images = [
     PlaceHolderImages.find(img => img.id === 'world-1')?.imageUrl || "",
     PlaceHolderImages.find(img => img.id === 'world-2')?.imageUrl || "",
@@ -26,7 +24,6 @@ export default function HeroImage() {
 
   useEffect(() => {
     setMounted(true);
-    // Rotate every 5 seconds for smooth storytelling
     const timer = setInterval(() => {
       setIndex((prev) => (prev + 1) % images.length);
     }, 5000);
