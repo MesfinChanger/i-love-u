@@ -39,7 +39,6 @@ import HeroImage from '@/components/HeroImage';
  */
 export default function Home() {
   const { user } = useUser();
-  const db = useFirestore();
   const { language, setLanguage, t } = useTranslation();
   
   const [mounted, setMounted] = useState(false);
@@ -113,16 +112,16 @@ export default function Home() {
             <div className="absolute inset-0 bg-gradient-to-r from-white via-white/80 to-transparent pointer-events-none" />
 
             {/* "Alive" UI Elements */}
-            <div className="absolute top-10 left-1/3 animate-bounce text-pink-500 z-20 hidden md:block">
-              <Heart className="w-10 h-10 fill-current drop-shadow-lg" />
+            <div className="absolute top-10 left-10 animate-bounce text-pink-500 text-3xl z-20">
+              ❤️
             </div>
 
-            <div className="absolute bottom-32 right-12 animate-pulse text-yellow-400 z-20">
-              <Sparkles className="w-16 h-16 drop-shadow-lg" />
+            <div className="absolute bottom-20 right-10 animate-pulse text-yellow-400 text-4xl z-20">
+              ✨
             </div>
 
-            <div className="absolute top-32 right-1/4 animate-ping text-pink-400/40 z-20">
-              <Heart className="w-8 h-8 fill-current" />
+            <div className="absolute top-32 right-20 animate-ping text-pink-400 z-20">
+              💖
             </div>
 
             {/* Content Layer */}
@@ -157,7 +156,7 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Floating High-Fidelity Badge (Bottom Right) */}
+            {/* Floating Action Badge */}
             <div className="absolute bottom-10 right-10 w-24 h-24 bg-white rounded-full shadow-2xl flex items-center justify-center p-2 z-30 transition-transform group-hover:rotate-12 duration-700 sm:flex hidden border border-slate-100">
                <div className="w-full h-full rounded-full gradient-bg flex items-center justify-center">
                   <Heart className="w-8 h-8 fill-white text-white animate-heartbeat" />

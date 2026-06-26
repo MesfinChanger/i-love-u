@@ -8,7 +8,7 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 /**
  * @fileOverview Cinematic Dynamic Hero Component.
- * Features a rotating global story using framer-motion.
+ * Features a rotating global story using framer-motion for high-fidelity transitions.
  */
 
 export default function HeroImage() {
