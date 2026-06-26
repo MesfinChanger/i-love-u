@@ -41,7 +41,7 @@ import { cn } from '@/lib/utils';
 /**
  * @fileOverview Sovereign Command Center.
  * Exclusively accessible to the one true owner. Manages all global permissions.
- * Uses role === 'admin' string check for authority.
+ * Enforces role === 'admin' string check for assigned users.
  */
 export default function AdminApprovalsPage() {
   const { user } = useUser();
@@ -105,9 +105,10 @@ export default function AdminApprovalsPage() {
         ownerId: user.uid,
         claimedAt: serverTimestamp(),
       });
-      // Also mark this user as admin in their own doc using the role field
+      // The Sovereign always holds the admin role string
       await updateDoc(doc(db, 'users', user.uid), {
-        role: 'admin'
+        role: 'admin',
+        isAdmin: true
       });
       toast({ title: "Authority Claimed", description: "You are now the Sovereign Guardian. ✨" });
     } catch (e) {
@@ -117,7 +118,7 @@ export default function AdminApprovalsPage() {
     }
   };
 
-  const handleRoleToggle = async (uid: string, roleKey: string, val: boolean) => {
+  const handleRoleToggle = async (uid: string, roleKey: string, val: any) => {
     if (!db || !isUserSovereign || isProcessing) return;
     setIsProcessing(uid);
     try {
@@ -218,7 +219,7 @@ export default function AdminApprovalsPage() {
                   <UserAdminCard 
                     key={u.uid} 
                     u={u} 
-                    onToggle={(role, val) => handleRoleToggle(u.uid, role, val)}
+                    onToggle={(role: string, val: any) => handleRoleToggle(u.uid, role, val)}
                     isProcessing={isProcessing === u.uid}
                   />
                 ))
@@ -282,9 +283,9 @@ function UserAdminCard({ u, onToggle, isProcessing }: any) {
           </div>
 
           <div className="flex flex-wrap items-center gap-6">
-             <RoleSwitch label="Admin" checked={u.role === 'admin'} onToggle={v => onToggle('isAdmin', v)} color="text-red-500" disabled={isProcessing} />
-             <RoleSwitch label="Seller" checked={u.isSeller} onToggle={v => onToggle('isSeller', v)} color="text-green-500" disabled={isProcessing} />
-             <RoleSwitch label="Advertiser" checked={u.isAdvertiser} onToggle={v => onToggle('isAdvertiser', v)} color="text-blue-500" disabled={isProcessing} />
+             <RoleSwitch label="Admin" checked={u.role === 'admin'} onToggle={(v: boolean) => onToggle('isAdmin', v)} color="text-red-500" disabled={isProcessing} />
+             <RoleSwitch label="Seller" checked={u.isSeller} onToggle={(v: boolean) => onToggle('isSeller', v)} color="text-green-500" disabled={isProcessing} />
+             <RoleSwitch label="Advertiser" checked={u.isAdvertiser} onToggle={(v: boolean) => onToggle('isAdvertiser', v)} color="text-blue-500" disabled={isProcessing} />
           </div>
        </div>
     </Card>

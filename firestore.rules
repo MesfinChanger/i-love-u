@@ -2,7 +2,7 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // --- CORE MISSION HELPERS ---
+    // --- SOVEREIGN AUTHORITY HELPERS ---
     
     function isAuthenticated() {
       return request.auth != null && request.auth.uid != null;
@@ -13,7 +13,7 @@ service cloud.firestore {
     }
 
     function getSovereignOwnerId() {
-      // Use exists check to prevent error if doc is missing
+      // Reads the one true Guardian from the siteSettings collection
       return exists(/databases/$(database)/documents/siteSettings/sovereignty) 
              ? get(/databases/$(database)/documents/siteSettings/sovereignty).data.ownerId 
              : null;
@@ -24,6 +24,7 @@ service cloud.firestore {
     }
 
     function isAdmin() {
+      // Unified Check: Sovereign Guardian or users with explicitly assigned 'admin' role string
       return isAuthenticated() && (
              isSovereign() || 
              (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
@@ -35,10 +36,6 @@ service cloud.firestore {
       return isAuthenticated() && 
              exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
              get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('policyAccepted', false) == true;
-    }
-
-    function isMatchParticipant(matchId) {
-      return isAuthenticated() && (request.auth.uid in get(/databases/$(database)/documents/matches/$(matchId)).data.userIds);
     }
 
     // --- COLLECTION PROTOCOLS ---
@@ -88,9 +85,9 @@ service cloud.firestore {
       allow update: if isAuthenticated() && request.auth.uid in resource.data.userIds;
       
       match /messages/{messageId} {
-        allow read: if isMatchParticipant(matchId);
-        allow create: if isMatchParticipant(matchId) && hasAcceptedPolicy();
-        allow delete: if isMatchParticipant(matchId) && (request.auth.uid == resource.data.senderId || isAdmin());
+        allow read: if isAuthenticated() && request.auth.uid in get(/databases/$(database)/documents/matches/$(matchId)).data.userIds;
+        allow create: if isAuthenticated() && request.auth.uid in get(/databases/$(database)/documents/matches/$(matchId)).data.userIds && hasAcceptedPolicy();
+        allow delete: if (isAuthenticated() && request.auth.uid in get(/databases/$(database)/documents/matches/$(matchId)).data.userIds && (request.auth.uid == resource.data.senderId || isAdmin()));
       }
     }
 
@@ -99,13 +96,6 @@ service cloud.firestore {
       allow read, list, get: if true;
       allow create: if isAuthenticated() && request.resource.data.advertiserId == request.auth.uid;
       allow update: if isAuthenticated() && (request.resource.data.advertiserId == request.auth.uid || isAdmin());
-    }
-
-    // Community Messages: The Global Wall
-    match /communityMessages/{messageId} {
-      allow read: if true;
-      allow create: if isAuthenticated() && hasAcceptedPolicy();
-      allow delete: if isAuthenticated() && (request.auth.uid == resource.data.senderId || isAdmin());
     }
 
     // Feedback: Direct link to Mission Control
