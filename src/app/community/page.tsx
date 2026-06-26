@@ -5,7 +5,7 @@ import { Header } from '@/components/Header';
 import { BottomNav } from '@/components/BottomNav';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import { 
@@ -58,6 +58,10 @@ import { compressImage, fileToDataUri } from '@/lib/image-utils';
 import { cn } from '@/lib/utils';
 import { LiveCamera } from '@/components/LiveCamera';
 
+/**
+ * @fileOverview Community Wall Protocol.
+ * Enforces Sovereign Vision and role === 'admin' authority.
+ */
 export default function CommunityPage() {
   const { user } = useUser();
   const db = useFirestore();
@@ -105,8 +109,9 @@ export default function CommunityPage() {
     return () => unsub();
   }, [db]);
 
-  // Use role === 'admin' check
-  const canEditHero = myProfile?.role === 'admin' || (user?.uid === pageOwnerId && pageOwnerId !== "");
+  // Use role === 'admin' check for absolute authority
+  const isAdmin = myProfile?.role === 'admin';
+  const canEditHero = isAdmin || (user?.uid === pageOwnerId && pageOwnerId !== "");
   const isOwner = user?.uid === pageOwnerId;
   const isUnowned = !pageOwnerId || pageOwnerId === "";
 
@@ -406,11 +411,11 @@ export default function CommunityPage() {
              return (
                <Card 
                  key={msg.id} 
-                 onClick={() => isSelectMode && (isMe || myProfile?.role === 'admin') && toggleSelection(msg.id)}
+                 onClick={() => isSelectMode && (isMe || isAdmin) && toggleSelection(msg.id)}
                  className={cn(
                    "rounded-[2.5rem] border-none shadow-md overflow-hidden bg-white group hover:shadow-lg transition-all",
                    isSelected && "ring-4 ring-primary ring-offset-4 scale-[0.98] opacity-60",
-                   isSelectMode && (isMe || myProfile?.role === 'admin') && "cursor-pointer"
+                   isSelectMode && (isMe || isAdmin) && "cursor-pointer"
                  )}
                >
                  <div className="p-6 space-y-4">
@@ -424,7 +429,7 @@ export default function CommunityPage() {
                              <p className="text-[8px] font-bold text-muted-foreground uppercase tracking-widest mt-1">Community Member</p>
                           </div>
                        </div>
-                       {isSelectMode && (isMe || myProfile?.role === 'admin') && (
+                       {isSelectMode && (isMe || isAdmin) && (
                           <div className={cn("w-6 h-6 rounded-full border-2 flex items-center justify-center", isSelected ? "bg-primary border-primary text-white" : "border-muted")}>
                              {isSelected && <CheckSquare className="w-4 h-4" />}
                           </div>
