@@ -15,15 +15,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
 import { 
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogDescription,
-  DialogClose
-} from '@/components/ui/dialog';
-import { 
   Heart, 
   Loader2, 
   ArrowLeft, 
@@ -35,9 +26,6 @@ import {
   Lock,
   Globe,
   Sparkles,
-  Scale,
-  AlertTriangle,
-  X,
   BotOff
 } from 'lucide-react';
 import Link from 'next/link';
@@ -70,8 +58,8 @@ function LoginContent() {
   const [agreedHuman, setAgreedHuman] = useState(false);
 
   useEffect(() => {
-    // Protocol Shift: Send to discovery. Discovery/Matches will handle the 
-    // "View Only" state based on the actual DB profile status.
+    // Frictionless Entry: Returning hearts go straight to discovery.
+    // The discovery/matches page will handle "View Only" mode if agreement is missing.
     if (user && !authLoading) {
       router.push('/discover');
     }
@@ -80,6 +68,8 @@ function LoginContent() {
   const handleAuth = async () => {
     if (!email || !password || !auth) return;
     
+    const cleanEmail = email.trim();
+
     if (mode === 'signup') {
       if (!nickname) {
         toast({ variant: "destructive", title: "Identity Required", description: "Please choose a community nickname. ❤️" });
@@ -94,7 +84,7 @@ function LoginContent() {
     setIsLoading(true);
     try {
       if (mode === 'signup') {
-        const res = await createUserWithEmailAndPassword(auth, email, password);
+        const res = await createUserWithEmailAndPassword(auth, cleanEmail, password);
         const { publicKey, privateKey } = await generateKeyPair();
         localStorage.setItem(`spark_priv_${res.user.uid}`, privateKey);
         localStorage.setItem('iloveu_policy_accepted', 'true');
@@ -102,7 +92,7 @@ function LoginContent() {
         if (db) {
           await setDoc(doc(db, 'users', res.user.uid), {
             uid: res.user.uid, 
-            email, 
+            email: cleanEmail, 
             country, 
             publicKey,
             publicNickname: nickname,
@@ -133,17 +123,22 @@ function LoginContent() {
         }
         router.push('/discover');
       } else {
-        await signInWithEmailAndPassword(auth, email, password);
+        await signInWithEmailAndPassword(auth, cleanEmail, password);
       }
     } catch (error: any) {
       console.error("Auth error:", error);
-      let message = error.message || "Verify your credentials and join again. ❤️";
+      let message = "Please check your secure phrase and try again. ❤️";
       
       // Enforced Mission Messaging for missing credentials
-      if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-email') {
+      if (
+        error.code === 'auth/invalid-credential' || 
+        error.code === 'auth/user-not-found' || 
+        error.code === 'auth/wrong-password' || 
+        error.code === 'auth/invalid-email'
+      ) {
         message = "You do not have a valid credential. Please Subscribe to our mission by using the Join tab! ✨";
       } else if (error.code === 'auth/too-many-requests') {
-        message = "Access Ripple: Too many failed attempts. Please wait a heartbeat and try again. ❤️";
+        message = "Access Ripple: Too many attempts. Please wait a heartbeat and try again. ❤️";
       }
 
       toast({ 

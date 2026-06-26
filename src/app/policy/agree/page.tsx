@@ -7,10 +7,9 @@ import { useUser, useFirestore, useDoc } from '@/firebase';
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Heart, ShieldCheck, Scale, AlertTriangle, ArrowRight, Loader2, Sparkles, ScrollText, Gavel, Globe } from 'lucide-react';
+import { Heart, ShieldCheck, Scale, AlertTriangle, ArrowRight, Loader2, Sparkles, Gavel } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
-import { cn } from '@/lib/utils';
 
 export default function PolicyAgreePage() {
   const { user } = useUser();
@@ -118,7 +117,7 @@ export default function PolicyAgreePage() {
                 <div className="bg-slate-50 p-8 rounded-[2rem] border-2 border-dashed border-slate-200 space-y-4 relative group">
                   <div className="flex items-center gap-3 text-slate-900">
                     <Scale className="w-6 h-6" />
-                    <h4 className="font-black text-base uppercase tracking-tighter">Legal Disclaimer & Liability Waiver</h4>
+                    <h4 className="font-black text-base uppercase tracking-tighter">Legal Disclaimer</h4>
                   </div>
                   <div className="space-y-4 text-[13px] text-slate-500 font-bold uppercase leading-relaxed italic">
                     <p>
