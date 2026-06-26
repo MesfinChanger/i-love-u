@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -12,12 +11,9 @@ import {
   Sparkles,
   Languages,
   Check,
-  Loader2,
-  Lock,
   Globe,
   PlayCircle,
-  TrendingDown,
-  Waves
+  TrendingDown
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -28,14 +24,12 @@ import {
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/components/providers/LanguageProvider';
 import { SUPPORTED_LANGUAGES } from '@/lib/world-data';
-import { useUser, useFirestore, useDoc } from '@/firebase';
-import { doc } from 'firebase/firestore';
-import { useMemoFirebase } from '@/firebase/use-memo-firebase';
+import { useUser } from '@/firebase';
 import HeroImage from '@/components/HeroImage';
 
 /**
  * @fileOverview The I LOVE U Homepage.
- * Cinematic mission vision with Dynamic Global Storytelling.
+ * Cinematic mission vision with Dynamic Global Storytelling and "Alive" UI layer.
  */
 export default function Home() {
   const { user } = useUser();
@@ -111,22 +105,14 @@ export default function Home() {
             {/* Cinematic Gradient Overlay */}
             <div className="absolute inset-0 bg-gradient-to-r from-white via-white/80 to-transparent pointer-events-none" />
 
-            {/* "Alive" UI Elements */}
-            <div className="absolute top-10 left-10 animate-bounce text-pink-500 text-3xl z-20">
-              ❤️
-            </div>
-
-            <div className="absolute bottom-20 right-10 animate-pulse text-yellow-400 text-4xl z-20">
-              ✨
-            </div>
-
-            <div className="absolute top-32 right-20 animate-ping text-pink-400 z-20">
-              💖
-            </div>
+            {/* "Alive" Decorative UI Elements */}
+            <div className="absolute top-10 left-10 animate-bounce text-pink-500 text-3xl z-20" aria-hidden="true">❤️</div>
+            <div className="absolute bottom-20 right-10 animate-pulse text-yellow-400 text-4xl z-20" aria-hidden="true">✨</div>
+            <div className="absolute top-32 right-20 animate-ping text-pink-400 z-20" aria-hidden="true">💖</div>
 
             {/* Content Layer */}
             <div className="absolute left-12 top-1/2 -translate-y-1/2 max-w-xl z-10 text-left space-y-8 animate-in fade-in slide-in-from-left-4 duration-1000">
-              <span className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-pink-50 text-pink-600 font-black text-[10px] uppercase tracking-widest border border-pink-100 shadow-sm">
+              <span className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-pink-100 text-pink-600 font-black text-sm border border-pink-200 shadow-sm">
                 ❤️ GLOBAL COMMUNITY VERIFIED
               </span>
 
@@ -147,7 +133,7 @@ export default function Home() {
                     <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                   </Link>
                 </Button>
-                <Button variant="outline" size="lg" className="h-16 px-10 rounded-full text-base font-bold border-2 border-slate-100 bg-white text-slate-600 hover:bg-slate-50 transition-all flex items-center gap-2 shadow-sm" asChild>
+                <Button variant="outline" size="lg" className="h-16 px-10 rounded-full text-base font-bold border-2 border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-all flex items-center gap-2 shadow-sm" asChild>
                   <Link href="/donate">
                     <PlayCircle className="w-5 h-5 text-primary" />
                     Watch Our Story
@@ -157,40 +143,36 @@ export default function Home() {
             </div>
 
             {/* Floating Action Badge */}
-            <div className="absolute bottom-10 right-10 w-24 h-24 bg-white rounded-full shadow-2xl flex items-center justify-center p-2 z-30 transition-transform group-hover:rotate-12 duration-700 sm:flex hidden border border-slate-100">
-               <div className="w-full h-full rounded-full gradient-bg flex items-center justify-center">
-                  <Heart className="w-8 h-8 fill-white text-white animate-heartbeat" />
-                  <div className="absolute -top-1 -right-1 bg-white p-1 rounded-full text-primary shadow-sm border">
-                     <Sparkles className="w-3 h-3" />
-                  </div>
-               </div>
+            <div className="absolute bottom-10 left-10 z-20 text-white drop-shadow-lg hidden sm:block">
+               <h2 className="text-4xl font-bold tracking-tight">Love Knows No Borders</h2>
+               <p className="text-lg opacity-80 mt-2">Together we can end poverty through kindness.</p>
             </div>
           </div>
         </section>
 
         {/* MISSION PILLARS */}
         <section className="container mx-auto px-6 py-20">
-          <div className="grid md:grid-cols-3 gap-12">
-            <div className="space-y-4 text-center md:text-left">
+          <div className="grid md:grid-cols-3 gap-12 text-center md:text-left">
+            <div className="space-y-4">
               <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mx-auto md:mx-0">
                 <Globe className="w-6 h-6" />
               </div>
               <h3 className="text-xl font-black uppercase tracking-tight">Pure Respect</h3>
               <p className="text-slate-500 text-sm leading-relaxed italic">Built on mutual honor. Reaching every rural community and global city with love.</p>
             </div>
-            <div className="space-y-4 text-center md:text-left">
+            <div className="space-y-4">
               <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mx-auto md:mx-0">
                 <Zap className="w-6 h-6" />
               </div>
               <h3 className="text-xl font-black uppercase tracking-tight">AI Moderated</h3>
               <p className="text-slate-500 text-sm leading-relaxed italic">Disrespect is filtered automatically. Join a community where kindness is mandatory.</p>
             </div>
-            <div className="space-y-4 text-center md:text-left">
+            <div className="space-y-4">
               <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mx-auto md:mx-0">
                 <Heart className="w-6 h-6" />
               </div>
               <h3 className="text-xl font-black uppercase tracking-tight">Prosperity</h3>
-              <p className="text-slate-500 text-sm leading-relaxed italic">Every connection helps fund local job creation to end global poverty forever.</p>
+              <p className="text-slate-500 text-sm leading-relaxed italic">Every connection funds local job creation to eliminate global poverty forever.</p>
             </div>
           </div>
         </section>
