@@ -56,3 +56,5 @@ This allows your web application to securely upload media from your browser to y
 
 ## 3. Mandatory Respect
 Remember: Every technical configuration supports our mission to eliminate poverty through job creation. Respect is Mandatory. ❤️
+pwd
+ls -la
