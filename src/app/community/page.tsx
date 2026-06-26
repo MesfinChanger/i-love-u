@@ -31,7 +31,9 @@ import {
   Heart,
   MessageCircle,
   Sparkles,
-  Rocket
+  Rocket,
+  Lock,
+  UserCheck
 } from 'lucide-react';
 import { 
   Popover, 
@@ -39,7 +41,7 @@ import {
   PopoverTrigger 
 } from '@/components/ui/popover';
 import { useUser, useFirestore, useCollection, useDoc, useFirebaseStorage } from '@/firebase';
-import { collection, addDoc, query, orderBy, serverTimestamp, limit, doc, deleteDoc, getDoc, updateDoc } from 'firebase/firestore';
+import { collection, addDoc, query, orderBy, serverTimestamp, limit, doc, deleteDoc, getDoc, updateDoc, setDoc } from 'firebase/firestore';
 import { moderateText } from '@/ai/flows/moderate-text-flow';
 import { moderateImage } from '@/ai/flows/moderate-image-flow';
 import { useToast } from '@/hooks/use-toast';
@@ -49,7 +51,7 @@ import { cn } from '@/lib/utils';
 import { LiveCamera } from '@/components/LiveCamera';
 
 /**
- * @fileOverview Universal Global Wall with Luxury Dynamic Hero & Admin Vision Controls.
+ * @fileOverview Universal Global Wall with Luxury Dynamic Hero & Sovereign Ownership Protocol.
  */
 export default function CommunityPage() {
   const { user } = useUser();
@@ -75,9 +77,11 @@ export default function CommunityPage() {
   // Dynamic Hero State
   const [heroImage, setHeroImage] = useState("https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=1600");
   const [pageOwnerId, setPageOwnerId] = useState("");
+  const [ownerNickname, setOwnerNickname] = useState("");
   const [isUploadingHero, setIsUploadingHero] = useState(false);
+  const [isClaiming, setIsClaiming] = useState(false);
 
-  const userRef = useMemoFirebase(() => db && user ? doc(db, 'users', user.uid) : null, [db, user]);
+  const userRef = useMemoFirebase(() => db && user?.uid ? doc(db, 'users', user.uid) : null, [db, user?.uid]);
   const { data: myProfile } = useDoc(userRef);
 
   const communityQuery = useMemoFirebase(() => db ? query(collection(db, 'communityMessages'), orderBy('timestamp', 'asc'), limit(100)) : null, [db]);
@@ -93,12 +97,15 @@ export default function CommunityPage() {
         const data = snap.data();
         setHeroImage(data.heroImageUrl || heroImage);
         setPageOwnerId(data.ownerId || "");
+        setOwnerNickname(data.ownerNickname || "A Guardian");
       }
     };
     loadHero();
-  }, [db]);
+  }, [db, heroImage]);
 
   const canEditHero = myProfile?.isAdmin || (user?.uid === pageOwnerId && pageOwnerId !== "");
+  const isOwner = user?.uid === pageOwnerId;
+  const isUnowned = !pageOwnerId || pageOwnerId === "";
 
   useEffect(() => {
     if (scrollRef.current && !isSelectMode) {
@@ -106,9 +113,29 @@ export default function CommunityPage() {
     }
   }, [messages, isSelectMode]);
 
+  const handleClaimOwnership = async () => {
+    if (!user || !db || isClaiming) return;
+    setIsClaiming(true);
+    try {
+      await setDoc(doc(db, "siteSettings", "communityHero"), {
+        ownerId: user.uid,
+        ownerNickname: myProfile?.publicNickname || myProfile?.displayName || "Mystery Guardian",
+        updatedAt: serverTimestamp(),
+      }, { merge: true });
+      
+      setPageOwnerId(user.uid);
+      setOwnerNickname(myProfile?.publicNickname || myProfile?.displayName || "Mystery Guardian");
+      toast({ title: "Wall Guardian Assigned", description: "You now protect the global vision. ✨" });
+    } catch (err) {
+      toast({ variant: "destructive", title: "Claim Failed", description: "This wall is already protected." });
+    } finally {
+      setIsClaiming(false);
+    }
+  };
+
   const handleHeroUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !db || !user) return;
+    if (!file || !db || !user || !canEditHero) return;
 
     setIsUploadingHero(true);
     try {
@@ -275,6 +302,32 @@ export default function CommunityPage() {
             </div>
             
             <div className="relative">
+              {/* Sovereign Ownership Controls */}
+              <div className="absolute top-6 left-6 z-30 flex flex-col gap-2">
+                 {isUnowned && user && (
+                    <Button 
+                      onClick={handleClaimOwnership} 
+                      disabled={isClaiming}
+                      className="rounded-full h-10 px-6 bg-slate-900/90 backdrop-blur-md text-white shadow-2xl text-[9px] font-black uppercase tracking-widest gap-2 hover:bg-black transition-all"
+                    >
+                      {isClaiming ? <Loader2 className="w-4 h-4 animate-spin" /> : <Star className="w-4 h-4 text-primary" />}
+                      Claim Guardianship
+                    </Button>
+                 )}
+                 {!isUnowned && !isOwner && (
+                    <Badge className="bg-slate-900/90 text-white backdrop-blur-md border-none px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-widest flex items-center gap-2 shadow-2xl">
+                       <Lock className="w-3.5 h-3.5 text-primary" />
+                       Vision Protected by {ownerNickname}
+                    </Badge>
+                 )}
+                 {isOwner && (
+                    <Badge className="bg-primary text-white border-none px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-widest flex items-center gap-2 shadow-2xl">
+                       <UserCheck className="w-3.5 h-3.5" />
+                       You are the Wall Guardian
+                    </Badge>
+                 )}
+              </div>
+
               {/* Main Image Card */}
               <div className="relative overflow-hidden rounded-[35px] bg-white p-3 shadow-2xl group transition-transform hover:scale-[1.01] duration-700">
                 <div className="relative aspect-[4/3] overflow-hidden rounded-[28px]">
@@ -311,7 +364,7 @@ export default function CommunityPage() {
               </div>
 
               {/* Floating Members Card */}
-              <div className="absolute -top-6 -left-6 bg-white rounded-[2rem] p-6 shadow-2xl border border-pink-50 animate-bounce duration-[5000ms] hover:animate-none transition-all">
+              <div className="absolute -top-12 -right-6 bg-white rounded-[2rem] p-6 shadow-2xl border border-pink-50 animate-bounce duration-[5000ms] hover:animate-none transition-all">
                 <div className="text-pink-500 text-4xl mb-2">❤️</div>
                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Live Community</p>
                 <h4 className="text-3xl font-black tracking-tighter">18.2K+</h4>

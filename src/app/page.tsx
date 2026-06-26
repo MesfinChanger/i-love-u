@@ -21,7 +21,9 @@ import {
   Star,
   Users,
   Target,
-  ShoppingBag
+  ShoppingBag,
+  Lock,
+  UserCheck
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -35,7 +37,7 @@ import { useTranslation } from '@/components/providers/LanguageProvider';
 import { SUPPORTED_LANGUAGES } from '@/lib/world-data';
 import { useUser, useFirestore, useDoc, useFirebaseApp } from '@/firebase';
 import { useRouter } from 'next/navigation';
-import { doc, getDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, serverTimestamp, setDoc } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { useToast } from '@/hooks/use-toast';
@@ -62,13 +64,15 @@ export default function Home() {
   const [currentYear, setCurrentYear] = useState('');
   const [heroImage, setHeroImage] = useState("");
   const [pageOwnerId, setPageOwnerId] = useState("");
+  const [ownerNickname, setOwnerNickname] = useState("");
   const [isUploading, setIsUploading] = useState(false);
+  const [isClaiming, setIsClaiming] = useState(false);
 
   // Profile data for Admin check
   const userRef = useMemoFirebase(() => {
-    if (!db || !user) return null;
+    if (!db || !user?.uid) return null;
     return doc(db, 'users', user.uid);
-  }, [db, user]);
+  }, [db, user?.uid]);
   const { data: profile } = useDoc(userRef);
 
   // Load Settings
@@ -82,12 +86,15 @@ export default function Home() {
         const data = snap.data();
         setHeroImage(data.heroImageUrl || "");
         setPageOwnerId(data.ownerId || "");
+        setOwnerNickname(data.ownerNickname || "A Guardian");
       }
     };
     loadSettings();
   }, [db]);
 
   const canEdit = profile?.isAdmin || (user?.uid === pageOwnerId && pageOwnerId !== "");
+  const isOwner = user?.uid === pageOwnerId;
+  const isUnowned = !pageOwnerId || pageOwnerId === "";
 
   useEffect(() => {
     setMounted(true);
@@ -102,9 +109,29 @@ export default function Home() {
     };
   }, []);
 
+  const handleClaimOwnership = async () => {
+    if (!user || !db || isClaiming) return;
+    setIsClaiming(true);
+    try {
+      await setDoc(doc(db, "siteSettings", "homepage"), {
+        ownerId: user.uid,
+        ownerNickname: profile?.publicNickname || profile?.displayName || "Mystery Guardian",
+        updatedAt: serverTimestamp(),
+      }, { merge: true });
+      
+      setPageOwnerId(user.uid);
+      setOwnerNickname(profile?.publicNickname || profile?.displayName || "Mystery Guardian");
+      toast({ title: "Guardianship Claimed", description: "You are now the Sovereign Guardian of this vision. ✨" });
+    } catch (err) {
+      toast({ variant: "destructive", title: "Claim Failed", description: "This vision is already protected." });
+    } finally {
+      setIsClaiming(false);
+    }
+  };
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !app || !db) return;
+    if (!file || !app || !db || !canEdit) return;
 
     setIsUploading(true);
     try {
@@ -243,6 +270,32 @@ export default function Home() {
 
             {/* RIGHT VISUAL */}
             <div className="relative group">
+              {/* Sovereign Ownership Controls */}
+              <div className="absolute top-4 left-4 z-30 flex flex-col gap-2">
+                 {isUnowned && user && (
+                    <Button 
+                      onClick={handleClaimOwnership} 
+                      disabled={isClaiming}
+                      className="rounded-full h-10 px-6 bg-slate-900 text-white shadow-2xl text-[10px] font-black uppercase tracking-widest gap-2 hover:bg-black transition-all"
+                    >
+                      {isClaiming ? <Loader2 className="w-4 h-4 animate-spin" /> : <Star className="w-4 h-4 text-primary" />}
+                      Claim Guardianship
+                    </Button>
+                 )}
+                 {!isUnowned && !isOwner && (
+                    <Badge className="bg-slate-900/90 text-white backdrop-blur-md border-none px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-widest flex items-center gap-2 shadow-2xl">
+                       <Lock className="w-3.5 h-3.5 text-primary" />
+                       Vision Protected by {ownerNickname}
+                    </Badge>
+                 )}
+                 {isOwner && (
+                    <Badge className="bg-primary text-white border-none px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-widest flex items-center gap-2 shadow-2xl">
+                       <UserCheck className="w-3.5 h-3.5" />
+                       You are the Guardian
+                    </Badge>
+                 )}
+              </div>
+
               {canEdit && (
                 <div className="absolute top-4 right-4 z-30">
                   <input
