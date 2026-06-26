@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useMemo, useRef } from 'react';
@@ -41,12 +42,13 @@ import { doc, onSnapshot, updateDoc, serverTimestamp, setDoc } from 'firebase/fi
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { useToast } from '@/hooks/use-toast';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 const HERO_IMAGES = [
   "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=1600",
   "https://images.unsplash.com/photo-1511632765486-a01980e01a18?q=80&w=1600",
   "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=1600",
-  "https://images.unsplash.com/photo-1509099836639-18ba1795216d?q=80&w=1600",
+  PlaceHolderImages.find(img => img.id === 'world-children')?.imageUrl || "https://picsum.photos/seed/world-children/1200/1600",
 ];
 
 export default function Home() {
@@ -275,7 +277,14 @@ export default function Home() {
               )}
 
               <div className="overflow-hidden rounded-[3rem] shadow-[0_40px_100px_-10px_rgba(0,0,0,0.2)] bg-slate-100 aspect-[4/5] relative">
-                <Image src={heroImage || HERO_IMAGES[imageIndex]} alt="Global Community Vision" fill className="object-cover transition-all duration-1000 ease-in-out group-hover:scale-105" priority />
+                <Image 
+                  src={heroImage || HERO_IMAGES[imageIndex]} 
+                  alt="Global Community Vision" 
+                  fill 
+                  className="object-cover transition-all duration-1000 ease-in-out group-hover:scale-105" 
+                  priority 
+                  data-ai-hint="world children"
+                />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
               </div>
             </div>

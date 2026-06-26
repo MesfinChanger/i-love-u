@@ -1,3 +1,4 @@
+
 {
   "placeholderImages": [
     {
@@ -41,6 +42,12 @@
       "description": "Diverse women from around the world gallery",
       "imageUrl": "https://picsum.photos/seed/women-world-high/1200/1600",
       "imageHint": "diverse women"
+    },
+    {
+      "id": "world-children",
+      "description": "Children from around the world smiling together",
+      "imageUrl": "https://picsum.photos/seed/world-children-mission/1200/1600",
+      "imageHint": "world children"
     }
   ]
 }
