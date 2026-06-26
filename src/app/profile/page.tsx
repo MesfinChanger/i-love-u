@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, Suspense, useMemo } from 'react';
@@ -153,8 +152,37 @@ function ProfileContent() {
             </Card>
           </Link>
         )}
-        
-        {/* REST OF PROFILE UI REMAINING INTACT */}
+
+        <Tabs defaultValue="personal" className="w-full">
+           <TabsList className="grid grid-cols-4 h-14 bg-white/50 backdrop-blur-md rounded-2xl p-1 mb-6 border shadow-sm">
+              <TabsTrigger value="personal" className="rounded-xl text-[9px] font-black uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:shadow-sm">Info</TabsTrigger>
+              <TabsTrigger value="address" className="rounded-xl text-[9px] font-black uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:shadow-sm">Legal</TabsTrigger>
+              <TabsTrigger value="public" className="rounded-xl text-[9px] font-black uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:shadow-sm">Public</TabsTrigger>
+              <TabsTrigger value="security" className="rounded-xl text-[9px] font-black uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:shadow-sm">Safety</TabsTrigger>
+           </TabsList>
+
+           <TabsContent value="personal" className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <Card className="rounded-[2rem] border-none shadow-sm bg-white p-8 space-y-6">
+                 <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                       <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">First Name</Label>
+                       <Input value={firstName} onChange={e => setFirstName(e.target.value)} className="h-12 rounded-xl bg-muted/20 border-none font-bold" />
+                    </div>
+                    <div className="space-y-2">
+                       <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Last Name</Label>
+                       <Input value={lastName} onChange={e => setLastName(e.target.value)} className="h-12 rounded-xl bg-muted/20 border-none font-bold" />
+                    </div>
+                 </div>
+                 <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Profile Photo URL</Label>
+                    <div className="flex gap-2">
+                       <Input value={photoUrl} onChange={e => setPhotoUrl(e.target.value)} className="h-12 rounded-xl bg-muted/20 border-none font-bold" placeholder="https://..." />
+                       <Button variant="outline" size="icon" className="h-12 w-12 rounded-xl border-2" onClick={() => { setCameraTarget('avatar'); setIsCameraOpen(true); }}><Camera className="w-5 h-5" /></Button>
+                    </div>
+                 </div>
+              </Card>
+           </TabsContent>
+        </Tabs>
       </main>
       <BottomNav />
     </div>

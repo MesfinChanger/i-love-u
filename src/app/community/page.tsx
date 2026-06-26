@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
@@ -274,21 +273,6 @@ export default function CommunityPage() {
               <p className="mt-6 text-xl text-slate-600 max-w-xl leading-relaxed font-medium">
                 Share your moments. Inspire people around the world. Every respectful connection helps build a stronger global community.
               </p>
-              
-              <div className="flex flex-wrap gap-4 mt-8">
-                <div className="flex items-center gap-2 bg-white px-5 py-3 rounded-full shadow-lg">
-                  <Globe className="w-5 h-5 text-blue-500" />
-                  <span className="font-bold text-sm">192 Countries</span>
-                </div>
-                <div className="flex items-center gap-2 bg-white px-5 py-3 rounded-full shadow-lg">
-                  <Heart className="w-5 h-5 text-pink-500" />
-                  <span className="font-bold text-sm">18.2K Members</span>
-                </div>
-                <div className="flex items-center gap-2 bg-white px-5 py-3 rounded-full shadow-lg">
-                  <Sparkles className="w-5 h-5 text-orange-500" />
-                  <span className="font-bold text-sm">Live Community</span>
-                </div>
-              </div>
             </div>
             
             <div className="relative">
@@ -327,12 +311,6 @@ export default function CommunityPage() {
                     priority
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                  <div className="absolute bottom-8 left-8 text-white text-left">
-                    <p className="text-[10px] font-black uppercase tracking-[0.3em] mb-2 opacity-80">Global Community</p>
-                    <h3 className="text-4xl font-black leading-none tracking-tighter drop-shadow-xl">
-                      Together We Build
-                    </h3>
-                  </div>
                 </div>
 
                 {canEditHero && (
@@ -349,32 +327,149 @@ export default function CommunityPage() {
                   </div>
                 )}
               </div>
-
-              <div className="absolute -top-12 -right-6 bg-white rounded-[2rem] p-6 shadow-2xl border border-pink-50 animate-bounce duration-[5000ms] hover:animate-none transition-all">
-                <div className="text-pink-500 text-4xl mb-2">❤️</div>
-                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Live Community</p>
-                <h4 className="text-3xl font-black tracking-tighter">18.2K+</h4>
-                <div className="flex items-center gap-1.5 mt-1">
-                   <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                   <p className="text-green-600 font-bold text-[10px] uppercase tracking-widest">Online Now</p>
-                </div>
-              </div>
-
-              <div className="absolute -bottom-6 -left-6 bg-white rounded-[2rem] p-5 shadow-2xl border border-slate-50 transition-transform hover:scale-110">
-                <div className="flex items-center gap-3">
-                  <TrendingUp className="text-green-500 w-6 h-6" />
-                  <div className="text-left">
-                    <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Today</p>
-                    <p className="font-black text-xs uppercase tracking-tight">+324 New Connections</p>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
       </section>
-      
-      {/* REST OF FILE OMITTED FOR BREVITY BUT FULL CONTENT IS INTACT IN MEMORY */}
+
+      <main className="max-w-4xl mx-auto w-full flex-grow px-6 space-y-6">
+        <Card className="rounded-[2.5rem] border-none shadow-xl bg-white overflow-hidden mb-10">
+           <div className="bg-primary/5 p-6 border-b flex justify-between items-center">
+              <div className="flex items-center gap-3">
+                 <div className="w-10 h-10 bg-white rounded-2xl flex items-center justify-center shadow-sm">
+                    <Sparkles className="w-6 h-6 text-primary" />
+                 </div>
+                 <h3 className="font-black text-xl tracking-tighter uppercase">Spark the Conversation</h3>
+              </div>
+              <Button variant="ghost" size="sm" onClick={toggleSelectMode} className={cn("rounded-full h-8 px-4 text-[8px] font-black uppercase tracking-widest", isSelectMode ? "bg-primary text-white" : "text-muted-foreground")}>
+                {isSelectMode ? 'Cancel' : 'Manage Wall'}
+              </Button>
+           </div>
+           
+           <CardContent className="p-8 space-y-6">
+              <div className="flex gap-4">
+                 <input type="file" ref={galleryRef} accept="image/*" className="hidden" onChange={(e) => handleFileSelect(e, 'image')} />
+                 <input type="file" ref={fileRef} className="hidden" onChange={(e) => handleFileSelect(e, 'file')} />
+                 
+                 <Button variant="ghost" size="icon" onClick={() => setIsCameraOpen(true)} className="w-14 h-14 rounded-2xl bg-muted/40 text-primary transition-all active:scale-90 shadow-inner">
+                    <Camera className="w-6 h-6" />
+                 </Button>
+                 <Popover>
+                    <PopoverTrigger asChild>
+                       <Button variant="ghost" size="icon" className="w-14 h-14 rounded-2xl bg-muted/40 text-blue-500 transition-all active:scale-90 shadow-inner">
+                          <Paperclip className="w-6 h-6" />
+                       </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-48 p-2 rounded-2xl border-none shadow-2xl" align="start">
+                       <Button variant="ghost" onClick={() => galleryRef.current?.click()} className="w-full justify-start gap-3 py-3 h-auto rounded-xl"><LucideImageIcon className="w-4 h-4 text-primary" /> Gallery</Button>
+                       <Button variant="ghost" onClick={() => fileRef.current?.click()} className="w-full justify-start gap-3 py-3 h-auto rounded-xl"><FileIcon className="w-4 h-4 text-blue-500" /> Document</Button>
+                    </PopoverContent>
+                 </Popover>
+                 
+                 <form onSubmit={handleSendMessage} className="flex-grow flex gap-2">
+                    <Input 
+                      value={newMessage}
+                      onChange={e => setNewMessage(e.target.value)}
+                      placeholder="Share a respectful moment..." 
+                      className="rounded-2xl bg-muted/40 border-none h-14 px-6 text-lg font-medium"
+                    />
+                    <Button type="submit" size="icon" className="w-14 h-14 rounded-2xl gradient-bg shrink-0 shadow-lg shadow-primary/20 transition-all active:scale-90" disabled={isSending || (!newMessage.trim() && !attachedMedia)}>
+                       {isSending ? <Loader2 className="w-6 h-6 animate-spin" /> : <Rocket className="w-6 h-6" />}
+                    </Button>
+                 </form>
+              </div>
+
+              {attachedMedia && (
+                <div className="relative group animate-in zoom-in-95 duration-300">
+                   <div className="rounded-[2rem] overflow-hidden bg-muted/20 border-2 border-dashed border-primary/20 p-2">
+                      {attachedMedia.type === 'image' ? (
+                        <img src={attachedMedia.url} className="w-full h-48 object-cover rounded-[1.5rem]" alt="Attachment preview" />
+                      ) : (
+                        <div className="flex items-center gap-4 p-6">
+                           <FileIcon className="w-10 h-10 text-primary" />
+                           <span className="font-bold text-sm truncate">{attachedMedia.file.name}</span>
+                        </div>
+                      )}
+                   </div>
+                   <Button variant="destructive" size="icon" className="absolute -top-2 -right-2 w-8 h-8 rounded-full shadow-lg" onClick={() => setAttachedMedia(null)}><X className="w-4 h-4" /></Button>
+                </div>
+              )}
+           </CardContent>
+        </Card>
+
+        <div className="space-y-6">
+           {loading ? (
+             <div className="flex justify-center py-20"><Loader2 className="w-10 h-10 animate-spin text-primary opacity-20" /></div>
+           ) : messages?.map((msg: any) => {
+             const isMe = msg.senderId === user?.uid;
+             const isSelected = selectedIds.has(msg.id);
+             return (
+               <Card 
+                 key={msg.id} 
+                 onClick={() => isSelectMode && (isMe || myProfile?.role === 'admin') && toggleSelection(msg.id)}
+                 className={cn(
+                   "rounded-[2.5rem] border-none shadow-md overflow-hidden bg-white group hover:shadow-lg transition-all",
+                   isSelected && "ring-4 ring-primary ring-offset-4 scale-[0.98] opacity-60",
+                   isSelectMode && (isMe || myProfile?.role === 'admin') && "cursor-pointer"
+                 )}
+               >
+                 <div className="p-6 space-y-4">
+                    <div className="flex items-center justify-between">
+                       <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-primary/5 flex items-center justify-center text-primary font-black">
+                             {msg.senderNickname?.[0] || 'U'}
+                          </div>
+                          <div className="text-left leading-none">
+                             <h4 className="font-black text-sm tracking-tight">{msg.senderNickname}</h4>
+                             <p className="text-[8px] font-bold text-muted-foreground uppercase tracking-widest mt-1">Community Member</p>
+                          </div>
+                       </div>
+                       {isSelectMode && (isMe || myProfile?.role === 'admin') && (
+                          <div className={cn("w-6 h-6 rounded-full border-2 flex items-center justify-center", isSelected ? "bg-primary border-primary text-white" : "border-muted")}>
+                             {isSelected && <CheckSquare className="w-4 h-4" />}
+                          </div>
+                       )}
+                    </div>
+
+                    {msg.imageUrl && (
+                      <div className="rounded-3xl overflow-hidden aspect-video relative group-hover:scale-[1.01] transition-transform duration-500">
+                         <img src={msg.imageUrl} className="w-full h-full object-cover" alt="Community shared" />
+                         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </div>
+                    )}
+
+                    {msg.text && (
+                       <p className="text-lg font-medium text-slate-700 leading-relaxed italic border-l-4 border-primary/10 pl-6">
+                         "{msg.text}"
+                       </p>
+                    )}
+
+                    {msg.fileUrl && (
+                      <div className="flex items-center gap-4 bg-muted/20 p-5 rounded-2xl border border-dashed text-left">
+                        <FileIcon className="w-8 h-8 text-primary" />
+                        <div className="min-w-0 flex-grow">
+                           <p className="font-black text-sm truncate">{msg.fileName}</p>
+                           <p className="text-[8px] font-bold text-muted-foreground uppercase tracking-widest">Digital Shared Document</p>
+                        </div>
+                        {!isSelectMode && <Button size="sm" variant="ghost" className="text-primary text-[10px] font-black uppercase" onClick={() => window.open(msg.fileUrl)}>Download</Button>}
+                      </div>
+                    )}
+                 </div>
+               </Card>
+             );
+           })}
+        </div>
+
+        {isSelectMode && selectedIds.size > 0 && (
+          <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[60] animate-in slide-in-from-bottom-10 duration-500">
+             <Button onClick={handleDeleteSelected} disabled={isSending} className="h-16 px-10 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-black uppercase text-xs tracking-widest shadow-2xl shadow-red-500/20 gap-3 group">
+                <Trash2 className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+                Purge {selectedIds.size} Moments
+             </Button>
+          </div>
+        )}
+      </main>
+
       <BottomNav />
       <LiveCamera isOpen={isCameraOpen} onClose={() => setIsCameraOpen(false)} onCapture={handleLiveCapture} />
     </div>
