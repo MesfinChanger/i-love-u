@@ -13,20 +13,13 @@ import {
   Loader2, 
   X,
   Camera,
-  Video,
   FileIcon,
   Paperclip,
-  Zap,
   Trash2,
   Image as LucideImageIcon,
-  Square,
   CheckSquare,
   Shield,
   Star,
-  TrendingUp,
-  Heart,
-  MessageCircle,
-  Sparkles,
   Rocket,
   Lock,
   UserCheck
@@ -61,6 +54,7 @@ import { LiveCamera } from '@/components/LiveCamera';
 /**
  * @fileOverview Community Wall Protocol.
  * Enforces Sovereign Vision and role === 'admin' authority.
+ * Hardened against hydration mismatches and ambiguous CSS classes.
  */
 export default function CommunityPage() {
   const { user } = useUser();
@@ -312,7 +306,7 @@ export default function CommunityPage() {
                     src={heroImage}
                     alt="Community Vision"
                     fill
-                    className="object-cover transition-transform duration-[2000ms] group-hover:scale-110"
+                    className="object-cover transition-transform duration-700 group-hover:scale-110"
                     priority
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
@@ -342,7 +336,7 @@ export default function CommunityPage() {
            <div className="bg-primary/5 p-6 border-b flex justify-between items-center">
               <div className="flex items-center gap-3">
                  <div className="w-10 h-10 bg-white rounded-2xl flex items-center justify-center shadow-sm">
-                    <Sparkles className="w-6 h-6 text-primary" />
+                    <Shield className="w-6 h-6 text-primary" />
                  </div>
                  <h3 className="font-black text-xl tracking-tighter uppercase">Spark the Conversation</h3>
               </div>
@@ -413,12 +407,12 @@ export default function CommunityPage() {
                  key={msg.id} 
                  onClick={() => isSelectMode && (isMe || isAdmin) && toggleSelection(msg.id)}
                  className={cn(
-                   "rounded-[2.5rem] border-none shadow-md overflow-hidden bg-white group hover:shadow-lg transition-all",
+                   "rounded-[2.5rem] border-none shadow-md overflow-hidden bg-white group hover:shadow-2xl transition-all",
                    isSelected && "ring-4 ring-primary ring-offset-4 scale-[0.98] opacity-60",
                    isSelectMode && (isMe || isAdmin) && "cursor-pointer"
                  )}
                >
-                 <div className="p-6 space-y-4">
+                 <CardContent className="p-6 space-y-4">
                     <div className="flex items-center justify-between">
                        <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-xl bg-primary/5 flex items-center justify-center text-primary font-black">
@@ -459,7 +453,7 @@ export default function CommunityPage() {
                         {!isSelectMode && <Button size="sm" variant="ghost" className="text-primary text-[10px] font-black uppercase" onClick={() => window.open(msg.fileUrl)}>Download</Button>}
                       </div>
                     )}
-                 </div>
+                 </CardContent>
                </Card>
              );
            })}

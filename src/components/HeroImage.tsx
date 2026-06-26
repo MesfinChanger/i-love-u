@@ -3,7 +3,13 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
-import { Heart, Sparkles, Star } from "lucide-react";
+import { Heart, Sparkles, Star, Globe } from "lucide-react";
+
+/**
+ * @fileOverview Cinematic Hero Component.
+ * Implements a rotating global story of world children and multicultural unity.
+ * Hardened to prevent hydration mismatches.
+ */
 
 const heroImages = [
   PlaceHolderImages.find(img => img.id === 'hero-world-1')?.imageUrl || "https://picsum.photos/seed/world1/1200/1600",
@@ -20,9 +26,10 @@ const heroImages = [
 
 export default function HeroImage({ overrideUrl }: { overrideUrl?: string }) {
   const [index, setIndex] = useState(0);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // Rotation logic
+    setMounted(true);
     const timer = setInterval(() => {
       setIndex((prev) => (prev + 1) % heroImages.length);
     }, 5000);
@@ -30,8 +37,13 @@ export default function HeroImage({ overrideUrl }: { overrideUrl?: string }) {
     return () => clearInterval(timer);
   }, []);
 
+  // Hydration Guard: Ensure we don't render motion elements until client-side mount
+  if (!mounted) {
+    return <div className="relative h-[620px] w-full bg-slate-100 rounded-[3rem] animate-pulse" />;
+  }
+
   // Use override (from Sovereign Guardian) or the rotating story
-  const displayUrl = overrideUrl || heroImages[index];
+  const displayUrl = overrideUrl && overrideUrl !== "" ? overrideUrl : heroImages[index];
 
   return (
     <div className="relative h-[620px] w-full overflow-hidden rounded-[3rem] shadow-2xl bg-slate-100 group">
@@ -40,19 +52,19 @@ export default function HeroImage({ overrideUrl }: { overrideUrl?: string }) {
         <motion.img
           key={displayUrl}
           src={displayUrl}
-          initial={{ opacity: 0, scale: 1.08 }}
+          initial={{ opacity: 0, scale: 1.05 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 1.4, ease: "easeInOut" }}
           className="absolute inset-0 h-full w-full object-cover"
-          alt="Global Mission Story"
+          alt="World Children - Global Mission"
+          data-ai-hint="world children"
         />
       </AnimatePresence>
 
-      {/* Dynamic Visual Enhancements */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none"/>
 
-      {/* Floating Elements Protocol */}
+      {/* Make it Feel Alive - Floating Elements */}
       <div className="absolute top-10 left-10 animate-bounce text-pink-500 z-20">
         <Heart className="w-10 h-10 fill-current drop-shadow-[0_0_15px_rgba(255,51,102,0.5)]" />
       </div>
@@ -62,11 +74,7 @@ export default function HeroImage({ overrideUrl }: { overrideUrl?: string }) {
       </div>
 
       <div className="absolute top-32 right-20 animate-ping text-pink-400/40 z-20">
-        <Heart className="w-6 h-6 fill-current" />
-      </div>
-
-      <div className="absolute bottom-60 left-12 animate-pulse text-white/30 z-10">
-        <Star className="w-8 h-8 fill-current" />
+        <Heart className="w-8 h-8 fill-current" />
       </div>
 
       {/* Overlay Text Architecture */}
@@ -88,8 +96,8 @@ export default function HeroImage({ overrideUrl }: { overrideUrl?: string }) {
       {/* Activity Status */}
       <div className="absolute top-6 right-6 z-30">
         <div className="bg-black/20 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/10 flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-          <span className="text-[9px] font-black uppercase text-white tracking-[0.2em]">Live Mission Updates</span>
+          <Globe className="w-3 h-3 text-white" />
+          <span className="text-[9px] font-black uppercase text-white tracking-[0.2em]">Global Unity Protocol</span>
         </div>
       </div>
     </div>
