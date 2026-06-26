@@ -23,7 +23,11 @@ import {
   Users, 
   Store, 
   Megaphone,
-  Gavel
+  Gavel,
+  ShieldCheck,
+  Star,
+  UserCheck,
+  Edit3
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -34,6 +38,10 @@ import { useToast } from '@/hooks/use-toast';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { cn } from '@/lib/utils';
 
+/**
+ * @fileOverview Sovereign Command Center.
+ * Exclusively accessible to the one true owner. Manages all global permissions.
+ */
 export default function AdminApprovalsPage() {
   const { user } = useUser();
   const db = useFirestore();
@@ -44,7 +52,7 @@ export default function AdminApprovalsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isProcessing, setIsProcessing] = useState<string | null>(null);
 
-  // Sovereign Authority Listener
+  // Sovereign Authority Listener (Real-time)
   useEffect(() => {
     if (!db) return;
     const unsub = onSnapshot(doc(db, 'siteSettings', 'sovereignty'), (snap) => {
@@ -70,7 +78,7 @@ export default function AdminApprovalsPage() {
 
   const allUsersQuery = useMemoFirebase(() => {
     if (!db) return null;
-    return query(collection(db, 'users'), limit(50));
+    return query(collection(db, 'users'), limit(100));
   }, [db]);
 
   const { data: pendingSellers } = useCollection(pendingSellersQuery);
@@ -79,10 +87,12 @@ export default function AdminApprovalsPage() {
 
   const filteredUsers = useMemo(() => {
     if (!allUsers) return [];
+    const q = searchQuery.toLowerCase();
     return allUsers.filter((u: any) => 
-      u.displayName?.toLowerCase().includes(searchQuery.toLowerCase()) || 
-      u.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      u.uid === searchQuery
+      u.displayName?.toLowerCase().includes(q) || 
+      u.email?.toLowerCase().includes(q) ||
+      u.uid === searchQuery ||
+      u.role?.toLowerCase().includes(q)
     );
   }, [allUsers, searchQuery]);
 
@@ -94,6 +104,11 @@ export default function AdminApprovalsPage() {
         ownerId: user.uid,
         claimedAt: serverTimestamp(),
       });
+      // Also mark this user as admin in their own doc
+      await updateDoc(doc(db, 'users', user.uid), {
+        isAdmin: true,
+        role: 'admin'
+      });
       toast({ title: "Authority Claimed", description: "You are now the Sovereign Guardian. ✨" });
     } catch (e) {
       toast({ variant: "destructive", title: "Claim Denied", description: "The Sovereign Seat is already filled." });
@@ -102,12 +117,19 @@ export default function AdminApprovalsPage() {
     }
   };
 
-  const handleRoleToggle = async (uid: string, role: string, val: boolean) => {
+  const handleRoleToggle = async (uid: string, roleKey: string, val: boolean) => {
     if (!db || !isUserSovereign || isProcessing) return;
     setIsProcessing(uid);
     try {
-      await updateDoc(doc(db, 'users', uid), { [role]: val });
-      toast({ title: "Permissions Updated", description: "The cloud has synchronized your decree. ❤️" });
+      const updates: any = { [roleKey]: val };
+      
+      // Mirror the user's specific request for "role: admin"
+      if (roleKey === 'isAdmin') {
+        updates.role = val ? 'admin' : 'member';
+      }
+
+      await updateDoc(doc(db, 'users', uid), updates);
+      toast({ title: "Permissions Updated", description: "The decree has been synchronized. ❤️" });
     } catch (e) {
       toast({ variant: "destructive", title: "Access Denied", description: "Only the Sovereign can assign roles." });
     } finally {
@@ -180,10 +202,10 @@ export default function AdminApprovalsPage() {
               <div className="relative w-64">
                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/40" />
                  <Input 
-                   placeholder="Search ID, Name..." 
+                   placeholder="Search ID, Name, Role..." 
                    value={searchQuery}
                    onChange={e => setSearchQuery(e.target.value)}
-                   className="pl-12 rounded-full bg-white border-none shadow-sm"
+                   className="pl-12 rounded-full bg-white border-none shadow-sm h-12"
                  />
               </div>
            </div>
@@ -251,13 +273,16 @@ function UserAdminCard({ u, onToggle, isProcessing }: any) {
                 {u.displayName?.[0] || 'U'}
              </div>
              <div className="min-w-0">
-                <h3 className="font-black text-lg truncate leading-none">{u.displayName || "Mystery Heart"}</h3>
+                <div className="flex items-center gap-2">
+                   <h3 className="font-black text-lg truncate leading-none">{u.displayName || "Mystery Heart"}</h3>
+                   {u.role === 'admin' && <Badge className="h-5 px-2 bg-red-500 text-white text-[7px] font-black uppercase tracking-widest border-none">Admin</Badge>}
+                </div>
                 <p className="text-[9px] font-mono text-muted-foreground/60 truncate mt-1">{u.uid}</p>
              </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-6">
-             <RoleSwitch label="Admin" checked={u.isAdmin} onToggle={v => onToggle('isAdmin', v)} color="text-red-500" disabled={isProcessing} />
+             <RoleSwitch label="Admin" checked={u.isAdmin || u.role === 'admin'} onToggle={v => onToggle('isAdmin', v)} color="text-red-500" disabled={isProcessing} />
              <RoleSwitch label="Seller" checked={u.isSeller} onToggle={v => onToggle('isSeller', v)} color="text-green-500" disabled={isProcessing} />
              <RoleSwitch label="Advertiser" checked={u.isAdvertiser} onToggle={v => onToggle('isAdvertiser', v)} color="text-blue-500" disabled={isProcessing} />
           </div>
