@@ -94,12 +94,6 @@ service cloud.firestore {
         allow create: if isMatchParticipant(matchId) && hasAcceptedPolicy();
         allow delete: if isMatchParticipant(matchId) && (request.auth.uid == resource.data.senderId || isAdmin());
       }
-
-      match /calls/{callId} {
-        allow read, write: if isMatchParticipant(matchId);
-        match /offerCandidates/{id} { allow read, write: if isMatchParticipant(matchId); }
-        match /answerCandidates/{id} { allow read, write: if isMatchParticipant(matchId); }
-      }
     }
 
     // Ads: Community reach campaigns
