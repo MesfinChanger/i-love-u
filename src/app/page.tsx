@@ -89,7 +89,8 @@ export default function Home() {
     return () => unsub();
   }, [db]);
 
-  const canEdit = profile?.isAdmin || (user?.uid === pageOwnerId && pageOwnerId !== "");
+  // Use role === 'admin' for authority
+  const canEdit = profile?.role === 'admin' || (user?.uid === pageOwnerId && pageOwnerId !== "");
   const isOwner = user?.uid === pageOwnerId;
   const isUnowned = !pageOwnerId || pageOwnerId === "";
 

@@ -41,6 +41,7 @@ import { cn } from '@/lib/utils';
 /**
  * @fileOverview Sovereign Command Center.
  * Exclusively accessible to the one true owner. Manages all global permissions.
+ * Uses role === 'admin' string check for authority.
  */
 export default function AdminApprovalsPage() {
   const { user } = useUser();
@@ -104,9 +105,8 @@ export default function AdminApprovalsPage() {
         ownerId: user.uid,
         claimedAt: serverTimestamp(),
       });
-      // Also mark this user as admin in their own doc
+      // Also mark this user as admin in their own doc using the role field
       await updateDoc(doc(db, 'users', user.uid), {
-        isAdmin: true,
         role: 'admin'
       });
       toast({ title: "Authority Claimed", description: "You are now the Sovereign Guardian. ✨" });
@@ -123,7 +123,7 @@ export default function AdminApprovalsPage() {
     try {
       const updates: any = { [roleKey]: val };
       
-      // Mirror the user's specific request for "role: admin"
+      // Enforce role: admin string logic
       if (roleKey === 'isAdmin') {
         updates.role = val ? 'admin' : 'member';
       }
@@ -282,7 +282,7 @@ function UserAdminCard({ u, onToggle, isProcessing }: any) {
           </div>
 
           <div className="flex flex-wrap items-center gap-6">
-             <RoleSwitch label="Admin" checked={u.isAdmin || u.role === 'admin'} onToggle={v => onToggle('isAdmin', v)} color="text-red-500" disabled={isProcessing} />
+             <RoleSwitch label="Admin" checked={u.role === 'admin'} onToggle={v => onToggle('isAdmin', v)} color="text-red-500" disabled={isProcessing} />
              <RoleSwitch label="Seller" checked={u.isSeller} onToggle={v => onToggle('isSeller', v)} color="text-green-500" disabled={isProcessing} />
              <RoleSwitch label="Advertiser" checked={u.isAdvertiser} onToggle={v => onToggle('isAdvertiser', v)} color="text-blue-500" disabled={isProcessing} />
           </div>

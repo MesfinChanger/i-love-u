@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, Suspense, useMemo } from 'react';
@@ -210,6 +209,7 @@ function ProfileContent() {
     }
   };
 
+  // Sovereign check uses siteSettings
   const isUserSovereign = user?.uid === sovereignId;
 
   if (!mounted || profileLoading) return <div className="flex items-center justify-center min-h-screen"><Loader2 className="animate-spin text-primary" /></div>;
@@ -234,7 +234,7 @@ function ProfileContent() {
             <div className="text-left">
               <div className="flex items-center gap-2">
                  <h1 className="text-2xl font-black tracking-tighter uppercase leading-none">Console</h1>
-                 {isUserSovereign && <Badge className="bg-slate-900 text-white font-black text-[7px] uppercase tracking-widest px-2 h-5 flex items-center gap-1"><Zap className="w-2 h-2 text-primary" /> Sovereign</Badge>}
+                 {(isUserSovereign || profileData?.role === 'admin') && <Badge className="bg-slate-900 text-white font-black text-[7px] uppercase tracking-widest px-2 h-5 flex items-center gap-1"><Zap className="w-2 h-2 text-primary" /> Admin</Badge>}
               </div>
               <p className="text-[10px] text-muted-foreground font-black uppercase tracking-[0.3em] mt-1">Universal Identity Protocol</p>
             </div>

@@ -105,7 +105,8 @@ export default function CommunityPage() {
     return () => unsub();
   }, [db]);
 
-  const canEditHero = myProfile?.isAdmin || (user?.uid === pageOwnerId && pageOwnerId !== "");
+  // Use role === 'admin' check
+  const canEditHero = myProfile?.role === 'admin' || (user?.uid === pageOwnerId && pageOwnerId !== "");
   const isOwner = user?.uid === pageOwnerId;
   const isUnowned = !pageOwnerId || pageOwnerId === "";
 
