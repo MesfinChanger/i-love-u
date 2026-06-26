@@ -13,10 +13,20 @@ service cloud.firestore {
       return isAuthenticated() && request.auth.uid == userId;
     }
 
+    function getSovereignOwnerId() {
+      return get(/databases/$(database)/documents/siteSettings/sovereignty).data.ownerId;
+    }
+
+    function isSovereign() {
+      return isAuthenticated() && request.auth.uid == getSovereignOwnerId();
+    }
+
     function isAdmin() {
-      return isAuthenticated() && 
-             exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
-             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('isAdmin', false) == true;
+      return isAuthenticated() && (
+             isSovereign() || 
+             (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+              get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('isAdmin', false) == true)
+      );
     }
 
     function hasAcceptedPolicy() {
@@ -33,28 +43,28 @@ service cloud.firestore {
 
     // User Profiles: Private identity and mission data
     match /users/{userId} {
-      // Allow get for all authenticated users to facilitate local shop discovery and recipient identification
       allow get: if isAuthenticated();
-      // Only admins or owners can list private profile collections
-      allow list: if isAdmin() || isOwner(userId) || (isAuthenticated() && resource.data.get('isSeller', false) == true);
-      allow create, update, delete: if isOwner(userId);
+      allow list: if isAdmin() || isOwner(userId);
+      
+      // Allow users to update their own basic info, but roles can ONLY be changed by the Sovereign Owner
+      allow update: if isOwner(userId) && (
+        !request.resource.data.diff(resource.data).affectedKeys().hasAny(['isAdmin', 'isSeller', 'isAdvertiser', 'sellerStatus', 'advertiserStatus'])
+      ) || isSovereign();
+      
+      allow create: if isOwner(userId);
+      allow delete: if isOwner(userId) || isSovereign();
     }
 
     // Discovery Profiles: Publicly shared snippets
     match /publicProfiles/{userId} {
       allow read: if true;
-      allow write: if isOwner(userId);
+      allow write: if isOwner(userId) || isSovereign();
     }
 
     // Idea Pool: The Global Knowledge Swimming Pool
     match /ideaPool/{postId} {
-      // Any body can read the pool to find inspiration
       allow read: if true;
-      
-      // Swimming (posting) requires authentication and policy commitment
       allow create: if isAuthenticated() && hasAcceptedPolicy() && request.resource.data.uid == request.auth.uid;
-      
-      // Update and Delete reserved for the author or admin
       allow update: if isAuthenticated() && (isAdmin() || resource.data.uid == request.auth.uid);
       allow delete: if isAdmin() || (isAuthenticated() && resource.data.uid == request.auth.uid);
     }
@@ -62,7 +72,10 @@ service cloud.firestore {
     // Site Settings: Administrative configurations
     match /siteSettings/{docId} {
       allow read: if true;
-      allow update: if isAuthenticated() && (isAdmin() || request.auth.uid == resource.data.ownerId);
+      // Sovereignty document can be created IF it doesn't exist, or updated by the current sovereign
+      allow create: if docId == 'sovereignty' && !exists(/databases/$(database)/documents/siteSettings/sovereignty);
+      allow update: if isSovereign() || (docId == 'sovereignty' && !exists(/databases/$(database)/documents/siteSettings/sovereignty));
+      allow delete: if false;
     }
 
     // Matches: Sacred connection spaces
@@ -74,7 +87,7 @@ service cloud.firestore {
       match /messages/{messageId} {
         allow read: if isMatchParticipant(matchId);
         allow create: if isMatchParticipant(matchId) && hasAcceptedPolicy();
-        allow delete: if isMatchParticipant(matchId) && request.auth.uid == resource.data.senderId;
+        allow delete: if isMatchParticipant(matchId) && (request.auth.uid == resource.data.senderId || isAdmin());
       }
 
       match /calls/{callId} {
@@ -95,7 +108,7 @@ service cloud.firestore {
     match /communityMessages/{messageId} {
       allow read: if true;
       allow create: if isAuthenticated() && hasAcceptedPolicy();
-      allow delete: if isAuthenticated() && request.auth.uid == resource.data.senderId;
+      allow delete: if isAuthenticated() && (request.auth.uid == resource.data.senderId || isAdmin());
     }
 
     // Feedback: Direct link to Mission Control

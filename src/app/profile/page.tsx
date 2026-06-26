@@ -29,7 +29,10 @@ import {
   MapPin,
   Building2,
   Map,
-  Hash
+  Hash,
+  Gavel,
+  Zap,
+  Star
 } from 'lucide-react';
 import { 
   AlertDialog,
@@ -44,7 +47,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useToast } from '@/hooks/use-toast';
 import { useUser, useFirestore, useAuth, useDoc, useFirebaseStorage } from '@/firebase';
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc, serverTimestamp, onSnapshot } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { useRouter } from 'next/navigation';
@@ -56,7 +59,7 @@ import { cn } from '@/lib/utils';
 import { COUNTRIES } from '@/lib/world-data';
 import Image from 'next/image';
 import { LiveCamera } from '@/components/LiveCamera';
-import { Progress } from "@/components/ui/progress";
+import Link from 'next/link';
 
 const GENDERS = [
   { value: 'male', label: 'Male' },
@@ -78,13 +81,14 @@ function ProfileContent() {
   const { user } = useUser();
   const db = useFirestore();
   const auth = useAuth();
-  const { uploadFile, isUploading: isStorageUploading, progress: uploadProgress } = useFirebaseStorage();
+  const { uploadFile, isUploading: isStorageUploading } = useFirebaseStorage();
   const { toast } = useToast();
   const router = useRouter();
   
   const [mounted, setMounted] = useState(false);
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [cameraTarget, setCameraTarget] = useState<'avatar' | 'gallery' | 'video' | null>(null);
+  const [sovereignId, setSovereignId] = useState<string | null>(null);
 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -119,7 +123,12 @@ function ProfileContent() {
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+    if (!db) return;
+    const unsub = onSnapshot(doc(db, 'siteSettings', 'sovereignty'), (snap) => {
+      if (snap.exists()) setSovereignId(snap.data().ownerId);
+    });
+    return () => unsub();
+  }, [db]);
 
   const userRef = useMemoFirebase(() => {
     if (!db || !user?.uid) return null;
@@ -201,6 +210,8 @@ function ProfileContent() {
     }
   };
 
+  const isUserSovereign = user?.uid === sovereignId;
+
   if (!mounted || profileLoading) return <div className="flex items-center justify-center min-h-screen"><Loader2 className="animate-spin text-primary" /></div>;
 
   return (
@@ -213,7 +224,6 @@ function ProfileContent() {
               className="relative cursor-pointer group" 
               onClick={() => { setCameraTarget('avatar'); setIsCameraOpen(true); }}
               role="button"
-              aria-label="Update profile photo"
             >
               <Avatar className="w-20 h-20 border-4 border-white shadow-xl group-hover:opacity-80 transition-opacity">
                 <AvatarImage src={photoUrl} className="object-cover" />
@@ -221,8 +231,11 @@ function ProfileContent() {
               </Avatar>
               <div className="absolute -bottom-1 -right-1 bg-primary text-white p-2 rounded-full border-4 border-white shadow-lg"><Camera className="w-4 h-4" /></div>
             </div>
-            <div>
-              <h1 className="text-2xl font-black tracking-tighter uppercase leading-none">Profile Console</h1>
+            <div className="text-left">
+              <div className="flex items-center gap-2">
+                 <h1 className="text-2xl font-black tracking-tighter uppercase leading-none">Console</h1>
+                 {isUserSovereign && <Badge className="bg-slate-900 text-white font-black text-[7px] uppercase tracking-widest px-2 h-5 flex items-center gap-1"><Zap className="w-2 h-2 text-primary" /> Sovereign</Badge>}
+              </div>
               <p className="text-[10px] text-muted-foreground font-black uppercase tracking-[0.3em] mt-1">Universal Identity Protocol</p>
             </div>
           </div>
@@ -231,6 +244,28 @@ function ProfileContent() {
             <Button size="sm" onClick={handleSave} disabled={isSaving} className="gradient-bg rounded-full font-black uppercase text-[9px] h-10 px-6 shadow-xl active:scale-95 transition-all">Save Identity</Button>
           </div>
         </div>
+
+        {isUserSovereign && (
+          <Link href="/admin/approvals">
+            <Card className="rounded-3xl border-none shadow-xl bg-slate-900 text-white p-6 mb-8 hover:scale-[1.02] transition-transform group cursor-pointer overflow-hidden relative">
+               <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:rotate-12 transition-transform">
+                  <Gavel className="w-24 h-24 text-primary" />
+               </div>
+               <div className="relative z-10 flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                     <div className="w-12 h-12 rounded-2xl bg-primary/20 flex items-center justify-center border border-primary/30">
+                        <Zap className="w-6 h-6 text-primary" />
+                     </div>
+                     <div className="text-left leading-none">
+                        <h3 className="font-black text-lg tracking-tighter uppercase">Sovereign Command</h3>
+                        <p className="text-[8px] font-black uppercase text-primary tracking-widest mt-1">Assign User Roles & Permissions</p>
+                     </div>
+                  </div>
+                  <Button variant="ghost" size="icon" className="text-white hover:bg-white/10 rounded-full"><Star className="w-5 h-5 fill-primary text-primary" /></Button>
+               </div>
+            </Card>
+          </Link>
+        )}
 
         <Tabs defaultValue="personal" className="w-full">
           <TabsList className="w-full h-16 bg-white/50 rounded-[2rem] p-1 mb-8 border shadow-sm backdrop-blur-md overflow-x-auto no-scrollbar">
@@ -333,7 +368,7 @@ function ProfileContent() {
                        <h4 className="text-[10px] font-black uppercase tracking-widest">Session Security (Idle Logout)</h4>
                     </div>
                     <p className="text-[9px] text-white/60 italic font-medium leading-relaxed">
-                      "Security is Mandatory." For your protection, especially with E2EE messaging, we automatically sign you out after a period of inactivity.
+                      "Security is Mandatory." For your protection, we automatically sign you out after a period of inactivity.
                     </p>
                     <Select value={idleTimeout} onValueChange={setIdleTimeout}>
                       <SelectTrigger className="w-full h-12 bg-white/10 border-white/20 text-white font-bold rounded-xl">
@@ -358,7 +393,7 @@ function ProfileContent() {
                 ].map((item, i) => (
                   <div key={i} className="flex items-center gap-4 p-6 bg-muted/20 rounded-[1.5rem] cursor-pointer hover:bg-muted/30 transition-all" onClick={() => item.set(!item.state)}>
                     <div className={cn("w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all shrink-0", item.state ? "bg-primary border-primary shadow-lg shadow-primary/20" : "border-slate-300")}>{item.state && <CheckCircle2 className="w-5 h-5 text-white" />}</div>
-                    <div className="space-y-0.5">
+                    <div className="space-y-0.5 text-left">
                        <span className={cn("text-[11px] font-black uppercase tracking-widest", item.state ? "text-primary" : "text-slate-400")}>{item.label}</span>
                        <p className="text-[9px] text-muted-foreground italic font-medium">{item.desc}</p>
                     </div>
