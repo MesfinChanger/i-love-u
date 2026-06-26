@@ -1,3 +1,4 @@
+
 {
   "placeholderImages": [
     {
@@ -7,64 +8,40 @@
       "imageHint": "happy heart"
     },
     {
-      "id": "hero-world-1",
-      "description": "African children laughing together",
-      "imageUrl": "https://picsum.photos/seed/africa-children/1200/1600",
-      "imageHint": "african children"
+      "id": "world-1",
+      "description": "Multicultural children laughing together",
+      "imageUrl": "https://picsum.photos/seed/world-children/1200/1600",
+      "imageHint": "children together"
     },
     {
-      "id": "hero-world-2",
-      "description": "Diverse volunteers helping together",
+      "id": "world-2",
+      "description": "Diverse community volunteers",
       "imageUrl": "https://picsum.photos/seed/volunteers/1200/1600",
       "imageHint": "volunteers community"
     },
     {
-      "id": "hero-world-3",
+      "id": "world-3",
       "description": "Friends of different races hugging",
       "imageUrl": "https://picsum.photos/seed/friends-hugging/1200/1600",
       "imageHint": "diverse friends"
     },
     {
-      "id": "hero-world-4",
-      "description": "Families smiling together outdoors",
+      "id": "world-4",
+      "description": "Families smiling together in nature",
       "imageUrl": "https://picsum.photos/seed/family-smiling/1200/1600",
       "imageHint": "family smiling"
     },
     {
-      "id": "hero-world-5",
-      "description": "Elderly receiving community support",
-      "imageUrl": "https://picsum.photos/seed/elderly-support/1200/1600",
-      "imageHint": "elderly care"
+      "id": "world-5",
+      "description": "Helping hands joining together",
+      "imageUrl": "https://picsum.photos/seed/helping-hands/1200/1600",
+      "imageHint": "helping hands"
     },
     {
-      "id": "hero-world-6",
-      "description": "Youth planting trees for prosperity",
-      "imageUrl": "https://picsum.photos/seed/youth-planting/1200/1600",
-      "imageHint": "youth planting"
-    },
-    {
-      "id": "hero-world-7",
-      "description": "People creating jobs together in a workshop",
-      "imageUrl": "https://picsum.photos/seed/people-working/1200/1600",
-      "imageHint": "creating jobs"
-    },
-    {
-      "id": "hero-world-8",
-      "description": "Communities celebrating local festivals",
-      "imageUrl": "https://picsum.photos/seed/community-celebration/1200/1600",
-      "imageHint": "community celebration"
-    },
-    {
-      "id": "hero-world-9",
-      "description": "Disaster relief volunteers helping families",
-      "imageUrl": "https://picsum.photos/seed/disaster-relief/1200/1600",
-      "imageHint": "disaster relief"
-    },
-    {
-      "id": "hero-world-10",
-      "description": "Children from every continent holding hands",
-      "imageUrl": "https://picsum.photos/seed/children-holding-hands/1200/1600",
-      "imageHint": "children together"
+      "id": "landing-hero",
+      "description": "Diverse women from around the world",
+      "imageUrl": "https://picsum.photos/seed/women-world/1200/800",
+      "imageHint": "diverse women"
     }
   ]
 }
