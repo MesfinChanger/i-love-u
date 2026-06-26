@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect, useMemo, useRef } from 'react';
@@ -7,22 +6,15 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
   Heart, 
-  Globe, 
   ArrowRight, 
   Zap, 
-  Briefcase, 
-  ShieldCheck, 
   Sparkles,
   Languages,
   Check,
   Loader2,
   Camera,
-  TrendingUp,
-  MessageCircle,
+  TrendingDown,
   Star,
-  Users,
-  Target,
-  ShoppingBag,
   Lock,
   UserCheck
 } from 'lucide-react';
@@ -32,7 +24,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/components/providers/LanguageProvider';
 import { SUPPORTED_LANGUAGES } from '@/lib/world-data';
@@ -42,14 +33,7 @@ import { doc, onSnapshot, updateDoc, serverTimestamp, setDoc } from 'firebase/fi
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { useToast } from '@/hooks/use-toast';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
-
-const HERO_IMAGES = [
-  "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=1600",
-  "https://images.unsplash.com/photo-1511632765486-a01980e01a18?q=80&w=1600",
-  "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=1600",
-  PlaceHolderImages.find(img => img.id === 'world-children')?.imageUrl || "https://picsum.photos/seed/world-children/1200/1600",
-];
+import HeroImage from '@/components/HeroImage';
 
 export default function Home() {
   const { user, loading: userLoading } = useUser();
@@ -60,8 +44,6 @@ export default function Home() {
   const { language, setLanguage, t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  const [langIndex, setLangIndex] = useState(0);
-  const [imageIndex, setImageIndex] = useState(0);
   const [mounted, setMounted] = useState(false);
   const [currentYear, setCurrentYear] = useState('');
   const [heroImage, setHeroImage] = useState("");
@@ -99,12 +81,6 @@ export default function Home() {
   useEffect(() => {
     setMounted(true);
     setCurrentYear(new Date().getFullYear().toString());
-    
-    const imageInterval = setInterval(() => {
-      setImageIndex((prev) => (prev + 1) % HERO_IMAGES.length);
-    }, 5000);
-
-    return () => clearInterval(imageInterval);
   }, []);
 
   const handleClaimOwnership = async () => {
@@ -162,7 +138,7 @@ export default function Home() {
         <div className="container mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <Heart className="w-10 h-10 fill-primary text-primary animate-heartbeat" />
-            <span className="font-black text-[16px] tracking-[0.5em] text-primary uppercase ml-1">I LOVE U</span>
+            <span className="font-black text-[16px] tracking-[0.5em] text-primary uppercase ml-1 whitespace-nowrap hidden xs:inline-block">I LOVE U</span>
           </div>
 
           <div className="flex items-center gap-4">
@@ -240,13 +216,13 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="relative group">
-              <div className="absolute top-4 left-4 z-30 flex flex-col gap-2">
+            <div className="relative">
+              <div className="absolute top-4 left-4 z-40 flex flex-col gap-2">
                  {isUnowned && user && (
                     <Button 
                       onClick={handleClaimOwnership} 
                       disabled={isClaiming}
-                      className="rounded-full h-10 px-6 bg-slate-900 text-white shadow-2xl text-[10px] font-black uppercase tracking-widest gap-2 hover:bg-black transition-all"
+                      className="rounded-full h-10 px-6 bg-slate-900 text-white shadow-2xl text-[9px] font-black uppercase tracking-widest gap-2 hover:bg-black transition-all"
                     >
                       {isClaiming ? <Loader2 className="w-4 h-4 animate-spin" /> : <Star className="w-4 h-4 text-primary" />}
                       Claim Guardianship
@@ -267,7 +243,7 @@ export default function Home() {
               </div>
 
               {canEdit && (
-                <div className="absolute top-4 right-4 z-30">
+                <div className="absolute top-4 right-4 z-40">
                   <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
                   <Button variant="secondary" onClick={() => fileInputRef.current?.click()} disabled={isUploading} className="rounded-full h-10 px-4 bg-white/90 backdrop-blur-md shadow-xl text-[10px] font-black uppercase tracking-widest gap-2">
                     {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Camera className="w-4 h-4" />}
@@ -276,17 +252,8 @@ export default function Home() {
                 </div>
               )}
 
-              <div className="overflow-hidden rounded-[3rem] shadow-[0_40px_100px_-10px_rgba(0,0,0,0.2)] bg-slate-100 aspect-[4/5] relative">
-                <Image 
-                  src={heroImage || HERO_IMAGES[imageIndex]} 
-                  alt="Global Community Vision" 
-                  fill 
-                  className="object-cover transition-all duration-1000 ease-in-out group-hover:scale-105" 
-                  priority 
-                  data-ai-hint="world children"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-              </div>
+              {/* Dynamic Rotating Hero Component */}
+              <HeroImage overrideUrl={heroImage} />
             </div>
           </div>
         </section>

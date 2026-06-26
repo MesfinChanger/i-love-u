@@ -1,4 +1,3 @@
-
 {
   "placeholderImages": [
     {
@@ -8,46 +7,64 @@
       "imageHint": "happy heart"
     },
     {
-      "id": "user-1",
-      "description": "Woman from East Asia",
-      "imageUrl": "https://picsum.photos/seed/female-asia-high/800/1200",
-      "imageHint": "woman asia"
+      "id": "hero-world-1",
+      "description": "African children laughing together",
+      "imageUrl": "https://picsum.photos/seed/africa-children/1200/1600",
+      "imageHint": "african children"
     },
     {
-      "id": "user-2",
-      "description": "Woman from Sub-Saharan Africa",
-      "imageUrl": "https://picsum.photos/seed/female-africa-high/800/1200",
-      "imageHint": "woman africa"
+      "id": "hero-world-2",
+      "description": "Diverse volunteers helping together",
+      "imageUrl": "https://picsum.photos/seed/volunteers/1200/1600",
+      "imageHint": "volunteers community"
     },
     {
-      "id": "user-3",
-      "description": "Woman from Europe",
-      "imageUrl": "https://picsum.photos/seed/female-europe-high/800/1200",
-      "imageHint": "woman europe"
+      "id": "hero-world-3",
+      "description": "Friends of different races hugging",
+      "imageUrl": "https://picsum.photos/seed/friends-hugging/1200/1600",
+      "imageHint": "diverse friends"
     },
     {
-      "id": "user-4",
-      "description": "Woman from Americas",
-      "imageUrl": "https://picsum.photos/seed/female-americas-high/800/1200",
-      "imageHint": "woman americas"
+      "id": "hero-world-4",
+      "description": "Families smiling together outdoors",
+      "imageUrl": "https://picsum.photos/seed/family-smiling/1200/1600",
+      "imageHint": "family smiling"
     },
     {
-      "id": "user-5",
-      "description": "Woman from Middle East",
-      "imageUrl": "https://picsum.photos/seed/female-mideast-high/800/1200",
-      "imageHint": "woman portrait"
+      "id": "hero-world-5",
+      "description": "Elderly receiving community support",
+      "imageUrl": "https://picsum.photos/seed/elderly-support/1200/1600",
+      "imageHint": "elderly care"
     },
     {
-      "id": "landing-hero",
-      "description": "Diverse women from around the world gallery",
-      "imageUrl": "https://picsum.photos/seed/women-world-high/1200/1600",
-      "imageHint": "diverse women"
+      "id": "hero-world-6",
+      "description": "Youth planting trees for prosperity",
+      "imageUrl": "https://picsum.photos/seed/youth-planting/1200/1600",
+      "imageHint": "youth planting"
     },
     {
-      "id": "world-children",
-      "description": "Children from around the world smiling together",
-      "imageUrl": "https://picsum.photos/seed/world-children-mission/1200/1600",
-      "imageHint": "world children"
+      "id": "hero-world-7",
+      "description": "People creating jobs together in a workshop",
+      "imageUrl": "https://picsum.photos/seed/people-working/1200/1600",
+      "imageHint": "creating jobs"
+    },
+    {
+      "id": "hero-world-8",
+      "description": "Communities celebrating local festivals",
+      "imageUrl": "https://picsum.photos/seed/community-celebration/1200/1600",
+      "imageHint": "community celebration"
+    },
+    {
+      "id": "hero-world-9",
+      "description": "Disaster relief volunteers helping families",
+      "imageUrl": "https://picsum.photos/seed/disaster-relief/1200/1600",
+      "imageHint": "disaster relief"
+    },
+    {
+      "id": "hero-world-10",
+      "description": "Children from every continent holding hands",
+      "imageUrl": "https://picsum.photos/seed/children-holding-hands/1200/1600",
+      "imageHint": "children together"
     }
   ]
 }
