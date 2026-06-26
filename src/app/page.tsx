@@ -1,6 +1,7 @@
+
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -12,11 +13,9 @@ import {
   Languages,
   Check,
   Loader2,
-  Camera,
-  Star,
   Lock,
-  UserCheck,
-  Globe
+  Globe,
+  PlayCircle
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -27,102 +26,33 @@ import {
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/components/providers/LanguageProvider';
 import { SUPPORTED_LANGUAGES } from '@/lib/world-data';
-import { useUser, useFirestore, useDoc, useFirebaseApp } from '@/firebase';
-import { useRouter } from 'next/navigation';
-import { doc, onSnapshot, updateDoc, serverTimestamp, setDoc } from 'firebase/firestore';
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { useUser, useFirestore, useDoc } from '@/firebase';
+import { doc } from 'firebase/firestore';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { useToast } from '@/hooks/use-toast';
 import HeroImage from '@/components/HeroImage';
 
 /**
  * @fileOverview The I LOVE U Homepage.
- * Perfectly aligned with the mission vision: multicultural unity, high-impact typography,
- * and the Sovereign Authority Protocol.
+ * Perfectly aligned with high-fidelity mission vision.
  */
 export default function Home() {
   const { user } = useUser();
   const db = useFirestore();
-  const app = useFirebaseApp();
-  const { toast } = useToast();
   const { language, setLanguage, t } = useTranslation();
-  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [mounted, setMounted] = useState(false);
-  const [heroImage, setHeroImage] = useState("");
-  const [pageOwnerId, setPageOwnerId] = useState("");
-  const [ownerNickname, setOwnerNickname] = useState("");
-  const [isUploading, setIsUploading] = useState(false);
-  const [isClaiming, setIsClaiming] = useState(false);
 
-  // Profile data for Sovereign/Admin check
+  // Profile data for user context
   const userRef = useMemoFirebase(() => {
     if (!db || !user?.uid) return null;
     return doc(db, 'users', user.uid);
   }, [db, user?.uid]);
   const { data: profile } = useDoc(userRef);
 
-  // Real-time Vision Guardianship Listener
-  useEffect(() => {
-    if (!db) return;
-    const unsub = onSnapshot(doc(db, "siteSettings", "homepage"), (snap) => {
-      if (snap.exists()) {
-        const data = snap.data();
-        setHeroImage(data.heroImageUrl || "");
-        setPageOwnerId(data.ownerId || "");
-        setOwnerNickname(data.ownerNickname || "A Guardian");
-      }
-    });
-    return () => unsub();
-  }, [db]);
-
-  const canEdit = profile?.role === 'admin' || (user?.uid === pageOwnerId && pageOwnerId !== "");
-  const isOwner = user?.uid === pageOwnerId;
-  const isUnowned = !pageOwnerId || pageOwnerId === "";
-
   useEffect(() => {
     setMounted(true);
   }, []);
-
-  const handleClaimOwnership = async () => {
-    if (!user || !db || isClaiming) return;
-    setIsClaiming(true);
-    try {
-      await setDoc(doc(db, "siteSettings", "homepage"), {
-        ownerId: user.uid,
-        ownerNickname: profile?.publicNickname || profile?.displayName || "Mystery Guardian",
-        updatedAt: serverTimestamp(),
-      }, { merge: true });
-      toast({ title: "Guardianship Claimed", description: "You now protect the global vision. ✨" });
-    } catch (err) {
-      toast({ variant: "destructive", title: "Claim Failed", description: "The seat is already occupied." });
-    } finally {
-      setIsClaiming(false);
-    }
-  };
-
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !app || !db || !canEdit) return;
-
-    setIsUploading(true);
-    try {
-      const storage = getStorage(app);
-      const storageRef = ref(storage, `hero-images/${Date.now()}-${file.name}`);
-      await uploadBytes(storageRef, file);
-      const url = await getDownloadURL(storageRef);
-      await updateDoc(doc(db, "siteSettings", "homepage"), {
-        heroImageUrl: url,
-        updatedAt: serverTimestamp(),
-      });
-      setHeroImage(url);
-      toast({ title: "Vision Updated", description: "The global heartbeat has synchronized. ✨" });
-    } catch (err) {
-      toast({ variant: "destructive", title: "Update Failed", description: "Could not change the vision." });
-    } finally {
-      setIsUploading(false);
-    }
-  };
 
   if (!mounted) return (
     <div className="flex items-center justify-center min-h-screen bg-white">
@@ -177,88 +107,97 @@ export default function Home() {
 
       {/* MAIN MISSION CORE */}
       <main className="flex-grow pt-20">
-        <section className="max-w-7xl mx-auto px-6 py-12 md:py-24">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+        <section className="max-w-7xl mx-auto px-6 py-12">
+          
+          {/* CINEMATIC HERO CONTAINER */}
+          <div className="relative w-full h-[640px] overflow-hidden rounded-[40px] shadow-2xl group">
             
-            <div className="space-y-10 text-left">
-              <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-pink-50 text-pink-500 font-black text-[10px] uppercase tracking-widest border border-pink-100 shadow-sm animate-in fade-in slide-in-from-left-4 duration-700">
-                <Heart className="w-3 h-3 fill-current" /> GLOBAL COMMUNITY VERIFIED
-              </div>
+            {/* Rotating Global Story Layer */}
+            <HeroImage />
 
-              <div className="space-y-6">
-                <h1 className="text-7xl md:text-[92px] font-black leading-[0.85] tracking-tight">
-                  <span className="text-slate-900 block">Spark</span>
-                  <span className="text-primary block">Love.</span>
-                  <span className="block bg-gradient-to-r from-pink-500 via-rose-400 to-orange-400 bg-clip-text text-transparent">End Poverty.</span>
-                </h1>
-                <p className="mt-8 text-xl text-slate-500 max-w-xl leading-relaxed font-medium">
-                  Connecting hearts across every city and village to create opportunities, friendships, and positive change through global job creation.
-                </p>
-              </div>
+            {/* Cinematic Gradient Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-r from-white via-white/80 to-transparent pointer-events-none" />
+
+            {/* "Alive" UI Elements */}
+            <div className="absolute top-10 left-1/3 animate-bounce text-pink-500 z-20 hidden md:block">
+              <Heart className="w-10 h-10 fill-current drop-shadow-lg" />
+            </div>
+
+            <div className="absolute bottom-32 right-12 animate-pulse text-yellow-400 z-20">
+              <Sparkles className="w-16 h-16 drop-shadow-lg" />
+            </div>
+
+            <div className="absolute top-32 right-1/4 animate-ping text-pink-400/40 z-20">
+              <Heart className="w-8 h-8 fill-current" />
+            </div>
+
+            {/* Content Layer */}
+            <div className="absolute left-12 top-1/2 -translate-y-1/2 max-w-xl z-10 text-left space-y-8 animate-in fade-in slide-in-from-left-4 duration-1000">
+              <span className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-pink-50 text-pink-600 font-black text-[10px] uppercase tracking-widest border border-pink-100 shadow-sm">
+                <Heart className="w-3.5 h-3.5 fill-current" /> GLOBAL COMMUNITY VERIFIED
+              </span>
+
+              <h1 className="text-7xl md:text-[84px] font-black leading-[0.9] tracking-tighter">
+                <span className="text-slate-900 block">Spark</span>
+                <span className="text-primary block">Love.</span>
+                <span className="block bg-gradient-to-r from-pink-500 via-orange-400 to-yellow-400 bg-clip-text text-transparent">End Poverty.</span>
+              </h1>
+
+              <p className="text-xl text-slate-600 leading-relaxed font-medium">
+                Connecting hearts across every city and village to create opportunities, friendships, and positive change through global job creation.
+              </p>
 
               <div className="flex flex-wrap gap-4 pt-4">
-                <Button size="lg" className="h-16 px-8 rounded-2xl text-base font-black gradient-bg shadow-2xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all group" asChild>
+                <Button size="lg" className="h-16 px-10 rounded-full text-base font-black gradient-bg shadow-2xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all group" asChild>
                   <Link href={user ? "/discover" : "/login"}>
-                    Discover Hearts ✨
+                    Join the Movement
+                    <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                   </Link>
                 </Button>
-                <Button variant="outline" size="lg" className="h-16 px-8 rounded-2xl text-base font-bold border-2 border-slate-100 text-slate-400 hover:bg-slate-50 transition-all" asChild>
-                  <Link href="/donate">Support Mission</Link>
+                <Button variant="outline" size="lg" className="h-16 px-10 rounded-full text-base font-bold border-2 border-slate-100 bg-white text-slate-600 hover:bg-slate-50 transition-all flex items-center gap-2 shadow-sm" asChild>
+                  <Link href="/donate">
+                    <PlayCircle className="w-5 h-5 text-primary" />
+                    Watch Our Story
+                  </Link>
                 </Button>
               </div>
             </div>
 
-            {/* DYNAMIC COLLAGE HERO */}
-            <div className="relative">
-              <div className="absolute top-6 left-6 z-40 flex flex-col gap-2">
-                 {isUnowned && user && (
-                    <Button 
-                      onClick={handleClaimOwnership} 
-                      disabled={isClaiming}
-                      className="rounded-full h-10 px-6 bg-slate-900 text-white shadow-2xl text-[9px] font-black uppercase tracking-widest gap-2 hover:bg-black transition-all"
-                    >
-                      {isClaiming ? <Loader2 className="w-4 h-4 animate-spin" /> : <Star className="w-4 h-4 text-primary" />}
-                      Claim Guardianship
-                    </Button>
-                 )}
-                 {!isUnowned && !isOwner && (
-                    <Badge className="bg-slate-900/90 text-white backdrop-blur-md border-none px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-widest flex items-center gap-2 shadow-2xl">
-                       <Lock className="w-3.5 h-3.5 text-primary" />
-                       Protected by {ownerNickname}
-                    </Badge>
-                 )}
-                 {isOwner && (
-                    <Badge className="bg-primary text-white border-none px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-widest flex items-center gap-2 shadow-2xl">
-                       <UserCheck className="w-3.5 h-3.5" />
-                       You are the Guardian
-                    </Badge>
-                 )}
-              </div>
+            {/* Floating High-Fidelity Badge (Bottom Right) */}
+            <div className="absolute bottom-10 right-10 w-24 h-24 bg-white rounded-full shadow-2xl flex items-center justify-center p-2 z-30 transition-transform group-hover:rotate-12 duration-700 sm:flex hidden border border-slate-100">
+               <div className="w-full h-full rounded-full gradient-bg flex items-center justify-center">
+                  <Heart className="w-8 h-8 fill-white text-white animate-heartbeat" />
+                  <div className="absolute -top-1 -right-1 bg-white p-1 rounded-full text-primary shadow-sm border">
+                     <Sparkles className="w-3 h-3" />
+                  </div>
+               </div>
+            </div>
+          </div>
+        </section>
 
-              {canEdit && (
-                <div className="absolute top-6 right-6 z-40">
-                  <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
-                  <Button variant="secondary" onClick={() => fileInputRef.current?.click()} disabled={isUploading} className="rounded-full h-10 px-4 bg-white/90 backdrop-blur-md shadow-xl text-[10px] font-black uppercase tracking-widest gap-2">
-                    {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Camera className="w-4 h-4" />}
-                    Change Photo
-                  </Button>
-                </div>
-              )}
-
-              {/* Cinematic Transition Component */}
-              <div className="relative group">
-                <HeroImage overrideUrl={heroImage} />
-                
-                {/* Floating UI Elements from reference */}
-                <div className="absolute -bottom-8 -right-8 w-24 h-24 bg-white rounded-full shadow-2xl flex items-center justify-center p-2 z-30 transition-transform group-hover:rotate-12 duration-700 sm:flex hidden">
-                   <div className="w-full h-full rounded-full gradient-bg flex items-center justify-center">
-                      <Heart className="w-8 h-8 fill-white text-white animate-heartbeat" />
-                      <div className="absolute -top-1 -right-1 bg-white p-1 rounded-full text-primary shadow-sm border">
-                         <Sparkles className="w-3 h-3" />
-                      </div>
-                   </div>
-                </div>
+        {/* MISSION PILLARS */}
+        <section className="container mx-auto px-6 py-20">
+          <div className="grid md:grid-cols-3 gap-12">
+            <div className="space-y-4 text-center md:text-left">
+              <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mx-auto md:mx-0">
+                <Globe className="w-6 h-6" />
               </div>
+              <h3 className="text-xl font-black uppercase tracking-tight">Pure Respect</h3>
+              <p className="text-slate-500 text-sm leading-relaxed italic">Built on mutual honor. Reaching every heart in every village with love.</p>
+            </div>
+            <div className="space-y-4 text-center md:text-left">
+              <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mx-auto md:mx-0">
+                <Zap className="w-6 h-6" />
+              </div>
+              <h3 className="text-xl font-black uppercase tracking-tight">AI Moderated</h3>
+              <p className="text-slate-500 text-sm leading-relaxed italic">Disrespect is filtered automatically. Join a community where kindness is mandatory.</p>
+            </div>
+            <div className="space-y-4 text-center md:text-left">
+              <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mx-auto md:mx-0">
+                <Heart className="w-6 h-6" />
+              </div>
+              <h3 className="text-xl font-black uppercase tracking-tight">Prosperity</h3>
+              <p className="text-slate-500 text-sm leading-relaxed italic">Every connection helps fund local job creation to end global poverty forever.</p>
             </div>
           </div>
         </section>

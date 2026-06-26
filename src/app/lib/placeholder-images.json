@@ -9,39 +9,45 @@
     },
     {
       "id": "world-1",
-      "description": "Multicultural children laughing together",
-      "imageUrl": "https://picsum.photos/seed/world-children/1200/1600",
-      "imageHint": "children together"
+      "description": "African children laughing together",
+      "imageUrl": "https://picsum.photos/seed/african-children/1200/800",
+      "imageHint": "children laughing"
     },
     {
       "id": "world-2",
-      "description": "Diverse community volunteers",
-      "imageUrl": "https://picsum.photos/seed/volunteers/1200/1600",
-      "imageHint": "volunteers community"
+      "description": "Asian and European volunteers helping",
+      "imageUrl": "https://picsum.photos/seed/volunteers-mission/1200/800",
+      "imageHint": "volunteers help"
     },
     {
       "id": "world-3",
       "description": "Friends of different races hugging",
-      "imageUrl": "https://picsum.photos/seed/friends-hugging/1200/1600",
-      "imageHint": "diverse friends"
+      "imageUrl": "https://picsum.photos/seed/friends-hug/1200/800",
+      "imageHint": "friends hugging"
     },
     {
       "id": "world-4",
       "description": "Families smiling together in nature",
-      "imageUrl": "https://picsum.photos/seed/family-smiling/1200/1600",
+      "imageUrl": "https://picsum.photos/seed/family-joy/1200/800",
       "imageHint": "family smiling"
     },
     {
       "id": "world-5",
       "description": "Helping hands joining together",
-      "imageUrl": "https://picsum.photos/seed/helping-hands/1200/1600",
+      "imageUrl": "https://picsum.photos/seed/hands-union/1200/800",
       "imageHint": "helping hands"
     },
     {
+      "id": "world-6",
+      "description": "Children from every continent holding hands",
+      "imageUrl": "https://picsum.photos/seed/global-children/1200/800",
+      "imageHint": "children hands"
+    },
+    {
       "id": "landing-hero",
-      "description": "Diverse women from around the world",
-      "imageUrl": "https://picsum.photos/seed/women-world/1200/800",
-      "imageHint": "diverse women"
+      "description": "Diverse community from around the world",
+      "imageUrl": "https://picsum.photos/seed/global-hero/1200/800",
+      "imageHint": "diverse community"
     }
   ]
 }
