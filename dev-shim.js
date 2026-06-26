@@ -1,39 +1,65 @@
-
 /**
- * @fileOverview Startup shim to resolve Next.js flag incompatibilities in Firebase Studio.
- * Robustly maps environment-injected '--host' flags to the supported '--hostname' parameter.
+ * @fileOverview Hardened startup shim for Next.js 15 in Firebase Studio.
+ * Corrects flag incompatibilities and ensures a resilient network bind.
  */
 const { spawn } = require('child_process');
 const path = require('path');
 
-// Filter and map arguments to resolve flag incompatibilities
 const rawArgs = process.argv.slice(2);
-const args = [];
+const filteredArgs = [];
 
 for (let i = 0; i < rawArgs.length; i++) {
   const arg = rawArgs[i];
-  // If we encounter --host, we replace it with --hostname
+  
+  // Intercept the unsupported --host flag
   if (arg === '--host') {
-    args.push('--hostname');
+    if (!filteredArgs.includes('--hostname')) {
+      filteredArgs.push('--hostname');
+      // Look ahead for value
+      const nextArg = rawArgs[i + 1];
+      if (nextArg && !nextArg.startsWith('--')) {
+        filteredArgs.push(nextArg);
+        i++; // skip the value in next iteration
+      } else {
+        filteredArgs.push('0.0.0.0');
+      }
+    }
+  } else if (arg === '--hostname') {
+    if (!filteredArgs.includes('--hostname')) {
+      filteredArgs.push(arg);
+      const nextArg = rawArgs[i + 1];
+      if (nextArg && !nextArg.startsWith('--')) {
+        filteredArgs.push(nextArg);
+        i++;
+      }
+    }
   } else {
-    args.push(arg);
+    filteredArgs.push(arg);
   }
 }
 
-// Ensure 0.0.0.0 is used if no hostname is specified to allow external container access
-if (!args.includes('--hostname')) {
-  args.push('--hostname', '0.0.0.0');
+// Ensure binding for container connectivity
+if (!filteredArgs.includes('--hostname')) {
+  filteredArgs.push('--hostname', '0.0.0.0');
 }
 
-console.log(`[I LOVE U Shim] Booting Next.js with filtered parameters: ${args.join(' ')}`);
+// Default port protocol
+if (!filteredArgs.includes('--port') && !filteredArgs.includes('-p')) {
+  filteredArgs.push('--port', '3000');
+}
 
-// Use the local next binary directly for maximum reliability
+console.log(`[I LOVE U Shim] Intercepted environment parameters. Launching Next.js with: ${filteredArgs.join(' ')}`);
+
 const nextBin = path.join(__dirname, 'node_modules', '.bin', 'next');
 
-const child = spawn(nextBin, ['dev', ...args], {
+const child = spawn(nextBin, ['dev', ...filteredArgs], {
   stdio: 'inherit',
   shell: true,
-  env: { ...process.env, NEXT_TELEMETRY_DISABLED: '1' }
+  env: { 
+    ...process.env, 
+    NEXT_TELEMETRY_DISABLED: '1',
+    NODE_ENV: 'development' 
+  }
 });
 
 child.on('exit', (code) => {
@@ -41,6 +67,6 @@ child.on('exit', (code) => {
 });
 
 child.on('error', (err) => {
-  console.error('[I LOVE U Shim] Failed to launch Next.js process:', err);
+  console.error('[I LOVE U Shim] Critical Boot Error:', err);
   process.exit(1);
 });

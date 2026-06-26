@@ -1,36 +1,34 @@
-
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
 import { Header } from '@/components/Header';
 import { BottomNav } from '@/components/BottomNav';
-import { useUser, useFirestore, useCollection, useDoc } from '@/firebase';
-import { collection, query, where, doc, updateDoc, serverTimestamp, setDoc, getDoc, limit } from 'firebase/firestore';
+import { useUser, useFirestore, useCollection } from '@/firebase';
 import { 
-  ShieldCheck, 
+  collection, 
+  query, 
+  where, 
+  doc, 
+  updateDoc, 
+  serverTimestamp, 
+  setDoc, 
+  limit, 
+  onSnapshot 
+} from 'firebase/firestore';
+import { 
   Loader2, 
-  UserCheck, 
-  CheckCircle2, 
-  XCircle, 
+  Lock, 
+  Zap, 
+  Search, 
+  Users, 
   Store, 
   Megaphone,
-  ClipboardCheck,
-  Search,
-  Zap,
-  Lock,
-  Star,
-  Users,
-  BadgeCheck,
-  ShieldAlert,
-  ArrowRight,
   Gavel
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
@@ -46,7 +44,7 @@ export default function AdminApprovalsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isProcessing, setIsProcessing] = useState<string | null>(null);
 
-  // Load Sovereignty
+  // Sovereign Authority Listener
   useEffect(() => {
     if (!db) return;
     const unsub = onSnapshot(doc(db, 'siteSettings', 'sovereignty'), (snap) => {
@@ -59,7 +57,7 @@ export default function AdminApprovalsPage() {
   const isUserSovereign = user?.uid === sovereignId;
   const isVacant = sovereignId === null;
 
-  // Pending Queries
+  // Registry Queries
   const pendingSellersQuery = useMemoFirebase(() => {
     if (!db) return null;
     return query(collection(db, 'users'), where('sellerStatus', '==', 'pending'));
@@ -75,8 +73,8 @@ export default function AdminApprovalsPage() {
     return query(collection(db, 'users'), limit(50));
   }, [db]);
 
-  const { data: pendingSellers, loading: sellersLoading } = useCollection(pendingSellersQuery);
-  const { data: pendingAdvertisers, loading: advertisersLoading } = useCollection(pendingAdvertisersQuery);
+  const { data: pendingSellers } = useCollection(pendingSellersQuery);
+  const { data: pendingAdvertisers } = useCollection(pendingAdvertisersQuery);
   const { data: allUsers, loading: usersLoading } = useCollection(allUsersQuery);
 
   const filteredUsers = useMemo(() => {
@@ -96,9 +94,9 @@ export default function AdminApprovalsPage() {
         ownerId: user.uid,
         claimedAt: serverTimestamp(),
       });
-      toast({ title: "Authority Claimed", description: "You are now the Sovereign Guardian of the Revolution. ✨" });
+      toast({ title: "Authority Claimed", description: "You are now the Sovereign Guardian. ✨" });
     } catch (e) {
-      toast({ variant: "destructive", title: "Claim Failed", description: "This seat is already filled." });
+      toast({ variant: "destructive", title: "Claim Denied", description: "The Sovereign Seat is already filled." });
     } finally {
       setIsClaiming(false);
     }
@@ -109,9 +107,9 @@ export default function AdminApprovalsPage() {
     setIsProcessing(uid);
     try {
       await updateDoc(doc(db, 'users', uid), { [role]: val });
-      toast({ title: "Role Updated", description: "Permissions synchronized in the cloud. ❤️" });
+      toast({ title: "Permissions Updated", description: "The cloud has synchronized your decree. ❤️" });
     } catch (e) {
-      toast({ variant: "destructive", title: "Ripple Error", description: "Only the Sovereign can assign roles." });
+      toast({ variant: "destructive", title: "Access Denied", description: "Only the Sovereign can assign roles." });
     } finally {
       setIsProcessing(null);
     }
@@ -123,9 +121,9 @@ export default function AdminApprovalsPage() {
         <div className="w-32 h-32 bg-primary/20 rounded-[3rem] flex items-center justify-center mb-8 animate-pulse border-4 border-dashed border-primary/40 shadow-[0_0_50px_rgba(255,51,102,0.3)]">
           <Gavel className="w-16 h-16 text-primary" />
         </div>
-        <h1 className="text-5xl font-black tracking-tighter uppercase mb-4">Sovereign Seat Vacant</h1>
+        <h1 className="text-5xl font-black tracking-tighter uppercase mb-4">Authority Vacant</h1>
         <p className="text-xl text-white/60 italic max-w-md mb-10 leading-relaxed">
-          "Authority must be claimed with Honor." The platform is waiting for its first Guardian to assign permissions.
+          "A revolution requires a Guardian." Claim the Sovereign Seat to manage permissions and protect the community.
         </p>
         <Button 
           onClick={handleClaimSovereignty} 
@@ -145,8 +143,8 @@ export default function AdminApprovalsPage() {
         <div className="w-24 h-24 bg-slate-900 rounded-full flex items-center justify-center mb-6 shadow-2xl">
            <Lock className="w-10 h-10 text-primary" />
         </div>
-        <h2 className="text-3xl font-black tracking-tighter uppercase">Access Restricted</h2>
-        <p className="text-muted-foreground mt-2 max-w-xs font-medium">Only the Sovereign Guardian can assign permissions and manage hearts. ❤️</p>
+        <h2 className="text-3xl font-black tracking-tighter uppercase">Restricted Access</h2>
+        <p className="text-muted-foreground mt-2 max-w-xs font-medium">Only the Sovereign Guardian can assign permissions. ❤️</p>
         <Button variant="outline" className="mt-8 rounded-2xl h-14 px-8 border-2 font-bold" onClick={() => window.location.href = '/discover'}>Return to Discovery</Button>
       </div>
     );
@@ -157,7 +155,6 @@ export default function AdminApprovalsPage() {
       <Header />
       <main className="container mx-auto px-4 py-10 max-w-5xl space-y-12">
         
-        {/* Sovereign Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-4">
            <div className="flex items-center gap-6">
               <div className="w-20 h-20 bg-slate-900 rounded-[2rem] flex items-center justify-center text-primary shadow-2xl ring-4 ring-white relative overflow-hidden group">
@@ -166,15 +163,14 @@ export default function AdminApprovalsPage() {
               </div>
               <div className="text-left">
                  <h1 className="text-5xl font-black tracking-tighter uppercase leading-none">Sovereign Command</h1>
-                 <p className="text-[10px] font-black uppercase tracking-[0.4em] text-primary mt-2">Guardian of the Revolution</p>
+                 <p className="text-[10px] font-black uppercase tracking-[0.4em] text-primary mt-2">Guardian Protocol Active</p>
               </div>
            </div>
            <Badge className="bg-slate-900 text-white border-none px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-xl">
-             Exclusive Authority Protocol Active
+             Exclusive Authority
            </Badge>
         </div>
 
-        {/* SEARCH REGISTRY */}
         <section className="space-y-6">
            <div className="flex items-center justify-between px-2">
               <h2 className="text-2xl font-black uppercase tracking-tight flex items-center gap-3">
@@ -206,20 +202,17 @@ export default function AdminApprovalsPage() {
                 ))
               ) : (
                 <div className="p-12 text-center bg-white/40 rounded-[2.5rem] border-2 border-dashed border-muted text-muted-foreground font-bold italic">
-                   "Scanning the depths..." No matches found in the registry.
+                   "Scanning the network..." No matches found.
                 </div>
               )}
            </div>
         </section>
 
-        {/* PENDING REQUESTS */}
         <div className="grid md:grid-cols-2 gap-8">
-           {/* Sellers */}
            <section className="space-y-6">
               <div className="flex items-center gap-3 px-2">
                  <Store className="w-6 h-6 text-primary" />
                  <h2 className="text-xl font-black uppercase tracking-tight">Pending Sellers</h2>
-                 <Badge variant="outline" className="ml-auto font-black">{pendingSellers?.length || 0}</Badge>
               </div>
               <div className="space-y-4">
                  {pendingSellers?.map((s: any) => (
@@ -229,18 +222,16 @@ export default function AdminApprovalsPage() {
               </div>
            </section>
 
-           {/* Advertisers */}
            <section className="space-y-6">
               <div className="flex items-center gap-3 px-2">
                  <Megaphone className="w-6 h-6 text-primary" />
                  <h2 className="text-xl font-black uppercase tracking-tight">Pending Ads</h2>
-                 <Badge variant="outline" className="ml-auto font-black">{pendingAdvertisers?.length || 0}</Badge>
               </div>
               <div className="space-y-4">
                  {pendingAdvertisers?.map((a: any) => (
                     <PendingRequestItem key={a.uid} u={a} type="advertiser" onToggle={handleRoleToggle} />
                  ))}
-                 {pendingAdvertisers?.length === 0 && <p className="text-xs text-center text-muted-foreground italic font-medium py-10 bg-white/40 rounded-3xl border border-dashed">No pending reach requests.</p>}
+                 {pendingAdvertisers?.length === 0 && <p className="text-xs text-center text-muted-foreground italic font-medium py-10 bg-white/40 rounded-3xl border border-dashed">No pending reaches.</p>}
               </div>
            </section>
         </div>

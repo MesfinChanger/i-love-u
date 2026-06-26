@@ -10,9 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import { 
   Globe, 
-  Send, 
   Loader2, 
-  ShieldCheck, 
   X,
   Camera,
   Video,
@@ -21,10 +19,8 @@ import {
   Zap,
   Trash2,
   Image as LucideImageIcon,
-  CheckCircle2,
   Square,
   CheckSquare,
-  Plus,
   Shield,
   Star,
   TrendingUp,
@@ -41,7 +37,19 @@ import {
   PopoverTrigger 
 } from '@/components/ui/popover';
 import { useUser, useFirestore, useCollection, useDoc, useFirebaseStorage } from '@/firebase';
-import { collection, addDoc, query, orderBy, serverTimestamp, limit, doc, deleteDoc, getDoc, updateDoc, setDoc } from 'firebase/firestore';
+import { 
+  collection, 
+  addDoc, 
+  query, 
+  orderBy, 
+  serverTimestamp, 
+  limit, 
+  doc, 
+  deleteDoc, 
+  onSnapshot, 
+  updateDoc, 
+  setDoc 
+} from 'firebase/firestore';
 import { moderateText } from '@/ai/flows/moderate-text-flow';
 import { moderateImage } from '@/ai/flows/moderate-image-flow';
 import { useToast } from '@/hooks/use-toast';
@@ -50,13 +58,10 @@ import { compressImage, fileToDataUri } from '@/lib/image-utils';
 import { cn } from '@/lib/utils';
 import { LiveCamera } from '@/components/LiveCamera';
 
-/**
- * @fileOverview Universal Global Wall with Luxury Dynamic Hero & Sovereign Ownership Protocol.
- */
 export default function CommunityPage() {
   const { user } = useUser();
   const db = useFirestore();
-  const { uploadFile, deleteFile, isUploading, progress } = useFirebaseStorage();
+  const { uploadFile, deleteFile } = useFirebaseStorage();
   const { toast } = useToast();
   const scrollRef = useRef<HTMLDivElement>(null);
   const galleryRef = useRef<HTMLInputElement>(null);
@@ -74,7 +79,6 @@ export default function CommunityPage() {
     type: 'image' | 'video' | 'file' 
   } | null>(null);
 
-  // Dynamic Hero State
   const [heroImage, setHeroImage] = useState("https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=1600");
   const [pageOwnerId, setPageOwnerId] = useState("");
   const [ownerNickname, setOwnerNickname] = useState("");
@@ -87,21 +91,19 @@ export default function CommunityPage() {
   const communityQuery = useMemoFirebase(() => db ? query(collection(db, 'communityMessages'), orderBy('timestamp', 'asc'), limit(100)) : null, [db]);
   const { data: messages, loading } = useCollection(communityQuery);
 
-  // Load Hero Vision
+  // Real-time Vision Guardianship
   useEffect(() => {
     if (!db) return;
-    const loadHero = async () => {
-      const docRef = doc(db, "siteSettings", "communityHero");
-      const snap = await getDoc(docRef);
+    const unsub = onSnapshot(doc(db, "siteSettings", "communityHero"), (snap) => {
       if (snap.exists()) {
         const data = snap.data();
-        setHeroImage(data.heroImageUrl || heroImage);
+        setHeroImage(data.heroImageUrl || "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=1600");
         setPageOwnerId(data.ownerId || "");
         setOwnerNickname(data.ownerNickname || "A Guardian");
       }
-    };
-    loadHero();
-  }, [db, heroImage]);
+    });
+    return () => unsub();
+  }, [db]);
 
   const canEditHero = myProfile?.isAdmin || (user?.uid === pageOwnerId && pageOwnerId !== "");
   const isOwner = user?.uid === pageOwnerId;
@@ -122,9 +124,6 @@ export default function CommunityPage() {
         ownerNickname: myProfile?.publicNickname || myProfile?.displayName || "Mystery Guardian",
         updatedAt: serverTimestamp(),
       }, { merge: true });
-      
-      setPageOwnerId(user.uid);
-      setOwnerNickname(myProfile?.publicNickname || myProfile?.displayName || "Mystery Guardian");
       toast({ title: "Wall Guardian Assigned", description: "You now protect the global vision. ✨" });
     } catch (err) {
       toast({ variant: "destructive", title: "Claim Failed", description: "This wall is already protected." });
@@ -256,11 +255,9 @@ export default function CommunityPage() {
     <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
       <Header />
       
-      {/* LUXURY DYNAMIC HERO */}
       <section className="max-w-7xl mx-auto w-full p-6">
         <div className="relative overflow-hidden rounded-[40px] bg-gradient-to-br from-pink-50 via-white to-amber-50 shadow-2xl border border-white/50 mb-8">
           
-          {/* Background Glows */}
           <div className="absolute -top-32 -left-32 h-72 w-72 rounded-full bg-pink-300/20 blur-3xl" />
           <div className="absolute -bottom-32 -right-32 h-72 w-72 rounded-full bg-orange-300/20 blur-3xl" />
 
@@ -290,19 +287,9 @@ export default function CommunityPage() {
                   <span className="font-bold text-sm">Live Community</span>
                 </div>
               </div>
-
-              <div className="flex gap-4 mt-8">
-                <Button className="h-14 px-8 rounded-full gradient-bg font-black uppercase text-[10px] tracking-widest shadow-xl active:scale-95 transition-all">
-                  Share Moment
-                </Button>
-                <Button variant="outline" className="h-14 px-8 rounded-full bg-white font-black uppercase text-[10px] tracking-widest shadow-lg border-none hover:bg-slate-50 transition-all">
-                  Explore
-                </Button>
-              </div>
             </div>
             
             <div className="relative">
-              {/* Sovereign Ownership Controls */}
               <div className="absolute top-6 left-6 z-30 flex flex-col gap-2">
                  {isUnowned && user && (
                     <Button 
@@ -328,7 +315,6 @@ export default function CommunityPage() {
                  )}
               </div>
 
-              {/* Main Image Card */}
               <div className="relative overflow-hidden rounded-[35px] bg-white p-3 shadow-2xl group transition-transform hover:scale-[1.01] duration-700">
                 <div className="relative aspect-[4/3] overflow-hidden rounded-[28px]">
                   <Image
@@ -347,7 +333,6 @@ export default function CommunityPage() {
                   </div>
                 </div>
 
-                {/* Admin Action */}
                 {canEditHero && (
                   <div className="absolute top-6 right-6 z-20">
                     <input ref={heroInputRef} type="file" accept="image/*" className="hidden" onChange={handleHeroUpload} />
@@ -363,7 +348,6 @@ export default function CommunityPage() {
                 )}
               </div>
 
-              {/* Floating Members Card */}
               <div className="absolute -top-12 -right-6 bg-white rounded-[2rem] p-6 shadow-2xl border border-pink-50 animate-bounce duration-[5000ms] hover:animate-none transition-all">
                 <div className="text-pink-500 text-4xl mb-2">❤️</div>
                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Live Community</p>
@@ -374,7 +358,6 @@ export default function CommunityPage() {
                 </div>
               </div>
 
-              {/* Floating Growth Card */}
               <div className="absolute -bottom-6 -left-6 bg-white rounded-[2rem] p-5 shadow-2xl border border-slate-50 transition-transform hover:scale-110">
                 <div className="flex items-center gap-3">
                   <TrendingUp className="text-green-500 w-6 h-6" />

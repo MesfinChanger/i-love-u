@@ -37,7 +37,7 @@ import { useTranslation } from '@/components/providers/LanguageProvider';
 import { SUPPORTED_LANGUAGES } from '@/lib/world-data';
 import { useUser, useFirestore, useDoc, useFirebaseApp } from '@/firebase';
 import { useRouter } from 'next/navigation';
-import { doc, getDoc, updateDoc, serverTimestamp, setDoc } from 'firebase/firestore';
+import { doc, onSnapshot, updateDoc, serverTimestamp, setDoc } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { useToast } from '@/hooks/use-toast';
@@ -75,21 +75,18 @@ export default function Home() {
   }, [db, user?.uid]);
   const { data: profile } = useDoc(userRef);
 
-  // Load Settings
+  // Real-time Vision Guardianship
   useEffect(() => {
     if (!db) return;
-    const loadSettings = async () => {
-      const docRef = doc(db, "siteSettings", "homepage");
-      const snap = await getDoc(docRef);
-
+    const unsub = onSnapshot(doc(db, "siteSettings", "homepage"), (snap) => {
       if (snap.exists()) {
         const data = snap.data();
         setHeroImage(data.heroImageUrl || "");
         setPageOwnerId(data.ownerId || "");
         setOwnerNickname(data.ownerNickname || "A Guardian");
       }
-    };
-    loadSettings();
+    });
+    return () => unsub();
   }, [db]);
 
   const canEdit = profile?.isAdmin || (user?.uid === pageOwnerId && pageOwnerId !== "");
@@ -104,9 +101,7 @@ export default function Home() {
       setImageIndex((prev) => (prev + 1) % HERO_IMAGES.length);
     }, 5000);
 
-    return () => {
-      clearInterval(imageInterval);
-    };
+    return () => clearInterval(imageInterval);
   }, []);
 
   const handleClaimOwnership = async () => {
@@ -118,9 +113,6 @@ export default function Home() {
         ownerNickname: profile?.publicNickname || profile?.displayName || "Mystery Guardian",
         updatedAt: serverTimestamp(),
       }, { merge: true });
-      
-      setPageOwnerId(user.uid);
-      setOwnerNickname(profile?.publicNickname || profile?.displayName || "Mystery Guardian");
       toast({ title: "Guardianship Claimed", description: "You are now the Sovereign Guardian of this vision. ✨" });
     } catch (err) {
       toast({ variant: "destructive", title: "Claim Failed", description: "This vision is already protected." });
@@ -149,7 +141,6 @@ export default function Home() {
       setHeroImage(url);
       toast({ title: "Hero Updated", description: "The vision has been updated globally. ✨" });
     } catch (err) {
-      console.error(err);
       toast({ variant: "destructive", title: "Upload Failed", description: "Could not update hero image." });
     } finally {
       setIsUploading(false);
@@ -224,11 +215,9 @@ export default function Home() {
       </header>
 
       <main className="flex-grow pt-20">
-        {/* HERO SECTION */}
         <section className="max-w-7xl mx-auto px-6 py-12 md:py-20">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             
-            {/* LEFT CONTENT */}
             <div className="space-y-8">
               <div className="inline-flex items-center px-4 py-2 rounded-full bg-pink-100 text-pink-600 font-black text-[10px] uppercase tracking-widest shadow-sm">
                 ❤️ GLOBAL COMMUNITY VERIFIED
@@ -268,9 +257,7 @@ export default function Home() {
               </div>
             </div>
 
-            {/* RIGHT VISUAL */}
             <div className="relative group">
-              {/* Sovereign Ownership Controls */}
               <div className="absolute top-4 left-4 z-30 flex flex-col gap-2">
                  {isUnowned && user && (
                     <Button 
@@ -317,7 +304,7 @@ export default function Home() {
                 </div>
               )}
 
-              <div className="overflow-hidden rounded-[3rem] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.2)] bg-slate-100 aspect-[4/5] relative">
+              <div className="overflow-hidden rounded-[3rem] shadow-[0_40px_100px_-10px_rgba(0,0,0,0.2)] bg-slate-100 aspect-[4/5] relative">
                 <Image 
                   src={heroImage || HERO_IMAGES[imageIndex]} 
                   alt="Global Community Vision" 
@@ -328,7 +315,6 @@ export default function Home() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
               </div>
 
-              {/* Floating Cards */}
               <div className="absolute top-8 left-8 bg-white/95 backdrop-blur-md p-6 rounded-[2rem] shadow-2xl border border-white/50 animate-bounce duration-[5000ms] hover:animate-none transition-all">
                 <p className="text-primary font-black text-[10px] uppercase tracking-[0.2em] mb-1">Live Community</p>
                 <div className="text-4xl font-black tracking-tighter">18.2K+</div>
@@ -350,7 +336,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* MISSION SECTION */}
         <section id="mission" className="max-w-7xl mx-auto px-6 py-24 border-t border-dashed">
           <div className="text-center space-y-4 mb-20">
              <Badge className="bg-primary/10 text-primary border-none px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest">Our Sacred Protocol</Badge>
@@ -377,7 +362,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* IMPACT SECTION */}
         <section id="impact" className="bg-slate-900 text-white py-24">
            <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-20 items-center">
               <div className="relative aspect-video rounded-[3rem] overflow-hidden shadow-2xl border-4 border-white/10 group">
@@ -411,7 +395,6 @@ export default function Home() {
            </div>
         </section>
 
-        {/* RESPECT BANNER */}
         <section className="max-w-7xl mx-auto px-6 py-24">
           <div className="bg-gradient-to-r from-pink-50 via-white to-orange-50 rounded-[4rem] p-12 md:p-20 flex flex-col md:flex-row justify-between items-center gap-10 border border-primary/5 shadow-inner">
             <div className="text-center md:text-left space-y-4">
