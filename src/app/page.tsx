@@ -15,7 +15,9 @@ import {
   Loader2,
   Lock,
   Globe,
-  PlayCircle
+  PlayCircle,
+  TrendingDown,
+  Waves
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -29,12 +31,11 @@ import { SUPPORTED_LANGUAGES } from '@/lib/world-data';
 import { useUser, useFirestore, useDoc } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
-import { useToast } from '@/hooks/use-toast';
 import HeroImage from '@/components/HeroImage';
 
 /**
  * @fileOverview The I LOVE U Homepage.
- * Perfectly aligned with high-fidelity mission vision.
+ * Cinematic mission vision with Dynamic Global Storytelling.
  */
 export default function Home() {
   const { user } = useUser();
@@ -42,13 +43,6 @@ export default function Home() {
   const { language, setLanguage, t } = useTranslation();
   
   const [mounted, setMounted] = useState(false);
-
-  // Profile data for user context
-  const userRef = useMemoFirebase(() => {
-    if (!db || !user?.uid) return null;
-    return doc(db, 'users', user.uid);
-  }, [db, user?.uid]);
-  const { data: profile } = useDoc(userRef);
 
   useEffect(() => {
     setMounted(true);
@@ -110,7 +104,7 @@ export default function Home() {
         <section className="max-w-7xl mx-auto px-6 py-12">
           
           {/* CINEMATIC HERO CONTAINER */}
-          <div className="relative w-full h-[640px] overflow-hidden rounded-[40px] shadow-2xl group">
+          <div className="relative w-full h-[640px] overflow-hidden rounded-[40px] shadow-2xl group bg-slate-100">
             
             {/* Rotating Global Story Layer */}
             <HeroImage />
@@ -134,11 +128,11 @@ export default function Home() {
             {/* Content Layer */}
             <div className="absolute left-12 top-1/2 -translate-y-1/2 max-w-xl z-10 text-left space-y-8 animate-in fade-in slide-in-from-left-4 duration-1000">
               <span className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-pink-50 text-pink-600 font-black text-[10px] uppercase tracking-widest border border-pink-100 shadow-sm">
-                <Heart className="w-3.5 h-3.5 fill-current" /> GLOBAL COMMUNITY VERIFIED
+                ❤️ GLOBAL COMMUNITY VERIFIED
               </span>
 
-              <h1 className="text-7xl md:text-[84px] font-black leading-[0.9] tracking-tighter">
-                <span className="text-slate-900 block">Spark</span>
+              <h1 className="text-7xl font-black leading-[0.9] tracking-tighter">
+                <span className="text-slate-900 block">Spark </span>
                 <span className="text-primary block">Love.</span>
                 <span className="block bg-gradient-to-r from-pink-500 via-orange-400 to-yellow-400 bg-clip-text text-transparent">End Poverty.</span>
               </h1>
@@ -183,7 +177,7 @@ export default function Home() {
                 <Globe className="w-6 h-6" />
               </div>
               <h3 className="text-xl font-black uppercase tracking-tight">Pure Respect</h3>
-              <p className="text-slate-500 text-sm leading-relaxed italic">Built on mutual honor. Reaching every heart in every village with love.</p>
+              <p className="text-slate-500 text-sm leading-relaxed italic">Built on mutual honor. Reaching every rural community and global city with love.</p>
             </div>
             <div className="space-y-4 text-center md:text-left">
               <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mx-auto md:mx-0">
