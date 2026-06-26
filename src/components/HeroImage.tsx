@@ -3,12 +3,13 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
-import { Heart, Sparkles, Star, Globe } from "lucide-react";
+import { Heart, Sparkles, Globe } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 /**
  * @fileOverview Cinematic Hero Component.
- * Implements a rotating global story of world children and multicultural unity.
- * Hardened to prevent hydration mismatches.
+ * Implements a rotating global story of multicultural unity and love.
+ * Hardened to match the high-fidelity collage aesthetic with rounded corners and floating elements.
  */
 
 const heroImages = [
@@ -30,23 +31,22 @@ export default function HeroImage({ overrideUrl }: { overrideUrl?: string }) {
 
   useEffect(() => {
     setMounted(true);
-    const timer = setInterval(() => {
-      setIndex((prev) => (prev + 1) % heroImages.length);
-    }, 5000);
+    if (!overrideUrl) {
+      const timer = setInterval(() => {
+        setIndex((prev) => (prev + 1) % heroImages.length);
+      }, 5000);
+      return () => clearInterval(timer);
+    }
+  }, [overrideUrl]);
 
-    return () => clearInterval(timer);
-  }, []);
-
-  // Hydration Guard: Ensure we don't render motion elements until client-side mount
   if (!mounted) {
-    return <div className="relative h-[620px] w-full bg-slate-100 rounded-[3rem] animate-pulse" />;
+    return <div className="relative h-[580px] w-full bg-slate-50 rounded-[3rem] animate-pulse shadow-xl" />;
   }
 
-  // Use override (from Sovereign Guardian) or the rotating story
   const displayUrl = overrideUrl && overrideUrl !== "" ? overrideUrl : heroImages[index];
 
   return (
-    <div className="relative h-[620px] w-full overflow-hidden rounded-[3rem] shadow-2xl bg-slate-100 group">
+    <div className="relative h-[580px] w-full overflow-hidden rounded-[3.5rem] shadow-[0_40px_100px_-15px_rgba(0,0,0,0.15)] bg-slate-50">
       
       <AnimatePresence mode="wait">
         <motion.img
@@ -55,49 +55,49 @@ export default function HeroImage({ overrideUrl }: { overrideUrl?: string }) {
           initial={{ opacity: 0, scale: 1.05 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 1.4, ease: "easeInOut" }}
+          transition={{ duration: 1.2, ease: "easeInOut" }}
           className="absolute inset-0 h-full w-full object-cover"
-          alt="World Children - Global Mission"
-          data-ai-hint="world children"
+          alt="Global Community Story"
         />
       </AnimatePresence>
 
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none"/>
+      {/* Dynamic Ambiance Layer */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none"/>
 
-      {/* Make it Feel Alive - Floating Elements */}
+      {/* Floating Elements (Alive Protocol) */}
       <div className="absolute top-10 left-10 animate-bounce text-pink-500 z-20">
-        <Heart className="w-10 h-10 fill-current drop-shadow-[0_0_15px_rgba(255,51,102,0.5)]" />
+        <Heart className="w-10 h-10 fill-current drop-shadow-2xl" />
       </div>
 
-      <div className="absolute bottom-40 right-10 animate-pulse text-yellow-400 z-20">
-        <Sparkles className="w-12 h-12 drop-shadow-[0_0_15px_rgba(250,204,21,0.5)]" />
+      <div className="absolute bottom-32 right-12 animate-pulse text-yellow-400 z-20">
+        <Sparkles className="w-14 h-14 drop-shadow-2xl" />
       </div>
 
-      <div className="absolute top-32 right-20 animate-ping text-pink-400/40 z-20">
+      <div className="absolute top-40 right-20 animate-ping text-pink-400/30 z-20">
         <Heart className="w-8 h-8 fill-current" />
       </div>
 
-      {/* Overlay Text Architecture */}
-      <div className="absolute bottom-12 left-10 right-10 text-white z-30 space-y-3">
+      {/* Cinematic Text Architecture */}
+      <div className="absolute bottom-12 left-12 right-12 text-white z-30 space-y-4">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 1 }}
+          transition={{ delay: 0.4, duration: 0.8 }}
         >
-          <h2 className="text-4xl md:text-6xl font-black tracking-tighter uppercase leading-[0.9]">
+          <h2 className="text-5xl md:text-6xl font-black tracking-tighter uppercase leading-[0.9] drop-shadow-lg">
             Love Knows <br/><span className="text-primary">No Borders.</span>
           </h2>
-          <p className="mt-4 text-lg md:text-xl font-medium italic text-white/80 leading-relaxed max-w-md">
+          <p className="mt-4 text-xl font-medium italic text-white/90 leading-relaxed max-w-md drop-shadow-md">
             "Together we can end poverty through kindness, opportunity, and human connection."
           </p>
         </motion.div>
       </div>
 
-      {/* Activity Status */}
-      <div className="absolute top-6 right-6 z-30">
-        <div className="bg-black/20 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/10 flex items-center gap-2">
-          <Globe className="w-3 h-3 text-white" />
-          <span className="text-[9px] font-black uppercase text-white tracking-[0.2em]">Global Unity Protocol</span>
+      {/* Global Status Protocol */}
+      <div className="absolute top-8 right-8 z-30">
+        <div className="bg-black/20 backdrop-blur-xl px-5 py-2.5 rounded-full border border-white/10 flex items-center gap-3 shadow-2xl">
+          <Globe className="w-4 h-4 text-white animate-spin-slow" />
+          <span className="text-[10px] font-black uppercase text-white tracking-[0.25em]">Universal Unity</span>
         </div>
       </div>
     </div>
