@@ -135,21 +135,21 @@ export default function CommunityPage() {
 
   const handleHeroUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !db || !user || !canEditHero) return;
-
-    setIsUploadingHero(true);
-    try {
-      const url = await uploadFile(`hero-images/community-${Date.now()}_${file.name}`, file);
-      await updateDoc(doc(db, "siteSettings", "communityHero"), {
-        heroImageUrl: url,
-        updatedAt: serverTimestamp(),
-      });
-      setHeroImage(url);
-      toast({ title: "Vision Updated", description: "The Global Wall has a new heartbeat. ✨" });
-    } catch (err) {
-      toast({ variant: "destructive", title: "Update Failed", description: "Could not change the global vision." });
-    } finally {
-      setIsUploadingHero(false);
+    if (file && db && user && canEditHero) {
+      setIsUploadingHero(true);
+      try {
+        const url = await uploadFile(`hero-images/community-${Date.now()}_${file.name}`, file);
+        await updateDoc(doc(db, "siteSettings", "communityHero"), {
+          heroImageUrl: url,
+          updatedAt: serverTimestamp(),
+        });
+        setHeroImage(url);
+        toast({ title: "Vision Updated", description: "The Global Wall has a new heartbeat. ✨" });
+      } catch (err) {
+        toast({ variant: "destructive", title: "Update Failed", description: "Could not change the global vision." });
+      } finally {
+        setIsUploadingHero(false);
+      }
     }
   };
 

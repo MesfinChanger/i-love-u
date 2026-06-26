@@ -13,7 +13,7 @@ service cloud.firestore {
     }
 
     function getSovereignOwnerId() {
-      // Use get() with a fallback or exists check to prevent error if VACANT
+      // Use exists check to prevent error if doc is missing
       return exists(/databases/$(database)/documents/siteSettings/sovereignty) 
              ? get(/databases/$(database)/documents/siteSettings/sovereignty).data.ownerId 
              : null;
