@@ -2,112 +2,58 @@
 {
   "placeholderImages": [
     {
-      "id": "app-logo",
-      "description": "I Love U app logo",
-      "imageUrl": "https://picsum.photos/seed/iloveu-logo/200/200",
-      "imageHint": "happy heart"
+      "id": "mosaic-planting",
+      "description": "Community members planting trees together",
+      "imageUrl": "https://picsum.photos/seed/planting/600/400",
+      "imageHint": "planting trees"
     },
     {
-      "id": "place-africa",
-      "description": "Majestic African Savanna at Sunset",
-      "imageUrl": "https://picsum.photos/seed/africa-place/1200/800",
-      "imageHint": "african savanna"
+      "id": "mosaic-volunteers",
+      "description": "Diverse volunteers in a park",
+      "imageUrl": "https://picsum.photos/seed/volunteers/600/400",
+      "imageHint": "community volunteers"
     },
     {
-      "id": "place-europe",
-      "description": "Charming European Cobblestone Street",
-      "imageUrl": "https://picsum.photos/seed/europe-place/1200/800",
-      "imageHint": "europe city"
+      "id": "mosaic-beach",
+      "description": "Friends laughing at a beautiful beach",
+      "imageUrl": "https://picsum.photos/seed/beach-friends/600/400",
+      "imageHint": "beach friends"
     },
     {
-      "id": "place-asia",
-      "description": "Serene Asian Temple and Mountains",
-      "imageUrl": "https://picsum.photos/seed/asia-place/1200/800",
-      "imageHint": "asia landscape"
+      "id": "mosaic-globe-center",
+      "description": "Diverse children holding a globe",
+      "imageUrl": "https://picsum.photos/seed/global-center/800/800",
+      "imageHint": "world children"
     },
     {
-      "id": "place-americas",
-      "description": "Breathtaking Canyon in the Americas",
-      "imageUrl": "https://picsum.photos/seed/americas-place/1200/800",
-      "imageHint": "grand canyon"
+      "id": "mosaic-food-bank",
+      "description": "Supportive community food distribution",
+      "imageUrl": "https://picsum.photos/seed/food-support/600/400",
+      "imageHint": "food bank"
     },
     {
-      "id": "place-tropical",
-      "description": "Crystal Clear Tropical Paradise",
-      "imageUrl": "https://picsum.photos/seed/tropical-place/1200/800",
-      "imageHint": "tropical island"
+      "id": "mosaic-overlook",
+      "description": "Person looking over a vast global landscape",
+      "imageUrl": "https://picsum.photos/seed/overlook/400/800",
+      "imageHint": "landscape overlook"
     },
     {
-      "id": "place-modern",
-      "description": "Futuristic Global City Skyline",
-      "imageUrl": "https://picsum.photos/seed/modern-place/1200/800",
-      "imageHint": "city skyline"
+      "id": "mosaic-circle",
+      "description": "Community talk circle in nature",
+      "imageUrl": "https://picsum.photos/seed/community-circle/600/400",
+      "imageHint": "talk circle"
     },
     {
-      "id": "landing-hero",
-      "description": "Global community helping each other",
-      "imageUrl": "https://picsum.photos/seed/global-hero/1200/800",
-      "imageHint": "diverse community"
+      "id": "mosaic-hands",
+      "description": "Hands stacked together in unity",
+      "imageUrl": "https://picsum.photos/seed/hands-stacked/600/400",
+      "imageHint": "hands together"
     },
     {
-      "id": "collage-1",
-      "description": "Beautiful garden gathering",
-      "imageUrl": "https://picsum.photos/seed/c1/600/400",
-      "imageHint": "garden volunteers"
-    },
-    {
-      "id": "collage-2",
-      "description": "Sun-drenched city square",
-      "imageUrl": "https://picsum.photos/seed/c2/600/400",
-      "imageHint": "city square"
-    },
-    {
-      "id": "collage-3",
-      "description": "Mist-covered mountain peaks",
-      "imageUrl": "https://picsum.photos/seed/c3/600/400",
-      "imageHint": "mountain peaks"
-    },
-    {
-      "id": "collage-4",
-      "description": "Friends at a stunning beach",
-      "imageUrl": "https://picsum.photos/seed/c4/600/400",
-      "imageHint": "beautiful beach"
-    },
-    {
-      "id": "collage-5",
-      "description": "Ancient ruins at dawn",
-      "imageUrl": "https://picsum.photos/seed/c5/600/400",
-      "imageHint": "ancient ruins"
-    },
-    {
-      "id": "collage-6",
-      "description": "Vibrant multicultural marketplace",
-      "imageUrl": "https://picsum.photos/seed/c6/800/600",
-      "imageHint": "vibrant market"
-    },
-    {
-      "id": "collage-7",
-      "description": "Snowy alpine village",
-      "imageUrl": "https://picsum.photos/seed/c7/600/400",
-      "imageHint": "alpine village"
-    },
-    {
-      "id": "collage-8",
-      "description": "Modern architecture park",
-      "imageUrl": "https://picsum.photos/seed/c8/600/400",
-      "imageHint": "modern park"
-    },
-    {
-      "id": "collage-9",
-      "description": "Hands joined over a map",
-      "imageUrl": "https://picsum.photos/seed/c9/600/400",
-      "imageHint": "world map"
-    },
-    {
-      "id": "collage-10",
-      "description": "Group celebrating in a scenic spot",
-      "imageUrl": "https://picsum.photos/seed/c10/600/400",
-      "imageHint": "scenic celebration"
+      "id": "mosaic-smiling",
+      "description": "Large group of multicultural friends smiling",
+      "imageUrl": "https://picsum.photos/seed/smiling-group/600/400",
+      "imageHint": "diverse group"
     }
   ]
 }

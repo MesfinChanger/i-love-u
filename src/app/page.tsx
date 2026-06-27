@@ -26,18 +26,16 @@ import { cn } from '@/lib/utils';
 import { useTranslation } from '@/components/providers/LanguageProvider';
 import { SUPPORTED_LANGUAGES } from '@/lib/world-data';
 import { useUser } from '@/firebase';
-import HeroImage from '@/components/HeroImage';
-import GlobalCommunityCollage from '@/components/GlobalCommunityCollage';
+import HeroMosaic from '@/components/HeroMosaic';
 
 /**
  * @fileOverview The I LOVE U Homepage.
- * Cinematic mission vision with Dynamic Global Storytelling and "Alive" UI layer.
- * Perfectly aligns with the high-impact "Spark Love. End Poverty." design.
+ * Split-screen architecture featuring a complex 12x12 visual mosaic.
+ * Aligned with the high-impact "Spark Love. End Poverty." vision.
  */
 export default function Home() {
   const { user } = useUser();
   const { language, setLanguage, t } = useTranslation();
-  
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -45,14 +43,14 @@ export default function Home() {
   }, []);
 
   if (!mounted) return (
-    <div className="flex items-center justify-center min-h-screen bg-white">
+    <div className="flex items-center justify-center min-h-screen bg-[#fcf9f5]">
       <Heart className="w-12 h-12 text-primary animate-heartbeat fill-primary" />
     </div>
   );
 
   return (
-    <div className="flex flex-col min-h-screen bg-white overflow-x-hidden">
-      {/* HEADER PROTOCOL */}
+    <div className="flex flex-col min-h-screen bg-[#fcf9f5] overflow-x-hidden selection:bg-primary/20">
+      {/* HEADER */}
       <header className="fixed top-0 z-50 w-full bg-white/80 backdrop-blur-xl border-b border-slate-100">
         <div className="container mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -63,10 +61,10 @@ export default function Home() {
           <div className="flex items-center gap-6">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="hover:bg-primary/5 h-10 px-3 gap-2 rounded-full transition-colors">
+                <button className="hover:bg-primary/5 h-10 px-3 gap-2 rounded-full transition-colors flex items-center">
                   <Languages className="w-4 h-4 text-primary" />
                   <span className="text-[11px] font-black uppercase tracking-widest hidden sm:inline-block">{language}</span>
-                </Button>
+                </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56 rounded-2xl p-2 border-none shadow-2xl mr-4 max-h-80 overflow-y-auto" align="end">
                 {SUPPORTED_LANGUAGES.map((lang) => (
@@ -95,40 +93,35 @@ export default function Home() {
         </div>
       </header>
 
-      {/* MAIN MISSION CORE */}
-      <main className="flex-grow pt-20">
-        <section className="max-w-7xl mx-auto px-6 py-12">
-          
-          {/* CINEMATIC HERO CONTAINER */}
-          <div className="relative w-full h-[640px] overflow-hidden rounded-[40px] shadow-2xl group bg-slate-100">
+      {/* MAIN CONTENT */}
+      <main className="flex-grow pt-20 flex items-center">
+        <section className="container mx-auto px-6 py-10 lg:py-20 h-full">
+          <div className="grid lg:grid-cols-[4fr_6fr] gap-12 xl:gap-20 items-center min-h-[70vh]">
             
-            {/* Rotating Global Story Layer */}
-            <HeroImage />
+            {/* CONTENT SIDE */}
+            <div className="space-y-8 text-left animate-in fade-in slide-in-from-left-4 duration-1000">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-pink-100 text-pink-600 font-black text-[10px] tracking-widest border border-pink-200">
+                <Heart className="w-3 h-3 fill-pink-600" /> GLOBAL COMMUNITY VERIFIED
+              </div>
 
-            {/* Content Layer */}
-            <div className="absolute left-12 top-1/2 -translate-y-1/2 max-w-xl z-10 text-left space-y-8 animate-in fade-in slide-in-from-left-4 duration-1000">
-              <span className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-pink-100 text-pink-600 font-black text-sm border border-pink-200 shadow-sm">
-                ❤️ GLOBAL COMMUNITY VERIFIED
-              </span>
-
-              <h1 className="text-7xl font-black leading-[0.9] tracking-tighter">
-                <span className="text-slate-900 block">Spark </span>
-                <span className="text-primary block">Love.</span>
-                <span className="block bg-gradient-to-r from-pink-500 via-orange-400 to-yellow-400 bg-clip-text text-transparent">End Poverty.</span>
+              <h1 className="text-6xl xl:text-[5.5rem] font-black leading-[0.9] tracking-tighter text-[#1a2530]">
+                Spark <span className="text-primary">Love.</span><br />
+                End <span className="text-secondary">Poverty.</span>
               </h1>
 
-              <p className="text-xl text-slate-600 leading-relaxed font-medium">
-                Connecting hearts across every city and village to create opportunities, friendships, and positive change through global job creation.
+              <p className="text-xl text-slate-600 leading-relaxed font-medium max-w-md">
+                Connecting hearts across every city and village to create opportunities, 
+                friendships, and positive change through global job creation.
               </p>
 
               <div className="flex flex-wrap gap-4 pt-4">
                 <Button size="lg" className="h-16 px-10 rounded-full text-base font-black gradient-bg shadow-2xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all group" asChild>
                   <Link href={user ? "/discover" : "/login"}>
+                    <Heart className="w-5 h-5 mr-2 fill-white" />
                     Join the Movement
-                    <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                   </Link>
                 </Button>
-                <Button variant="outline" size="lg" className="h-16 px-10 rounded-full text-base font-bold border-2 border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-all flex items-center gap-2 shadow-sm" asChild>
+                <Button variant="outline" size="lg" className="h-16 px-10 rounded-full text-base font-bold border-2 border-slate-200 bg-white text-[#1a2530] hover:bg-slate-50 transition-all flex items-center gap-2 shadow-sm" asChild>
                   <Link href="/donate">
                     <PlayCircle className="w-5 h-5 text-primary" />
                     Watch Our Story
@@ -136,58 +129,25 @@ export default function Home() {
                 </Button>
               </div>
             </div>
-          </div>
-        </section>
 
-        {/* MISSION PILLARS */}
-        <section className="container mx-auto px-6 py-20">
-          <div className="grid md:grid-cols-3 gap-12 text-center md:text-left">
-            <div className="space-y-4">
-              <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mx-auto md:mx-0">
-                <Globe className="w-6 h-6" />
-              </div>
-              <h3 className="text-xl font-black uppercase tracking-tight">Pure Respect</h3>
-              <p className="text-slate-500 text-sm leading-relaxed italic">Built on mutual honor. Reaching every rural community and global city with love.</p>
+            {/* VISUAL MOSAIC SIDE */}
+            <div className="h-full">
+               <HeroMosaic />
             </div>
-            <div className="space-y-4">
-              <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mx-auto md:mx-0">
-                <Zap className="w-6 h-6" />
-              </div>
-              <h3 className="text-xl font-black uppercase tracking-tight">AI Moderated</h3>
-              <p className="text-slate-500 text-sm leading-relaxed italic">Disrespect is filtered automatically. Join a community where kindness is mandatory.</p>
-            </div>
-            <div className="space-y-4">
-              <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mx-auto md:mx-0">
-                <Heart className="w-6 h-6" />
-              </div>
-              <h3 className="text-xl font-black uppercase tracking-tight">Prosperity</h3>
-              <p className="text-slate-500 text-sm leading-relaxed italic">Every connection funds local job creation to eliminate global poverty forever.</p>
-            </div>
-          </div>
-        </section>
 
-        {/* COMMUNITY COLLAGE SECTION */}
-        <section className="max-w-7xl mx-auto px-6 py-20 bg-slate-50/50 rounded-[4rem] mb-20 border border-slate-100">
-           <div className="text-center mb-16 space-y-4">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white shadow-sm border border-slate-200 text-[10px] font-black uppercase tracking-widest text-slate-400">
-                 <Sparkles className="w-3.5 h-3.5 text-primary" />
-                 Heartbeat of the Revolution
-              </div>
-              <h2 className="text-5xl font-black tracking-tighter uppercase leading-none text-slate-900">
-                Reaching Every <br/><span className="gradient-text">Heart.</span>
-              </h2>
-              <p className="text-slate-500 max-w-xl mx-auto italic font-medium">
-                "Prosperity is a community effort." See how we are building a better world, one connection at a time.
-              </p>
-           </div>
-           <GlobalCommunityCollage />
+          </div>
         </section>
       </main>
 
-      <footer className="py-16 border-t border-slate-50 bg-slate-50/30">
-        <div className="container mx-auto px-6 text-center space-y-6">
+      {/* FOOTER */}
+      <footer className="py-12 border-t border-slate-100 bg-white/50">
+        <div className="container mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6">
           <p className="font-black text-[11px] tracking-[0.4em] uppercase text-slate-300">© 2026 • Reaching Every Heart</p>
-          <p className="text-[10px] font-bold italic uppercase tracking-widest opacity-40 text-slate-400">Respect & Love is Mandatory ❤️ Eliminating Poverty Globally</p>
+          <div className="flex items-center gap-4 text-[10px] font-black uppercase tracking-widest text-slate-400 italic">
+             <span>Respect is Mandatory</span>
+             <div className="w-1.5 h-1.5 rounded-full bg-primary/20" />
+             <span>Eliminating Poverty Globally</span>
+          </div>
         </div>
       </footer>
     </div>
