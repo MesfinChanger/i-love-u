@@ -5,50 +5,43 @@ import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 /**
- * @fileOverview High-Fidelity Community Collage.
- * Features a dynamic grid of mission-aligned visuals showing global prosperity.
+ * @fileOverview High-Fidelity Community Collage Mosaic.
+ * Features a dynamic 12-column grid showing global prosperity in action.
  */
 export default function GlobalCommunityCollage() {
-  const getImage = (id: string) => PlaceHolderImages.find(img => img.id === id)?.imageUrl || '';
+  const getImage = (id: string) => PlaceHolderImages.find(img => img.id === id);
+
+  const images = [
+    { id: 'collage-1', span: 'col-span-3', h: 'h-64' },
+    { id: 'collage-2', span: 'col-span-4', h: 'h-64' },
+    { id: 'collage-3', span: 'col-span-3', h: 'h-64' },
+    { id: 'collage-4', span: 'col-span-2', h: 'h-64' },
+    { id: 'collage-5', span: 'col-span-3', h: 'h-80' },
+    { id: 'collage-6', span: 'col-span-6', h: 'h-80' },
+    { id: 'collage-7', span: 'col-span-3', h: 'h-80' },
+    { id: 'collage-8', span: 'col-span-4', h: 'h-56' },
+    { id: 'collage-9', span: 'col-span-4', h: 'h-56' },
+    { id: 'collage-10', span: 'col-span-4', h: 'h-56' },
+  ];
 
   return (
     <div className="grid grid-cols-12 gap-4 rounded-[40px] overflow-hidden">
-      {/* Row 1 */}
-      <div className="col-span-3 h-64 relative rounded-3xl overflow-hidden shadow-lg group">
-        <Image src={getImage('collage-1')} alt="Volunteers" fill className="object-cover transition-transform group-hover:scale-110" />
-      </div>
-      <div className="col-span-4 h-64 relative rounded-3xl overflow-hidden shadow-lg group">
-        <Image src={getImage('collage-2')} alt="Friends" fill className="object-cover transition-transform group-hover:scale-110" />
-      </div>
-      <div className="col-span-3 h-64 relative rounded-3xl overflow-hidden shadow-lg group">
-        <Image src={getImage('collage-3')} alt="Donation" fill className="object-cover transition-transform group-hover:scale-110" />
-      </div>
-      <div className="col-span-2 h-64 relative rounded-3xl overflow-hidden shadow-lg group">
-        <Image src={getImage('collage-4')} alt="Beach" fill className="object-cover transition-transform group-hover:scale-110" />
-      </div>
-
-      {/* Row 2 */}
-      <div className="col-span-3 h-80 relative rounded-3xl overflow-hidden shadow-xl group">
-        <Image src={getImage('collage-5')} alt="Elderly Support" fill className="object-cover transition-transform group-hover:scale-110" />
-      </div>
-      <div className="col-span-6 h-80 relative rounded-3xl overflow-hidden shadow-2xl border-4 border-white/20 group">
-        <Image src={getImage('collage-6')} alt="Global Community" fill className="object-cover transition-transform group-hover:scale-110" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-      </div>
-      <div className="col-span-3 h-80 relative rounded-3xl overflow-hidden shadow-xl group">
-        <Image src={getImage('collage-7')} alt="Food Support" fill className="object-cover transition-transform group-hover:scale-110" />
-      </div>
-
-      {/* Row 3 */}
-      <div className="col-span-4 h-56 relative rounded-3xl overflow-hidden shadow-md group">
-        <Image src={getImage('collage-8')} alt="Circle" fill className="object-cover transition-transform group-hover:scale-110" />
-      </div>
-      <div className="col-span-4 h-56 relative rounded-3xl overflow-hidden shadow-md group">
-        <Image src={getImage('collage-9')} alt="Unity" fill className="object-cover transition-transform group-hover:scale-110" />
-      </div>
-      <div className="col-span-4 h-56 relative rounded-3xl overflow-hidden shadow-md group">
-        <Image src={getImage('collage-10')} alt="Celebration" fill className="object-cover transition-transform group-hover:scale-110" />
-      </div>
+      {images.map((img, idx) => {
+        const data = getImage(img.id);
+        if (!data) return null;
+        return (
+          <div key={idx} className={`${img.span} ${img.h} relative rounded-[2rem] overflow-hidden shadow-lg group bg-slate-100`}>
+            <Image 
+              src={data.imageUrl} 
+              alt={data.description} 
+              fill 
+              className="object-cover transition-transform duration-700 group-hover:scale-110" 
+              data-ai-hint={data.imageHint}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          </div>
+        );
+      })}
     </div>
   );
 }

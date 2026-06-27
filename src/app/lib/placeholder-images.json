@@ -10,104 +10,104 @@
     {
       "id": "world-1",
       "description": "African children laughing together",
-      "imageUrl": "https://picsum.photos/seed/african-children-joy/1200/800",
+      "imageUrl": "https://picsum.photos/seed/world1/1200/800",
       "imageHint": "children laughing"
     },
     {
       "id": "world-2",
       "description": "Asian and European volunteers helping",
-      "imageUrl": "https://picsum.photos/seed/volunteers-mission-unity/1200/800",
+      "imageUrl": "https://picsum.photos/seed/world2/1200/800",
       "imageHint": "volunteers help"
     },
     {
       "id": "world-3",
       "description": "Friends of different races hugging",
-      "imageUrl": "https://picsum.photos/seed/multicultural-friends-hug/1200/800",
+      "imageUrl": "https://picsum.photos/seed/world3/1200/800",
       "imageHint": "friends hugging"
     },
     {
       "id": "world-4",
-      "description": "Families smiling together in nature",
-      "imageUrl": "https://picsum.photos/seed/global-family-joy/1200/800",
+      "description": "Families smiling together",
+      "imageUrl": "https://picsum.photos/seed/world4/1200/800",
       "imageHint": "family smiling"
     },
     {
       "id": "world-5",
       "description": "Helping hands joining together",
-      "imageUrl": "https://picsum.photos/seed/global-helping-hands/1200/800",
+      "imageUrl": "https://picsum.photos/seed/world5/1200/800",
       "imageHint": "helping hands"
     },
     {
       "id": "world-6",
       "description": "Children from every continent holding hands",
-      "imageUrl": "https://picsum.photos/seed/world-children-unity/1200/800",
+      "imageUrl": "https://picsum.photos/seed/world6/1200/800",
       "imageHint": "children hands"
     },
     {
       "id": "landing-hero",
-      "description": "Diverse community from around the world",
-      "imageUrl": "https://picsum.photos/seed/global-hero-vision/1200/800",
+      "description": "Global community helping each other",
+      "imageUrl": "https://picsum.photos/seed/global-hero/1200/800",
       "imageHint": "diverse community"
     },
     {
       "id": "collage-1",
       "description": "Volunteers working in a park",
-      "imageUrl": "https://picsum.photos/seed/volunteer-park/600/400",
-      "imageHint": "volunteers park"
+      "imageUrl": "https://picsum.photos/seed/c1/600/400",
+      "imageHint": "volunteers"
     },
     {
       "id": "collage-2",
       "description": "Diverse group of friends",
-      "imageUrl": "https://picsum.photos/seed/diverse-friends/600/400",
-      "imageHint": "diverse friends"
+      "imageUrl": "https://picsum.photos/seed/c2/600/400",
+      "imageHint": "friends"
     },
     {
       "id": "collage-3",
       "description": "Community donation drive",
-      "imageUrl": "https://picsum.photos/seed/donation-drive/600/400",
-      "imageHint": "donation drive"
+      "imageUrl": "https://picsum.photos/seed/c3/600/400",
+      "imageHint": "donation"
     },
     {
       "id": "collage-4",
       "description": "Friends enjoying the beach",
-      "imageUrl": "https://picsum.photos/seed/beach-friends/600/400",
-      "imageHint": "beach friends"
+      "imageUrl": "https://picsum.photos/seed/c4/600/400",
+      "imageHint": "beach"
     },
     {
       "id": "collage-5",
       "description": "Supporting elderly community members",
-      "imageUrl": "https://picsum.photos/seed/hugging-elderly/600/400",
+      "imageUrl": "https://picsum.photos/seed/c5/600/400",
       "imageHint": "elderly support"
     },
     {
       "id": "collage-6",
       "description": "Global community gathering",
-      "imageUrl": "https://picsum.photos/seed/global-gathering/800/600",
-      "imageHint": "global community"
+      "imageUrl": "https://picsum.photos/seed/c6/800/600",
+      "imageHint": "gathering"
     },
     {
       "id": "collage-7",
       "description": "Food distribution support",
-      "imageUrl": "https://picsum.photos/seed/food-support/600/400",
+      "imageUrl": "https://picsum.photos/seed/c7/600/400",
       "imageHint": "food support"
     },
     {
       "id": "collage-8",
       "description": "People in a community circle",
-      "imageUrl": "https://picsum.photos/seed/community-circle/600/400",
-      "imageHint": "community circle"
+      "imageUrl": "https://picsum.photos/seed/c8/600/400",
+      "imageHint": "circle"
     },
     {
       "id": "collage-9",
       "description": "Hands joined in unity",
-      "imageUrl": "https://picsum.photos/seed/hands-together/600/400",
-      "imageHint": "hands unity"
+      "imageUrl": "https://picsum.photos/seed/c9/600/400",
+      "imageHint": "hands"
     },
     {
       "id": "collage-10",
       "description": "Group celebrating together",
-      "imageUrl": "https://picsum.photos/seed/group-celebration/600/400",
-      "imageHint": "group celebration"
+      "imageUrl": "https://picsum.photos/seed/c10/600/400",
+      "imageHint": "celebration"
     }
   ]
 }

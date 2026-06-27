@@ -105,9 +105,6 @@ export default function Home() {
             {/* Rotating Global Story Layer */}
             <HeroImage />
 
-            {/* Cinematic Gradient Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-r from-white via-white/70 to-transparent pointer-events-none" />
-
             {/* Content Layer */}
             <div className="absolute left-12 top-1/2 -translate-y-1/2 max-w-xl z-10 text-left space-y-8 animate-in fade-in slide-in-from-left-4 duration-1000">
               <span className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-pink-100 text-pink-600 font-black text-sm border border-pink-200 shadow-sm">
