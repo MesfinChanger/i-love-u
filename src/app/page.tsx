@@ -30,7 +30,7 @@ import HeroImage from '@/components/HeroImage';
 /**
  * @fileOverview The I LOVE U Homepage.
  * Cinematic mission vision with Dynamic Global Storytelling and "Alive" UI layer.
- * Strictly implements the h-[640px], rounded-[40px], and high-impact layout.
+ * Perfectly aligns with the high-impact "Spark Love. End Poverty." design.
  */
 export default function Home() {
   const { user } = useUser();
@@ -104,12 +104,7 @@ export default function Home() {
             <HeroImage />
 
             {/* Cinematic Gradient Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-r from-white via-white/80 to-transparent pointer-events-none" />
-
-            {/* "Alive" Decorative UI Elements */}
-            <div className="absolute top-10 left-10 animate-bounce text-pink-500 text-3xl z-20" aria-hidden="true">❤️</div>
-            <div className="absolute bottom-20 right-10 animate-pulse text-yellow-400 text-4xl z-20" aria-hidden="true">✨</div>
-            <div className="absolute top-32 right-20 animate-ping text-pink-400 z-20" aria-hidden="true">💖</div>
+            <div className="absolute inset-0 bg-gradient-to-r from-white via-white/70 to-transparent pointer-events-none" />
 
             {/* Content Layer */}
             <div className="absolute left-12 top-1/2 -translate-y-1/2 max-w-xl z-10 text-left space-y-8 animate-in fade-in slide-in-from-left-4 duration-1000">
@@ -141,12 +136,6 @@ export default function Home() {
                   </Link>
                 </Button>
               </div>
-            </div>
-
-            {/* Floating Action Overlay Text */}
-            <div className="absolute bottom-10 left-10 z-20 text-white drop-shadow-lg hidden sm:block">
-               <h2 className="text-4xl font-bold tracking-tight">Love Knows No Borders</h2>
-               <p className="text-lg opacity-80 mt-2">Together we can end poverty through kindness.</p>
             </div>
           </div>
         </section>
