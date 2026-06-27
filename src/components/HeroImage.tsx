@@ -12,12 +12,12 @@ import { PlaceHolderImages } from "@/lib/placeholder-images";
  * Implements the "Alive" UI layer with floating hearts and sparkles.
  */
 const heroPlaceIds = [
-  "place-africa",
+  "place-tropical",
   "place-europe",
   "place-asia",
-  "place-americas",
-  "place-tropical",
   "place-modern",
+  "place-safari",
+  "place-landscape",
 ];
 
 export default function HeroImage() {

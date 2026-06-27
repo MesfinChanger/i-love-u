@@ -2,58 +2,58 @@
 {
   "placeholderImages": [
     {
-      "id": "mosaic-planting",
-      "description": "Community members planting trees together",
-      "imageUrl": "https://picsum.photos/seed/planting/600/400",
-      "imageHint": "planting trees"
+      "id": "place-tropical",
+      "description": "Crystal clear tropical beach in the Maldives",
+      "imageUrl": "https://picsum.photos/seed/maldives/1200/800",
+      "imageHint": "tropical beach"
     },
     {
-      "id": "mosaic-volunteers",
-      "description": "Diverse volunteers working in a community park",
-      "imageUrl": "https://picsum.photos/seed/volunteers/600/400",
-      "imageHint": "community volunteers"
+      "id": "place-europe",
+      "description": "Sunset over Santorini Greece white buildings",
+      "imageUrl": "https://picsum.photos/seed/santorini/1200/800",
+      "imageHint": "santorini greece"
     },
     {
-      "id": "mosaic-beach",
-      "description": "Friends laughing at a beautiful global beach",
-      "imageUrl": "https://picsum.photos/seed/beach-friends/600/400",
-      "imageHint": "beach friends"
+      "id": "place-asia",
+      "description": "Lush green rice terraces in Bali",
+      "imageUrl": "https://picsum.photos/seed/bali/1200/800",
+      "imageHint": "bali landscape"
     },
     {
-      "id": "mosaic-globe-center",
-      "description": "Multicultural children holding a globe in unity",
-      "imageUrl": "https://picsum.photos/seed/global-unity/800/800",
-      "imageHint": "world children"
+      "id": "place-modern",
+      "description": "Eiffel Tower in Paris at twilight",
+      "imageUrl": "https://picsum.photos/seed/paris/1200/800",
+      "imageHint": "paris city"
     },
     {
-      "id": "mosaic-food-bank",
-      "description": "Supportive community food distribution",
-      "imageUrl": "https://picsum.photos/seed/food-support/600/400",
-      "imageHint": "food bank"
+      "id": "place-safari",
+      "description": "Golden savanna landscape in Africa",
+      "imageUrl": "https://picsum.photos/seed/savanna/1200/800",
+      "imageHint": "african savanna"
     },
     {
-      "id": "mosaic-overlook",
-      "description": "Person looking over a vast, prosperous global landscape",
-      "imageUrl": "https://picsum.photos/seed/overlook/400/800",
-      "imageHint": "landscape overlook"
+      "id": "place-landscape",
+      "description": "Snow-capped Swiss Alps overlook",
+      "imageUrl": "https://picsum.photos/seed/alps/1200/800",
+      "imageHint": "mountain landscape"
     },
     {
-      "id": "mosaic-circle",
-      "description": "Community talking circle in nature",
-      "imageUrl": "https://picsum.photos/seed/community-circle/600/400",
-      "imageHint": "talk circle"
+      "id": "place-cliff",
+      "description": "Dramatic ocean cliffs in Amalfi Coast",
+      "imageUrl": "https://picsum.photos/seed/amalfi/800/800",
+      "imageHint": "ocean cliff"
     },
     {
-      "id": "mosaic-hands",
-      "description": "Diverse hands stacked together in a circle of unity",
-      "imageUrl": "https://picsum.photos/seed/hands-stacked/600/400",
-      "imageHint": "hands together"
+      "id": "place-city",
+      "description": "Vibrant neon streets of Tokyo",
+      "imageUrl": "https://picsum.photos/seed/tokyo/800/800",
+      "imageHint": "tokyo city"
     },
     {
-      "id": "mosaic-smiling",
-      "description": "Large group of multicultural friends smiling",
-      "imageUrl": "https://picsum.photos/seed/smiling-group/600/400",
-      "imageHint": "diverse group"
+      "id": "place-resort",
+      "description": "Luxury overwater bungalow resort",
+      "imageUrl": "https://picsum.photos/seed/resort/800/800",
+      "imageHint": "beach resort"
     }
   ]
 }
