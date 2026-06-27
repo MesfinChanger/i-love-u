@@ -1,3 +1,4 @@
+
 {
   "placeholderImages": [
     {
@@ -47,6 +48,66 @@
       "description": "Diverse community from around the world",
       "imageUrl": "https://picsum.photos/seed/global-hero-vision/1200/800",
       "imageHint": "diverse community"
+    },
+    {
+      "id": "collage-1",
+      "description": "Volunteers working in a park",
+      "imageUrl": "https://picsum.photos/seed/volunteer-park/600/400",
+      "imageHint": "volunteers park"
+    },
+    {
+      "id": "collage-2",
+      "description": "Diverse group of friends",
+      "imageUrl": "https://picsum.photos/seed/diverse-friends/600/400",
+      "imageHint": "diverse friends"
+    },
+    {
+      "id": "collage-3",
+      "description": "Community donation drive",
+      "imageUrl": "https://picsum.photos/seed/donation-drive/600/400",
+      "imageHint": "donation drive"
+    },
+    {
+      "id": "collage-4",
+      "description": "Friends enjoying the beach",
+      "imageUrl": "https://picsum.photos/seed/beach-friends/600/400",
+      "imageHint": "beach friends"
+    },
+    {
+      "id": "collage-5",
+      "description": "Supporting elderly community members",
+      "imageUrl": "https://picsum.photos/seed/hugging-elderly/600/400",
+      "imageHint": "elderly support"
+    },
+    {
+      "id": "collage-6",
+      "description": "Global community gathering",
+      "imageUrl": "https://picsum.photos/seed/global-gathering/800/600",
+      "imageHint": "global community"
+    },
+    {
+      "id": "collage-7",
+      "description": "Food distribution support",
+      "imageUrl": "https://picsum.photos/seed/food-support/600/400",
+      "imageHint": "food support"
+    },
+    {
+      "id": "collage-8",
+      "description": "People in a community circle",
+      "imageUrl": "https://picsum.photos/seed/community-circle/600/400",
+      "imageHint": "community circle"
+    },
+    {
+      "id": "collage-9",
+      "description": "Hands joined in unity",
+      "imageUrl": "https://picsum.photos/seed/hands-together/600/400",
+      "imageHint": "hands unity"
+    },
+    {
+      "id": "collage-10",
+      "description": "Group celebrating together",
+      "imageUrl": "https://picsum.photos/seed/group-celebration/600/400",
+      "imageHint": "group celebration"
     }
   ]
 }

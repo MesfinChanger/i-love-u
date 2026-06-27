@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -26,6 +27,7 @@ import { useTranslation } from '@/components/providers/LanguageProvider';
 import { SUPPORTED_LANGUAGES } from '@/lib/world-data';
 import { useUser } from '@/firebase';
 import HeroImage from '@/components/HeroImage';
+import GlobalCommunityCollage from '@/components/GlobalCommunityCollage';
 
 /**
  * @fileOverview The I LOVE U Homepage.
@@ -165,6 +167,23 @@ export default function Home() {
               <p className="text-slate-500 text-sm leading-relaxed italic">Every connection funds local job creation to eliminate global poverty forever.</p>
             </div>
           </div>
+        </section>
+
+        {/* COMMUNITY COLLAGE SECTION */}
+        <section className="max-w-7xl mx-auto px-6 py-20 bg-slate-50/50 rounded-[4rem] mb-20 border border-slate-100">
+           <div className="text-center mb-16 space-y-4">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white shadow-sm border border-slate-200 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                 <Sparkles className="w-3.5 h-3.5 text-primary" />
+                 Heartbeat of the Revolution
+              </div>
+              <h2 className="text-5xl font-black tracking-tighter uppercase leading-none text-slate-900">
+                Reaching Every <br/><span className="gradient-text">Heart.</span>
+              </h2>
+              <p className="text-slate-500 max-w-xl mx-auto italic font-medium">
+                "Prosperity is a community effort." See how we are building a better world, one connection at a time.
+              </p>
+           </div>
+           <GlobalCommunityCollage />
         </section>
       </main>
 
