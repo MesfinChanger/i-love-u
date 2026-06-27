@@ -9,20 +9,20 @@
     },
     {
       "id": "mosaic-volunteers",
-      "description": "Diverse volunteers in a park",
+      "description": "Diverse volunteers working in a community park",
       "imageUrl": "https://picsum.photos/seed/volunteers/600/400",
       "imageHint": "community volunteers"
     },
     {
       "id": "mosaic-beach",
-      "description": "Friends laughing at a beautiful beach",
+      "description": "Friends laughing at a beautiful global beach",
       "imageUrl": "https://picsum.photos/seed/beach-friends/600/400",
       "imageHint": "beach friends"
     },
     {
       "id": "mosaic-globe-center",
-      "description": "Diverse children holding a globe",
-      "imageUrl": "https://picsum.photos/seed/global-center/800/800",
+      "description": "Multicultural children holding a globe in unity",
+      "imageUrl": "https://picsum.photos/seed/global-unity/800/800",
       "imageHint": "world children"
     },
     {
@@ -33,19 +33,19 @@
     },
     {
       "id": "mosaic-overlook",
-      "description": "Person looking over a vast global landscape",
+      "description": "Person looking over a vast, prosperous global landscape",
       "imageUrl": "https://picsum.photos/seed/overlook/400/800",
       "imageHint": "landscape overlook"
     },
     {
       "id": "mosaic-circle",
-      "description": "Community talk circle in nature",
+      "description": "Community talking circle in nature",
       "imageUrl": "https://picsum.photos/seed/community-circle/600/400",
       "imageHint": "talk circle"
     },
     {
       "id": "mosaic-hands",
-      "description": "Hands stacked together in unity",
+      "description": "Diverse hands stacked together in a circle of unity",
       "imageUrl": "https://picsum.photos/seed/hands-stacked/600/400",
       "imageHint": "hands together"
     },

@@ -4,17 +4,12 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { 
   Heart, 
-  ArrowRight, 
-  Zap, 
-  Sparkles,
+  PlayCircle,
   Languages,
   Check,
-  Globe,
-  PlayCircle,
-  TrendingDown
+  Globe
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -29,13 +24,13 @@ import { useUser } from '@/firebase';
 import HeroMosaic from '@/components/HeroMosaic';
 
 /**
- * @fileOverview The I LOVE U Homepage.
- * Split-screen architecture featuring a complex 12x12 visual mosaic.
- * Aligned with the high-impact "Spark Love. End Poverty." vision.
+ * @fileOverview The refined I LOVE U Homepage.
+ * Implements the split-screen architecture (4fr 6fr) with mission-focused content
+ * and a complex 12x12 visual mosaic grid.
  */
 export default function Home() {
   const { user } = useUser();
-  const { language, setLanguage, t } = useTranslation();
+  const { language, setLanguage } = useTranslation();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -93,18 +88,18 @@ export default function Home() {
         </div>
       </header>
 
-      {/* MAIN CONTENT */}
+      {/* MAIN HERO CONTAINER */}
       <main className="flex-grow pt-20 flex items-center">
-        <section className="container mx-auto px-6 py-10 lg:py-20 h-full">
+        <section className="container mx-auto px-6 py-10 lg:py-20 h-full max-w-[1440px]">
           <div className="grid lg:grid-cols-[4fr_6fr] gap-12 xl:gap-20 items-center min-h-[70vh]">
             
-            {/* CONTENT SIDE */}
+            {/* CONTENT SIDE (Left) */}
             <div className="space-y-8 text-left animate-in fade-in slide-in-from-left-4 duration-1000">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-pink-100 text-pink-600 font-black text-[10px] tracking-widest border border-pink-200">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-pink-100 text-pink-600 font-bold text-[10px] tracking-widest border border-pink-200">
                 <Heart className="w-3 h-3 fill-pink-600" /> GLOBAL COMMUNITY VERIFIED
               </div>
 
-              <h1 className="text-6xl xl:text-[5.5rem] font-black leading-[0.9] tracking-tighter text-[#1a2530]">
+              <h1 className="text-6xl xl:text-[4.5rem] font-black leading-[1.1] tracking-tighter text-[#1a2530]">
                 Spark <span className="text-primary">Love.</span><br />
                 End <span className="text-secondary">Poverty.</span>
               </h1>
@@ -121,7 +116,7 @@ export default function Home() {
                     Join the Movement
                   </Link>
                 </Button>
-                <Button variant="outline" size="lg" className="h-16 px-10 rounded-full text-base font-bold border-2 border-slate-200 bg-white text-[#1a2530] hover:bg-slate-50 transition-all flex items-center gap-2 shadow-sm" asChild>
+                <Button variant="outline" size="lg" className="h-16 px-10 rounded-full text-base font-bold border border-slate-200 bg-white text-[#1a2530] hover:bg-slate-50 transition-all flex items-center gap-2 shadow-sm" asChild>
                   <Link href="/donate">
                     <PlayCircle className="w-5 h-5 text-primary" />
                     Watch Our Story
@@ -130,8 +125,8 @@ export default function Home() {
               </div>
             </div>
 
-            {/* VISUAL MOSAIC SIDE */}
-            <div className="h-full">
+            {/* VISUAL MOSAIC SIDE (Right) */}
+            <div className="h-full w-full">
                <HeroMosaic />
             </div>
 

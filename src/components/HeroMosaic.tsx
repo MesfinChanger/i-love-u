@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 
 /**
  * @fileOverview Complex Image Mosaic Grid Component.
- * Implements a precise 12x12 grid layout for a high-impact community visual.
+ * Implements a precise 12x12 grid layout based on the design specifications.
  */
 export default function HeroMosaic() {
   const getImage = (id: string) => PlaceHolderImages.find(img => img.id === id);
@@ -43,9 +43,9 @@ export default function HeroMosaic() {
               alt={data.description} 
               fill 
               className="object-cover transition-transform duration-700 group-hover:scale-110"
-              data-ai-hint={data.imageHint}
+              data-ai-hint={item.id.replace('mosaic-', '').replace('-', ' ')}
             />
-            <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
         );
       })}
