@@ -74,6 +74,23 @@
       },
       "required": ["title", "category", "teacherId", "level", "status"]
     },
+    "ImpactOrganization": {
+      "title": "Impact Organization",
+      "description": "Mission-driven entities dedicated to community prosperity.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "type": { "type": "string", "enum": ["ngo", "foundation", "community", "charity", "social_enterprise"] },
+        "mission": { "type": "string" },
+        "country": { "type": "string" },
+        "areasOfWork": { "type": "array", "items": { "type": "string" } },
+        "verified": { "type": "boolean" },
+        "website": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "name", "type", "mission", "country", "areasOfWork", "verified"]
+    },
     "PrivacySettings": {
       "title": "Privacy Settings",
       "description": "User-specific visibility and interaction control registry.",
@@ -477,6 +494,7 @@
     "/professionals/{userId}": { "schema": "ProfessionalProfile", "description": "Vocational and career identities" },
     "/learners/{userId}": { "schema": "Learner", "description": "Educational progress registries" },
     "/courses/{courseId}": { "schema": "Course", "description": "Global educational listings" },
+    "/impactOrganizations/{orgId}": { "schema": "ImpactOrganization", "description": "Global registry of impact-focused entities" },
     "/users/{userId}/settings/privacy": { "schema": "PrivacySettings", "description": "User visibility and interaction control" },
     "/users/{userId}/sessions/{sessionId}": { "schema": "DeviceSession", "description": "Registered device heartbeats" },
     "/users/{userId}/securityEvents/{eventId}": { "schema": "SecurityEvent", "description": "Identity protection audit logs" },

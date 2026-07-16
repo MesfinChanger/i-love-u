@@ -24,6 +24,7 @@ export * from './publication';
 export * from './learner';
 export * from './course';
 export * from './professional';
+export * from './impactOrganization';
 
 export type IdeaCategory =
   | "economics"
