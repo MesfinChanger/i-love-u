@@ -90,6 +90,19 @@
       },
       "required": ["blockerId", "blockedUserId", "createdAt"]
     },
+    "Report": {
+      "title": "Community Report",
+      "description": "Accountability registry for respectful behavior enforcement.",
+      "type": "object",
+      "properties": {
+        "reporterId": { "type": "string" },
+        "reportedUserId": { "type": "string" },
+        "reason": { "type": "string", "enum": ["spam", "harassment", "fake_account", "fraud"] },
+        "details": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["reporterId", "reportedUserId", "reason", "createdAt"]
+    },
     "SparkProfile": {
       "title": "Spark Profile",
       "description": "Discovery and matching schema for romantic and cultural sparks.",
@@ -212,6 +225,7 @@
     "/devices/{deviceId}": { "schema": "DeviceSession", "description": "Global device registry" },
     "/trustScores/{userId}": { "schema": "TrustScore", "description": "High-fidelity reputation registry" },
     "/blocks/{blockId}": { "schema": "Block", "description": "Community safety registry" },
+    "/reports/{reportId}": { "schema": "Report", "description": "Accountability and moderation registry" },
     "/sparkProfiles/{userId}": { "schema": "SparkProfile", "description": "Public discovery profiles" },
     "/matches/{matchId}": { "schema": "Match", "description": "Established high-fidelity connections" },
     "/conversations/{convId}": { "schema": "Conversation", "description": "Secured communication channels" },

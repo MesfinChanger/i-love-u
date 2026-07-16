@@ -64,3 +64,15 @@ export interface Block {
   reason?: string;
   createdAt: any;
 }
+
+/**
+ * @fileOverview Community Accountability Report Definition.
+ */
+export interface Report {
+  id: string;
+  reporterId: string;
+  reportedUserId: string;
+  reason: "spam" | "harassment" | "fake_account" | "fraud";
+  details?: string;
+  createdAt: any;
+}

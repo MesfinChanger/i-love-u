@@ -116,3 +116,22 @@ export async function blockUser(
     createdAt: serverTimestamp()
   });
 }
+
+/**
+ * Community Report Protocol.
+ * Dispatches an accountability record for moderation review.
+ */
+export async function createReport(
+  reporterId: string,
+  reportedUserId: string,
+  reason: "spam" | "harassment" | "fake_account" | "fraud",
+  details?: string
+) {
+  await addDoc(collection(db, "reports"), {
+    reporterId,
+    reportedUserId,
+    reason,
+    details: details || "",
+    createdAt: serverTimestamp()
+  });
+}
