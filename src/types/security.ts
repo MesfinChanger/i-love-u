@@ -1,3 +1,4 @@
+
 /**
  * @fileOverview High-Fidelity Security Protocol Definitions.
  */
@@ -25,4 +26,17 @@ export interface SecurityEvent {
     | "suspicious_activity";
   description: string;
   createdAt: any;
+}
+
+/**
+ * @fileOverview Trust Score Protocol Definition.
+ */
+export interface TrustScore {
+  userId: string;
+  score: number;
+  verifiedEmail: boolean;
+  verifiedPhone: boolean;
+  verifiedIdentity: boolean;
+  positiveReviews: number;
+  reports: number;
 }

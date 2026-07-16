@@ -1,6 +1,10 @@
+
 import {
   collection,
+  doc,
   addDoc,
+  setDoc,
+  getDoc,
   serverTimestamp,
   getDocs,
   query,
@@ -10,7 +14,7 @@ import { db } from "@/lib/firebase";
 
 /**
  * @fileOverview Security Protocol Service.
- * Orchestrates device registration and session tracking for identity protection.
+ * Orchestrates device registration, session tracking, and trust levels for identity protection.
  */
 
 /**
@@ -42,4 +46,31 @@ export async function getUserDevices(userId: string) {
     id: doc.id,
     ...doc.data()
   }));
+}
+
+/**
+ * Get Trust Score Protocol.
+ * Retrieves the reputation metrics for a specific heart.
+ */
+export async function getTrustScore(userId: string) {
+  const ref = doc(db, "trustScores", userId);
+  const snap = await getDoc(ref);
+  if (snap.exists()) return snap.data();
+  return null;
+}
+
+/**
+ * Initialize Trust Score Protocol.
+ * Establishes a baseline reputation for a new heart in the community.
+ */
+export async function initializeTrustScore(userId: string) {
+  await setDoc(doc(db, "trustScores", userId), {
+    userId,
+    score: 50, // Starting baseline
+    verifiedEmail: false,
+    verifiedPhone: false,
+    verifiedIdentity: false,
+    positiveReviews: 0,
+    reports: 0
+  }, { merge: true });
 }

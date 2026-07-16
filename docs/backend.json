@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "UserProfile": {
@@ -47,6 +48,21 @@
         "description": { "type": "string" },
         "createdAt": { "type": "string", "format": "date-time" }
       }
+    },
+    "TrustScore": {
+      "title": "Trust Score",
+      "description": "Reputation and verification metrics for a heart.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "score": { "type": "number" },
+        "verifiedEmail": { "type": "boolean" },
+        "verifiedPhone": { "type": "boolean" },
+        "verifiedIdentity": { "type": "boolean" },
+        "positiveReviews": { "type": "number" },
+        "reports": { "type": "number" }
+      },
+      "required": ["userId", "score"]
     },
     "SparkProfile": {
       "title": "Spark Profile",
@@ -167,6 +183,7 @@
     "/users/{userId}/sessions/{sessionId}": { "schema": "DeviceSession", "description": "Registered device heartbeats" },
     "/users/{userId}/securityEvents/{eventId}": { "schema": "SecurityEvent", "description": "Identity protection audit logs" },
     "/devices/{deviceId}": { "schema": "DeviceSession", "description": "Global device registry" },
+    "/trustScores/{userId}": { "schema": "TrustScore", "description": "High-fidelity reputation registry" },
     "/sparkProfiles/{userId}": { "schema": "SparkProfile", "description": "Public discovery profiles" },
     "/matches/{matchId}": { "schema": "Match", "description": "Established high-fidelity connections" },
     "/conversations/{convId}": { "schema": "Conversation", "description": "Secured communication channels" },
