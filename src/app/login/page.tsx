@@ -180,6 +180,7 @@ function LoginContent() {
       let title = "Guest Access Ripple";
       let message = "Could not launch guest session. Please check your connection. ❤️";
 
+      // Explicit check for configuration restrictions
       if (error.code === 'auth/operation-not-allowed' || error.code === 'auth/admin-restricted-operation') {
         title = "Mission Configuration Required";
         message = "Anonymous Sign-in is currently disabled or restricted in your project. Please enable it in your Firebase Console → Authentication → Sign-in method. ✨";

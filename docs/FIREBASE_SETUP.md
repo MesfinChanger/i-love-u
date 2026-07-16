@@ -1,7 +1,7 @@
 
 # Firebase Mission Control Setup
 
-Follow these mandatory steps in your Firebase Console to resolve the "Storage Configuration Ripple" and enable high-fidelity media sharing.
+Follow these mandatory steps in your Firebase Console to resolve configuration ripples and enable the full Prosperity Revolution.
 
 ## 1. Storage Activation
 The "storage/unknown" error usually means your storage bucket hasn't been initialized or is missing CORS configuration.
@@ -65,7 +65,11 @@ If guest sign-in fails with a "Mission Configuration Required" or `auth/admin-re
 6. Switch the toggle to **Enable** and click **Save**.
 
 ### Troubleshooting `auth/admin-restricted-operation`
-If enabling Anonymous sign-in doesn't fix it, ensure your project's Identity Platform settings allow anonymous users. In some Google Cloud projects, you may need to enable the "Identity Toolkit API" in the [API Console](https://console.cloud.google.com/).
+If enabling Anonymous sign-in doesn't fix it, ensure your project's Identity Platform settings allow anonymous users:
+1. Go to **Settings** → **Identity Platform** (or Users and Permissions).
+2. Look for **Security** or **Settings**.
+3. Ensure "Anonymous users" is permitted.
+4. In some Google Cloud projects, you may also need to enable the "Identity Toolkit API" in the [API Console](https://console.cloud.google.com/).
 
 ## 4. Mandatory Respect
 Remember: Every technical configuration supports our mission to eliminate poverty through job creation. Respect is Mandatory. ❤️
