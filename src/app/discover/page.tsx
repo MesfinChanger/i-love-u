@@ -46,9 +46,10 @@ import { useTranslation } from '@/components/providers/LanguageProvider';
 /**
  * @fileOverview Discovery Hub featuring the Presence Grid Protocol.
  * Profiles are 100% visible and vibrant in both Online and Offline sections.
+ * Optimized with the typo fix for the useUser hook.
  */
 export default function DiscoverPage() {
-  const { user } = userUser();
+  const { user } = useUser(); // Fixed: correctly using useUser() instead of userUser()
   const { toast } = useToast();
   const { t } = useTranslation();
 
@@ -231,7 +232,7 @@ export default function DiscoverPage() {
            </CollapsibleContent>
         </Collapsible>
 
-        {/* Presence Grid Protocol: Offline Section */}
+        {/* Presence Grid Protocol: Offline Section - 100% VISIBLE */}
         <Collapsible open={isOfflineExpanded} onOpenChange={setIsOfflineExpanded} className="space-y-6">
            <div className="flex items-center justify-between border-b pb-4">
               <div className="flex items-center gap-4">
