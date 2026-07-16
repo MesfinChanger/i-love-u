@@ -8,14 +8,12 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
   Search as SearchIcon, 
   Loader2, 
   Heart, 
   Send, 
   MapPin, 
-  Sparkles, 
   Users, 
   Ghost,
   ShieldCheck,
@@ -23,11 +21,10 @@ import {
   ImageIcon
 } from 'lucide-react';
 import { useUser, useFirestore, useCollection } from '@/firebase';
-import { query, collection, doc, setDoc, serverTimestamp, where, orderBy, limit } from 'firebase/firestore';
+import { query, collection, doc, setDoc, serverTimestamp, limit } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { useTranslation } from '@/components/providers/LanguageProvider';
-import { cn } from '@/lib/utils';
 import Image from 'next/image';
 
 function SearchContent() {
@@ -45,7 +42,6 @@ function SearchContent() {
   }, []);
 
   const profilesQuery = useMemoFirebase(() => {
-    // Only query if we have a user and uid, as security rules require authentication
     if (!db || !user?.uid) return null;
     return query(collection(db, 'publicProfiles'), limit(100));
   }, [db, user?.uid]);
@@ -65,23 +61,25 @@ function SearchContent() {
   }, [allProfiles, searchTerm, user?.uid]);
 
   const handleAction = async (targetUid: string, type: 'friend' | 'date') => {
-    if (!user || !db) return;
+    if (!user || !db) {
+      window.dispatchEvent(new CustomEvent('open-auth-gate'));
+      return;
+    }
 
     setIsProcessing(targetUid);
-    const uids = [user.uid, targetUid].sort();
-    const matchId = uids.join('_');
-
-    const matchData = {
-      userIds: uids,
-      timestamp: serverTimestamp(),
-      lastMessage: type === 'date' ? "A Spark invitation has been sent! ✨" : "Connection invitation sent 🤝",
-      status: "pending",
-      invitedBy: user.uid,
-      type: type
-    };
+    const participants = [user.uid, targetUid].sort();
+    const conversationId = participants.join('_');
 
     try {
-      await setDoc(doc(db, 'matches', matchId), matchData);
+      await setDoc(doc(db, 'conversations', conversationId), {
+        participants: participants,
+        createdAt: serverTimestamp(),
+        lastMessage: type === 'date' ? "A Spark invitation has been sent! ✨" : "Connection invitation sent 🤝",
+        status: "pending",
+        invitedBy: user.uid,
+        type: type === 'date' ? 'spark' : 'friend'
+      }, { merge: true });
+      
       toast({ 
         title: "Invitation Sent!", 
         description: "Your respectful request is on its way. ❤️" 

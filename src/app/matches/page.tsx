@@ -5,7 +5,7 @@ import { useMemo, useState, useEffect, Suspense } from 'react';
 import { Header } from '@/components/Header';
 import { BottomNav } from '@/components/BottomNav';
 import { useCollection, useUser, useFirestore, useDoc } from '@/firebase';
-import { collection, query, where, orderBy, doc, updateDoc, serverTimestamp, deleteDoc } from 'firebase/firestore';
+import { collection, query, where, orderBy, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
@@ -13,26 +13,22 @@ import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { Badge } from '@/components/ui/badge';
 import { 
   Heart, 
-  Zap, 
   Globe2, 
-  MessageCircle, 
   Loader2, 
   Sparkles, 
-  ShieldCheck, 
-  Clock, 
-  Star, 
   Lock, 
   Languages,
   Users,
-  Search,
   Check,
   X,
-  Send
+  Send,
+  Star
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from '@/components/providers/LanguageProvider';
+import { cn } from '@/lib/utils';
 
 function MatchesContent() {
   const { user } = useUser();
@@ -45,31 +41,31 @@ function MatchesContent() {
     setMounted(true);
   }, []);
   
-  const matchesQuery = useMemoFirebase(() => {
+  const conversationsQuery = useMemoFirebase(() => {
     if (!user?.uid || !db) return null;
     return query(
-      collection(db, 'matches'),
-      where('userIds', 'array-contains', user.uid),
-      orderBy('timestamp', 'desc')
+      collection(db, 'conversations'),
+      where('participants', 'array-contains', user.uid),
+      orderBy('createdAt', 'desc')
     );
   }, [user?.uid, db]);
 
-  const { data: allMatches, loading } = useCollection(matchesQuery);
+  const { data: allConversations, loading } = useCollection(conversationsQuery);
 
   const { dateMatches, friendMatches, invitations } = useMemo(() => {
-    if (!allMatches) return { dateMatches: [], friendMatches: [], invitations: [] };
+    if (!allConversations) return { dateMatches: [], friendMatches: [], invitations: [] };
     
     return {
-      dateMatches: allMatches.filter((m: any) => m.status === 'active' && m.type === 'date'),
-      friendMatches: allMatches.filter((m: any) => m.status === 'active' && m.type === 'friend'),
-      invitations: allMatches.filter((m: any) => m.status === 'pending' && m.invitedBy !== user?.uid)
+      dateMatches: allConversations.filter((m: any) => m.status === 'active' && m.type === 'spark'),
+      friendMatches: allConversations.filter((m: any) => m.status === 'active' && m.type === 'friend'),
+      invitations: allConversations.filter((m: any) => m.status === 'pending' && m.invitedBy !== user?.uid)
     };
-  }, [allMatches, user?.uid]);
+  }, [allConversations, user?.uid]);
 
-  const handleAccept = async (matchId: string) => {
+  const handleAccept = async (convId: string) => {
     if (!db) return;
     try {
-      await updateDoc(doc(db, 'matches', matchId), {
+      await updateDoc(doc(db, 'conversations', convId), {
         status: 'active',
         acceptedAt: serverTimestamp(),
         lastMessage: "Connection Accepted! ✨ Identity Revealed."
@@ -80,10 +76,10 @@ function MatchesContent() {
     }
   };
 
-  const handleDecline = async (matchId: string) => {
+  const handleDecline = async (convId: string) => {
     if (!db) return;
     try {
-      await updateDoc(doc(db, 'matches', matchId), {
+      await updateDoc(doc(db, 'conversations', convId), {
         status: 'declined',
         declinedAt: serverTimestamp()
       });
@@ -218,8 +214,8 @@ function InvitationCard({ match, currentUserId, onAccept, onDecline }: any) {
         <div className="flex-grow min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <h3 className="font-black text-lg tracking-tight truncate max-w-[120px]">{senderProfile?.displayName || "Mysterious Heart"}</h3>
-            <Badge variant="outline" className={cn("text-[7px] uppercase font-black tracking-widest h-5 whitespace-nowrap", match.type === 'date' ? "text-primary border-primary/20 bg-primary/5" : "text-blue-600 border-blue-200 bg-blue-50")}>
-              {match.type === 'date' ? 'Date Spark' : 'Friendship'}
+            <Badge variant="outline" className={cn("text-[7px] uppercase font-black tracking-widest h-5 whitespace-nowrap", match.type === 'spark' ? "text-primary border-primary/20 bg-primary/5" : "text-blue-600 border-blue-200 bg-blue-50")}>
+              {match.type === 'spark' ? 'Date Spark' : 'Friendship'}
             </Badge>
           </div>
           <p className="text-[10px] text-muted-foreground italic font-medium">wants to connect with you</p>
@@ -273,7 +269,7 @@ function EmptyState({ icon: Icon, title, desc, actionLabel, actionHref, color = 
 function ExclusiveSparkCard({ match, currentUserId }: { match: any, currentUserId: string }) {
   const db = useFirestore();
   const { t } = useTranslation();
-  const partnerId = match.userIds.find((id: string) => id !== currentUserId);
+  const partnerId = match.participants.find((id: string) => id !== currentUserId);
   const partnerRef = useMemoFirebase(() => partnerId ? doc(db, 'users', partnerId) : null, [db, partnerId]);
   const { data: partnerProfile } = useDoc(partnerRef);
 
@@ -324,7 +320,7 @@ function ExclusiveSparkCard({ match, currentUserId }: { match: any, currentUserI
 
 function FriendMatchCard({ match, currentUserId }: { match: any, currentUserId: string }) {
   const db = useFirestore();
-  const partnerId = match.userIds.find((id: string) => id !== currentUserId);
+  const partnerId = match.participants.find((id: string) => id !== currentUserId);
   const partnerRef = useMemoFirebase(() => partnerId ? doc(db, 'users', partnerId) : null, [db, partnerId]);
   const { data: partnerProfile } = useDoc(partnerRef);
   const [mounted, setMounted] = useState(false);
@@ -334,14 +330,14 @@ function FriendMatchCard({ match, currentUserId }: { match: any, currentUserId: 
   }, []);
 
   const dateString = useMemo(() => {
-    if (!mounted || !match.timestamp) return '';
+    if (!mounted || !match.createdAt) return '';
     try {
-      const d = match.timestamp.toDate ? match.timestamp.toDate() : new Date(match.timestamp);
+      const d = match.createdAt.toDate ? match.createdAt.toDate() : new Date(match.createdAt);
       return d.toLocaleDateString();
     } catch (e) {
       return '';
     }
-  }, [mounted, match.timestamp]);
+  }, [mounted, match.createdAt]);
 
   return (
     <Link href={`/matches/${match.id}`}>

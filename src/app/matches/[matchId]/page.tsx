@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect, useRef, use } from 'react';
@@ -7,15 +8,11 @@ import {
   Send, 
   ChevronLeft, 
   Loader2, 
-  Lock, 
-  ShieldAlert,
-  ShieldCheck,
-  Zap
+  ShieldCheck
 } from 'lucide-react';
 import { useUser, useFirestore, useCollection, useDoc } from '@/firebase';
-import { collection, addDoc, query, orderBy, serverTimestamp, doc } from 'firebase/firestore';
+import { collection, addDoc, query, orderBy, serverTimestamp, doc, where } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { moderateText } from '@/ai/flows/moderate-text-flow';
 import { useToast } from '@/hooks/use-toast';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
@@ -50,14 +47,22 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
   const hasAcceptedPolicy = myProfile?.policyAccepted === true;
   const isInteractionRestricted = isCommercial && !hasAcceptedPolicy;
 
-  const matchRef = useMemoFirebase(() => db && matchId ? doc(db, 'matches', matchId) : null, [db, matchId]);
-  const { data: matchData, loading: matchLoading } = useDoc(matchRef);
+  const convRef = useMemoFirebase(() => db && matchId ? doc(db, 'conversations', matchId) : null, [db, matchId]);
+  const { data: convData, loading: matchLoading } = useDoc(convRef);
 
-  const partnerId = useMemo(() => matchData?.userIds?.find((id: string) => id !== currentUserId), [matchData?.userIds, currentUserId]);
+  const partnerId = useMemo(() => convData?.participants?.find((id: string) => id !== currentUserId), [convData?.participants, currentUserId]);
   const partnerRef = useMemoFirebase(() => db && partnerId ? doc(db, 'users', partnerId) : null, [db, partnerId]);
   const { data: partnerProfile } = useDoc(partnerRef);
 
-  const messagesQuery = useMemoFirebase(() => db && matchId ? query(collection(db, 'matches', matchId, 'messages'), orderBy('timestamp', 'asc')) : null, [db, matchId]);
+  const messagesQuery = useMemoFirebase(() => {
+    if (!db || !matchId) return null;
+    return query(
+      collection(db, 'messages'), 
+      where('conversationId', '==', matchId),
+      orderBy('createdAt', 'asc')
+    );
+  }, [db, matchId]);
+  
   const { data: messages, loading: messagesLoading } = useCollection(messagesQuery);
 
   // E2EE Shared Key Agreement Protocol
@@ -130,26 +135,32 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
         return;
       }
 
+      const messagePayload: any = {
+        conversationId: matchId,
+        senderId: user.uid,
+        createdAt: serverTimestamp(),
+      };
+
       // E2EE Message Securing (AES-GCM Protocol)
       if (sharedKey) {
         const encrypted = await encryptMessage(sharedKey, newMessage);
         if (encrypted) {
-          await addDoc(collection(db, 'matches', matchId, 'messages'), {
-            senderId: user.uid,
-            text: "[Secured Content]",
-            encryptedText: encrypted.cipherText,
-            iv: encrypted.iv,
-            timestamp: serverTimestamp(),
-          });
+          messagePayload.encryptedText = encrypted.cipherText;
+          messagePayload.iv = encrypted.iv;
+          messagePayload.text = "[Secured Content]";
         }
       } else {
-        // Fallback for non-E2EE sessions (legacy or guest)
-        await addDoc(collection(db, 'matches', matchId, 'messages'), {
-          senderId: user.uid,
-          text: newMessage,
-          timestamp: serverTimestamp(),
-        });
+        messagePayload.text = newMessage;
       }
+
+      await addDoc(collection(db, 'messages'), messagePayload);
+      
+      // Update last message preview in conversation
+      await updateDoc(doc(db, 'conversations', matchId), {
+        lastMessage: sharedKey ? "[Secured Message]" : newMessage.slice(0, 50),
+        lastUpdatedAt: serverTimestamp()
+      });
+
       setNewMessage('');
     } finally {
       setIsSending(false);

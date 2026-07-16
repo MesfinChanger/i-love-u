@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -10,24 +11,18 @@ import {
   Loader2, 
   Star, 
   Send, 
-  PlayCircle,
-  ChevronDown,
-  ChevronUp,
-  Wifi,
-  WifiOff,
-  CheckCircle2,
-  ArrowRight,
-  ShieldAlert,
-  Clock,
-  Maximize2,
-  VolumeX,
-  Volume2
+  ChevronDown, 
+  ChevronUp, 
+  Wifi, 
+  WifiOff, 
+  ShieldAlert, 
+  Clock 
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { BottomNav } from '@/components/BottomNav';
 import { useUser, useFirestore, useDoc, useCollection } from '@/firebase';
-import { doc, setDoc, collection, serverTimestamp, query, where } from 'firebase/firestore';
+import { doc, setDoc, collection, serverTimestamp, query } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { cn } from '@/lib/utils';
@@ -39,9 +34,7 @@ import {
 import {
   Dialog,
   DialogContent,
-  DialogTrigger,
-  DialogTitle,
-  DialogHeader
+  DialogTrigger
 } from "@/components/ui/dialog";
 import {
   Collapsible,
@@ -51,11 +44,6 @@ import {
 import Link from 'next/link';
 import { useTranslation } from '@/components/providers/LanguageProvider';
 
-/**
- * @fileOverview Discovery Grid Protocol.
- * Implements Online/Offline sorting and role-aware View Only restrictions.
- * Proactively triggers Universal Auth Gate for unauthenticated sessions.
- */
 export default function DiscoverPage() {
   const { user } = useUser();
   const db = useFirestore();
@@ -117,7 +105,6 @@ export default function DiscoverPage() {
             id,
             name: u.publicNickname || "Mystery Heart", 
             age: u.age,
-            verified: u.verified === true,
             photoUrl: u.photoUrl || u.publicPhotoUrl || null,
             videoUrl: u.videoUrl || u.publicVideoUrl || null,
             additionalPhotoUrls: u.additionalPhotoUrls || [],
@@ -148,17 +135,19 @@ export default function DiscoverPage() {
     }
     if (!db) return;
 
-    const uids = [user.uid, targetId].sort();
-    const matchId = uids.join('_');
+    const participants = [user.uid, targetId].sort();
+    const conversationId = participants.join('_');
+    
     try {
-      await setDoc(doc(db, 'matches', matchId), {
-        userIds: uids,
-        timestamp: serverTimestamp(),
+      await setDoc(doc(db, 'conversations', conversationId), {
+        participants: participants,
+        createdAt: serverTimestamp(),
         lastMessage: type === 'date' ? "A Spark invitation has been sent! ✨" : "Connection invitation sent 🤝",
         status: "pending",
         invitedBy: user.uid,
-        type: type
+        type: type === 'date' ? 'spark' : 'friend'
       }, { merge: true });
+      
       toast({ title: "Invitation Sent!", description: "Waiting for them to accept your spark. ❤️" });
     } catch (e) {
       toast({ variant: "destructive", title: "Action Failed", description: "Respectful invitation could not be sent." });
@@ -175,18 +164,6 @@ export default function DiscoverPage() {
     <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
       <Header />
       
-      {user?.isAnonymous && (
-        <div className="bg-primary/10 border-b border-primary/20 px-4 py-3 flex items-center justify-between animate-in slide-in-from-top-2 z-40 sticky top-16 backdrop-blur-md">
-           <div className="flex items-center gap-2 text-primary">
-              <Sparkles className="w-4 h-4 animate-pulse" />
-              <p className="text-[10px] font-black uppercase tracking-tight">Guest Session Active: Explore & Spark respectfully. ❤️</p>
-           </div>
-           <Link href="/login">
-              <Button size="sm" variant="ghost" className="h-7 text-[9px] font-black uppercase text-primary hover:bg-primary/10">Secure Identity</Button>
-           </Link>
-        </div>
-      )}
-
       {isInteractionRestricted && (
         <div className="bg-amber-100 border-b border-amber-200 px-4 py-3 flex items-center justify-between animate-in slide-in-from-top-2 z-40 sticky top-16">
            <div className="flex items-center gap-2 text-amber-800">
@@ -208,7 +185,6 @@ export default function DiscoverPage() {
            <p className="text-muted-foreground text-sm font-medium italic">"Separated by presence, unified by respect."</p>
         </div>
 
-        {/* ONLINE SECTION */}
         <Collapsible open={isLiveExpanded} onOpenChange={setIsLiveExpanded} className="space-y-6">
            <div className="flex items-center justify-between border-b pb-4">
               <div className="flex items-center gap-4">
@@ -247,7 +223,6 @@ export default function DiscoverPage() {
            </CollapsibleContent>
         </Collapsible>
 
-        {/* OFFLINE SECTION */}
         <Collapsible open={isOfflineExpanded} onOpenChange={setIsOfflineExpanded} className="space-y-6">
            <div className="flex items-center justify-between border-b pb-4">
               <div className="flex items-center gap-4">

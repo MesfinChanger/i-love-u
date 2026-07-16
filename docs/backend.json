@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "UserProfile": {
@@ -35,6 +36,32 @@
         "policyAccepted": { "type": "boolean", "default": false },
         "idleTimeout": { "type": "number", "default": 300 }
       }
+    },
+    "Conversation": {
+      "title": "Conversation",
+      "description": "A spark connection between two hearts.",
+      "type": "object",
+      "properties": {
+        "participants": { "type": "array", "items": { "type": "string" } },
+        "type": { "type": "string", "enum": ["spark", "friend"] },
+        "status": { "type": "string" },
+        "lastMessage": { "type": "string" },
+        "invitedBy": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "Message": {
+      "title": "Message",
+      "description": "A secured E2EE message within a conversation.",
+      "type": "object",
+      "properties": {
+        "conversationId": { "type": "string" },
+        "senderId": { "type": "string" },
+        "encryptedText": { "type": "string" },
+        "iv": { "type": "string" },
+        "text": { "type": "string", "description": "Fallback for unencrypted or system messages" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
     }
   },
   "auth": {
@@ -43,7 +70,8 @@
   "firestore": {
     "/users/{userId}": { "schema": "UserProfile", "description": "Private user profiles" },
     "/publicProfiles/{userId}": { "schema": "UserProfile", "description": "Discovery data" },
-    "/matches/{matchId}": { "description": "Connections" },
+    "/conversations/{conversationId}": { "schema": "Conversation", "description": "Unified connections" },
+    "/messages/{messageId}": { "schema": "Message", "description": "Global message registry" },
     "/ideaPool/{postId}": { "description": "Global knowledge pool" },
     "/siteSettings/{settingId}": { "description": "Global platform settings including sovereignty" }
   }
