@@ -288,7 +288,7 @@
     "/devices/{deviceId}": { "schema": "DeviceSession", "description": "Global device registry" },
     "/trustScores/{userId}": { "schema": "TrustScore", "description": "High-fidelity reputation registry" },
     "/wallets/{userId}": { "schema": "Wallet", "description": "Prosperity registries for hearts" },
-    "/wallets/{userId}/transactions/{transactionId}": { "schema": "Transaction", "description": "Prosperity transaction logs" },
+    "/transactions/{transactionId}": { "schema": "Transaction", "description": "Prosperity transaction logs (Global Protocol)" },
     "/blocks/{blockId}": { "schema": "Block", "description": "Community safety registry" },
     "/reports/{reportId}": { "schema": "Report", "description": "Accountability and moderation registry" },
     "/sparkProfiles/{userId}": { "schema": "SparkProfile", "description": "Public discovery profiles" },

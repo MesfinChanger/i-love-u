@@ -38,15 +38,17 @@ service cloud.firestore {
       allow write: if false; // System managed reputation
     }
 
-    // High-Fidelity Wallet & Transaction Registry
+    // High-Fidelity Wallet Registry
     match /wallets/{userId} {
-      allow read: if request.auth != null && request.auth.uid == userId;
-      allow write: if false; // Prosperity balances are managed by system services
+      allow read: if request.auth.uid == userId;
+      allow create: if request.auth.uid == userId;
+      allow update: if request.auth.uid == userId;
+    }
 
-      match /transactions/{transactionId} {
-        allow read: if request.auth != null && request.auth.uid == userId;
-        allow write: if false; // Managed by backend services
-      }
+    // Prosperity Transaction Registry (Flat Protocol)
+    match /transactions/{transactionId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
     }
 
     // Community Safety Registry

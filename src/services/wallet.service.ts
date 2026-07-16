@@ -1,3 +1,4 @@
+
 import {
   collection,
   doc,
@@ -11,7 +12,6 @@ import { db } from "@/lib/firebase";
 /**
  * @fileOverview Wallet Protocol Service.
  * Orchestrates prosperity balance management and transaction logging.
- * Aligned with the high-fidelity subcollection hierarchy.
  */
 
 /**
@@ -63,20 +63,15 @@ export async function getWallet(
 
 /**
  * Add Transaction Protocol.
- * Dispatches a financial heartbeat to the high-fidelity transaction registry.
- * Note: Uses the subcollection pattern: /wallets/{userId}/transactions
+ * Dispatches a financial heartbeat to the global transaction registry.
+ * Aligned with the flat security rules: match /transactions/{transactionId}
  */
 export async function createTransaction(
   transaction: any
 ) {
-  const userId = transaction.userId;
-  if (!userId) throw new Error("Transaction Protocol Ripple: userId is mandatory for registry.");
-
   await addDoc(
     collection(
       db,
-      "wallets",
-      userId,
       "transactions"
     ),
     {
