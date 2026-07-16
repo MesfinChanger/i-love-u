@@ -4,30 +4,23 @@ import { useState, useMemo, useEffect } from 'react';
 import { Header } from '@/components/Header';
 import { BottomNav } from '@/components/BottomNav';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { 
   Waves, 
-  TrendingUp, 
-  Globe, 
-  Zap, 
-  Cpu, 
-  Microscope, 
   MessageSquare, 
   Loader2, 
-  ShieldCheck,
-  Plus,
-  Search,
-  Filter,
-  ArrowRight,
-  TrendingDown,
-  Scale,
-  Brain,
-  Clock,
-  Lock,
-  CheckCircle2
+  ShieldCheck, 
+  Plus, 
+  Zap, 
+  Clock, 
+  Lock, 
+  Scale, 
+  TrendingDown, 
+  Microscope, 
+  Cpu, 
+  Brain 
 } from 'lucide-react';
 import { useUser, useFirestore, useCollection, useDoc } from '@/firebase';
 import { collection, addDoc, query, orderBy, serverTimestamp, limit, where, doc } from 'firebase/firestore';
@@ -47,15 +40,14 @@ interface TopicDefinition {
   icon: any;
   color: string;
   bg: string;
-  requiredRole?: string;
   description: string;
 }
 
 const TOPICS: TopicDefinition[] = [
   { id: 'Economy', icon: TrendingDown, color: 'text-green-500', bg: 'bg-green-50', description: 'Requires Seller or Advertiser status' },
-  { id: 'Politics', icon: Scale, color: 'text-amber-500', bg: 'bg-amber-50', requiredRole: 'admin', description: 'Restricted to Platform Administrators' },
+  { id: 'Politics', icon: Scale, color: 'text-amber-500', bg: 'bg-amber-50', description: 'Restricted to Platform Administrators' },
   { id: 'Science', icon: Microscope, color: 'text-purple-500', bg: 'bg-purple-50', description: 'Requires Verified Heart status' },
-  { id: 'Technology', icon: Cpu, color: 'text-blue-500', bg: 'bg-blue-50', description: 'Requires Seller or Artisan status' },
+  { id: 'Technology', icon: Cpu, color: 'text-blue-500', bg: 'bg-blue-50', description: 'Requires Seller or Admin status' },
   { id: 'Philosophy', icon: Brain, color: 'text-rose-500', bg: 'bg-rose-50', description: 'Requires Verified Heart status' },
   { id: 'General', icon: MessageSquare, color: 'text-slate-500', bg: 'bg-slate-50', description: 'Open to all Community Hearts' }
 ];
@@ -79,10 +71,10 @@ export default function ProsperityPoolPage() {
   const userRef = useMemoFirebase(() => db && user?.uid ? doc(db, 'users', user.uid) : null, [db, user?.uid]);
   const { data: myProfile } = useDoc(userRef);
 
+  const isAdmin = myProfile?.role === 'admin';
   const hasAcceptedPolicy = myProfile?.policyAccepted === true;
   const isCommercial = myProfile?.isSeller || myProfile?.isAdvertiser;
   const isInteractionRestricted = isCommercial && !hasAcceptedPolicy;
-  const isAdmin = myProfile?.role === 'admin';
 
   const checkAccess = (topicId: string) => {
     if (!myProfile) return false;
@@ -115,12 +107,12 @@ export default function ProsperityPoolPage() {
     if (!newThought.trim() || !user || !db || isSending) return;
     
     if (isInteractionRestricted) {
-      toast({ variant: "destructive", title: "Access Restricted", description: "Sellers and Purchasers must commit to the Respect Protocol before diving in. ❤️" });
+      toast({ variant: "destructive", title: "Access Restricted", description: "Commercial users must commit to the Respect Protocol first. ❤️" });
       return;
     }
 
     if (!checkAccess(selectedTopic)) {
-      toast({ variant: "destructive", title: "Access Denied", description: `Your profile doesn't meet the requirements for ${selectedTopic}. ✨` });
+      toast({ variant: "destructive", title: "Access Denied", description: `Profile status insufficient for ${selectedTopic}. ✨` });
       return;
     }
 
@@ -143,8 +135,6 @@ export default function ProsperityPoolPage() {
 
       setNewThought('');
       toast({ title: "Thought Launched", description: "Your spark is now swimming in the pool! ✨" });
-    } catch (e) {
-      toast({ variant: "destructive", title: "Bridge Ripple", description: "Failed to reach the pool." });
     } finally {
       setIsSending(false);
     }
@@ -167,14 +157,13 @@ export default function ProsperityPoolPage() {
                  Prosperity <span className="text-blue-400">Pool</span>
               </h1>
               <p className="text-xl md:text-2xl text-white/60 font-medium italic leading-relaxed max-w-2xl mx-auto">
-                 "Dive into the global consciousness. Share thoughts that dismantle poverty and build a better world for every heart."
+                 "Dive into the global consciousness. Access to specific depths is granted based on your profile status."
               </p>
             </div>
          </div>
       </section>
 
       <main className="max-w-7xl mx-auto w-full px-6 grid lg:grid-cols-12 gap-8 mt-10">
-        
         <div className="lg:col-span-4 space-y-8">
            <Card className="rounded-[2.5rem] border-none shadow-xl bg-white overflow-hidden sticky top-24">
               <div className="bg-primary/5 p-8 border-b">
@@ -207,41 +196,22 @@ export default function ProsperityPoolPage() {
                        })}
                     </div>
 
-                    <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100">
-                       <p className="text-[9px] font-bold text-blue-600 uppercase tracking-tight">
-                         Selected Topic: <span className="font-black">{selectedTopic}</span>
-                       </p>
-                       <p className="text-[8px] text-slate-400 font-medium italic leading-none mt-1">
-                         {TOPICS.find(t => t.id === selectedTopic)?.description}
-                       </p>
-                    </div>
-
                     <Textarea 
                       value={newThought}
                       onChange={e => setNewThought(e.target.value)}
-                      placeholder={isInteractionRestricted ? "Commercial Approval Required" : t('pool.placeholder')}
-                      className="min-h-[140px] rounded-[1.5rem] border-none bg-muted/40 p-5 font-medium italic text-sm leading-relaxed"
+                      placeholder={isInteractionRestricted ? "Commercial Approval Required" : "Share a thought that moves the needle..."}
+                      className="min-h-[140px] rounded-[1.5rem] border-none bg-muted/40 p-5 font-medium italic text-sm"
                       disabled={isInteractionRestricted || !checkAccess(selectedTopic)}
                     />
                  </div>
                  
-                 <div className="bg-slate-900 p-5 rounded-2xl space-y-3 shadow-lg relative overflow-hidden group">
-                    <div className="flex items-center gap-2 text-primary">
-                       <ShieldCheck className="w-4 h-4" />
-                       <span className="text-[9px] font-black uppercase tracking-widest">Pool Regulation</span>
-                    </div>
-                    <p className="text-[8px] text-white/60 font-bold uppercase leading-relaxed tracking-widest">
-                       {isInteractionRestricted ? "Sellers and Purchasers must agree to the respect policy before contributing." : "Topic access is granted based on profile status. Respect & Love is Mandatory."}
-                    </p>
-                 </div>
-
                  <Button 
                    onClick={handlePostThought}
                    disabled={isSending || !newThought.trim() || isInteractionRestricted || !checkAccess(selectedTopic)}
-                   className="w-full h-14 rounded-2xl gradient-bg font-black uppercase text-xs tracking-widest shadow-xl shadow-primary/20 gap-3"
+                   className="w-full h-14 rounded-2xl gradient-bg font-black uppercase text-xs tracking-widest shadow-xl gap-3"
                  >
                    {isSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
-                   {t('pool.post')}
+                   Launch Thought
                  </Button>
               </CardContent>
            </Card>
@@ -271,22 +241,13 @@ export default function ProsperityPoolPage() {
 
            <div className="space-y-6">
               {loading ? (
-                <div className="flex flex-col items-center justify-center py-24 gap-4 opacity-20">
+                <div className="flex flex-col items-center justify-center py-24 opacity-20">
                    <Loader2 className="w-12 h-12 animate-spin text-blue-500" />
-                   <p className="font-black uppercase tracking-[0.3em] text-xs">Scanning Pool Depths...</p>
-                </div>
-              ) : thoughts?.length === 0 ? (
-                <div className="py-32 text-center bg-white rounded-[3rem] border-2 border-dashed border-muted/50 flex flex-col items-center gap-6">
-                   <Waves className="w-20 h-20 text-blue-500/20" />
-                   <div className="space-y-2">
-                      <p className="text-xl font-black uppercase tracking-tighter">{t('pool.empty')}</p>
-                      <p className="text-xs text-muted-foreground font-medium italic">Be the first to create a ripple.</p>
-                   </div>
                 </div>
               ) : thoughts?.map((thought: any) => {
                 const topicInfo = TOPICS.find(t => t.id === thought.topic) || TOPICS[5];
                 return (
-                  <Card key={thought.id} className="rounded-[2.5rem] border-none shadow-lg bg-white overflow-hidden group hover:shadow-2xl transition-all duration-500">
+                  <Card key={thought.id} className="rounded-[2.5rem] border-none shadow-lg bg-white overflow-hidden hover:shadow-2xl transition-all">
                      <div className="p-8 space-y-6">
                         <div className="flex items-center justify-between">
                            <div className="flex items-center gap-4">
@@ -303,16 +264,12 @@ export default function ProsperityPoolPage() {
                               {thought.topic}
                            </Badge>
                         </div>
-
                         <p className="text-xl font-medium text-slate-700 leading-relaxed italic border-l-4 border-blue-500/10 pl-6">
                            "{thought.text}"
                         </p>
-
-                        <div className="flex items-center justify-between pt-4 border-t border-dashed">
-                           <div className="flex items-center gap-2 text-muted-foreground/40">
-                              <Clock className="w-3.5 h-3.5" />
-                              <span className="text-[10px] font-bold uppercase tracking-widest">Recorded in Pool</span>
-                           </div>
+                        <div className="flex items-center gap-2 text-muted-foreground/40 pt-4 border-t border-dashed">
+                           <Clock className="w-3.5 h-3.5" />
+                           <span className="text-[10px] font-bold uppercase tracking-widest">Recorded in Pool</span>
                         </div>
                      </div>
                   </Card>
@@ -320,7 +277,6 @@ export default function ProsperityPoolPage() {
               })}
            </div>
         </div>
-
       </main>
 
       <BottomNav />
