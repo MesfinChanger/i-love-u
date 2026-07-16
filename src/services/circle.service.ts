@@ -40,3 +40,27 @@ export async function discoverCircles() {
     ...doc.data()
   }));
 }
+
+/**
+ * Join Circle Protocol.
+ * Establishes a member record within a specific community vibration.
+ */
+export async function joinCircle(
+  circleId: string,
+  userId: string
+) {
+  await setDoc(
+    doc(
+      db,
+      "communities",
+      circleId,
+      "members",
+      userId
+    ),
+    {
+      userId,
+      role: "member",
+      joinedAt: serverTimestamp()
+    }
+  );
+}
