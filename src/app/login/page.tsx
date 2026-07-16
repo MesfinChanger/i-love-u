@@ -211,10 +211,15 @@ function LoginContent() {
                   </button>
                 </div>
                 {mode === 'signin' && (
-                  <div className="flex justify-end px-1">
-                    <Link href="/login/reset" className="text-[9px] font-black uppercase tracking-widest text-slate-400 hover:text-primary transition-colors">
-                      {t('login.forgotPassword')}
-                    </Link>
+                  <div className="flex flex-col gap-2 pt-1">
+                    <div className="flex justify-between px-1">
+                      <Link href="/login/forgot-nickname" className="text-[9px] font-black uppercase tracking-widest text-slate-400 hover:text-primary transition-colors">
+                        {t('login.forgotNickname')}
+                      </Link>
+                      <Link href="/login/reset" className="text-[9px] font-black uppercase tracking-widest text-slate-400 hover:text-primary transition-colors">
+                        {t('login.forgotPassword')}
+                      </Link>
+                    </div>
                   </div>
                 )}
               </div>

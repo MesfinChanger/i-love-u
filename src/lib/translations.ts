@@ -46,7 +46,10 @@ const baseTranslations = {
     humanVerify: "Verify Human Status",
     launchButton: "Launch Spark",
     joinButton: "Join the Mission",
-    forgotPassword: "Forgot Password?"
+    forgotPassword: "Forgot Password?",
+    forgotNickname: "Forgot Nickname?",
+    retrieveNickname: "Retrieve Nickname",
+    nicknameSent: "If an account exists, your nickname has been sent to your email. ❤️"
   },
   home: {
     heroTitle: "Spark Love. End Poverty.",
@@ -154,12 +157,12 @@ export const TRANSLATIONS: Record<LanguageCode, any> = {
     ...baseTranslations,
     nav: { home: "Inicio", discover: "Descubrir", search: "Buscar", global: "Global", pool: "Piscina de Ideas", matches: "Corazones", shop: "Tienda", profile: "Perfil" },
     pool: { title: "Piscina de Prosperidad", subtitle: "Nade en el océano del conocimiento", economy: "Economía", politics: "Política", science: "Ciencia", technology: "Tecnología" },
-    login: { ...baseTranslations.login, forgotPassword: "¿Olvidaste tu contraseña?" }
+    login: { ...baseTranslations.login, forgotPassword: "¿Olvidaste tu contraseña?", forgotNickname: "¿Olvidaste tu apodo?" }
   },
   French: {
     ...baseTranslations,
     nav: { home: "Accueil", discover: "Découvrir", search: "Rechercher", global: "Global", pool: "Bassin d'idées", matches: "Cœurs", shop: "Boutique", profile: "Profil" },
-    login: { ...baseTranslations.login, forgotPassword: "Mot de passe oublié ?" }
+    login: { ...baseTranslations.login, forgotPassword: "Mot de passe oublié ?", forgotNickname: "Pseudo oublié ?" }
   }
 };
 
