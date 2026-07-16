@@ -71,30 +71,40 @@ export async function createSharedKey(privateKey: CryptoKey, publicKey: CryptoKe
 }
 
 export async function encryptText(text: string, key: CryptoKey) {
-  const iv = window.crypto.getRandomValues(new Uint8Array(12));
-  const encrypted = await window.crypto.subtle.encrypt(
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+
+  const encrypted = await crypto.subtle.encrypt(
     {
       name: "AES-GCM",
-      iv: iv
+      iv
     },
     key,
     new TextEncoder().encode(text)
   );
 
   return {
-    cipherText: btoa(String.fromCharCode(...new Uint8Array(encrypted))),
-    iv: btoa(String.fromCharCode(...iv))
+    cipherText: btoa(
+      String.fromCharCode(...new Uint8Array(encrypted))
+    ),
+    iv: btoa(
+      String.fromCharCode(...iv)
+    )
   };
 }
 
 export async function decryptText(cipherText: string, iv: string, key: CryptoKey) {
-  const encrypted = Uint8Array.from(atob(cipherText), c => c.charCodeAt(0));
-  const ivArray = Uint8Array.from(atob(iv), c => c.charCodeAt(0));
+  const encrypted = Uint8Array.from(
+    atob(cipherText),
+    c => c.charCodeAt(0)
+  );
 
-  const decrypted = await window.crypto.subtle.decrypt(
+  const decrypted = await crypto.subtle.decrypt(
     {
       name: "AES-GCM",
-      iv: ivArray
+      iv: Uint8Array.from(
+        atob(iv),
+        c => c.charCodeAt(0)
+      )
     },
     key,
     encrypted
