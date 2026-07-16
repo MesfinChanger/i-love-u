@@ -10,6 +10,11 @@ service cloud.firestore {
       allow update: if request.auth.uid == userId;
       allow delete: if request.auth.uid == userId;
 
+      // Privacy Protocol Registry
+      match /settings/privacy {
+        allow read, write: if request.auth.uid == userId;
+      }
+
       // High-Fidelity Security Registry
       match /sessions/{sessionId} {
         allow read, write: if request.auth.uid == userId;

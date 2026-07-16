@@ -40,3 +40,16 @@ export interface TrustScore {
   positiveReviews: number;
   reports: number;
 }
+
+/**
+ * @fileOverview Privacy Settings Protocol Definition.
+ */
+export interface PrivacySettings {
+  showOnlineStatus: boolean;
+  allowSparkMessages: boolean;
+  allowCircleMessages: boolean;
+  allowShoppingMessages: boolean;
+  showLocation: boolean;
+  showEmail: boolean;
+  showPhone: boolean;
+}

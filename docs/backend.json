@@ -21,6 +21,20 @@
       },
       "required": ["uid", "username", "displayName", "interests", "accountType"]
     },
+    "PrivacySettings": {
+      "title": "Privacy Settings",
+      "description": "User-specific visibility and interaction control registry.",
+      "type": "object",
+      "properties": {
+        "showOnlineStatus": { "type": "boolean" },
+        "allowSparkMessages": { "type": "boolean" },
+        "allowCircleMessages": { "type": "boolean" },
+        "allowShoppingMessages": { "type": "boolean" },
+        "showLocation": { "type": "boolean" },
+        "showEmail": { "type": "boolean" },
+        "showPhone": { "type": "boolean" }
+      }
+    },
     "DeviceSession": {
       "title": "Device Session",
       "description": "Registered heartbeat of a device used by a heart.",
@@ -180,6 +194,7 @@
   },
   "firestore": {
     "/users/{userId}": { "schema": "UserProfile", "description": "Private heart identities" },
+    "/users/{userId}/settings/privacy": { "schema": "PrivacySettings", "description": "User visibility and interaction control" },
     "/users/{userId}/sessions/{sessionId}": { "schema": "DeviceSession", "description": "Registered device heartbeats" },
     "/users/{userId}/securityEvents/{eventId}": { "schema": "SecurityEvent", "description": "Identity protection audit logs" },
     "/devices/{deviceId}": { "schema": "DeviceSession", "description": "Global device registry" },
