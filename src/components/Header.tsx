@@ -1,31 +1,19 @@
-
 'use client';
 
 import Link from 'next/link';
 import { 
   Heart, 
-  Search, 
   Bell, 
   CircleHelp, 
-  X, 
-  Sparkles, 
   Menu,
-  Globe2,
-  ShoppingBag,
-  User,
   LogOut,
   LogIn,
   Loader2,
   Languages,
   Check,
   MessageSquare,
-  Home,
   TrendingDown,
-  Waves,
-  Users,
-  Clock,
-  Package,
-  Brain
+  Clock
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DonationDialog } from '@/components/DonationDialog';
@@ -52,7 +40,6 @@ import { signOut } from 'firebase/auth';
 import { 
   collection, 
   query, 
-  where, 
   orderBy, 
   limit, 
   updateDoc, 
@@ -63,10 +50,6 @@ import { useToast } from '@/hooks/use-toast';
 import { SUPPORTED_LANGUAGES } from '@/lib/world-data';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 
-/**
- * @fileOverview Unified Mission Hub Header.
- * Synchronized with the High-Fidelity Notification Schema.
- */
 export function Header() {
   const { user } = useUser();
   const db = useFirestore();
@@ -74,9 +57,8 @@ export function Header() {
   const { toast } = useToast();
   const [isSigningOut, setIsSigningOut] = useState(false);
   const pathname = usePathname();
-  const { t, language, setLanguage } = useTranslation();
+  const { language, setLanguage } = useTranslation();
 
-  // Notification Registry Listener
   const notificationsQuery = useMemoFirebase(() => {
     if (!db || !user?.uid) return null;
     return query(
@@ -113,7 +95,6 @@ export function Header() {
       toast({ title: "Signed Out", description: "You have been safely signed out." });
       router.push("/login");
     } catch (error) {
-      console.error("Sign out error:", error);
       toast({ variant: "destructive", title: "Sign Out Failed", description: "Please try again." });
     } finally {
       setIsSigningOut(false);
@@ -131,9 +112,7 @@ export function Header() {
     });
     try {
       await batch.commit();
-    } catch (e) {
-      console.error("Notification sync ripple:", e);
-    }
+    } catch (e) {}
   };
 
   const handleMarkRead = async (id: string) => {
@@ -144,15 +123,13 @@ export function Header() {
   };
 
   const navItems = [
-    { href: '/', icon: Home, label: t('nav.home'), color: 'text-slate-600' },
-    { href: '/discover', icon: Sparkles, label: t('nav.discover'), color: 'text-primary' },
-    { href: '/circles', icon: Users, label: "Circles", color: 'text-primary' },
-    { href: '/pool', icon: Waves, label: t('nav.pool'), color: 'text-blue-500' },
-    { href: '/search', icon: Search, label: t('nav.search'), color: 'text-blue-500' },
-    { href: '/community', icon: Globe2, label: t('nav.global'), color: 'text-green-500' },
-    { href: '/matches', icon: Heart, label: t('nav.matches'), color: 'text-primary' },
-    { href: '/shop', icon: ShoppingBag, label: t('nav.shop'), color: 'text-secondary' },
-    { href: '/profile', icon: User, label: t('nav.profile'), color: 'text-slate-600' },
+    { href: '/', name: "🏠 Home" },
+    { href: '/spark', name: "❤️ Spark" },
+    { href: '/circle', name: "🤝 Circle" },
+    { href: '/shopping', name: "🛒 Shopping" },
+    { href: '/ideas', name: "💡 Idea Pool" },
+    { href: '/messages', name: "💬 Messages" },
+    { href: '/profile', name: "👤 Profile" },
   ];
 
   return (
@@ -188,7 +165,7 @@ export function Header() {
               <nav className="flex-grow overflow-y-auto p-6 space-y-2 no-scrollbar">
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-4 mb-2">Navigation</p>
                 {navItems.map((item) => {
-                  const isActive = pathname === item.href || (item.href === '/matches' && pathname?.startsWith('/matches')) || (item.href === '/shop' && pathname?.startsWith('/shop')) || (item.href === '/circles' && pathname?.startsWith('/circles'));
+                  const isActive = pathname === item.href || (item.href !== '/' && pathname?.startsWith(item.href));
                   return (
                     <Link 
                       key={item.href} 
@@ -202,9 +179,9 @@ export function Header() {
                         "w-10 h-10 rounded-xl flex items-center justify-center transition-all",
                         isActive ? "bg-primary text-white shadow-lg" : "bg-muted group-hover:bg-white group-hover:shadow-md transition-all"
                       )}>
-                        <item.icon className="w-5 h-5" />
+                        <span className="text-lg">{item.name.split(' ')[0]}</span>
                       </div>
-                      <span className="font-black text-sm uppercase tracking-widest">{item.label}</span>
+                      <span className="font-black text-sm uppercase tracking-widest">{item.name.split(' ').slice(1).join(' ')}</span>
                     </Link>
                   );
                 })}
@@ -227,31 +204,6 @@ export function Header() {
                       </div>
                       <span className="font-black text-sm uppercase tracking-widest">Give Feedback</span>
                    </button>
-
-                   <DropdownMenu>
-                     <DropdownMenuTrigger asChild>
-                        <button className="flex items-center gap-4 p-4 rounded-[1.5rem] transition-all w-full text-slate-600 hover:bg-muted/50 group text-left">
-                          <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center group-hover:bg-white group-hover:shadow-md transition-all text-slate-500">
-                             <Languages className="w-5 h-5" />
-                          </div>
-                          <div className="flex flex-col">
-                             <span className="font-black text-sm uppercase tracking-widest">Language</span>
-                             <span className="text-[9px] font-bold text-primary uppercase">{language}</span>
-                          </div>
-                        </button>
-                     </DropdownMenuTrigger>
-                     <DropdownMenuContent className="w-56 rounded-2xl p-2 border-none shadow-2xl max-h-80 overflow-y-auto" side="right" align="start">
-                        {SUPPORTED_LANGUAGES.map((lang) => (
-                          <DropdownMenuItem key={lang.name} onClick={() => setLanguage(lang.name)} className={cn("rounded-xl py-3 px-4 font-bold text-xs uppercase tracking-wider cursor-pointer transition-colors flex items-center justify-between", language === lang.name ? "bg-primary/10 text-primary" : "hover:bg-muted")}>
-                            <div className="flex flex-col">
-                              <span>{lang.name}</span>
-                              <span className="text-[9px] opacity-40 font-medium">{lang.native}</span>
-                            </div>
-                            {language === lang.name && <Check className="w-4 h-4" />}
-                          </DropdownMenuItem>
-                        ))}
-                     </DropdownMenuContent>
-                   </DropdownMenu>
 
                   <div className="pt-6 mt-6 border-t border-dashed">
                     {user ? (
@@ -333,25 +285,6 @@ export function Header() {
 }
 
 function NotificationItem({ notif, onRead }: { notif: any, onRead: () => void }) {
-  const typeIcons: Record<string, any> = {
-    message: MessageSquare,
-    like: Heart,
-    match: Sparkles,
-    order: Package,
-    idea: Brain
-  };
-
-  const typeColors: Record<string, string> = {
-    message: 'text-blue-500 bg-blue-50',
-    like: 'text-primary bg-primary/5',
-    match: 'text-amber-500 bg-amber-50',
-    order: 'text-green-500 bg-green-50',
-    idea: 'text-purple-500 bg-purple-50'
-  };
-
-  const Icon = typeIcons[notif.type] || Bell;
-  const colorClass = typeColors[notif.type] || 'text-slate-500 bg-slate-50';
-
   const timeString = useMemo(() => {
     if (!notif.createdAt) return 'Now';
     try {
@@ -369,8 +302,8 @@ function NotificationItem({ notif, onRead }: { notif: any, onRead: () => void })
       )}
     >
        {!notif.read && <div className="absolute top-0 left-0 w-1.5 h-full bg-primary" />}
-       <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border", colorClass)}>
-          <Icon className="w-6 h-6" />
+       <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border bg-muted">
+          <span className="text-lg">🔔</span>
        </div>
        <div className="flex-grow space-y-1">
           <div className="flex justify-between items-start">
