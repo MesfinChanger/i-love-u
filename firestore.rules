@@ -33,6 +33,11 @@ service cloud.firestore {
       allow update: if isOwner(userId) || isAdmin();
       allow create: if isOwner(userId);
       allow delete: if isOwner(userId) || isAdmin();
+
+      match /notifications/{notificationId} {
+        allow read, update, delete: if isOwner(userId);
+        allow create: if isAuthenticated();
+      }
     }
 
     match /publicProfiles/{userId} {

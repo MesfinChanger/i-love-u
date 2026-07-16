@@ -22,7 +22,10 @@ import {
   Home,
   TrendingDown,
   Waves,
-  Users
+  Users,
+  Clock,
+  Package,
+  Brain
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DonationDialog } from '@/components/DonationDialog';
@@ -40,27 +43,55 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useTranslation } from './providers/LanguageProvider';
-import { auth, useUser } from '@/firebase';
+import { auth, useUser, useFirestore, useCollection } from '@/firebase';
 import { signOut } from 'firebase/auth';
+import { 
+  collection, 
+  query, 
+  where, 
+  orderBy, 
+  limit, 
+  updateDoc, 
+  doc, 
+  writeBatch 
+} from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { SUPPORTED_LANGUAGES } from '@/lib/world-data';
+import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 
 /**
  * @fileOverview Unified Mission Hub Header.
- * Implements the Unified Sign-Out Protocol.
+ * Synchronized with the High-Fidelity Notification Schema.
  */
 export function Header() {
   const { user } = useUser();
+  const db = useFirestore();
   const router = useRouter();
   const { toast } = useToast();
-  const [hasNotifications, setHasNotifications] = useState(true);
   const [isSigningOut, setIsSigningOut] = useState(false);
   const pathname = usePathname();
   const { t, language, setLanguage } = useTranslation();
+
+  // Notification Registry Listener
+  const notificationsQuery = useMemoFirebase(() => {
+    if (!db || !user?.uid) return null;
+    return query(
+      collection(db, 'users', user.uid, 'notifications'),
+      orderBy('createdAt', 'desc'),
+      limit(20)
+    );
+  }, [db, user?.uid]);
+
+  const { data: notifications, loading: notificationsLoading } = useCollection(notificationsQuery);
+
+  const unreadCount = useMemo(() => {
+    if (!notifications) return 0;
+    return notifications.filter((n: any) => !n.read).length;
+  }, [notifications]);
 
   const triggerAssistant = () => {
     window.dispatchEvent(new CustomEvent('toggle-spark-assistant'));
@@ -74,31 +105,42 @@ export function Header() {
     window.dispatchEvent(new CustomEvent('open-auth-gate'));
   };
 
-  // Unified Sign-Out Protocol (Synchronized with user snippet)
   const handleSignOut = async () => {
     if (!auth || isSigningOut) return;
     setIsSigningOut(true);
     try {
       await signOut(auth);
-
-      toast({
-        title: "Signed Out",
-        description: "You have been safely signed out.",
-      });
-
+      toast({ title: "Signed Out", description: "You have been safely signed out." });
       router.push("/login");
-
     } catch (error) {
       console.error("Sign out error:", error);
-
-      toast({
-        variant: "destructive",
-        title: "Sign Out Failed",
-        description: "Please try again.",
-      });
+      toast({ variant: "destructive", title: "Sign Out Failed", description: "Please try again." });
     } finally {
       setIsSigningOut(false);
     }
+  };
+
+  const handleMarkAllRead = async () => {
+    if (!db || !user?.uid || !notifications) return;
+    const batch = writeBatch(db);
+    notifications.forEach((n: any) => {
+      if (!n.read) {
+        const ref = doc(db, 'users', user.uid, 'notifications', n.id);
+        batch.update(ref, { read: true });
+      }
+    });
+    try {
+      await batch.commit();
+    } catch (e) {
+      console.error("Notification sync ripple:", e);
+    }
+  };
+
+  const handleMarkRead = async (id: string) => {
+    if (!db || !user?.uid) return;
+    try {
+      await updateDoc(doc(db, 'users', user.uid, 'notifications', id), { read: true });
+    } catch (e) {}
   };
 
   const navItems = [
@@ -179,10 +221,7 @@ export function Header() {
                       </button>
                    } />
 
-                   <button 
-                    onClick={triggerFeedback}
-                    className="flex items-center gap-4 p-4 rounded-[1.5rem] transition-all w-full text-slate-600 hover:bg-primary/5 hover:text-primary group text-left"
-                   >
+                   <button onClick={triggerFeedback} className="flex items-center gap-4 p-4 rounded-[1.5rem] transition-all w-full text-slate-600 hover:bg-primary/5 hover:text-primary group text-left">
                       <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center group-hover:bg-white group-hover:shadow-md transition-all">
                         <MessageSquare className="w-5 h-5" />
                       </div>
@@ -203,14 +242,7 @@ export function Header() {
                      </DropdownMenuTrigger>
                      <DropdownMenuContent className="w-56 rounded-2xl p-2 border-none shadow-2xl max-h-80 overflow-y-auto" side="right" align="start">
                         {SUPPORTED_LANGUAGES.map((lang) => (
-                          <DropdownMenuItem 
-                            key={lang.name} 
-                            onClick={() => setLanguage(lang.name)}
-                            className={cn(
-                              "rounded-xl py-3 px-4 font-bold text-xs uppercase tracking-wider cursor-pointer transition-colors flex items-center justify-between",
-                              language === lang.name ? "bg-primary/10 text-primary" : "hover:bg-muted"
-                            )}
-                          >
+                          <DropdownMenuItem key={lang.name} onClick={() => setLanguage(lang.name)} className={cn("rounded-xl py-3 px-4 font-bold text-xs uppercase tracking-wider cursor-pointer transition-colors flex items-center justify-between", language === lang.name ? "bg-primary/10 text-primary" : "hover:bg-muted")}>
                             <div className="flex flex-col">
                               <span>{lang.name}</span>
                               <span className="text-[9px] opacity-40 font-medium">{lang.native}</span>
@@ -223,21 +255,14 @@ export function Header() {
 
                   <div className="pt-6 mt-6 border-t border-dashed">
                     {user ? (
-                      <button 
-                        onClick={handleSignOut}
-                        disabled={isSigningOut}
-                        className="flex items-center gap-4 p-4 rounded-[1.5rem] transition-all w-full text-slate-400 hover:text-red-500 hover:bg-red-50 group"
-                      >
+                      <button onClick={handleSignOut} disabled={isSigningOut} className="flex items-center gap-4 p-4 rounded-[1.5rem] transition-all w-full text-slate-400 hover:text-red-500 hover:bg-red-50 group">
                         <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center group-hover:bg-white group-hover:shadow-md transition-all">
                           {isSigningOut ? <Loader2 className="w-5 h-5 animate-spin" /> : <LogOut className="w-5 h-5" />}
                         </div>
                         <span className="font-black text-sm uppercase tracking-widest">Sign Out</span>
                       </button>
                     ) : (
-                      <button 
-                        onClick={() => { triggerAuthGate(); }}
-                        className="flex items-center gap-4 p-4 rounded-[1.5rem] transition-all w-full text-primary hover:bg-primary/5 group"
-                      >
+                      <button onClick={triggerAuthGate} className="flex items-center gap-4 p-4 rounded-[1.5rem] transition-all w-full text-primary hover:bg-primary/5 group">
                         <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-white group-hover:shadow-md transition-all">
                           <LogIn className="w-5 h-5" />
                         </div>
@@ -261,7 +286,7 @@ export function Header() {
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="text-muted-foreground relative w-10 h-10">
                 <Bell className="w-5 h-5" aria-hidden="true" />
-                {hasNotifications && (
+                {unreadCount > 0 && (
                   <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-primary rounded-full border-2 border-white animate-pulse" aria-hidden="true" />
                 )}
               </Button>
@@ -276,19 +301,21 @@ export function Header() {
                     </SheetTitle>
                     <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60">Community Updates</p>
                   </div>
-                  <Button variant="ghost" size="sm" onClick={() => setHasNotifications(false)} className="h-8 text-[9px] font-black uppercase rounded-full hover:bg-primary/10">Clear All</Button>
+                  <Button variant="ghost" size="sm" onClick={handleMarkAllRead} className="h-8 text-[9px] font-black uppercase rounded-full hover:bg-primary/10">Mark All Read</Button>
                 </div>
               </SheetHeader>
               <div className="flex-grow overflow-y-auto p-6 space-y-4 no-scrollbar">
-                {hasNotifications ? (
+                {notificationsLoading ? (
+                  <div className="flex justify-center py-20 opacity-20"><Loader2 className="w-10 h-10 animate-spin text-primary" /></div>
+                ) : notifications && notifications.length > 0 ? (
                   <div className="space-y-3">
-                    <NotificationItem 
-                      icon={Sparkles} 
-                      title="Welcome to the Revolution!" 
-                      desc="Your identity is now secured with E2EE. Start discovering mystery hearts today." 
-                      time="Just Now"
-                      badge="SYSTEM"
-                    />
+                    {notifications.map((notif: any) => (
+                      <NotificationItem 
+                        key={notif.id}
+                        notif={notif}
+                        onRead={() => handleMarkRead(notif.id)}
+                      />
+                    ))}
                   </div>
                 ) : (
                   <div className="flex flex-col items-center justify-center py-32 text-center space-y-6 opacity-20">
@@ -305,25 +332,57 @@ export function Header() {
   );
 }
 
-function NotificationItem({ icon: Icon, title, desc, time, badge, color = 'primary' }: any) {
-  const badgeColors: Record<string, string> = {
-    primary: 'bg-primary text-white',
-    secondary: 'bg-secondary text-white',
-    blue: 'bg-blue-600 text-white'
+function NotificationItem({ notif, onRead }: { notif: any, onRead: () => void }) {
+  const typeIcons: Record<string, any> = {
+    message: MessageSquare,
+    like: Heart,
+    match: Sparkles,
+    order: Package,
+    idea: Brain
   };
 
+  const typeColors: Record<string, string> = {
+    message: 'text-blue-500 bg-blue-50',
+    like: 'text-primary bg-primary/5',
+    match: 'text-amber-500 bg-amber-50',
+    order: 'text-green-500 bg-green-50',
+    idea: 'text-purple-500 bg-purple-50'
+  };
+
+  const Icon = typeIcons[notif.type] || Bell;
+  const colorClass = typeColors[notif.type] || 'text-slate-500 bg-slate-50';
+
+  const timeString = useMemo(() => {
+    if (!notif.createdAt) return 'Now';
+    try {
+      const d = notif.createdAt.toDate ? notif.createdAt.toDate() : new Date(notif.createdAt);
+      return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    } catch (e) { return 'Recent'; }
+  }, [notif.createdAt]);
+
   return (
-    <div className="group p-5 rounded-[2rem] bg-white border border-slate-100 shadow-sm hover:shadow-md transition-all flex gap-4 items-start cursor-pointer">
-       <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border bg-primary/5 text-primary">
+    <div 
+      onClick={onRead}
+      className={cn(
+        "group p-5 rounded-[2rem] border transition-all flex gap-4 items-start cursor-pointer relative overflow-hidden",
+        notif.read ? "bg-white border-slate-100 opacity-60" : "bg-white border-primary/10 shadow-md hover:shadow-lg"
+      )}
+    >
+       {!notif.read && <div className="absolute top-0 left-0 w-1.5 h-full bg-primary" />}
+       <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border", colorClass)}>
           <Icon className="w-6 h-6" />
        </div>
        <div className="flex-grow space-y-1">
           <div className="flex justify-between items-start">
-             <Badge className={`text-[7px] font-black uppercase h-5 px-2 border-none ${badgeColors[color]}`}>{badge}</Badge>
-             <span className="text-[8px] font-black text-slate-300 uppercase tracking-widest">{time}</span>
+             <Badge className={cn("text-[7px] font-black uppercase h-5 px-2 border-none", notif.read ? "bg-slate-100 text-slate-400" : "bg-primary text-white")}>
+               {notif.type}
+             </Badge>
+             <span className="text-[8px] font-black text-slate-300 uppercase tracking-widest flex items-center gap-1">
+                <Clock className="w-2 h-2" /> {timeString}
+             </span>
           </div>
-          <h5 className="font-black text-sm tracking-tight leading-tight">{title}</h5>
-          <p className="text-[11px] text-slate-500 font-medium leading-relaxed italic line-clamp-2">"{desc}"</p>
+          <h5 className="font-black text-sm tracking-tight leading-tight">{notif.title}</h5>
+          <p className="text-[11px] text-slate-500 font-medium leading-relaxed italic line-clamp-2">"{notif.body}"</p>
        </div>
     </div>
   );

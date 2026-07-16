@@ -194,6 +194,18 @@
         "text": { "type": "string" },
         "createdAt": { "type": "string", "format": "date-time" }
       }
+    },
+    "Notification": {
+      "title": "Notification",
+      "description": "A system or interaction alert for a specific heart.",
+      "type": "object",
+      "properties": {
+        "type": { "type": "string", "enum": ["message", "like", "match", "order", "idea"] },
+        "title": { "type": "string" },
+        "body": { "type": "string" },
+        "read": { "type": "boolean", "default": false },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
     }
   },
   "auth": {
@@ -201,6 +213,7 @@
   },
   "firestore": {
     "/users/{userId}": { "schema": "UserProfile", "description": "Private user profiles" },
+    "/users/{userId}/notifications/{notificationId}": { "schema": "Notification", "description": "Private user alerts" },
     "/publicProfiles/{userId}": { "schema": "UserProfile", "description": "Discovery data" },
     "/publicKeys/{userId}": { "schema": "PublicKey", "description": "E2EE identity keys" },
     "/connections/{connectionId}": { "schema": "Connection", "description": "Match and Invitation registry" },
