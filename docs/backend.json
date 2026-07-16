@@ -87,7 +87,7 @@
         "description": { "type": "string" },
         "logo": { "type": "string" },
         "country": { "type": "string" },
-        "rating": { "type": "number", "default": 0 },
+        "rating": { "type": "number", "default": 5 },
         "verified": { "type": "boolean", "default": false }
       },
       "required": ["ownerId", "name", "logo", "country"]
@@ -185,7 +185,7 @@
     "/users/{userId}/notifications/{notificationId}": { "schema": "Notification", "description": "User alerts" },
     "/publicProfiles/{userId}": { "schema": "UserProfile", "description": "Vibrant discovery data" },
     "/relationships/{relationshipId}": { "schema": "Relationship", "description": "Friend and block registry" },
-    "/circles/{circleId}": { "schema": "Circle", "description": "Sacred gatherings" },
+    "/circle/{circleId}": { "schema": "Circle", "description": "Sacred gatherings" },
     "/ideaPool/{postId}": { "schema": "PoolPost", "description": "Knowledge pool" },
     "/communityMessages/{messageId}": { "schema": "CommunityMessage", "description": "Global Wall" },
     "/shops/{shopId}": { "schema": "Shop", "description": "Artisan storefronts" },

@@ -23,7 +23,7 @@ service cloud.firestore {
       allow read, write: if isAuthenticated() && (request.auth.uid == resource.data.userA || request.auth.uid == resource.data.userB || request.auth.uid == request.resource.data.userA || request.auth.uid == request.resource.data.userB);
     }
 
-    match /circles/{id} {
+    match /circle/{id} {
       allow read: if true;
       allow write: if isAuthenticated() && (isOwner(request.resource.data.ownerId) || isOwner(resource.data.ownerId));
     }

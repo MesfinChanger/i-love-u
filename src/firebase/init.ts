@@ -1,12 +1,12 @@
-import { initializeApp, getApps, getApp } from "firebase/app";
+import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { firebaseConfig } from "./config";
 
 /**
- * @fileOverview Direct-instance Firebase Initialization.
- * Refactored to explicitly export auth, db, and storage as direct instances.
+ * @fileOverview High-Fidelity Firebase Initialization.
+ * Refactored to provide direct instance exports for auth, db, and storage.
  */
 
 const apiKey = firebaseConfig.apiKey;
@@ -17,7 +17,7 @@ const isKeyValid = !!(
 );
 
 const app = (typeof window !== "undefined" && isKeyValid) 
-  ? (getApps().length > 0 ? getApp() : initializeApp(firebaseConfig))
+  ? initializeApp(firebaseConfig)
   : (null as any);
 
 export const auth = app ? getAuth(app) : null;
