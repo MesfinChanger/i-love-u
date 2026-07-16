@@ -10,6 +10,7 @@ export * from './security';
 export * from './organization';
 export * from './wallet';
 export * from './transaction';
+export * from './payment';
 
 export type IdeaCategory =
   | "economics"
