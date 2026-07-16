@@ -57,7 +57,16 @@ export interface Circle {
   id: string;
   name: string;
   description: string;
-  category: "travel" | "technology" | "business" | "education" | "culture" | "sports" | "general";
+  category: 
+    | "Technology"
+    | "Business"
+    | "Education"
+    | "Travel"
+    | "Culture"
+    | "Sports"
+    | "Music"
+    | "Environment"
+    | "General";
   imageURL?: string;
   ownerId: string;
   privacy: "open" | "private";

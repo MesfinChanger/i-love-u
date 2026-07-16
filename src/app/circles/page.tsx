@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Label } from '@/components/ui/label';
 import { 
   Users, 
   Plus, 
@@ -17,14 +18,11 @@ import {
   Sparkles, 
   Lock, 
   Globe, 
-  Globe2, 
-  Compass,
   ArrowRight,
-  TrendingDown,
-  Waves
+  Compass
 } from 'lucide-react';
-import { useUser, db, useCollection, useDoc } from '@/firebase';
-import { collection, addDoc, query, orderBy, serverTimestamp, limit, where, doc } from 'firebase/firestore';
+import { useUser, db, useCollection } from '@/firebase';
+import { collection, addDoc, query, orderBy, serverTimestamp, limit, where } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { cn } from '@/lib/utils';
@@ -44,8 +42,7 @@ import {
   SelectValue 
 } from '@/components/ui/select';
 import Image from 'next/image';
-
-const CIRCLE_CATEGORIES = ["Prosperity", "Technology", "Arts", "Health", "Social", "Business"];
+import { circleCategories } from '@/types/circle';
 
 export default function CirclesPage() {
   const { user } = useUser();
@@ -58,15 +55,15 @@ export default function CirclesPage() {
   // Create Circle State
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [category, setCategory] = useState('Social');
+  const [category, setCategory] = useState('General');
   const [privacy, setPrivacy] = useState<'open' | 'private'>('open');
   const [isCreating, setIsCreating] = useState(false);
 
   const circlesQuery = useMemoFirebase(() => {
     if (!db) return null;
-    let q = query(collection(db, 'circles'), orderBy('createdAt', 'desc'), limit(50));
+    let q = query(collection(db, 'communities'), orderBy('createdAt', 'desc'), limit(50));
     if (activeCategory !== 'All') {
-      q = query(collection(db, 'circles'), where('category', '==', activeCategory), orderBy('createdAt', 'desc'), limit(50));
+      q = query(collection(db, 'communities'), where('category', '==', activeCategory), orderBy('createdAt', 'desc'), limit(50));
     }
     return q;
   }, [activeCategory]);
@@ -87,7 +84,7 @@ export default function CirclesPage() {
 
     setIsCreating(true);
     try {
-      await addDoc(collection(db, 'circles'), {
+      await addDoc(collection(db, 'communities'), {
         name: name.trim(),
         description: description.trim(),
         category,
@@ -170,7 +167,7 @@ export default function CirclesPage() {
                                       <SelectValue />
                                    </SelectTrigger>
                                    <SelectContent className="rounded-2xl border-none shadow-2xl">
-                                      {CIRCLE_CATEGORIES.map(cat => <SelectItem key={cat} value={cat} className="rounded-xl">{cat}</SelectItem>)}
+                                      {circleCategories.map(cat => <SelectItem key={cat} value={cat} className="rounded-xl">{cat}</SelectItem>)}
                                    </SelectContent>
                                 </Select>
                              </div>
@@ -201,7 +198,7 @@ export default function CirclesPage() {
            </div>
 
            <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar w-full lg:w-auto">
-              {['All', ...CIRCLE_CATEGORIES].map(cat => (
+              {['All', ...circleCategories].map(cat => (
                  <Button 
                    key={cat} 
                    variant={activeCategory === cat ? 'default' : 'ghost'}
@@ -228,7 +225,7 @@ export default function CirclesPage() {
                <Card key={circle.id} className="rounded-[2.5rem] border-none shadow-lg overflow-hidden bg-white hover:shadow-2xl transition-all group flex flex-col">
                   <div className="relative aspect-[16/10] overflow-hidden">
                      <Image 
-                       src={circle.imageURL} 
+                       src={circle.imageURL || `https://picsum.photos/seed/${circle.id}/600/400`} 
                        alt={circle.name} 
                        fill 
                        className="object-cover transition-transform duration-700 group-hover:scale-110" 

@@ -84,7 +84,7 @@
         "id": { "type": "string" },
         "name": { "type": "string" },
         "description": { "type": "string" },
-        "category": { "type": "string", "enum": ["travel", "technology", "business", "education", "culture", "sports", "general"] },
+        "category": { "type": "string", "enum": ["Technology", "Business", "Education", "Travel", "Culture", "Sports", "Music", "Environment", "General"] },
         "imageURL": { "type": "string" },
         "ownerId": { "type": "string" },
         "privacy": { "type": "string", "enum": ["open", "private"] },
