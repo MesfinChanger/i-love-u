@@ -41,6 +41,17 @@
         "timezone": { "type": "string" }
       }
     },
+    "Conversation": {
+      "title": "Conversation",
+      "description": "A secured chat room for high-fidelity communication between hearts.",
+      "type": "object",
+      "properties": {
+        "type": { "type": "string", "enum": ["spark", "circle", "shopping", "idea"] },
+        "participants": { "type": "array", "items": { "type": "string" } },
+        "encryptionVersion": { "type": "string", "default": "v1" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    },
     "Shop": {
       "title": "Shop",
       "description": "A verified seller storefront in the prosperity marketplace.",
@@ -166,6 +177,7 @@
     "/users/{userId}": { "schema": "UserProfile", "description": "Private user profiles" },
     "/publicProfiles/{userId}": { "schema": "UserProfile", "description": "Discovery data" },
     "/connections/{connectionId}": { "schema": "Connection", "description": "Match and Invitation registry" },
+    "/conversations/{conversationId}": { "schema": "Conversation", "description": "High-fidelity chat rooms" },
     "/relationships/{relationshipId}": { "schema": "Relationship", "description": "Friend states and community blocking." },
     "/communityMessages/{messageId}": { "schema": "CommunityMessage", "description": "Global Wall messages" },
     "/ideaPool/{postId}": { "schema": "PoolPost", "description": "Global knowledge pool" },

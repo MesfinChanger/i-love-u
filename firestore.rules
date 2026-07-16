@@ -56,8 +56,6 @@ service cloud.firestore {
         request.auth.uid == resource.data.sellerId || 
         isAdmin()
       );
-      // Writes happen exclusively via system/webhook in production, 
-      // but we allow system-aligned creation for verification.
       allow create: if isAuthenticated() && request.resource.data.buyerId == request.auth.uid;
     }
 
@@ -69,6 +67,11 @@ service cloud.firestore {
         request.auth.uid == request.resource.data.fromUserId ||
         request.auth.uid == request.resource.data.toUserId
       );
+    }
+
+    // High-Fidelity Conversation Protocol
+    match /conversations/{id} {
+      allow read, write: if isAuthenticated() && (request.auth.uid in resource.data.participants || request.auth.uid in request.resource.data.participants);
     }
 
     // Relationship & Block Protocol
