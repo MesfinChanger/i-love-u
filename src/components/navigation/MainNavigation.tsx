@@ -3,13 +3,34 @@
 import Link from "next/link";
 
 const menu = [
-  { name: "🏠 Home", path: "/" },
-  { name: "❤️ Spark", path: "/spark" },
-  { name: "🤝 Circle", path: "/circle" },
-  { name: "🛒 Shopping", path: "/shopping" },
-  { name: "💡 Idea Pool", path: "/ideas" },
-  { name: "💬 Messages", path: "/messages" },
-  { name: "👤 Profile", path: "/profile" }
+  {
+    name: "🏠 Home",
+    path: "/"
+  },
+  {
+    name: "❤️ Spark",
+    path: "/spark"
+  },
+  {
+    name: "🤝 Circle",
+    path: "/circle"
+  },
+  {
+    name: "🛒 Shopping",
+    path: "/shopping"
+  },
+  {
+    name: "💡 Idea Pool",
+    path: "/ideas"
+  },
+  {
+    name: "💬 Messages",
+    path: "/messages"
+  },
+  {
+    name: "👤 Profile",
+    path: "/profile"
+  }
 ];
 
 export default function MainNavigation() {
