@@ -1,4 +1,3 @@
-
 {
   "entities": {
     "UserProfile": {
@@ -20,6 +19,25 @@
         "updatedAt": { "type": "string", "format": "date-time" }
       },
       "required": ["uid", "username", "displayName", "interests", "accountType"]
+    },
+    "ProfessionalProfile": {
+      "title": "Professional Profile",
+      "description": "High-fidelity vocational identity for job creation and prosperity building.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "headline": { "type": "string" },
+        "about": { "type": "string" },
+        "skills": { "type": "array", "items": { "type": "string" } },
+        "experience": { "type": "array", "items": { "type": "string" } },
+        "education": { "type": "array", "items": { "type": "string" } },
+        "certificates": { "type": "array", "items": { "type": "string" } },
+        "portfolio": { "type": "array", "items": { "type": "string" } },
+        "availability": { "type": "string", "enum": ["available", "busy", "not_available"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "headline", "availability"]
     },
     "Learner": {
       "title": "Learner Profile",
@@ -456,6 +474,7 @@
   },
   "firestore": {
     "/users/{userId}": { "schema": "UserProfile", "description": "Private heart identities" },
+    "/professionals/{userId}": { "schema": "ProfessionalProfile", "description": "Vocational and career identities" },
     "/learners/{userId}": { "schema": "Learner", "description": "Educational progress registries" },
     "/courses/{courseId}": { "schema": "Course", "description": "Global educational listings" },
     "/users/{userId}/settings/privacy": { "schema": "PrivacySettings", "description": "User visibility and interaction control" },

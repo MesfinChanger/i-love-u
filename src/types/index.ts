@@ -23,6 +23,7 @@ export * from './experiment';
 export * from './publication';
 export * from './learner';
 export * from './course';
+export * from './professional';
 
 export type IdeaCategory =
   | "economics"
