@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect, useRef, use } from 'react';
@@ -61,6 +60,10 @@ import { compressImage, fileToDataUri } from '@/lib/image-utils';
 import { DonationDialog } from '@/components/DonationDialog';
 import Link from 'next/link';
 
+/**
+ * @fileOverview Spark Room Chat.
+ * Implements role-aware restrictions for Sellers and Purchasers.
+ */
 export default function ChatPage({ params }: { params: Promise<{ matchId: string }> }) {
   const { matchId } = use(params);
   const { user } = useUser();
@@ -80,7 +83,6 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
   const [translatingIds, setTranslatingIds] = useState<Set<string>>(new Set());
   const [isCameraOpen, setIsCameraOpen] = useState(false);
 
-  // Stable string-based dependency tracking to prevent assertion loops
   const currentUserId = user?.uid;
 
   const userRef = useMemoFirebase(() => {
@@ -88,7 +90,10 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
     return doc(db, 'users', currentUserId);
   }, [db, currentUserId]);
   const { data: myProfile } = useDoc(userRef);
+  
   const hasAcceptedPolicy = myProfile?.policyAccepted === true;
+  const isCommercial = myProfile?.isSeller || myProfile?.isAdvertiser;
+  const isInteractionRestricted = isCommercial && !hasAcceptedPolicy;
 
   const matchRef = useMemoFirebase(() => {
     if (!db || !matchId) return null;
@@ -179,7 +184,13 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
 
   const handleSendMessage = async (e?: React.FormEvent) => {
     e?.preventDefault();
-    if (!newMessage.trim() || !user || !db || !matchId || isSending || !hasAcceptedPolicy) return;
+    if (!newMessage.trim() || !user || !db || !matchId || isSending) return;
+    
+    if (isInteractionRestricted) {
+      toast({ variant: "destructive", title: "Action Restricted", description: "Sellers and Purchasers must accept the policy to send messages. ❤️" });
+      return;
+    }
+
     setIsSending(true);
     try {
       const moderation = await moderateText({ text: newMessage });
@@ -204,6 +215,10 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
 
   const handleLiveCapture = async (data: { url: string; file: File; type: 'image' | 'video' }) => {
     if (!user || !db || !matchId) return;
+    if (isInteractionRestricted) {
+      toast({ variant: "destructive", title: "Media Restricted", description: "Commercial users must commit to the policy first. ✨" });
+      return;
+    }
     try {
       if (data.type === 'image') {
         const compressed = await compressImage(data.file, 0.65);
@@ -282,15 +297,21 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
           <div className="flex items-center gap-2">
             <input type="file" ref={fileInputRef} onChange={async (e) => { const f = e.target.files?.[0]; if (f) { const url = await uploadFile(`matches/${matchId}/${Date.now()}-${f.name}`, f); await addDoc(collection(db!, 'matches', matchId, 'messages'), { senderId: currentUserId, fileUrl: url, fileName: f.name, timestamp: serverTimestamp() }); }}} className="hidden" />
             <Popover>
-              <PopoverTrigger asChild><Button variant="ghost" size="icon" className="rounded-xl bg-muted/40 h-12 w-12"><Camera className="w-6 h-6" /></Button></PopoverTrigger>
+              <PopoverTrigger asChild><Button variant="ghost" size="icon" className="rounded-xl bg-muted/40 h-12 w-12" disabled={isInteractionRestricted}><Camera className="w-6 h-6" /></Button></PopoverTrigger>
               <PopoverContent className="w-48 p-2 rounded-2xl border-none shadow-2xl" side="top" align="start">
                 <Button variant="ghost" onClick={() => setIsCameraOpen(true)} className="w-full justify-start gap-3 py-4 h-auto rounded-xl"><Zap className="w-4 h-4 text-primary" /><span className="font-bold text-xs uppercase">Live Camera</span></Button>
                 <Button variant="ghost" onClick={() => fileInputRef.current?.click()} className="w-full justify-start gap-3 py-4 h-auto rounded-xl border-t"><Paperclip className="w-4 h-4 text-primary" /><span className="font-bold text-xs uppercase">Document</span></Button>
               </PopoverContent>
             </Popover>
             <form onSubmit={handleSendMessage} className="flex-grow flex gap-2">
-              <Input value={newMessage} onChange={e => setNewMessage(e.target.value)} placeholder="Respectful message..." className="rounded-2xl bg-muted/40 border-none h-12 px-6" />
-              <Button type="submit" size="icon" className="rounded-xl h-12 w-12 gradient-bg shrink-0 shadow-lg shadow-primary/20 transition-all active:scale-90" disabled={!newMessage.trim() || isSending} aria-label="Send Message"><Send className="w-5 h-5" /></Button>
+              <Input 
+                value={newMessage} 
+                onChange={e => setNewMessage(e.target.value)} 
+                placeholder={isInteractionRestricted ? "View Only: Policy Agreement Required" : "Respectful message..."} 
+                className="rounded-2xl bg-muted/40 border-none h-12 px-6"
+                disabled={isInteractionRestricted}
+              />
+              <Button type="submit" size="icon" className="rounded-xl h-12 w-12 gradient-bg shrink-0 shadow-lg shadow-primary/20 transition-all active:scale-90" disabled={!newMessage.trim() || isSending || isInteractionRestricted} aria-label="Send Message"><Send className="w-5 h-5" /></Button>
             </form>
           </div>
         )}

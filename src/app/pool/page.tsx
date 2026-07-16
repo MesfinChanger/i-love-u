@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -36,6 +35,10 @@ import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { useTranslation } from '@/components/providers/LanguageProvider';
 import { cn } from '@/lib/utils';
 
+/**
+ * @fileOverview Prosperity Pool.
+ * Implements role-aware restrictions for Sellers and Purchasers.
+ */
 const TOPICS = [
   { id: 'Economy', icon: TrendingDown, color: 'text-green-500', bg: 'bg-green-50' },
   { id: 'Politics', icon: Scale, color: 'text-amber-500', bg: 'bg-amber-50' },
@@ -64,6 +67,10 @@ export default function ProsperityPoolPage() {
   const userRef = useMemoFirebase(() => db && user?.uid ? doc(db, 'users', user.uid) : null, [db, user?.uid]);
   const { data: myProfile } = useDoc(userRef);
 
+  const hasAcceptedPolicy = myProfile?.policyAccepted === true;
+  const isCommercial = myProfile?.isSeller || myProfile?.isAdvertiser;
+  const isInteractionRestricted = isCommercial && !hasAcceptedPolicy;
+
   const poolQuery = useMemoFirebase(() => {
     if (!db) return null;
     let q = query(collection(db, 'ideaPool'), orderBy('timestamp', 'desc'), limit(50));
@@ -79,8 +86,8 @@ export default function ProsperityPoolPage() {
     e?.preventDefault();
     if (!newThought.trim() || !user || !db || isSending) return;
     
-    if (!myProfile?.policyAccepted) {
-      toast({ variant: "destructive", title: "Access Restricted", description: "You must commit to the Respect Protocol before diving in. ❤️" });
+    if (isInteractionRestricted) {
+      toast({ variant: "destructive", title: "Access Restricted", description: "Sellers and Purchasers must commit to the Respect Protocol before diving in. ❤️" });
       return;
     }
 
@@ -119,7 +126,6 @@ export default function ProsperityPoolPage() {
       <section className="relative overflow-hidden bg-slate-900 py-20 px-6 text-white text-center">
          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-blue-900/40 via-transparent to-transparent pointer-events-none" />
          <div className="max-w-4xl mx-auto space-y-8 relative z-10">
-            {/* MAXIMIZED POOL ICON */}
             <div className="w-48 h-48 bg-blue-500/10 backdrop-blur-3xl rounded-[4rem] flex items-center justify-center mx-auto border-4 border-blue-400/20 animate-pulse shadow-[0_0_80px_-10px_rgba(59,130,246,0.3)]">
                <Waves className="w-24 h-24 text-blue-400 drop-shadow-[0_0_20px_rgba(59,130,246,0.5)]" />
             </div>
@@ -164,8 +170,9 @@ export default function ProsperityPoolPage() {
                     <Textarea 
                       value={newThought}
                       onChange={e => setNewThought(e.target.value)}
-                      placeholder={t('pool.placeholder')}
+                      placeholder={isInteractionRestricted ? "Commercial Approval Required" : t('pool.placeholder')}
                       className="min-h-[140px] rounded-[1.5rem] border-none bg-muted/40 p-5 font-medium italic text-sm leading-relaxed"
+                      disabled={isInteractionRestricted}
                     />
                  </div>
                  <div className="bg-slate-900 p-5 rounded-2xl space-y-3 shadow-lg relative overflow-hidden group">
@@ -174,12 +181,12 @@ export default function ProsperityPoolPage() {
                        <span className="text-[9px] font-black uppercase tracking-widest">Pool Regulation</span>
                     </div>
                     <p className="text-[8px] text-white/60 font-bold uppercase leading-relaxed tracking-widest">
-                       Politics and Economy thoughts must be shared with Love. Any meanness or aggression will be automatically purged by the AI Bridge.
+                       {isInteractionRestricted ? "Sellers and Purchasers must agree to the respect policy before contributing." : "Politics and Economy thoughts must be shared with Love. Any toxicity is purged."}
                     </p>
                  </div>
                  <Button 
                    onClick={handlePostThought}
-                   disabled={isSending || !newThought.trim()}
+                   disabled={isSending || !newThought.trim() || isInteractionRestricted}
                    className="w-full h-14 rounded-2xl gradient-bg font-black uppercase text-xs tracking-widest shadow-xl shadow-primary/20 gap-3"
                  >
                    {isSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}

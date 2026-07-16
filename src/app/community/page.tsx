@@ -53,8 +53,7 @@ import { LiveCamera } from '@/components/LiveCamera';
 
 /**
  * @fileOverview Community Wall Protocol.
- * Enforces Sovereign Vision and role === 'admin' authority.
- * Hardened against hydration mismatches and ambiguous CSS classes.
+ * Implements role-aware restrictions for Sellers and Purchasers.
  */
 export default function CommunityPage() {
   const { user } = useUser();
@@ -86,10 +85,13 @@ export default function CommunityPage() {
   const userRef = useMemoFirebase(() => db && user?.uid ? doc(db, 'users', user.uid) : null, [db, user?.uid]);
   const { data: myProfile } = useDoc(userRef);
 
+  const hasAcceptedPolicy = myProfile?.policyAccepted === true;
+  const isCommercial = myProfile?.isSeller || myProfile?.isAdvertiser;
+  const isInteractionRestricted = isCommercial && !hasAcceptedPolicy;
+
   const communityQuery = useMemoFirebase(() => db ? query(collection(db, 'communityMessages'), orderBy('timestamp', 'asc'), limit(100)) : null, [db]);
   const { data: messages, loading } = useCollection(communityQuery);
 
-  // Real-time Vision Guardianship
   useEffect(() => {
     if (!db) return;
     const unsub = onSnapshot(doc(db, "siteSettings", "communityHero"), (snap) => {
@@ -103,7 +105,6 @@ export default function CommunityPage() {
     return () => unsub();
   }, [db]);
 
-  // Use role === 'admin' check for absolute authority
   const isAdmin = myProfile?.role === 'admin';
   const canEditHero = isAdmin || (user?.uid === pageOwnerId && pageOwnerId !== "");
   const isOwner = user?.uid === pageOwnerId;
@@ -165,6 +166,10 @@ export default function CommunityPage() {
   };
 
   const handleLiveCapture = async (data: { url: string; file: File; type: 'image' | 'video' }) => {
+    if (isInteractionRestricted) {
+      toast({ variant: "destructive", title: "Restricted", description: "Commercial users must commit to respect first. ❤️" });
+      return;
+    }
     setAttachedMedia({ file: data.file, url: data.url, type: data.type });
   };
 
@@ -179,6 +184,12 @@ export default function CommunityPage() {
   const handleSendMessage = async (e?: React.FormEvent) => {
     e?.preventDefault();
     if ((!newMessage.trim() && !attachedMedia) || !user || !db || isSending) return;
+    
+    if (isInteractionRestricted) {
+      toast({ variant: "destructive", title: "Posting Restricted", description: "Commercial commitment required. ✨" });
+      return;
+    }
+
     setIsSending(true);
     try {
       if (newMessage.trim()) {
@@ -350,12 +361,12 @@ export default function CommunityPage() {
                  <input type="file" ref={galleryRef} accept="image/*" className="hidden" onChange={(e) => handleFileSelect(e, 'image')} />
                  <input type="file" ref={fileRef} className="hidden" onChange={(e) => handleFileSelect(e, 'file')} />
                  
-                 <Button variant="ghost" size="icon" onClick={() => setIsCameraOpen(true)} className="w-14 h-14 rounded-2xl bg-muted/40 text-primary transition-all active:scale-90 shadow-inner">
+                 <Button variant="ghost" size="icon" onClick={() => setIsCameraOpen(true)} disabled={isInteractionRestricted} className="w-14 h-14 rounded-2xl bg-muted/40 text-primary transition-all active:scale-90 shadow-inner">
                     <Camera className="w-6 h-6" />
                  </Button>
                  <Popover>
                     <PopoverTrigger asChild>
-                       <Button variant="ghost" size="icon" className="w-14 h-14 rounded-2xl bg-muted/40 text-blue-500 transition-all active:scale-90 shadow-inner">
+                       <Button variant="ghost" size="icon" disabled={isInteractionRestricted} className="w-14 h-14 rounded-2xl bg-muted/40 text-blue-500 transition-all active:scale-90 shadow-inner">
                           <Paperclip className="w-6 h-6" />
                        </Button>
                     </PopoverTrigger>
@@ -369,10 +380,11 @@ export default function CommunityPage() {
                     <Input 
                       value={newMessage}
                       onChange={e => setNewMessage(e.target.value)}
-                      placeholder="Share a respectful moment..." 
+                      placeholder={isInteractionRestricted ? "View Only Mode Active" : "Share a respectful moment..."} 
                       className="rounded-2xl bg-muted/40 border-none h-14 px-6 text-lg font-medium"
+                      disabled={isInteractionRestricted}
                     />
-                    <Button type="submit" size="icon" className="w-14 h-14 rounded-2xl gradient-bg shrink-0 shadow-lg shadow-primary/20 transition-all active:scale-90" disabled={isSending || (!newMessage.trim() && !attachedMedia)}>
+                    <Button type="submit" size="icon" className="w-14 h-14 rounded-2xl gradient-bg shrink-0 shadow-lg shadow-primary/20 transition-all active:scale-90" disabled={isSending || isInteractionRestricted || (!newMessage.trim() && !attachedMedia)}>
                        {isSending ? <Loader2 className="w-6 h-6 animate-spin" /> : <Rocket className="w-6 h-6" />}
                     </Button>
                  </form>

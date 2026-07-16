@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -65,8 +64,8 @@ import Link from 'next/link';
 import { useTranslation } from '@/components/providers/LanguageProvider';
 
 /**
- * @fileOverview Discovery Grid Protocol with Explicit Online/Offline Sections.
- * Hardened to prevent hydration mismatches and ensure high-fidelity image visibility.
+ * @fileOverview Discovery Grid Protocol.
+ * Implements role-aware View Only mode for Sellers and Purchasers.
  */
 export default function DiscoverPage() {
   const { user } = useUser();
@@ -78,7 +77,6 @@ export default function DiscoverPage() {
   const [isLiveExpanded, setIsLiveExpanded] = useState(true);
   const [isOfflineExpanded, setIsOfflineExpanded] = useState(true);
   
-  // Presence Shimmer: Store randomized presence data after mount to avoid hydration mismatch
   const [presenceOverrides, setPresenceShimmer] = useState<Record<string, { isOnline: boolean, lastActive: string }>>({});
 
   useEffect(() => {
@@ -104,10 +102,13 @@ export default function DiscoverPage() {
   const { data: activeAds } = useCollection(adsQuery);
 
   const viewerCountry = myProfile?.country || 'GLOBAL';
-  const hasAcceptedPolicy = myProfile?.policyAccepted === true;
   const isGuest = user?.isAnonymous;
   
-  // Presence Stabilization Logic
+  // Commercial Access Protocol: View Only specifically restricts Sellers and Purchasers (Advertisers)
+  const isCommercial = myProfile?.isSeller || myProfile?.isAdvertiser;
+  const hasAcceptedPolicy = myProfile?.policyAccepted === true;
+  const isInteractionRestricted = isCommercial && !hasAcceptedPolicy && !isGuest;
+
   useEffect(() => {
     if (discoveryItems && discoveryItems.length > 0) {
       const newOverrides: Record<string, { isOnline: boolean, lastActive: string }> = {};
@@ -176,8 +177,8 @@ export default function DiscoverPage() {
   }, [discoveryItems, activeAds, user?.uid, viewerCountry, mounted, presenceOverrides]);
 
   const handleSparkAction = async (targetId: string, type: 'friend' | 'date') => {
-    if (!hasAcceptedPolicy) {
-      toast({ variant: "destructive", title: "Interaction Locked", description: "You must agree to our Mandatory Policy before sparking. ✨" });
+    if (isInteractionRestricted) {
+      toast({ variant: "destructive", title: "Commercial Interaction Locked", description: "Sellers and Purchasers must agree to our Mandatory Policy before sparking. ✨" });
       return;
     }
     if (!user || !db || targetId.startsWith('mock')) return;
@@ -222,18 +223,18 @@ export default function DiscoverPage() {
            </div>
            <Button asChild size="sm" className="rounded-full gradient-bg h-9 px-6 font-black uppercase text-[9px] tracking-widest shadow-lg shadow-primary/20 gap-2">
               <Link href="/login">
-                {t('guest.joinAction')}
+                {t('join.action') || 'Join Mission'}
                 <ArrowRight className="w-3 h-3" />
               </Link>
            </Button>
         </div>
       )}
 
-      {!hasAcceptedPolicy && !isGuest && (
+      {isInteractionRestricted && (
         <div className="bg-amber-100 border-b border-amber-200 px-4 py-3 flex items-center justify-between animate-in slide-in-from-top-2 z-40 sticky top-16">
            <div className="flex items-center gap-2 text-amber-800">
               <ShieldAlert className="w-4 h-4" />
-              <p className="text-[10px] font-bold uppercase tracking-tight">View Only Mode Active</p>
+              <p className="text-[10px] font-bold uppercase tracking-tight">View Only Mode: Commercial Approval Required</p>
            </div>
            <Link href="/policy/agree">
               <Button size="sm" variant="ghost" className="h-7 text-[9px] font-black uppercase text-amber-900 hover:bg-amber-200">Agree to Unlock</Button>
@@ -252,7 +253,6 @@ export default function DiscoverPage() {
            </div>
         </div>
 
-        {/* SPONSORED HIGHLIGHT */}
         {adItems.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {adItems.slice(0, 1).map((ad: any) => (
@@ -261,7 +261,6 @@ export default function DiscoverPage() {
           </div>
         )}
 
-        {/* ONLINE SECTION */}
         <Collapsible open={isLiveExpanded} onOpenChange={setIsLiveExpanded} className="space-y-6">
            <div className="flex items-center justify-between border-b pb-4">
               <div className="flex items-center gap-4">
@@ -288,7 +287,7 @@ export default function DiscoverPage() {
                     <DiscoverCard 
                       key={heart.id} 
                       item={heart} 
-                      hasAcceptedPolicy={hasAcceptedPolicy} 
+                      isRestricted={isInteractionRestricted} 
                       onAction={(type: any) => handleSparkAction(heart.id, type)} 
                     />
                   ))}
@@ -302,7 +301,6 @@ export default function DiscoverPage() {
            </CollapsibleContent>
         </Collapsible>
 
-        {/* OFFLINE SECTION */}
         <Collapsible open={isOfflineExpanded} onOpenChange={setIsOfflineExpanded} className="space-y-6">
            <div className="flex items-center justify-between border-b pb-4">
               <div className="flex items-center gap-4">
@@ -328,7 +326,7 @@ export default function DiscoverPage() {
                   <DiscoverCard 
                     key={heart.id} 
                     item={heart} 
-                    hasAcceptedPolicy={hasAcceptedPolicy} 
+                    isRestricted={isInteractionRestricted} 
                     onAction={(type: any) => handleSparkAction(heart.id, type)} 
                   />
                 ))}
@@ -342,7 +340,7 @@ export default function DiscoverPage() {
   );
 }
 
-function DiscoverCard({ item, hasAcceptedPolicy, onAction }: any) {
+function DiscoverCard({ item, isRestricted, onAction }: any) {
   const [isMuted, setIsMuted] = useState(true);
   const [isStatusExpanded, setIsStatusExpanded] = useState(false);
   const { t } = useTranslation();
@@ -479,14 +477,14 @@ function DiscoverCard({ item, hasAcceptedPolicy, onAction }: any) {
               variant="outline" 
               size="sm"
               onClick={() => onAction('friend')}
-              className={cn("flex-1 h-10 rounded-xl bg-white/10 backdrop-blur-md border-white/20 text-white hover:bg-white hover:text-blue-600 font-black uppercase text-[8px] tracking-widest gap-1.5 transition-all", !hasAcceptedPolicy && "opacity-40 cursor-not-allowed")}
+              className={cn("flex-1 h-10 rounded-xl bg-white/10 backdrop-blur-md border-white/20 text-white hover:bg-white hover:text-blue-600 font-black uppercase text-[8px] tracking-widest gap-1.5 transition-all", isRestricted && "opacity-40 cursor-not-allowed")}
             >
               <Send className="w-3 h-3" /> Invite
             </Button>
             <Button 
               size="sm"
               onClick={() => onAction('date')}
-              className={cn("flex-1 h-10 rounded-xl gradient-bg shadow-lg font-black uppercase text-[8px] tracking-widest gap-1.5 transition-all active:scale-95", !hasAcceptedPolicy && "opacity-40 cursor-not-allowed")}
+              className={cn("flex-1 h-10 rounded-xl gradient-bg shadow-lg font-black uppercase text-[8px] tracking-widest gap-1.5 transition-all active:scale-95", isRestricted && "opacity-40 cursor-not-allowed")}
             >
               <Heart className="w-3 h-3 fill-current" /> Spark
             </Button>
