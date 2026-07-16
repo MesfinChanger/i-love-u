@@ -70,10 +70,7 @@ export function AuthGateDialog() {
       toast({ 
         variant: "destructive", 
         title: title, 
-        description: message,
-        action: (error.code === 'auth/operation-not-allowed' || error.code === 'auth/admin-restricted-operation') ? (
-          <Button variant="outline" size="sm" className="h-8 text-[10px] font-black uppercase" onClick={() => window.open('https://console.firebase.google.com/')}>Setup Now</Button>
-        ) : undefined
+        description: message
       });
     } finally {
       setIsLoading(false);

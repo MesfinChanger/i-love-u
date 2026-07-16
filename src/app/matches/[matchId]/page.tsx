@@ -7,7 +7,8 @@ import {
   Send, 
   ChevronLeft, 
   Loader2, 
-  ShieldCheck
+  ShieldCheck,
+  Zap
 } from 'lucide-react';
 import { useUser, useFirestore, useCollection, useDoc } from '@/firebase';
 import { collection, addDoc, query, orderBy, serverTimestamp, doc, where, updateDoc } from 'firebase/firestore';
@@ -24,6 +25,10 @@ import {
 } from '@/lib/crypto';
 import { cn } from '@/lib/utils';
 
+/**
+ * @fileOverview High-Fidelity E2EE Chat Room.
+ * Implements the High-Fidelity Conversation Protocol with ECDH shared keys and AES-GCM encryption.
+ */
 export default function ChatPage({ params }: { params: Promise<{ matchId: string }> }) {
   const { matchId } = use(params);
   const { user } = useUser();
@@ -64,7 +69,7 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
   
   const { data: messages, loading: messagesLoading } = useCollection(messagesQuery);
 
-  // E2EE Shared Key Agreement Protocol
+  // E2EE Shared Key Agreement Protocol (ECDH)
   useEffect(() => {
     const establishSharedKey = async () => {
       if (!currentUserId || !partnerProfile?.publicKey) return;
@@ -87,7 +92,7 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
     establishSharedKey();
   }, [currentUserId, partnerProfile?.publicKey]);
 
-  // Decryption Flow
+  // Decryption Flow (AES-GCM)
   useEffect(() => {
     const decryptAll = async () => {
       if (!messages || !sharedKey) return;
@@ -121,7 +126,11 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
     if (!newMessage.trim() || !user || !db || !matchId || isSending) return;
     
     if (isInteractionRestricted) {
-      toast({ variant: "destructive", title: "Action Restricted", description: "Sellers and Purchasers must accept the policy first. ❤️" });
+      toast({ 
+        variant: "destructive", 
+        title: "Action Restricted", 
+        description: "Sellers and Purchasers must accept the policy first. ❤️" 
+      });
       return;
     }
 
@@ -153,6 +162,7 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
         messagePayload.text = newMessage;
       }
 
+      // Sync with top-level messages collection
       await addDoc(collection(db, 'messages'), messagePayload);
       
       await updateDoc(doc(db, 'conversations', matchId), {
@@ -178,7 +188,7 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
               {sharedKey && <ShieldCheck className="w-3 h-3 text-green-500" />}
            </div>
            <p className="text-[8px] text-muted-foreground font-black uppercase tracking-widest leading-none">
-             {sharedKey ? 'Secured Spark Room' : 'Public Room'}
+             {sharedKey ? 'Secured Spark Room' : 'Identity Hidden'}
            </p>
         </div>
       </header>

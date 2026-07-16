@@ -43,6 +43,10 @@ import {
 import Link from 'next/link';
 import { useTranslation } from '@/components/providers/LanguageProvider';
 
+/**
+ * @fileOverview Discovery Hub featuring the Presence Grid Protocol.
+ * Explicitly separates hearts by Online/Offline status and enforces Commercial Access Rules.
+ */
 export default function DiscoverPage() {
   const { user } = useUser();
   const db = useFirestore();
@@ -64,6 +68,7 @@ export default function DiscoverPage() {
   }, [db, user?.uid]);
   const { data: myProfile } = useDoc(userRef);
 
+  // Commercial Access Logic
   const isCommercial = myProfile?.isSeller || myProfile?.isAdvertiser;
   const hasAcceptedPolicy = myProfile?.policyAccepted === true;
   const isInteractionRestricted = isCommercial && !hasAcceptedPolicy;
@@ -129,7 +134,11 @@ export default function DiscoverPage() {
     }
 
     if (isInteractionRestricted) {
-      toast({ variant: "destructive", title: "Commercial Interaction Locked", description: "Sellers and Purchasers must agree to our Mandatory Policy before sparking. ✨" });
+      toast({ 
+        variant: "destructive", 
+        title: "Commercial Access Restricted", 
+        description: "Sellers and Purchasers must commit to the Respect Protocol first. ❤️" 
+      });
       return;
     }
     if (!db) return;
@@ -184,6 +193,7 @@ export default function DiscoverPage() {
            <p className="text-muted-foreground text-sm font-medium italic">"Separated by presence, unified by respect."</p>
         </div>
 
+        {/* Presence Grid Protocol: Online Section */}
         <Collapsible open={isLiveExpanded} onOpenChange={setIsLiveExpanded} className="space-y-6">
            <div className="flex items-center justify-between border-b pb-4">
               <div className="flex items-center gap-4">
@@ -222,6 +232,7 @@ export default function DiscoverPage() {
            </CollapsibleContent>
         </Collapsible>
 
+        {/* Presence Grid Protocol: Offline Section */}
         <Collapsible open={isOfflineExpanded} onOpenChange={setIsOfflineExpanded} className="space-y-6">
            <div className="flex items-center justify-between border-b pb-4">
               <div className="flex items-center gap-4">

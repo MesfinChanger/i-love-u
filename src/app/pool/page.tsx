@@ -31,8 +31,8 @@ import { useTranslation } from '@/components/providers/LanguageProvider';
 import { cn } from '@/lib/utils';
 
 /**
- * @fileOverview Prosperity Pool with Topic Access Control.
- * Proactively triggers Universal Auth Gate for unauthenticated thought-leaders.
+ * @fileOverview Prosperity Pool with Topic Access Control Protocol.
+ * Grants posting rights based on profile status and enforces commercial interaction limits.
  */
 
 interface TopicDefinition {
@@ -112,12 +112,20 @@ export default function ProsperityPoolPage() {
     if (!newThought.trim() || !db || isSending) return;
     
     if (isInteractionRestricted) {
-      toast({ variant: "destructive", title: "Access Restricted", description: "Commercial users must commit to the Respect Protocol first. ❤️" });
+      toast({ 
+        variant: "destructive", 
+        title: "Access Restricted", 
+        description: "Commercial users must commit to the Respect Protocol first. ❤️" 
+      });
       return;
     }
 
     if (!checkAccess(selectedTopic)) {
-      toast({ variant: "destructive", title: "Access Denied", description: `Profile status insufficient for ${selectedTopic}. ✨` });
+      toast({ 
+        variant: "destructive", 
+        title: "Access Denied", 
+        description: `Your profile status is insufficient for the ${selectedTopic} pool. ✨` 
+      });
       return;
     }
 
