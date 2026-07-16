@@ -33,7 +33,7 @@ import {
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { generateKeyPair, exportKey } from '@/lib/crypto';
+import { generateKeyPair, exportPublicKey, exportPrivateKey } from '@/lib/crypto';
 import { COUNTRIES } from '@/lib/world-data';
 import { useTranslation } from '@/components/providers/LanguageProvider';
 import { cn } from '@/lib/utils';
@@ -41,7 +41,7 @@ import { cn } from '@/lib/utils';
 /**
  * @fileOverview Refined Authentication Hub.
  * Hardened guest access protocol with explicit bridge diagnostics for operation-not-allowed
- * and admin-restricted-operation (Identity Platform configuration ripples).
+ * and admin-restricted-operation.
  */
 function LoginContent() {
   const auth = useAuth();
@@ -103,8 +103,8 @@ function LoginContent() {
         // E2EE Identity Generation (ECDH Protocol)
         const keyPair = await generateKeyPair();
         if (keyPair) {
-          const publicKeyStr = await exportKey(keyPair.publicKey, "raw");
-          const privateKeyStr = await exportKey(keyPair.privateKey, "pkcs8");
+          const publicKeyStr = await exportPublicKey(keyPair.publicKey);
+          const privateKeyStr = await exportPrivateKey(keyPair.privateKey);
           
           localStorage.setItem(`spark_priv_${res.user.uid}`, privateKeyStr);
           localStorage.setItem('iloveu_policy_accepted', 'true');

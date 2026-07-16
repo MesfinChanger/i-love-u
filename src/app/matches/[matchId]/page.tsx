@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect, useRef, use } from 'react';
@@ -145,11 +144,10 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
       if (sharedKey) {
         const encrypted = await encryptMessage(sharedKey, newMessage);
         if (encrypted) {
-          // Strictly matching requested schema: conversationId, senderId, encryptedText, iv, createdAt
           messagePayload.encryptedText = encrypted.cipherText;
           messagePayload.iv = encrypted.iv;
         } else {
-           messagePayload.text = newMessage; // Fallback if encryption fails
+           messagePayload.text = newMessage; 
         }
       } else {
         messagePayload.text = newMessage;
@@ -157,7 +155,6 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
 
       await addDoc(collection(db, 'messages'), messagePayload);
       
-      // Update last message preview in conversation
       await updateDoc(doc(db, 'conversations', matchId), {
         lastMessage: sharedKey ? "[Secured Message]" : newMessage.slice(0, 50),
         lastUpdatedAt: serverTimestamp()
