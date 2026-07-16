@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, Suspense } from 'react';
@@ -107,17 +108,23 @@ function LoginContent() {
           localStorage.setItem('iloveu_policy_accepted', 'true');
 
           if (db) {
-            await setDoc(doc(db, 'users', res.user.uid), {
+            // Updated UserProfile Schema
+            const userData = {
               uid: res.user.uid, 
               email: cleanEmail, 
-              country, 
-              publicKey: publicKeyStr,
-              publicNickname: nickname,
+              phone: null,
+              username: nickname,
               displayName: nickname,
-              preferredLanguage: language,
-              role: 'member',
-              isHuman: true,
+              photoURL: '',
+              accountType: 'free',
+              status: 'active',
               createdAt: serverTimestamp(),
+              lastLogin: serverTimestamp(),
+              country: country || 'Global',
+              language: language,
+              timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+              publicKey: publicKeyStr,
+              role: 'member',
               policyAccepted: true,
               policyAcceptedAt: serverTimestamp(),
               legalConsent: {
@@ -127,21 +134,31 @@ function LoginContent() {
                 humanVerified: true,
                 timestamp: new Date().toISOString()
               }
-            }, { merge: true });
+            };
+
+            await setDoc(doc(db, 'users', res.user.uid), userData, { merge: true });
 
             await setDoc(doc(db, 'publicProfiles', res.user.uid), {
               uid: res.user.uid,
-              publicNickname: nickname,
+              username: nickname,
               country: country || 'Global',
               verified: false,
               bio: "New heart joining the revolution.",
-              photoUrl: null,
-              age: 18
+              photoURL: '',
+              age: 18,
+              accountType: 'free',
+              status: 'active'
             });
           }
         }
       } else {
         await signInWithEmailAndPassword(auth, cleanEmail, password);
+        // Track last login
+        if (db && auth.currentUser) {
+          await setDoc(doc(db, 'users', auth.currentUser.uid), {
+            lastLogin: serverTimestamp()
+          }, { merge: true });
+        }
       }
     } catch (error: any) {
       console.error("Auth error:", error);
@@ -173,7 +190,19 @@ function LoginContent() {
 
     setIsLoading(true);
     try {
-      await signInAnonymously(auth);
+      const res = await signInAnonymously(auth);
+      if (db) {
+         await setDoc(doc(db, 'users', res.user.uid), {
+           uid: res.user.uid,
+           accountType: 'guest',
+           status: 'active',
+           createdAt: serverTimestamp(),
+           lastLogin: serverTimestamp(),
+           username: `Guest_${res.user.uid.slice(0, 5)}`,
+           displayName: 'Guest Heart',
+           timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+         }, { merge: true });
+      }
       toast({
         title: "Guest Session Launched",
         description: "Welcome! You are exploring as a guest heart. ❤️"

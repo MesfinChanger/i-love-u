@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -46,10 +47,10 @@ import { useTranslation } from '@/components/providers/LanguageProvider';
 /**
  * @fileOverview Discovery Hub featuring the Presence Grid Protocol.
  * Profiles are 100% visible and vibrant in both Online and Offline sections.
- * Optimized with the typo fix for the useUser hook.
+ * Synchronized with the new Unified Heart Identity schema.
  */
 export default function DiscoverPage() {
-  const { user } = useUser(); // Fixed: correctly using useUser() instead of userUser()
+  const { user } = useUser();
   const { toast } = useToast();
   const { t } = useTranslation();
 
@@ -68,7 +69,7 @@ export default function DiscoverPage() {
   }, [user?.uid]);
   const { data: myProfile } = useDoc(userRef);
 
-  const isCommercial = myProfile?.isSeller || myProfile?.isAdvertiser;
+  const isCommercial = myProfile?.accountType === 'business';
   const hasAcceptedPolicy = myProfile?.policyAccepted === true;
   const isInteractionRestricted = isCommercial && !hasAcceptedPolicy;
 
@@ -85,7 +86,7 @@ export default function DiscoverPage() {
         const id = u.uid || u.id;
         if (!presenceOverrides[id]) {
           newOverrides[id] = {
-            isOnline: u.isOnline ?? (Math.random() > 0.5),
+            isOnline: u.status === 'active' ? (u.isOnline ?? (Math.random() > 0.5)) : false,
             lastActive: u.lastActive || `${Math.floor(Math.random() * 59)}m ago`
           };
         }
@@ -100,18 +101,18 @@ export default function DiscoverPage() {
     const hasItems = mounted && discoveryItems && discoveryItems.length > 0;
     const allHearts = hasItems 
       ? (discoveryItems || [])
-        .filter((u: any) => u.uid !== user?.uid)
+        .filter((u: any) => u.uid !== user?.uid && u.status !== 'blocked')
         .map((u: any) => {
           const id = u.uid || u.id;
           const override = presenceOverrides[id];
           return {
             id,
             uid: id,
-            name: u.publicNickname || "Mystery Heart", 
+            name: u.username || u.displayName || "Mystery Heart", 
             age: u.age,
-            photoUrl: u.photoUrl || u.publicPhotoUrl || null,
-            videoUrl: u.videoUrl || u.publicVideoUrl || null,
-            additionalPhotoUrls: u.additionalPhotoUrls || [],
+            photoURL: u.photoURL || null,
+            videoURL: u.videoURL || null,
+            additionalPhotoURLs: u.additionalPhotoURLs || [],
             interests: u.interests || [],
             bio: u.bio || "Sharing respect and looking for sparks.",
             country: u.country || "Global Community",
@@ -193,7 +194,6 @@ export default function DiscoverPage() {
            <p className="text-muted-foreground text-sm font-medium italic">"Separated by presence, unified by respect."</p>
         </div>
 
-        {/* Presence Grid Protocol: Online Section */}
         <Collapsible open={isLiveExpanded} onOpenChange={setIsLiveExpanded} className="space-y-6">
            <div className="flex items-center justify-between border-b pb-4">
               <div className="flex items-center gap-4">
@@ -232,7 +232,6 @@ export default function DiscoverPage() {
            </CollapsibleContent>
         </Collapsible>
 
-        {/* Presence Grid Protocol: Offline Section - 100% VISIBLE */}
         <Collapsible open={isOfflineExpanded} onOpenChange={setIsOfflineExpanded} className="space-y-6">
            <div className="flex items-center justify-between border-b pb-4">
               <div className="flex items-center gap-4">
@@ -272,9 +271,9 @@ export default function DiscoverPage() {
 
 function DiscoverCard({ item, isRestricted, onAction }: any) {
   const mediaItems = [];
-  if (item.videoUrl) mediaItems.push({ type: 'video', url: item.videoUrl });
-  if (item.photoUrl) mediaItems.push({ type: 'image', url: item.photoUrl });
-  (item.additionalPhotoUrls || []).forEach((url: string) => mediaItems.push({ type: 'image', url }));
+  if (item.videoURL) mediaItems.push({ type: 'video', url: item.videoURL });
+  if (item.photoURL) mediaItems.push({ type: 'image', url: item.photoURL });
+  (item.additionalPhotoURLs || []).forEach((url: string) => mediaItems.push({ type: 'image', url }));
 
   return (
     <Card className="group relative aspect-[3/4] overflow-hidden border-none shadow-xl rounded-[2.5rem] bg-white transition-all hover:scale-[1.02]">

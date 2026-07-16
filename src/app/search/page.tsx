@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useMemo, Suspense } from 'react';
@@ -27,8 +28,7 @@ import { useTranslation } from '@/components/providers/LanguageProvider';
 import Image from 'next/image';
 
 /**
- * @fileOverview Find Hearts module featuring the Spark Creation Protocol.
- * Adheres to the requested global conversations schema.
+ * @fileOverview Find Hearts module synchronized with the Unified Heart Identity Protocol.
  */
 function SearchContent() {
   const { user } = useUser();
@@ -56,10 +56,11 @@ function SearchContent() {
     const queryStr = searchTerm.toLowerCase();
     return allProfiles.filter((p: any) => {
       if (p.uid === user?.uid) return false;
-      const nicknameMatch = p.publicNickname?.toLowerCase().includes(queryStr);
+      const usernameMatch = p.username?.toLowerCase().includes(queryStr);
+      const nameMatch = p.displayName?.toLowerCase().includes(queryStr);
       const interestMatch = p.interests?.some((i: string) => i.toLowerCase().includes(queryStr));
       const bioMatch = p.bio?.toLowerCase().includes(queryStr);
-      return queryStr === '' || nicknameMatch || interestMatch || bioMatch;
+      return queryStr === '' || usernameMatch || nameMatch || interestMatch || bioMatch;
     });
   }, [allProfiles, searchTerm, user?.uid]);
 
@@ -72,7 +73,6 @@ function SearchContent() {
 
     setIsProcessing(targetUid);
     
-    // Aligned with requested createSparkChat schema
     const participants = [user.uid, targetUid].sort();
     const conversationId = participants.join('_');
 
@@ -142,18 +142,18 @@ function SearchContent() {
         ) : filteredProfiles.length > 0 ? (
           <div className="grid gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {filteredProfiles.map((p: any) => {
-              const photoCount = (p.publicPhotoUrl ? 1 : 0) + (p.additionalPhotoUrls?.length || 0);
+              const photoCount = (p.photoURL ? 1 : 0) + (p.additionalPhotoURLs?.length || 0);
               
               return (
                 <Card key={p.uid} className="rounded-[2.5rem] border-none shadow-lg overflow-hidden bg-white hover:shadow-xl transition-all group">
                   <CardContent className="p-0">
                     <div className="flex flex-col sm:flex-row">
                       <div className="relative w-full sm:w-40 aspect-square shrink-0">
-                        {p.publicPhotoUrl ? (
+                        {p.photoURL ? (
                           <>
                             <Image 
-                              src={p.publicPhotoUrl} 
-                              alt={p.publicNickname} 
+                              src={p.photoURL} 
+                              alt={p.username} 
                               fill 
                               className="object-cover"
                             />
@@ -176,8 +176,8 @@ function SearchContent() {
                         <div className="space-y-3">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2 min-w-0">
-                              <h3 className="text-2xl font-black tracking-tighter truncate">{p.publicNickname || "Mystery Heart"}</h3>
-                              <Badge variant="outline" className="text-[7px] font-black uppercase tracking-widest px-2 h-5 border-primary/20 text-primary">PUBLIC</Badge>
+                              <h3 className="text-2xl font-black tracking-tighter truncate">{p.displayName || p.username || "Mystery Heart"}</h3>
+                              <Badge variant="outline" className="text-[7px] font-black uppercase tracking-widest px-2 h-5 border-primary/20 text-primary">{p.accountType || 'FREE'}</Badge>
                             </div>
                             <div className="flex items-center gap-1.5 text-[9px] font-black text-muted-foreground/60 uppercase">
                               <MapPin className="w-3 h-3" />

@@ -3,38 +3,26 @@
   "entities": {
     "UserProfile": {
       "title": "User Profile",
-      "description": "I Love U app profile restricted to 18+. Includes relationship constraints, verified location tracking, and mandatory tax info for commercial users.",
+      "description": "Unified heart identity schema. Restricted to 18+.",
       "type": "object",
       "properties": {
         "uid": { "type": "string" },
         "email": { "type": "string", "format": "email" },
-        "phoneNumber": { "type": "string" },
-        "firstName": { "type": "string" },
-        "lastName": { "type": "string" },
+        "phone": { "type": ["string", "null"] },
+        "username": { "type": "string" },
         "displayName": { "type": "string" },
-        "publicNickname": { "type": "string" },
-        "birthdate": { "type": "string", "format": "date" },
-        "age": { "type": "number", "minimum": 18 },
-        "gender": { "type": "string" },
-        "religion": { "type": "string" },
-        "bio": { "type": "string" },
-        "interests": { "type": "array", "items": { "type": "string" } },
-        "photoUrl": { "type": "string" },
-        "address1": { "type": "string" },
-        "city": { "type": "string" },
-        "state": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "accountType": { "type": "string", "enum": ["guest", "free", "premium", "business"] },
+        "status": { "type": "string", "enum": ["active", "blocked", "deleted"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "lastLogin": { "type": "string", "format": "date-time" },
         "country": { "type": "string" },
-        "postalCode": { "type": "string" },
-        "taxId": { "type": "string" },
-        "isSeller": { "type": "boolean", "default": false },
-        "isAdvertiser": { "type": "boolean", "default": false },
-        "isAdmin": { "type": "boolean", "default": false },
-        "isHuman": { "type": "boolean", "default": true },
-        "role": { "type": "string", "default": "member", "description": "Unified authority field. 'admin' grants platform power." },
-        "sellerStatus": { "type": "string", "enum": ["none", "pending", "approved", "rejected"] },
-        "advertiserStatus": { "type": "string", "enum": ["none", "pending", "approved", "rejected"] },
-        "policyAccepted": { "type": "boolean", "default": false },
-        "idleTimeout": { "type": "number", "default": 300 }
+        "language": { "type": "string" },
+        "timezone": { "type": "string" },
+        "bio": { "type": "string" },
+        "age": { "type": "number" },
+        "role": { "type": "string", "default": "member" },
+        "policyAccepted": { "type": "boolean", "default": false }
       }
     },
     "Conversation": {
@@ -59,7 +47,7 @@
         "senderId": { "type": "string" },
         "encryptedText": { "type": "string" },
         "iv": { "type": "string" },
-        "text": { "type": "string", "description": "Fallback for unencrypted or system messages" },
+        "text": { "type": "string" },
         "createdAt": { "type": "string", "format": "date-time" }
       }
     }

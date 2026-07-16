@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
@@ -55,10 +56,10 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
   // background sync with profile
   useEffect(() => {
-    if (profile?.preferredLanguage && profile.preferredLanguage !== currentLang) {
-      setCurrentLang(profile.preferredLanguage);
+    if (profile?.language && profile.language !== currentLang) {
+      setCurrentLang(profile.language);
     }
-  }, [profile?.preferredLanguage]);
+  }, [profile?.language]);
 
   const setLanguage = async (newLang: string) => {
     // Immediate UI Feedback
@@ -70,7 +71,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     // Background Sync (non-blocking)
     if (db && user) {
       updateDoc(doc(db, 'users', user.uid), {
-        preferredLanguage: newLang
+        language: newLang
       }).catch(e => console.warn("Language sync deferred:", e));
     }
   };
