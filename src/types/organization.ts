@@ -25,3 +25,10 @@ export interface Organization {
   verified: boolean;
   createdAt: any;
 }
+
+export interface OrganizationMember {
+  userId: string;
+  role: string;
+  department?: string;
+  joinedAt: any;
+}

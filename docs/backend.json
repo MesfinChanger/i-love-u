@@ -231,6 +231,18 @@
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["id", "name", "type", "ownerId"]
+    },
+    "OrganizationMember": {
+      "title": "Organization Member",
+      "description": "Affiliated heart within a community entity.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "role": { "type": "string" },
+        "department": { "type": "string" },
+        "joinedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "role", "joinedAt"]
     }
   },
   "auth": {
@@ -252,6 +264,7 @@
     "/shops/{shopId}": { "schema": "Store", "description": "Verified local artisan shops" },
     "/products/{productId}": { "schema": "Product", "description": "Marketplace product listings" },
     "/orders/{orderId}": { "schema": "Order", "description": "Recorded purchase transactions" },
-    "/organizations/{orgId}": { "schema": "Organization", "description": "Global community organization registry" }
+    "/organizations/{orgId}": { "schema": "Organization", "description": "Global community organization registry" },
+    "/organizations/{orgId}/members/{memberId}": { "schema": "OrganizationMember", "description": "High-fidelity organization membership registry" }
   }
 }

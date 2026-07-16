@@ -11,7 +11,7 @@ import {
   serverTimestamp
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { Organization } from "@/types";
+import { Organization, OrganizationMember } from "@/types";
 
 /**
  * @fileOverview Organization Protocol Service.
@@ -60,4 +60,19 @@ export async function getUserOrganizations(userId: string) {
   const q = query(collection(db, "organizations"), where("ownerId", "==", userId));
   const snap = await getDocs(q);
   return snap.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Organization[];
+}
+
+/**
+ * Add Organization Member Protocol.
+ * Establishes a member record within a specific community entity.
+ */
+export async function addOrganizationMember(
+  orgId: string, 
+  member: OrganizationMember
+) {
+  const memberId = member.userId;
+  await setDoc(doc(db, "organizations", orgId, "members", memberId), {
+    ...member,
+    joinedAt: serverTimestamp()
+  });
 }
