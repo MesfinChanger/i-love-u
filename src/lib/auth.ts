@@ -5,6 +5,10 @@ import {
 } from "firebase/auth";
 import { auth } from "@/firebase";
 
+/**
+ * @fileOverview High-Fidelity Authentication Helpers.
+ */
+
 export function listenAuth(
   callback: (user: User | null) => void
 ) {

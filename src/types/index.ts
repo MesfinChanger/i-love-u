@@ -1,4 +1,8 @@
 
+/**
+ * @fileOverview High-Fidelity Community Type Definitions.
+ */
+
 export interface UserProfile {
   uid: string;
   email: string;

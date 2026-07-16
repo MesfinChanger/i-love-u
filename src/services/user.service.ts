@@ -9,6 +9,10 @@ import {
 import { db } from "@/firebase";
 import { UserProfile } from "@/types";
 
+/**
+ * @fileOverview Identity Management Service.
+ */
+
 export async function createUserProfile(profile: UserProfile) {
   if (!db) return;
   await setDoc(

@@ -7,7 +7,7 @@ import { firebaseConfig } from "./config";
 
 /**
  * @fileOverview High-Fidelity Firebase Initialization.
- * Refactored to provide direct instance exports for auth, db, and storage.
+ * Directly exports auth, db, and storage instances for platform-wide synchronization.
  */
 
 const apiKey = firebaseConfig.apiKey;

@@ -182,16 +182,16 @@
   "firestore": {
     "/users/{userId}": { "schema": "UserProfile", "description": "Private profiles" },
     "/users/{userId}/notifications/{notificationId}": { "schema": "Notification", "description": "User alerts" },
-    "/publicProfiles/{userId}": { "schema": "UserProfile", "description": "Vibrant discovery data" },
+    "/publicProfiles/{userId}": { "schema": "UserProfile", "description": "Discovery data" },
     "/relationships/{relationshipId}": { "schema": "Relationship", "description": "Friend and block registry" },
-    "/circles/{circleId}": { "schema": "Circle", "description": "Sacred gatherings" },
+    "/circles/{circleId}": { "schema": "Circle", "description": "Gathering spaces" },
     "/ideaPool/{postId}": { "schema": "PoolPost", "description": "Knowledge pool" },
     "/communityMessages/{messageId}": { "schema": "CommunityMessage", "description": "Global Wall" },
-    "/shops/{shopId}": { "schema": "Shop", "description": "Artisan storefronts" },
+    "/shops/{shopId}": { "schema": "Shop", "description": "Artisan stores" },
     "/products/{productId}": { "schema": "Product", "description": "Marketplace items" },
     "/orders/{orderId}": { "schema": "Order", "description": "Transactions" },
     "/conversations/{conversationId}": { "schema": "Conversation", "description": "Chat rooms" },
-    "/messages/{messageId}": { "schema": "Message", "description": "E2EE messages" },
+    "/messages/{messageId}": { "schema": "Message", "description": "E2EE packets" },
     "/publicKeys/{userId}": { "schema": "PublicKey", "description": "E2EE identities" }
   }
 }

@@ -40,7 +40,7 @@ export default function MainNavigation() {
   const pathname = usePathname();
 
   return (
-    <nav className="flex gap-4 p-4 border-b bg-white">
+    <nav className="flex gap-4 p-4 border-b bg-white" role="navigation">
       {menu.map((item) => {
         const isActive = pathname === item.path || (item.path !== '/' && pathname?.startsWith(item.path));
         return (

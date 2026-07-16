@@ -2,17 +2,17 @@
 'use client';
 
 /**
- * @fileOverview Refactored Community Circle module.
- * Focused on friendship and communities.
+ * @fileOverview Community Circle Module.
+ * Gatherings for friendship and shared missions.
  */
-export default function Circle() {
+export default function CirclePage() {
   return (
-    <div className="p-8">
-      <h1 className="text-4xl font-black tracking-tighter uppercase mb-4">
+    <div className="p-12 space-y-6">
+      <h1 className="text-6xl font-black tracking-tighter uppercase leading-none">
         🤝 Circle
       </h1>
-      <p className="text-muted-foreground text-lg font-medium italic">
-        Friendship and communities.
+      <p className="text-xl text-muted-foreground font-medium italic max-w-lg">
+        "Strength in unity." Join circles to gather around shared missions of love and prosperity.
       </p>
     </div>
   );
