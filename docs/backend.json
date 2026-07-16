@@ -166,6 +166,7 @@
     "/users/{userId}": { "schema": "UserProfile", "description": "Private heart identities" },
     "/users/{userId}/sessions/{sessionId}": { "schema": "DeviceSession", "description": "Registered device heartbeats" },
     "/users/{userId}/securityEvents/{eventId}": { "schema": "SecurityEvent", "description": "Identity protection audit logs" },
+    "/devices/{deviceId}": { "schema": "DeviceSession", "description": "Global device registry" },
     "/sparkProfiles/{userId}": { "schema": "SparkProfile", "description": "Public discovery profiles" },
     "/matches/{matchId}": { "schema": "Match", "description": "Established high-fidelity connections" },
     "/conversations/{convId}": { "schema": "Conversation", "description": "Secured communication channels" },
