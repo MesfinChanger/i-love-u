@@ -398,6 +398,22 @@
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["projectId", "name", "hypothesis", "method", "createdAt"]
+    },
+    "Publication": {
+      "title": "Research Publication",
+      "description": "Formal registry of research findings and community papers.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "projectId": { "type": "string" },
+        "title": { "type": "string" },
+        "authors": { "type": "array", "items": { "type": "string" } },
+        "abstract": { "type": "string" },
+        "category": { "type": "string" },
+        "reviewStatus": { "type": "string", "enum": ["draft", "submitted", "approved", "published"] },
+        "publishedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["projectId", "title", "authors", "reviewStatus"]
     }
   },
   "auth": {
@@ -430,6 +446,7 @@
     "/countries/{countryCode}": { "schema": "Country", "description": "Global regional configuration registry" },
     "/researchers/{userId}": { "schema": "Researcher", "description": "Verified specialized researcher profiles" },
     "/researchProjects/{projectId}": { "schema": "ResearchProject", "description": "Community-driven research initiatives" },
-    "/researchProjects/{projectId}/experiments/{experimentId}": { "schema": "Experiment", "description": "High-Fidelity experiment registry for research projects" }
+    "/researchProjects/{projectId}/experiments/{experimentId}": { "schema": "Experiment", "description": "High-Fidelity experiment registry for research projects" },
+    "/publications/{pubId}": { "schema": "Publication", "description": "High-Fidelity registry of research findings" }
   }
 }
