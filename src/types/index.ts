@@ -1,4 +1,3 @@
-
 /**
  * @fileOverview High-Fidelity Community Type Definitions.
  */

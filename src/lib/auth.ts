@@ -1,4 +1,3 @@
-
 import {
   onAuthStateChanged,
   User

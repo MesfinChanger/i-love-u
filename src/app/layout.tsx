@@ -1,8 +1,7 @@
-
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
-import { ClientProviders } from '@/components/providers/ClientProviders';
 import MainNavigation from "@/components/navigation/MainNavigation";
+import { ClientProviders } from '@/components/providers/ClientProviders';
 
 export const viewport: Viewport = {
   themeColor: '#FF3366',

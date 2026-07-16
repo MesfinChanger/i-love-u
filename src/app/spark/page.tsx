@@ -1,4 +1,3 @@
-
 export default function Spark() {
   return (
     <div className="p-8">

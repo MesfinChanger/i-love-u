@@ -1,4 +1,3 @@
-
 export default function Circle() {
   return (
     <div className="p-8">

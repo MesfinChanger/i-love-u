@@ -1,4 +1,3 @@
-
 export default function Shopping() {
   return (
     <div className="p-8">

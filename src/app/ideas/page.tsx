@@ -1,4 +1,3 @@
-
 export default function Ideas() {
   return (
     <div className="p-8">
