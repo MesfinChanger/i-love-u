@@ -1,0 +1,27 @@
+{
+  "welcome": "مرحباً",
+  "spark": "حب",
+  "circle": "دائرة",
+  "shopping": "تسوق",
+  "ideas": "مجمع الأفكار",
+  "messages": "رسائل",
+  "nav": {
+    "home": "الرئيسية",
+    "discover": "اكتشف",
+    "search": "بحث",
+    "global": "عالمي",
+    "pool": "الأفكار",
+    "matches": "القلوب",
+    "shop": "المتجر",
+    "profile": "الملف الشخصي"
+  },
+  "login": {
+    "title": "أنا أحبك",
+    "subtitle": "ثورة الازدهار",
+    "signIn": "تسجيل الدخول",
+    "join": "انضمام",
+    "launch": "إطلاق",
+    "ageVerify": "عمري 18 عاماً فأكثر",
+    "respectVerify": "الاحترام إلزامي"
+  }
+}

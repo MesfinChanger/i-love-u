@@ -1,0 +1,27 @@
+{
+  "welcome": "እንኳን ደህና መጡ",
+  "spark": "ፍቅር",
+  "circle": "ጓደኝነት",
+  "shopping": "ግዢ",
+  "ideas": "ሀሳብ ማዕከል",
+  "messages": "መልዕክቶች",
+  "nav": {
+    "home": "መነሻ",
+    "discover": "ፈልግ",
+    "search": "ፍለጋ",
+    "global": "አለም አቀፍ",
+    "pool": "ሀሳብ ማዕከል",
+    "matches": "ልቦች",
+    "shop": "ሱቅ",
+    "profile": "መገለጫ"
+  },
+  "login": {
+    "title": "እወድሃለሁ",
+    "subtitle": "የብልጽግና አብዮት",
+    "signIn": "ግባ",
+    "join": "ተቀላቀል",
+    "launch": "ጀምር",
+    "ageVerify": "እድሜዬ 18+ ነው",
+    "respectVerify": "ክብር ግዴታ ነው"
+  }
+}

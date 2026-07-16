@@ -1,0 +1,27 @@
+{
+  "welcome": "Bienvenue",
+  "spark": "Étincelle",
+  "circle": "Cercle",
+  "shopping": "Shopping",
+  "ideas": "Bassin d'Idées",
+  "messages": "Messages",
+  "nav": {
+    "home": "Accueil",
+    "discover": "Découvrir",
+    "search": "Rechercher",
+    "global": "Global",
+    "pool": "Idées",
+    "matches": "Cœurs",
+    "shop": "Boutique",
+    "profile": "Profil"
+  },
+  "login": {
+    "title": "I LOVE U",
+    "subtitle": "RÉVOLUTION DE LA PROSPÉRITÉ",
+    "signIn": "Se Connecter",
+    "join": "Rejoindre",
+    "launch": "Lancer",
+    "ageVerify": "J'ai 18 ans et plus",
+    "respectVerify": "Le Respect est Obligatoire"
+  }
+}

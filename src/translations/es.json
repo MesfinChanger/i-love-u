@@ -1,0 +1,27 @@
+{
+  "welcome": "Bienvenido",
+  "spark": "Chispa",
+  "circle": "Círculo",
+  "shopping": "Compras",
+  "ideas": "Banco de Ideas",
+  "messages": "Mensajes",
+  "nav": {
+    "home": "Inicio",
+    "discover": "Descubrir",
+    "search": "Buscar",
+    "global": "Global",
+    "pool": "Ideas",
+    "matches": "Corazones",
+    "shop": "Tienda",
+    "profile": "Perfil"
+  },
+  "login": {
+    "title": "I LOVE U",
+    "subtitle": "REVOLUCIÓN DE PROSPERIDAD",
+    "signIn": "Iniciar Sesión",
+    "join": "Unirse",
+    "launch": "Lanzar",
+    "ageVerify": "Soy mayor de 18 años",
+    "respectVerify": "El Respeto es Obligatorio"
+  }
+}

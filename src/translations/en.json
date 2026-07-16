@@ -1,0 +1,27 @@
+{
+  "welcome": "Welcome",
+  "spark": "Spark",
+  "circle": "Circle",
+  "shopping": "Shopping",
+  "ideas": "Idea Pool",
+  "messages": "Messages",
+  "nav": {
+    "home": "Home",
+    "discover": "Discover",
+    "search": "Search",
+    "global": "Global",
+    "pool": "Idea Pool",
+    "matches": "Matches",
+    "shop": "Shop",
+    "profile": "Profile"
+  },
+  "login": {
+    "title": "I LOVE U",
+    "subtitle": "PROSPERITY REVOLUTION",
+    "signIn": "Sign In",
+    "join": "Join",
+    "launch": "Launch",
+    "ageVerify": "I am 18+ years old",
+    "respectVerify": "Respect is Mandatory"
+  }
+}
