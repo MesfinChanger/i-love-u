@@ -1,19 +1,9 @@
 
-'use client';
-
-/**
- * @fileOverview Marketplace Module.
- * Commerce that funds local prosperity.
- */
-export default function ShoppingPage() {
+export default function Shopping() {
   return (
-    <div className="p-12 space-y-6">
-      <h1 className="text-6xl font-black tracking-tighter uppercase leading-none">
-        🛒 Shopping
-      </h1>
-      <p className="text-xl text-muted-foreground font-medium italic max-w-lg">
-        "Gifts that give back." Support local artisans and build prosperity through mindful commerce.
-      </p>
+    <div className="p-8">
+      <h1 className="text-4xl font-black mb-4">🛒 Shopping</h1>
+      <p className="text-lg text-muted-foreground italic">Marketplace and commerce.</p>
     </div>
   );
 }

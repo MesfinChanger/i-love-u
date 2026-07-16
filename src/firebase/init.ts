@@ -10,20 +10,11 @@ import { firebaseConfig } from "./config";
  * Directly exports auth, db, and storage instances for platform-wide synchronization.
  */
 
-const apiKey = firebaseConfig.apiKey;
-const isKeyValid = !!(
-  apiKey &&
-  apiKey.length > 10 &&
-  !apiKey.includes("PLACEHOLDER")
-);
+const app = initializeApp(firebaseConfig);
 
-const app = (typeof window !== "undefined" && isKeyValid) 
-  ? initializeApp(firebaseConfig)
-  : (null as any);
-
-export const auth = app ? getAuth(app) : null;
-export const db = app ? getFirestore(app) : null;
-export const storage = app ? getStorage(app) : null;
+export const auth = getAuth(app);
+export const db = getFirestore(app);
+export const storage = getStorage(app);
 export { app };
 
 export function initializeFirebase() {

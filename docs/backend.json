@@ -19,148 +19,7 @@
         "createdAt": { "type": "string", "format": "date-time" },
         "updatedAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["uid", "email", "username", "displayName", "interests", "accountType", "createdAt", "updatedAt"]
-    },
-    "Relationship": {
-      "title": "Relationship",
-      "description": "Established connection status between two hearts.",
-      "type": "object",
-      "properties": {
-        "userA": { "type": "string" },
-        "userB": { "type": "string" },
-        "status": { "type": "string", "enum": ["friends", "blocked"] },
-        "createdAt": { "type": "string", "format": "date-time" }
-      },
-      "required": ["userA", "userB", "status", "createdAt"]
-    },
-    "Circle": {
-      "title": "Circle",
-      "description": "A sacred gathering space for shared missions.",
-      "type": "object",
-      "properties": {
-        "name": { "type": "string" },
-        "description": { "type": "string" },
-        "category": { "type": "string" },
-        "ownerId": { "type": "string" },
-        "imageURL": { "type": "string" },
-        "memberCount": { "type": "number", "default": 1 },
-        "privacy": { "type": "string", "enum": ["open", "private"] },
-        "createdAt": { "type": "string", "format": "date-time" }
-      },
-      "required": ["name", "description", "category", "ownerId", "privacy", "createdAt"]
-    },
-    "PoolPost": {
-      "title": "Pool Post",
-      "description": "A thought shared in the global Consciousness Pool.",
-      "type": "object",
-      "properties": {
-        "authorId": { "type": "string" },
-        "category": { "type": "string", "enum": ["economics", "technology", "politics", "philosophy", "general"] },
-        "title": { "type": "string" },
-        "content": { "type": "string" },
-        "media": { "type": "array", "items": { "type": "string" } },
-        "likesCount": { "type": "number", "default": 0 },
-        "commentsCount": { "type": "number", "default": 0 },
-        "createdAt": { "type": "string", "format": "date-time" }
-      },
-      "required": ["authorId", "category", "title", "content", "createdAt"]
-    },
-    "CommunityMessage": {
-      "title": "Community Message",
-      "description": "A public thought shared on the Global Wall.",
-      "type": "object",
-      "properties": {
-        "authorId": { "type": "string" },
-        "text": { "type": "string" },
-        "createdAt": { "type": "string", "format": "date-time" }
-      },
-      "required": ["authorId", "text", "createdAt"]
-    },
-    "Shop": {
-      "title": "Shop",
-      "description": "A verified seller storefront.",
-      "type": "object",
-      "properties": {
-        "ownerId": { "type": "string" },
-        "name": { "type": "string" },
-        "description": { "type": "string" },
-        "logo": { "type": "string" },
-        "country": { "type": "string" },
-        "rating": { "type": "number", "default": 5 },
-        "verified": { "type": "boolean", "default": false }
-      },
-      "required": ["ownerId", "name", "logo", "country"]
-    },
-    "Product": {
-      "title": "Product",
-      "description": "An item listed in the marketplace.",
-      "type": "object",
-      "properties": {
-        "storeId": { "type": "string" },
-        "name": { "type": "string" },
-        "description": { "type": "string" },
-        "images": { "type": "array", "items": { "type": "string" } },
-        "price": { "type": "number" },
-        "currency": { "type": "string" },
-        "category": { "type": "string" },
-        "inventory": { "type": "number" },
-        "createdAt": { "type": "string", "format": "date-time" }
-      },
-      "required": ["storeId", "name", "price", "currency", "createdAt"]
-    },
-    "Order": {
-      "title": "Order",
-      "description": "A recorded transaction between a buyer and artisan.",
-      "type": "object",
-      "properties": {
-        "buyerId": { "type": "string" },
-        "sellerId": { "type": "string" },
-        "products": { "type": "array" },
-        "total": { "type": "number" },
-        "paymentStatus": { "type": "string", "enum": ["pending", "paid", "failed"] },
-        "shippingStatus": { "type": "string", "enum": ["pending", "shipped", "delivered"] },
-        "createdAt": { "type": "string", "format": "date-time" }
-      },
-      "required": ["buyerId", "sellerId", "total", "paymentStatus", "createdAt"]
-    },
-    "Conversation": {
-      "title": "Conversation",
-      "description": "A secured chat room.",
-      "type": "object",
-      "properties": {
-        "type": { "type": "string", "enum": ["spark", "circle", "shopping", "idea"] },
-        "participants": { "type": "array", "items": { "type": "string" } },
-        "encryptionVersion": { "type": "string", "default": "v1" },
-        "createdAt": { "type": "string", "format": "date-time" }
-      },
-      "required": ["type", "participants", "createdAt"]
-    },
-    "Message": {
-      "title": "Message",
-      "description": "A secured E2EE message packet.",
-      "type": "object",
-      "properties": {
-        "senderId": { "type": "string" },
-        "encryptedText": { "type": "string" },
-        "encryptedMedia": { "type": "array", "items": { "type": "string" } },
-        "iv": { "type": "string" },
-        "timestamp": { "type": "string", "format": "date-time" },
-        "status": { "type": "string", "enum": ["sent", "delivered", "read"] }
-      },
-      "required": ["senderId", "timestamp", "status"]
-    },
-    "PublicKey": {
-      "title": "Public Key",
-      "description": "E2EE identity key (ECDH-P256).",
-      "type": "object",
-      "properties": {
-        "userId": { "type": "string" },
-        "publicKey": { "type": "string" },
-        "algorithm": { "type": "string", "default": "ECDH-P256" },
-        "createdAt": { "type": "string", "format": "date-time" },
-        "rotatedAt": { "type": "string", "format": "date-time" }
-      },
-      "required": ["userId", "publicKey", "algorithm", "createdAt"]
+      "required": ["uid", "username", "displayName", "interests", "accountType"]
     },
     "Notification": {
       "title": "Notification",
@@ -174,6 +33,18 @@
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["type", "title", "body", "createdAt"]
+    },
+    "Relationship": {
+      "title": "Relationship",
+      "description": "Established connection status between two hearts.",
+      "type": "object",
+      "properties": {
+        "userA": { "type": "string" },
+        "userB": { "type": "string" },
+        "status": { "type": "string", "enum": ["friends", "blocked"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userA", "userB", "status", "createdAt"]
     }
   },
   "auth": {
@@ -181,17 +52,6 @@
   },
   "firestore": {
     "/users/{userId}": { "schema": "UserProfile", "description": "Private profiles" },
-    "/users/{userId}/notifications/{notificationId}": { "schema": "Notification", "description": "User alerts" },
-    "/publicProfiles/{userId}": { "schema": "UserProfile", "description": "Discovery data" },
-    "/relationships/{relationshipId}": { "schema": "Relationship", "description": "Friend and block registry" },
-    "/circles/{circleId}": { "schema": "Circle", "description": "Gathering spaces" },
-    "/ideaPool/{postId}": { "schema": "PoolPost", "description": "Knowledge pool" },
-    "/communityMessages/{messageId}": { "schema": "CommunityMessage", "description": "Global Wall" },
-    "/shops/{shopId}": { "schema": "Shop", "description": "Artisan stores" },
-    "/products/{productId}": { "schema": "Product", "description": "Marketplace items" },
-    "/orders/{orderId}": { "schema": "Order", "description": "Transactions" },
-    "/conversations/{conversationId}": { "schema": "Conversation", "description": "Chat rooms" },
-    "/messages/{messageId}": { "schema": "Message", "description": "E2EE packets" },
-    "/publicKeys/{userId}": { "schema": "PublicKey", "description": "E2EE identities" }
+    "/users/{userId}/notifications/{notificationId}": { "schema": "Notification", "description": "User alerts" }
   }
 }

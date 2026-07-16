@@ -32,6 +32,10 @@ export default function ProfilePage() {
               <div className="p-8 bg-white rounded-[2.5rem] shadow-xl border border-primary/5">
                 <p className="text-[10px] font-black uppercase text-primary tracking-widest mb-1">Authenticated Email</p>
                 <p className="font-bold text-lg">{user.email || "Guest Session"}</p>
+                <div className="mt-6 pt-6 border-t border-dashed">
+                  <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1">User UID</p>
+                  <p className="font-mono text-xs text-slate-500">{user.uid}</p>
+                </div>
               </div>
             )}
           </div>
