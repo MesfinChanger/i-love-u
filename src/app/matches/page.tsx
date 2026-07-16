@@ -5,7 +5,7 @@ import { useMemo, useState, useEffect, Suspense } from 'react';
 import { Header } from '@/components/Header';
 import { BottomNav } from '@/components/BottomNav';
 import { useCollection, useUser, useFirestore, useDoc } from '@/firebase';
-import { collection, query, where, orderBy, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, query, where, orderBy, doc, updateDoc, serverTimestamp, or } from 'firebase/firestore';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
@@ -30,6 +30,10 @@ import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from '@/components/providers/LanguageProvider';
 import { cn } from '@/lib/utils';
 
+/**
+ * @fileOverview Matches Hub synchronized with the Match Invitation Protocol.
+ * Manages pending invitations and established high-fidelity sparks.
+ */
 function MatchesContent() {
   const { user } = useUser();
   const db = useFirestore();
@@ -41,34 +45,38 @@ function MatchesContent() {
     setMounted(true);
   }, []);
   
-  const conversationsQuery = useMemoFirebase(() => {
+  // Connection Registry Query
+  const connectionsQuery = useMemoFirebase(() => {
     if (!user?.uid || !db) return null;
     return query(
-      collection(db, 'conversations'),
-      where('participants', 'array-contains', user.uid),
+      collection(db, 'connections'),
+      or(
+        where('fromUserId', '==', user.uid),
+        where('toUserId', '==', user.uid)
+      ),
       orderBy('createdAt', 'desc')
     );
   }, [user?.uid, db]);
 
-  const { data: allConversations, loading } = useCollection(conversationsQuery);
+  const { data: allConnections, loading } = useCollection(connectionsQuery);
 
   const { dateMatches, friendMatches, invitations } = useMemo(() => {
-    if (!allConversations) return { dateMatches: [], friendMatches: [], invitations: [] };
+    if (!allConnections) return { dateMatches: [], friendMatches: [], invitations: [] };
     
     return {
-      dateMatches: allConversations.filter((m: any) => m.status === 'active' && m.type === 'spark'),
-      friendMatches: allConversations.filter((m: any) => m.status === 'active' && m.type === 'friend'),
-      invitations: allConversations.filter((m: any) => m.status === 'pending' && m.invitedBy !== user?.uid)
+      dateMatches: allConnections.filter((c: any) => c.status === 'matched' && c.type === 'spark'),
+      friendMatches: allConnections.filter((c: any) => c.status === 'matched' && c.type === 'friend'),
+      invitations: allConnections.filter((c: any) => c.status === 'pending' && c.toUserId === user?.uid)
     };
-  }, [allConversations, user?.uid]);
+  }, [allConnections, user?.uid]);
 
-  const handleAccept = async (convId: string) => {
+  const handleAccept = async (connId: string) => {
     if (!db) return;
     try {
-      await updateDoc(doc(db, 'conversations', convId), {
-        status: 'active',
-        acceptedAt: serverTimestamp(),
-        lastMessage: "Connection Accepted! ✨ Identity Revealed."
+      // Transition to matched status
+      await updateDoc(doc(db, 'connections', connId), {
+        status: 'matched',
+        acceptedAt: serverTimestamp()
       });
       toast({ title: "Invitation Accepted!", description: "Your sacred space is now active. ❤️" });
     } catch (e) {
@@ -76,10 +84,11 @@ function MatchesContent() {
     }
   };
 
-  const handleDecline = async (convId: string) => {
+  const handleDecline = async (connId: string) => {
     if (!db) return;
     try {
-      await updateDoc(doc(db, 'conversations', convId), {
+      // Respectfully decline by removing the connection record
+      await updateDoc(doc(db, 'connections', connId), {
         status: 'declined',
         declinedAt: serverTimestamp()
       });
@@ -199,7 +208,7 @@ function MatchesContent() {
 
 function InvitationCard({ match, currentUserId, onAccept, onDecline }: any) {
   const db = useFirestore();
-  const senderId = match.invitedBy;
+  const senderId = match.fromUserId;
   const senderRef = useMemoFirebase(() => senderId ? doc(db, 'users', senderId) : null, [db, senderId]);
   const { data: senderProfile } = useDoc(senderRef);
 
@@ -207,7 +216,7 @@ function InvitationCard({ match, currentUserId, onAccept, onDecline }: any) {
     <Card className="rounded-[2rem] border-none shadow-md bg-white overflow-hidden animate-in slide-in-from-right-4 duration-500">
       <CardContent className="p-5 flex items-center gap-4">
         <Avatar className="w-14 h-14 border-2 border-amber-100 shrink-0">
-          <AvatarImage src={senderProfile?.photoUrl} className="object-cover" />
+          <AvatarImage src={senderProfile?.photoURL} className="object-cover" />
           <AvatarFallback className="bg-amber-50 text-amber-600 font-bold">{senderProfile?.displayName?.[0] || '?'}</AvatarFallback>
         </Avatar>
         
@@ -269,7 +278,7 @@ function EmptyState({ icon: Icon, title, desc, actionLabel, actionHref, color = 
 function ExclusiveSparkCard({ match, currentUserId }: { match: any, currentUserId: string }) {
   const db = useFirestore();
   const { t } = useTranslation();
-  const partnerId = match.participants.find((id: string) => id !== currentUserId);
+  const partnerId = match.fromUserId === currentUserId ? match.toUserId : match.fromUserId;
   const partnerRef = useMemoFirebase(() => partnerId ? doc(db, 'users', partnerId) : null, [db, partnerId]);
   const { data: partnerProfile } = useDoc(partnerRef);
 
@@ -282,7 +291,7 @@ function ExclusiveSparkCard({ match, currentUserId }: { match: any, currentUserI
         <CardContent className="p-6 flex items-center gap-6 relative z-10">
           <div className="relative shrink-0">
             <Avatar className="w-20 h-20 border-2 border-primary/20 shadow-xl ring-2 ring-white">
-              <AvatarImage src={partnerProfile?.photoUrl} className="object-cover" />
+              <AvatarImage src={partnerProfile?.photoURL} className="object-cover" />
               <AvatarFallback className="bg-primary/5 text-primary font-black">{partnerProfile?.displayName?.[0] || '?'}</AvatarFallback>
             </Avatar>
             <div className="absolute -bottom-1 -right-1 bg-primary text-white p-1.5 rounded-full shadow-lg border-2 border-white">
@@ -299,7 +308,7 @@ function ExclusiveSparkCard({ match, currentUserId }: { match: any, currentUserI
               </div>
             </div>
             <p className="text-muted-foreground text-sm italic font-medium line-clamp-1">
-              {match.lastMessage || "Start your journey..."}
+              Start your journey...
             </p>
             <div className="flex flex-wrap gap-2">
                <Badge className="bg-green-500/10 text-green-600 border-none text-[7px] font-black uppercase tracking-widest px-2 h-5 flex items-center gap-1 whitespace-nowrap">
@@ -320,7 +329,7 @@ function ExclusiveSparkCard({ match, currentUserId }: { match: any, currentUserI
 
 function FriendMatchCard({ match, currentUserId }: { match: any, currentUserId: string }) {
   const db = useFirestore();
-  const partnerId = match.participants.find((id: string) => id !== currentUserId);
+  const partnerId = match.fromUserId === currentUserId ? match.toUserId : match.fromUserId;
   const partnerRef = useMemoFirebase(() => partnerId ? doc(db, 'users', partnerId) : null, [db, partnerId]);
   const { data: partnerProfile } = useDoc(partnerRef);
   const [mounted, setMounted] = useState(false);
@@ -344,7 +353,7 @@ function FriendMatchCard({ match, currentUserId }: { match: any, currentUserId: 
       <Card className="overflow-hidden hover:scale-[1.01] transition-all border-none shadow-sm hover:shadow-md bg-white rounded-[2rem] group">
         <CardContent className="p-4 flex items-center gap-4">
           <Avatar className="w-14 h-14 border border-muted shadow-sm group-hover:rotate-2 transition-transform shrink-0">
-            <AvatarImage src={partnerProfile?.photoUrl} className="object-cover" />
+            <AvatarImage src={partnerProfile?.photoURL} className="object-cover" />
             <AvatarFallback className="bg-blue-50 text-blue-600 font-bold">{partnerProfile?.displayName?.[0] || '?'}</AvatarFallback>
           </Avatar>
           
@@ -356,7 +365,7 @@ function FriendMatchCard({ match, currentUserId }: { match: any, currentUserId: 
               </span>
             </div>
             <p className="text-xs text-muted-foreground line-clamp-1 italic font-medium">
-              {match.lastMessage || "Starting..."}
+              Sparking...
             </p>
           </div>
           

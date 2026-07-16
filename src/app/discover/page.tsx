@@ -47,7 +47,7 @@ import { useTranslation } from '@/components/providers/LanguageProvider';
 /**
  * @fileOverview Discovery Hub featuring the Presence Grid Protocol.
  * Profiles are 100% visible and vibrant in both Online and Offline sections.
- * Synchronized with the new Unified Heart Identity schema.
+ * Synchronized with the Match Invitation Protocol.
  */
 export default function DiscoverPage() {
   const { user } = useUser();
@@ -144,16 +144,17 @@ export default function DiscoverPage() {
     }
     if (!db) return;
 
+    // Use sorted ID for deterministic connection registry
     const participants = [user.uid, targetId].sort();
-    const conversationId = participants.join('_');
+    const connectionId = participants.join('_');
     
     try {
-      await setDoc(doc(db, 'conversations', conversationId), {
-        participants: participants,
-        type: type === 'date' ? 'spark' : 'friend',
+      // Synchronized with Match Invitation Protocol schema
+      await setDoc(doc(db, 'connections', connectionId), {
+        fromUserId: user.uid,
+        toUserId: targetId,
         status: "pending",
-        invitedBy: user.uid,
-        lastMessage: type === 'date' ? "A Spark invitation has been sent! ✨" : "Connection invitation sent 🤝",
+        type: type === 'date' ? 'spark' : 'friend',
         createdAt: serverTimestamp(),
       }, { merge: true });
       

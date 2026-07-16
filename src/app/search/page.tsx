@@ -28,7 +28,7 @@ import { useTranslation } from '@/components/providers/LanguageProvider';
 import Image from 'next/image';
 
 /**
- * @fileOverview Find Hearts module synchronized with the Unified Heart Identity Protocol.
+ * @fileOverview Find Hearts module synchronized with the Match Invitation Protocol.
  */
 function SearchContent() {
   const { user } = useUser();
@@ -73,16 +73,17 @@ function SearchContent() {
 
     setIsProcessing(targetUid);
     
+    // Deterministic connection ID
     const participants = [user.uid, targetUid].sort();
-    const conversationId = participants.join('_');
+    const connectionId = participants.join('_');
 
     try {
-      await setDoc(doc(db, 'conversations', conversationId), {
-        participants: participants,
-        type: type === 'date' ? 'spark' : 'friend',
+      // Aligned with Match Invitation Protocol schema
+      await setDoc(doc(db, 'connections', connectionId), {
+        fromUserId: user.uid,
+        toUserId: targetUid,
         status: "pending",
-        invitedBy: user.uid,
-        lastMessage: type === 'date' ? "A Spark invitation has been sent! ✨" : "Connection invitation sent 🤝",
+        type: type === 'date' ? 'spark' : 'friend',
         createdAt: serverTimestamp(),
       }, { merge: true });
       

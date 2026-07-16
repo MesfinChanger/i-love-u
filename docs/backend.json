@@ -41,17 +41,16 @@
         "timezone": { "type": "string" }
       }
     },
-    "Conversation": {
-      "title": "Conversation",
-      "description": "A spark connection between two hearts.",
+    "Connection": {
+      "title": "Connection",
+      "description": "An invitation or established match between two hearts.",
       "type": "object",
       "properties": {
-        "participants": { "type": "array", "items": { "type": "string" } },
-        "type": { "type": "string", "enum": ["spark", "friend"] },
-        "status": { "type": "string" },
-        "lastMessage": { "type": "string" },
-        "invitedBy": { "type": "string" },
-        "createdAt": { "type": "string", "format": "date-time" }
+        "fromUserId": { "type": "string" },
+        "toUserId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "status": { "type": "string", "enum": ["pending", "matched"] },
+        "type": { "type": "string", "enum": ["spark", "friend"] }
       }
     },
     "Message": {
@@ -74,7 +73,7 @@
   "firestore": {
     "/users/{userId}": { "schema": "UserProfile", "description": "Private user profiles" },
     "/publicProfiles/{userId}": { "schema": "UserProfile", "description": "Discovery data" },
-    "/conversations/{conversationId}": { "schema": "Conversation", "description": "Unified connections" },
+    "/connections/{connectionId}": { "schema": "Connection", "description": "Match and Invitation registry" },
     "/messages/{messageId}": { "schema": "Message", "description": "Global message registry" },
     "/communityMessages/{messageId}": { "description": "Global Wall messages" },
     "/ideaPool/{postId}": { "description": "Global knowledge pool" },
