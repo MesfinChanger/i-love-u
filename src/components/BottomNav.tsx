@@ -28,7 +28,6 @@ export function BottomNav() {
             variant="ghost"
             size="sm"
             asChild
-            aria-current={isActive ? "page" : undefined}
             className={cn(
               "flex flex-col gap-1 h-auto py-2 px-1 flex-1 transition-all active:scale-95",
               isActive ? "text-primary" : "text-muted-foreground"

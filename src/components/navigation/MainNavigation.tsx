@@ -36,11 +36,11 @@ const menu = [
 export default function MainNavigation() {
   return (
     <nav className="flex gap-4 p-4 border-b bg-white">
-      {menu.map(item => (
+      {menu.map((item) => (
         <Link
           key={item.path}
           href={item.path}
-          className="px-4 py-2 rounded-xl hover:bg-gray-100 transition-colors"
+          className="px-4 py-2 rounded-xl hover:bg-gray-100 transition-colors font-bold text-sm"
         >
           {item.name}
         </Link>

@@ -12,27 +12,8 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: 'I LOVE U - The AI Dating Revolution. Spark Love. End Poverty. ❤️',
-  description: "I LOVE U: The world's most respectful AI dating platform. Join the connection revolution. Ending world poverty through global job creation. Respect & Love is Mandatory.",
-  keywords: ['dating', 'dating app', 'ai dating', 'find love', 'end poverty', 'prosperity', 'job creation', 'eliminate poverty', 'global mission', 'I LOVE U', 'respect mandatory', 'matchmaking'],
-  openGraph: {
-    type: 'website',
-    url: 'https://spark-dating.web.app/',
-    title: 'I LOVE U - AI Dating & Prosperity',
-    description: "Connect hearts on the world's first mission-driven dating app. Create jobs and help us end world poverty forever. Spark change now.",
-    images: [{ url: 'https://picsum.photos/seed/iloveu-social/1200/630' }],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'I LOVE U - AI Dating Revolution',
-    description: 'A dating app where your happiness ends world poverty. Join the Mandatory Respect & Love community.',
-    images: ['https://picsum.photos/seed/iloveu-social/1200/630'],
-  },
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: 'default',
-    title: 'I LOVE U',
-  },
+  title: 'I LOVE U - The AI Dating Revolution ❤️',
+  description: "Respect & Love is Mandatory. Ending world poverty through global job creation.",
 };
 
 export default function RootLayout({

@@ -1,8 +1,7 @@
 'use client';
 
 /**
- * @fileOverview Flattened Firebase Barrel File.
- * Re-exports components and direct instances explicitly.
+ * @fileOverview Refactored Firebase Barrel File.
  */
 
 export * from './provider';
@@ -13,5 +12,4 @@ export * from './firestore/use-doc';
 export * from './storage/use-storage';
 export * from './use-memo-firebase';
 
-// Direct Instance Re-exports
 export { app, db, auth, storage, initializeFirebase } from './init';

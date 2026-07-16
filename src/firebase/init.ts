@@ -5,8 +5,8 @@ import { getStorage, FirebaseStorage } from "firebase/storage";
 import { firebaseConfig } from "./config";
 
 /**
- * @fileOverview Resilient Firebase Initializer.
- * Synchronized with the requested direct instance export protocol.
+ * @fileOverview Direct-instance Firebase Initialization.
+ * Standardized to export auth, db, and storage directly.
  */
 
 let app: FirebaseApp;
@@ -18,9 +18,7 @@ const apiKey = firebaseConfig.apiKey;
 const isKeyValid = !!(
   apiKey &&
   apiKey.length > 10 &&
-  !apiKey.includes("PLACEHOLDER") &&
-  !apiKey.includes("REPLACE_WITH") &&
-  !apiKey.includes("YOUR_")
+  !apiKey.includes("PLACEHOLDER")
 );
 
 if (typeof window !== "undefined" && isKeyValid) {
@@ -34,11 +32,8 @@ if (typeof window !== "undefined" && isKeyValid) {
   }
 }
 
-export { auth, db, storage };
+export { auth, db, storage, app };
 
-/**
- * Returns initialized Firebase instances for the context provider.
- */
 export function initializeFirebase() {
   return { app, auth, db, storage };
 }

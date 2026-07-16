@@ -1,86 +1,85 @@
-
 {
   "entities": {
     "UserProfile": {
       "title": "User Profile",
-      "description": "Unified heart identity, personality, and discovery schema. Restricted to 18+.",
+      "description": "Unified heart identity and personality schema.",
       "type": "object",
       "properties": {
         "uid": { "type": "string" },
         "email": { "type": "string", "format": "email" },
-        "phone": { "type": ["string", "null"] },
         "username": { "type": "string" },
         "displayName": { "type": "string" },
         "photoURL": { "type": "string" },
         "accountType": { "type": "string", "enum": ["guest", "free", "premium", "business"] },
         "status": { "type": "string", "enum": ["active", "blocked", "deleted"] },
         "bio": { "type": "string" },
-        "birthday": { "type": "string", "format": "date" },
-        "gender": { "type": "string" },
-        "location": { "type": "object" },
-        "languages": { "type": "array", "items": { "type": "string" } },
-        "interests": { "type": "array", "items": { "type": "string" } },
-        "profession": { "type": "string" },
-        "education": { "type": "string" },
-        "hobbies": { "type": "array", "items": { "type": "string" } },
-        "values": { "type": "array", "items": { "type": "string" } },
-        "datingGoal": { "type": "string", "enum": ["serious", "friendship", "marriage", "exploring"] },
-        "preferredAgeRange": { "type": "string" },
-        "preferredCountries": { "type": "array", "items": { "type": "string" } },
-        "personalityTags": { "type": "array", "items": { "type": "string" } },
-        "verified": { "type": "boolean", "default": false },
-        "visibility": { "type": "string", "enum": ["public", "private", "hidden"] },
-        "privacySettings": { "type": "object" },
-        "role": { "type": "string", "default": "member" },
-        "policyAccepted": { "type": "boolean", "default": false },
-        "createdAt": { "type": "string", "format": "date-time" },
-        "updatedAt": { "type": "string", "format": "date-time" },
-        "lastLogin": { "type": "string", "format": "date-time" },
         "country": { "type": "string" },
-        "language": { "type": "string" },
-        "timezone": { "type": "string" }
-      }
-    },
-    "PublicKey": {
-      "title": "Public Key",
-      "description": "E2EE Identity Key used for secured heart-to-heart agreement.",
-      "type": "object",
-      "properties": {
-        "userId": { "type": "string" },
-        "publicKey": { "type": "string" },
-        "algorithm": { "type": "string", "default": "ECDH-P256" },
+        "policyAccepted": { "type": "boolean", "default": false },
+        "isSeller": { "type": "boolean", "default": false },
+        "isAdvertiser": { "type": "boolean", "default": false },
+        "role": { "type": "string", "default": "member" },
         "createdAt": { "type": "string", "format": "date-time" },
-        "rotatedAt": { "type": "string", "format": "date-time" }
+        "updatedAt": { "type": "string", "format": "date-time" }
       }
     },
-    "Conversation": {
-      "title": "Conversation",
-      "description": "A secured chat room for high-fidelity communication between hearts.",
+    "Relationship": {
+      "title": "Relationship",
+      "description": "Established connection status between two hearts.",
       "type": "object",
       "properties": {
-        "type": { "type": "string", "enum": ["spark", "circle", "shopping", "idea"] },
-        "participants": { "type": "array", "items": { "type": "string" } },
-        "encryptionVersion": { "type": "string", "default": "v1" },
+        "userA": { "type": "string" },
+        "userB": { "type": "string" },
+        "status": { "type": "string", "enum": ["friends", "blocked"] },
         "createdAt": { "type": "string", "format": "date-time" }
-      }
+      },
+      "required": ["userA", "userB", "status", "createdAt"]
     },
-    "Message": {
-      "title": "Message",
-      "description": "A secured, encrypted message packet.",
+    "Circle": {
+      "title": "Circle",
+      "description": "A sacred gathering space for shared missions.",
       "type": "object",
       "properties": {
-        "senderId": { "type": "string" },
-        "encryptedText": { "type": "string" },
-        "encryptedMedia": { "type": "array", "items": { "type": "string" } },
-        "iv": { "type": "string" },
-        "timestamp": { "type": "string", "format": "date-time" },
-        "status": { "type": "string", "enum": ["sent", "delivered", "read"] },
-        "conversationId": { "type": "string" }
-      }
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "category": { "type": "string" },
+        "ownerId": { "type": "string" },
+        "imageURL": { "type": "string" },
+        "memberCount": { "type": "number", "default": 1 },
+        "privacy": { "type": "string", "enum": ["open", "private"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "description", "category", "ownerId", "privacy", "createdAt"]
+    },
+    "PoolPost": {
+      "title": "Pool Post",
+      "description": "A thought shared in the global Prosperity Pool.",
+      "type": "object",
+      "properties": {
+        "authorId": { "type": "string" },
+        "category": { "type": "string", "enum": ["economics", "technology", "politics", "philosophy", "general"] },
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "media": { "type": "array", "items": { "type": "string" } },
+        "likesCount": { "type": "number", "default": 0 },
+        "commentsCount": { "type": "number", "default": 0 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["authorId", "category", "title", "content", "createdAt"]
+    },
+    "CommunityMessage": {
+      "title": "Community Message",
+      "description": "A public thought shared on the Global Wall.",
+      "type": "object",
+      "properties": {
+        "authorId": { "type": "string" },
+        "text": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["authorId", "text", "createdAt"]
     },
     "Shop": {
       "title": "Shop",
-      "description": "A verified seller storefront in the prosperity marketplace.",
+      "description": "A verified seller storefront.",
       "type": "object",
       "properties": {
         "ownerId": { "type": "string" },
@@ -90,11 +89,12 @@
         "country": { "type": "string" },
         "rating": { "type": "number", "default": 0 },
         "verified": { "type": "boolean", "default": false }
-      }
+      },
+      "required": ["ownerId", "name", "logo", "country"]
     },
     "Product": {
       "title": "Product",
-      "description": "A specific item for sale by a verified shop.",
+      "description": "An item listed in the marketplace.",
       "type": "object",
       "properties": {
         "storeId": { "type": "string" },
@@ -106,98 +106,66 @@
         "category": { "type": "string" },
         "inventory": { "type": "number" },
         "createdAt": { "type": "string", "format": "date-time" }
-      }
+      },
+      "required": ["storeId", "name", "price", "currency", "createdAt"]
     },
     "Order": {
       "title": "Order",
-      "description": "A recorded transaction between a buyer and an artisan.",
+      "description": "A recorded transaction between a buyer and artisan.",
       "type": "object",
       "properties": {
         "buyerId": { "type": "string" },
         "sellerId": { "type": "string" },
-        "products": { 
-          "type": "array", 
-          "items": { 
-            "type": "object",
-            "properties": {
-              "productId": { "type": "string" },
-              "name": { "type": "string" },
-              "price": { "type": "number" },
-              "quantity": { "type": "number" }
-            }
-          }
-        },
+        "products": { "type": "array" },
         "total": { "type": "number" },
         "paymentStatus": { "type": "string", "enum": ["pending", "paid", "failed"] },
         "shippingStatus": { "type": "string", "enum": ["pending", "shipped", "delivered"] },
         "createdAt": { "type": "string", "format": "date-time" }
-      }
+      },
+      "required": ["buyerId", "sellerId", "total", "paymentStatus", "createdAt"]
     },
-    "Connection": {
-      "title": "Connection",
-      "description": "An invitation or established match between two hearts.",
+    "Conversation": {
+      "title": "Conversation",
+      "description": "A secured chat room.",
       "type": "object",
       "properties": {
-        "fromUserId": { "type": "string" },
-        "toUserId": { "type": "string" },
+        "type": { "type": "string", "enum": ["spark", "circle", "shopping", "idea"] },
+        "participants": { "type": "array", "items": { "type": "string" } },
+        "encryptionVersion": { "type": "string", "default": "v1" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["type", "participants", "createdAt"]
+    },
+    "Message": {
+      "title": "Message",
+      "description": "A secured E2EE message packet.",
+      "type": "object",
+      "properties": {
+        "senderId": { "type": "string" },
+        "encryptedText": { "type": "string" },
+        "encryptedMedia": { "type": "array", "items": { "type": "string" } },
+        "iv": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "status": { "type": "string", "enum": ["sent", "delivered", "read"] }
+      },
+      "required": ["senderId", "timestamp", "status"]
+    },
+    "PublicKey": {
+      "title": "Public Key",
+      "description": "E2EE identity key (ECDH-P256).",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "publicKey": { "type": "string" },
+        "algorithm": { "type": "string", "default": "ECDH-P256" },
         "createdAt": { "type": "string", "format": "date-time" },
-        "status": { "type": "string", "enum": ["pending", "matched"] }
-      }
-    },
-    "Relationship": {
-      "title": "Relationship",
-      "description": "Established friend status or block protocol between two hearts.",
-      "type": "object",
-      "properties": {
-        "userA": { "type": "string" },
-        "userB": { "type": "string" },
-        "status": { "type": "string", "enum": ["friends", "blocked"] },
-        "createdAt": { "type": "string", "format": "date-time" }
-      }
-    },
-    "Circle": {
-      "title": "Community Circle",
-      "description": "A gathering space for hearts sharing a specific vibration.",
-      "type": "object",
-      "properties": {
-        "name": { "type": "string" },
-        "description": { "type": "string" },
-        "category": { "type": "string" },
-        "ownerId": { "type": "string" },
-        "imageURL": { "type": "string" },
-        "memberCount": { "type": "number", "default": 1 },
-        "privacy": { "type": "string", "enum": ["open", "private"] },
-        "createdAt": { "type": "string", "format": "date-time" }
-      }
-    },
-    "PoolPost": {
-      "title": "Pool Post",
-      "description": "A mission-driven thought shared in the global Prosperity Pool.",
-      "type": "object",
-      "properties": {
-        "authorId": { "type": "string" },
-        "category": { "type": "string", "enum": ["economics", "technology", "politics", "philosophy", "general"] },
-        "title": { "type": "string" },
-        "content": { "type": "string" },
-        "media": { "type": "array", "items": { "type": "string" } },
-        "likesCount": { "type": "number", "default": 0 },
-        "commentsCount": { "type": "number", "default": 0 },
-        "createdAt": { "type": "string", "format": "date-time" }
-      }
-    },
-    "CommunityMessage": {
-      "title": "Community Message",
-      "description": "A public thought shared on the Global Wall.",
-      "type": "object",
-      "properties": {
-        "authorId": { "type": "string" },
-        "text": { "type": "string" },
-        "createdAt": { "type": "string", "format": "date-time" }
-      }
+        "rotatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "publicKey", "algorithm", "createdAt"]
     },
     "Notification": {
       "title": "Notification",
-      "description": "A system or interaction alert for a specific heart.",
+      "description": "Private heart alert.",
       "type": "object",
       "properties": {
         "type": { "type": "string", "enum": ["message", "like", "match", "order", "idea"] },
@@ -205,27 +173,26 @@
         "body": { "type": "string" },
         "read": { "type": "boolean", "default": false },
         "createdAt": { "type": "string", "format": "date-time" }
-      }
+      },
+      "required": ["type", "title", "body", "createdAt"]
     }
   },
   "auth": {
     "providers": ["google.com", "password", "phone", "anonymous"]
   },
   "firestore": {
-    "/users/{userId}": { "schema": "UserProfile", "description": "Private user profiles" },
-    "/users/{userId}/notifications/{notificationId}": { "schema": "Notification", "description": "Private user alerts" },
-    "/publicProfiles/{userId}": { "schema": "UserProfile", "description": "Discovery data" },
-    "/publicKeys/{userId}": { "schema": "PublicKey", "description": "E2EE identity keys" },
-    "/connections/{connectionId}": { "schema": "Connection", "description": "Match and Invitation registry" },
-    "/conversations/{conversationId}": { "schema": "Conversation", "description": "High-fidelity chat rooms" },
-    "/messages/{messageId}": { "schema": "Message", "description": "High-fidelity secured messages" },
-    "/relationships/{relationshipId}": { "schema": "Relationship", "description": "Friend states and community blocking." },
-    "/communityMessages/{messageId}": { "schema": "CommunityMessage", "description": "Global Wall messages" },
-    "/ideaPool/{postId}": { "schema": "PoolPost", "description": "Global knowledge pool" },
-    "/circles/{circleId}": { "schema": "Circle", "description": "Global community circles registry" },
-    "/shops/{shopId}": { "schema": "Shop", "description": "Verified seller storefronts" },
-    "/products/{productId}": { "schema": "Product", "description": "Artisan products listed by verified shops" },
-    "/orders/{orderId}": { "schema": "Order", "description": "Marketplace transaction ledger" },
-    "/siteSettings/{settingId}": { "description": "Global platform settings" }
+    "/users/{userId}": { "schema": "UserProfile", "description": "Private profiles" },
+    "/users/{userId}/notifications/{notificationId}": { "schema": "Notification", "description": "User alerts" },
+    "/publicProfiles/{userId}": { "schema": "UserProfile", "description": "Vibrant discovery data" },
+    "/relationships/{relationshipId}": { "schema": "Relationship", "description": "Friend and block registry" },
+    "/circles/{circleId}": { "schema": "Circle", "description": "Sacred gatherings" },
+    "/ideaPool/{postId}": { "schema": "PoolPost", "description": "Knowledge pool" },
+    "/communityMessages/{messageId}": { "schema": "CommunityMessage", "description": "Global Wall" },
+    "/shops/{shopId}": { "schema": "Shop", "description": "Artisan storefronts" },
+    "/products/{productId}": { "schema": "Product", "description": "Marketplace items" },
+    "/orders/{orderId}": { "schema": "Order", "description": "Transactions" },
+    "/conversations/{conversationId}": { "schema": "Conversation", "description": "Chat rooms" },
+    "/messages/{messageId}": { "schema": "Message", "description": "E2EE messages" },
+    "/publicKeys/{userId}": { "schema": "PublicKey", "description": "E2EE identities" }
   }
 }
