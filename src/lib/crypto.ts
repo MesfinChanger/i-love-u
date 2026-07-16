@@ -1,128 +1,132 @@
 'use client';
 
 /**
- * Utility for End-to-End Encryption (E2EE) using Web Crypto API.
- * Optimized for SSR safety and maximum compatibility with Next.js 15.
+ * @fileOverview Modern End-to-End Encryption (E2EE) using ECDH and AES-GCM.
+ * Optimized for performance and secure key agreement in messaging.
  */
 
 const isBrowser = typeof window !== 'undefined' && typeof window.crypto !== 'undefined';
 
-// Helper to convert ArrayBuffer to Base64 string in browser
-function arrayBufferToBase64(buffer: ArrayBuffer): string {
-  if (!isBrowser) return '';
-  let binary = '';
-  const bytes = new Uint8Array(buffer);
-  const len = bytes.byteLength;
-  for (let i = 0; i < len; i++) {
-    binary += String.fromCharCode(bytes[i]);
-  }
-  return window.btoa(binary);
-}
-
-// Helper to convert Base64 string to ArrayBuffer in browser
-function base64ToArrayBuffer(base64: string): ArrayBuffer {
-  if (!isBrowser) return new ArrayBuffer(0);
-  try {
-    const binaryString = window.atob(base64);
-    const len = binaryString.length;
-    const bytes = new Uint8Array(len);
-    for (let i = 0; i < len; i++) {
-      bytes[i] = binaryString.charCodeAt(i);
-    }
-    return bytes.buffer;
-  } catch (e) {
-    return new ArrayBuffer(0);
-  }
-}
-
 export async function generateKeyPair() {
-  if (!isBrowser) return { publicKey: '', privateKey: '' };
-  
+  if (!isBrowser) return null;
+  return await window.crypto.subtle.generateKey(
+    {
+      name: "ECDH",
+      namedCurve: "P-256",
+    },
+    true,
+    ["deriveKey"]
+  );
+}
+
+export async function exportKey(key: CryptoKey, format: "raw" | "pkcs8" | "spki" = "raw") {
+  if (!isBrowser) return '';
+  const exported = await window.crypto.subtle.exportKey(format, key);
+  return btoa(String.fromCharCode(...new Uint8Array(exported)));
+}
+
+export async function importPublicKey(keyStr: string) {
+  if (!isBrowser || !keyStr) return null;
   try {
-    const keyPair = await window.crypto.subtle.generateKey(
+    const binary = Uint8Array.from(atob(keyStr), c => c.charCodeAt(0));
+    return await window.crypto.subtle.importKey(
+      "raw",
+      binary,
       {
-        name: "RSA-OAEP",
-        modulusLength: 2048,
-        publicExponent: new Uint8Array([1, 0, 1]),
-        hash: "SHA-256",
+        name: "ECDH",
+        namedCurve: "P-256",
       },
       true,
+      []
+    );
+  } catch (e) {
+    console.error("Public key import failed", e);
+    return null;
+  }
+}
+
+export async function importPrivateKey(keyStr: string) {
+  if (!isBrowser || !keyStr) return null;
+  try {
+    const binary = Uint8Array.from(atob(keyStr), c => c.charCodeAt(0));
+    return await window.crypto.subtle.importKey(
+      "pkcs8",
+      binary,
+      {
+        name: "ECDH",
+        namedCurve: "P-256",
+      },
+      true,
+      ["deriveKey"]
+    );
+  } catch (e) {
+    console.error("Private key import failed", e);
+    return null;
+  }
+}
+
+export async function createSharedKey(privateKey: CryptoKey, publicKey: CryptoKey) {
+  if (!isBrowser) return null;
+  try {
+    return await window.crypto.subtle.deriveKey(
+      {
+        name: "ECDH",
+        public: publicKey
+      },
+      privateKey,
+      {
+        name: "AES-GCM",
+        length: 256
+      },
+      false,
       ["encrypt", "decrypt"]
     );
-
-    const publicKey = await window.crypto.subtle.exportKey("spki", keyPair.publicKey);
-    const privateKey = await window.crypto.subtle.exportKey("pkcs8", keyPair.privateKey);
-
-    return {
-      publicKey: arrayBufferToBase64(publicKey),
-      privateKey: arrayBufferToBase64(privateKey)
-    };
   } catch (e) {
-    console.error("Key generation failed", e);
-    return { publicKey: '', privateKey: '' };
+    console.error("Shared key derivation failed", e);
+    return null;
   }
 }
 
-export async function encryptText(text: string, publicKeyBase64: string) {
-  if (!isBrowser || !publicKeyBase64) return null;
-  
+export async function encryptMessage(key: CryptoKey, text: string) {
+  if (!isBrowser) return null;
   try {
-    const publicKeyBuffer = base64ToArrayBuffer(publicKeyBase64);
-    if (publicKeyBuffer.byteLength === 0) return null;
-
-    const publicKey = await window.crypto.subtle.importKey(
-      "spki",
-      publicKeyBuffer,
-      {
-        name: "RSA-OAEP",
-        hash: "SHA-256",
-      },
-      true,
-      ["encrypt"]
-    );
-
-    const encoded = new TextEncoder().encode(text);
+    const iv = window.crypto.getRandomValues(new Uint8Array(12));
     const encrypted = await window.crypto.subtle.encrypt(
-      { name: "RSA-OAEP" },
-      publicKey,
-      encoded
+      {
+        name: "AES-GCM",
+        iv
+      },
+      key,
+      new TextEncoder().encode(text)
     );
 
-    return arrayBufferToBase64(encrypted);
+    return {
+      cipherText: btoa(String.fromCharCode(...new Uint8Array(encrypted))),
+      iv: btoa(String.fromCharCode(...iv))
+    };
   } catch (e) {
     console.error("Encryption failed", e);
     return null;
   }
 }
 
-export async function decryptText(encryptedBase64: string, privateKeyBase64: string) {
-  if (!isBrowser || !encryptedBase64 || !privateKeyBase64) return "[Encrypted Message]";
-  
+export async function decryptMessage(key: CryptoKey, cipherText: string, iv: string) {
+  if (!isBrowser || !cipherText || !iv) return "[Decryption Ripple]";
   try {
-    const privateKeyBuffer = base64ToArrayBuffer(privateKeyBase64);
-    if (privateKeyBuffer.byteLength === 0) return "[Encrypted Message]";
-
-    const privateKey = await window.crypto.subtle.importKey(
-      "pkcs8",
-      privateKeyBuffer,
-      {
-        name: "RSA-OAEP",
-        hash: "SHA-256",
-      },
-      true,
-      ["decrypt"]
-    );
-
-    const encryptedBuffer = base64ToArrayBuffer(encryptedBase64);
+    const encrypted = Uint8Array.from(atob(cipherText), c => c.charCodeAt(0));
+    const ivArray = Uint8Array.from(atob(iv), c => c.charCodeAt(0));
     const decrypted = await window.crypto.subtle.decrypt(
-      { name: "RSA-OAEP" },
-      privateKey,
-      encryptedBuffer
+      {
+        name: "AES-GCM",
+        iv: ivArray
+      },
+      key,
+      encrypted
     );
 
     return new TextDecoder().decode(decrypted);
   } catch (e) {
-    console.error("Decryption failed", e);
+    console.warn("Decryption failed", e);
     return "[Encrypted Message]";
   }
 }

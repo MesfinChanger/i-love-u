@@ -33,7 +33,7 @@ import {
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { generateKeyPair } from '@/lib/crypto';
+import { generateKeyPair, exportKey } from '@/lib/crypto';
 import { COUNTRIES } from '@/lib/world-data';
 import { useTranslation } from '@/components/providers/LanguageProvider';
 import { cn } from '@/lib/utils';
@@ -99,42 +99,49 @@ function LoginContent() {
     try {
       if (mode === 'signup') {
         const res = await createUserWithEmailAndPassword(auth, cleanEmail, password);
-        const { publicKey, privateKey } = await generateKeyPair();
-        localStorage.setItem(`spark_priv_${res.user.uid}`, privateKey);
-        localStorage.setItem('iloveu_policy_accepted', 'true');
+        
+        // E2EE Identity Generation (ECDH Protocol)
+        const keyPair = await generateKeyPair();
+        if (keyPair) {
+          const publicKeyStr = await exportKey(keyPair.publicKey, "raw");
+          const privateKeyStr = await exportKey(keyPair.privateKey, "pkcs8");
+          
+          localStorage.setItem(`spark_priv_${res.user.uid}`, privateKeyStr);
+          localStorage.setItem('iloveu_policy_accepted', 'true');
 
-        if (db) {
-          await setDoc(doc(db, 'users', res.user.uid), {
-            uid: res.user.uid, 
-            email: cleanEmail, 
-            country, 
-            publicKey,
-            publicNickname: nickname,
-            displayName: nickname,
-            preferredLanguage: language,
-            role: 'member',
-            isHuman: true,
-            createdAt: serverTimestamp(),
-            policyAccepted: true,
-            policyAcceptedAt: serverTimestamp(),
-            legalConsent: {
-              ageVerified: true,
-              termsAgreed: true,
-              responsibilityAcknowledged: true,
-              humanVerified: true,
-              timestamp: new Date().toISOString()
-            }
-          }, { merge: true });
+          if (db) {
+            await setDoc(doc(db, 'users', res.user.uid), {
+              uid: res.user.uid, 
+              email: cleanEmail, 
+              country, 
+              publicKey: publicKeyStr,
+              publicNickname: nickname,
+              displayName: nickname,
+              preferredLanguage: language,
+              role: 'member',
+              isHuman: true,
+              createdAt: serverTimestamp(),
+              policyAccepted: true,
+              policyAcceptedAt: serverTimestamp(),
+              legalConsent: {
+                ageVerified: true,
+                termsAgreed: true,
+                responsibilityAcknowledged: true,
+                humanVerified: true,
+                timestamp: new Date().toISOString()
+              }
+            }, { merge: true });
 
-          await setDoc(doc(db, 'publicProfiles', res.user.uid), {
-            uid: res.user.uid,
-            publicNickname: nickname,
-            country: country || 'Global',
-            verified: false,
-            bio: "New heart joining the revolution.",
-            photoUrl: null,
-            age: 18
-          });
+            await setDoc(doc(db, 'publicProfiles', res.user.uid), {
+              uid: res.user.uid,
+              publicNickname: nickname,
+              country: country || 'Global',
+              verified: false,
+              bio: "New heart joining the revolution.",
+              photoUrl: null,
+              age: 18
+            });
+          }
         }
       } else {
         await signInWithEmailAndPassword(auth, cleanEmail, password);
@@ -180,7 +187,6 @@ function LoginContent() {
       let title = "Guest Access Ripple";
       let message = "Could not launch guest session. Please check your connection. ❤️";
 
-      // Explicit check for configuration restrictions
       if (error.code === 'auth/operation-not-allowed' || error.code === 'auth/admin-restricted-operation') {
         title = "Mission Configuration Required";
         message = "Anonymous Sign-in is currently disabled or restricted in your project. Please enable it in your Firebase Console → Authentication → Sign-in method. ✨";

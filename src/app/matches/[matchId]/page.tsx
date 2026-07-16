@@ -7,21 +7,25 @@ import {
   Send, 
   ChevronLeft, 
   Loader2, 
-  Camera, 
   Lock, 
   ShieldAlert,
-  X,
-  Trash2,
-  Paperclip
+  ShieldCheck,
+  Zap
 } from 'lucide-react';
 import { useUser, useFirestore, useCollection, useDoc } from '@/firebase';
-import { collection, addDoc, query, orderBy, serverTimestamp, doc, deleteDoc } from 'firebase/firestore';
+import { collection, addDoc, query, orderBy, serverTimestamp, doc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { moderateText } from '@/ai/flows/moderate-text-flow';
 import { useToast } from '@/hooks/use-toast';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
-import { encryptText, decryptText } from '@/lib/crypto';
+import { 
+  importPublicKey, 
+  importPrivateKey, 
+  createSharedKey, 
+  encryptMessage, 
+  decryptMessage 
+} from '@/lib/crypto';
 import { cn } from '@/lib/utils';
 
 export default function ChatPage({ params }: { params: Promise<{ matchId: string }> }) {
@@ -35,6 +39,7 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
   const [newMessage, setNewMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [decryptedMessages, setDecryptedMessages] = useState<Record<string, string>>({});
+  const [sharedKey, setSharedKey] = useState<CryptoKey | null>(null);
 
   const currentUserId = user?.uid;
 
@@ -55,25 +60,53 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
   const messagesQuery = useMemoFirebase(() => db && matchId ? query(collection(db, 'matches', matchId, 'messages'), orderBy('timestamp', 'asc')) : null, [db, matchId]);
   const { data: messages, loading: messagesLoading } = useCollection(messagesQuery);
 
+  // E2EE Shared Key Agreement Protocol
+  useEffect(() => {
+    const establishSharedKey = async () => {
+      if (!currentUserId || !partnerProfile?.publicKey) return;
+      
+      const privKeyStr = localStorage.getItem(`spark_priv_${currentUserId}`);
+      if (!privKeyStr) return;
+
+      try {
+        const myPrivKey = await importPrivateKey(privKeyStr);
+        const partnerPubKey = await importPublicKey(partnerProfile.publicKey);
+
+        if (myPrivKey && partnerPubKey) {
+          const derivedKey = await createSharedKey(myPrivKey, partnerPubKey);
+          setSharedKey(derivedKey);
+        }
+      } catch (e) {
+        console.warn("Shared key agreement ripple:", e);
+      }
+    };
+    establishSharedKey();
+  }, [currentUserId, partnerProfile?.publicKey]);
+
+  // Decryption Flow
   useEffect(() => {
     const decryptAll = async () => {
-      if (!messages || !currentUserId) return;
-      const privKey = localStorage.getItem(`spark_priv_${currentUserId}`);
-      if (!privKey) return;
+      if (!messages || !sharedKey) return;
+      
       const newDecrypted = { ...decryptedMessages };
+      let changed = false;
+
       for (const msg of messages as any[]) {
-        if (msg.encryptedText && !newDecrypted[msg.id]) {
+        if (msg.encryptedText && msg.iv && !newDecrypted[msg.id]) {
           try {
-            newDecrypted[msg.id] = await decryptText(msg.encryptedText, privKey);
+            const text = await decryptMessage(sharedKey, msg.encryptedText, msg.iv);
+            newDecrypted[msg.id] = text;
+            changed = true;
           } catch (e) {
             newDecrypted[msg.id] = "[Encryption Ripple]";
+            changed = true;
           }
         }
       }
-      setDecryptedMessages(newDecrypted);
+      if (changed) setDecryptedMessages(newDecrypted);
     };
     decryptAll();
-  }, [messages, currentUserId]);
+  }, [messages, sharedKey]);
 
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -96,14 +129,27 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
         setIsSending(false);
         return;
       }
-      const partnerPubKey = partnerProfile?.publicKey;
-      let encryptedText = partnerPubKey ? await encryptText(newMessage, partnerPubKey) : null;
-      await addDoc(collection(db, 'matches', matchId, 'messages'), {
-        senderId: user.uid,
-        text: partnerPubKey ? "[Encrypted Content]" : newMessage,
-        encryptedText,
-        timestamp: serverTimestamp(),
-      });
+
+      // E2EE Message Securing (AES-GCM Protocol)
+      if (sharedKey) {
+        const encrypted = await encryptMessage(sharedKey, newMessage);
+        if (encrypted) {
+          await addDoc(collection(db, 'matches', matchId, 'messages'), {
+            senderId: user.uid,
+            text: "[Secured Content]",
+            encryptedText: encrypted.cipherText,
+            iv: encrypted.iv,
+            timestamp: serverTimestamp(),
+          });
+        }
+      } else {
+        // Fallback for non-E2EE sessions (legacy or guest)
+        await addDoc(collection(db, 'matches', matchId, 'messages'), {
+          senderId: user.uid,
+          text: newMessage,
+          timestamp: serverTimestamp(),
+        });
+      }
       setNewMessage('');
     } finally {
       setIsSending(false);
@@ -117,8 +163,13 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
       <header className="flex items-center gap-4 px-4 h-16 border-b shrink-0 bg-white/80 backdrop-blur-md z-20">
         <Button variant="ghost" size="icon" onClick={() => router.back()} className="rounded-full"><ChevronLeft className="w-5 h-5" /></Button>
         <div className="flex-grow text-left">
-           <h2 className="font-black text-sm tracking-tight truncate">{partnerProfile?.displayName || "Partner"}</h2>
-           <p className="text-[8px] text-muted-foreground font-black uppercase tracking-widest leading-none">Spark Room</p>
+           <div className="flex items-center gap-2">
+              <h2 className="font-black text-sm tracking-tight truncate">{partnerProfile?.displayName || "Partner"}</h2>
+              {sharedKey && <ShieldCheck className="w-3 h-3 text-green-500" />}
+           </div>
+           <p className="text-[8px] text-muted-foreground font-black uppercase tracking-widest leading-none">
+             {sharedKey ? 'Secured Spark Room' : 'Public Room'}
+           </p>
         </div>
       </header>
 
