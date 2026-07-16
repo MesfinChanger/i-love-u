@@ -49,7 +49,7 @@ export async function createProduct(
 
 /**
  * Create Order Protocol.
- * Records a successful purchase transaction in the cloud.
+ * Records a successful purchase transaction in the cloud with mandatory status initialization.
  */
 export async function createOrder(
   order: any
@@ -58,6 +58,8 @@ export async function createOrder(
     collection(db, "orders"),
     {
       ...order,
+      paymentStatus: "pending",
+      shippingStatus: "processing",
       createdAt: serverTimestamp()
     }
   );
