@@ -11,7 +11,7 @@ import {
   ShieldCheck
 } from 'lucide-react';
 import { auth, db, useUser, useCollection, useDoc } from '@/firebase';
-import { collection, addDoc, query, orderBy, serverTimestamp, doc, where, updateDoc } from 'firebase/firestore';
+import { collection, addDoc, query, orderBy, serverTimestamp, doc, where, updateDoc, getDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { moderateText } from '@/ai/flows/moderate-text-flow';
 import { useToast } from '@/hooks/use-toast';
@@ -27,8 +27,7 @@ import { cn } from '@/lib/utils';
 
 /**
  * @fileOverview High-Fidelity E2EE Chat Room.
- * Implements the High-Fidelity Message Protocol with ECDH shared keys and AES-GCM encryption.
- * Synchronized with the global messages registry using strictly requested fields.
+ * Synchronized with the high-fidelity PublicKey Schema (ECDH-P256).
  */
 export default function ChatPage({ params }: { params: Promise<{ matchId: string }> }) {
   const { matchId } = use(params);
@@ -47,10 +46,6 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
   const userRef = useMemoFirebase(() => db && currentUserId ? doc(db, 'users', currentUserId) : null, [currentUserId]);
   const { data: myProfile } = useDoc(userRef);
   
-  const isCommercial = myProfile?.isSeller || myProfile?.isAdvertiser;
-  const hasAcceptedPolicy = myProfile?.policyAccepted === true;
-  const isInteractionRestricted = isCommercial && !hasAcceptedPolicy;
-
   const convRef = useMemoFirebase(() => db && matchId ? doc(db, 'conversations', matchId) : null, [matchId]);
   const { data: convData, loading: matchLoading } = useDoc(convRef);
 
@@ -69,28 +64,34 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
   
   const { data: messages, loading: messagesLoading } = useCollection(messagesQuery);
 
-  // E2EE Shared Key Agreement Protocol (ECDH)
+  // E2EE Shared Key Agreement Protocol (ECDH-P256)
   useEffect(() => {
     const establishSharedKey = async () => {
-      if (!currentUserId || !partnerProfile?.publicKey) return;
+      if (!db || !currentUserId || !partnerId) return;
       
       const privKeyStr = localStorage.getItem(`spark_priv_${currentUserId}`);
       if (!privKeyStr) return;
 
       try {
-        const myPrivKey = await importPrivateKey(privKeyStr);
-        const partnerPubKey = await importPublicKey(partnerProfile.publicKey);
+        // Fetch partner's public key from the dedicated high-fidelity registry
+        const keySnap = await getDoc(doc(db, 'publicKeys', partnerId));
+        const keyData = keySnap.data();
+        
+        if (keyData?.publicKey && keyData.algorithm === 'ECDH-P256') {
+          const myPrivKey = await importPrivateKey(privKeyStr);
+          const partnerPubKey = await importPublicKey(keyData.publicKey);
 
-        if (myPrivKey && partnerPubKey) {
-          const derivedKey = await createSharedKey(myPrivKey, partnerPubKey);
-          setSharedKey(derivedKey);
+          if (myPrivKey && partnerPubKey) {
+            const derivedKey = await createSharedKey(myPrivKey, partnerPubKey);
+            setSharedKey(derivedKey);
+          }
         }
       } catch (e) {
         console.warn("Shared key agreement ripple:", e);
       }
     };
     establishSharedKey();
-  }, [currentUserId, partnerProfile?.publicKey]);
+  }, [db, currentUserId, partnerId]);
 
   // Decryption Flow (AES-GCM)
   useEffect(() => {
@@ -125,15 +126,6 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
     e?.preventDefault();
     if (!newMessage.trim() || !user || !db || !matchId || isSending) return;
     
-    if (isInteractionRestricted) {
-      toast({ 
-        variant: "destructive", 
-        title: "Action Restricted", 
-        description: "Sellers and Purchasers must accept the policy first. ❤️" 
-      });
-      return;
-    }
-
     setIsSending(true);
     try {
       const moderation = await moderateText({ text: newMessage });
@@ -143,7 +135,6 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
         return;
       }
 
-      // Payload strictly aligned with requested high-fidelity Message schema
       const messagePayload: any = {
         conversationId: matchId,
         senderId: user.uid,
@@ -165,7 +156,6 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
         messagePayload.text = newMessage;
       }
 
-      // Sync with top-level messages registry
       await addDoc(collection(db, 'messages'), messagePayload);
       
       await updateDoc(doc(db, 'conversations', matchId), {
@@ -219,11 +209,10 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
           <Input 
             value={newMessage} 
             onChange={e => setNewMessage(e.target.value)} 
-            placeholder={isInteractionRestricted ? "View Only: Policy Agreement Required" : "Respectful message..."} 
+            placeholder="Respectful message..."
             className="rounded-2xl bg-muted/40 border-none h-12 px-6"
-            disabled={isInteractionRestricted}
           />
-          <Button type="submit" size="icon" className="rounded-xl h-12 w-12 gradient-bg" disabled={!newMessage.trim() || isSending || isInteractionRestricted}>
+          <Button type="submit" size="icon" className="rounded-xl h-12 w-12 gradient-bg" disabled={!newMessage.trim() || isSending}>
              <Send className="w-5 h-5" />
           </Button>
         </form>

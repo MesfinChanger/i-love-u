@@ -40,6 +40,11 @@ service cloud.firestore {
       allow write: if isOwner(userId) || isAdmin();
     }
 
+    match /publicKeys/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner(userId);
+    }
+
     match /shops/{shopId} {
       allow read: if true;
       allow write: if isAuthenticated() && (request.auth.uid == request.resource.data.ownerId || isAdmin());

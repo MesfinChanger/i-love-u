@@ -41,7 +41,7 @@ import { cn } from '@/lib/utils';
 
 /**
  * @fileOverview Identity Recovery Hub.
- * Optimized with the Unified Heart Identity and Discovery Layer.
+ * Optimized with the Unified Heart Identity and high-fidelity PublicKey Schema.
  */
 function LoginContent() {
   const { user, loading: authLoading } = useUser();
@@ -98,7 +98,7 @@ function LoginContent() {
       if (mode === 'signup') {
         const res = await createUserWithEmailAndPassword(auth, cleanEmail, password);
         
-        // E2EE Identity Generation
+        // E2EE Identity Generation (ECDH-P256 Protocol)
         const keyPair = await generateKeyPair();
         if (keyPair) {
           const publicKeyStr = await exportPublicKey(keyPair.publicKey);
@@ -108,7 +108,16 @@ function LoginContent() {
           localStorage.setItem('iloveu_policy_accepted', 'true');
 
           if (db) {
-            // Unified Heart Identity + Discovery Layer
+            // High-Fidelity PublicKey Registry
+            await setDoc(doc(db, 'publicKeys', res.user.uid), {
+              userId: res.user.uid,
+              publicKey: publicKeyStr,
+              algorithm: "ECDH-P256",
+              createdAt: serverTimestamp(),
+              rotatedAt: null
+            });
+
+            // Unified Heart Identity
             const userData = {
               uid: res.user.uid,
               userId: res.user.uid, 
@@ -125,7 +134,6 @@ function LoginContent() {
               country: country || 'Global',
               language: language,
               timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-              publicKey: publicKeyStr,
               role: 'member',
               policyAccepted: true,
               

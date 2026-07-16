@@ -41,6 +41,18 @@
         "timezone": { "type": "string" }
       }
     },
+    "PublicKey": {
+      "title": "Public Key",
+      "description": "E2EE Identity Key used for secured heart-to-heart agreement.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "publicKey": { "type": "string" },
+        "algorithm": { "type": "string", "default": "ECDH-P256" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "rotatedAt": { "type": "string", "format": "date-time" }
+      }
+    },
     "Conversation": {
       "title": "Conversation",
       "description": "A secured chat room for high-fidelity communication between hearts.",
@@ -190,6 +202,7 @@
   "firestore": {
     "/users/{userId}": { "schema": "UserProfile", "description": "Private user profiles" },
     "/publicProfiles/{userId}": { "schema": "UserProfile", "description": "Discovery data" },
+    "/publicKeys/{userId}": { "schema": "PublicKey", "description": "E2EE identity keys" },
     "/connections/{connectionId}": { "schema": "Connection", "description": "Match and Invitation registry" },
     "/conversations/{conversationId}": { "schema": "Conversation", "description": "High-fidelity chat rooms" },
     "/messages/{messageId}": { "schema": "Message", "description": "High-fidelity secured messages" },
