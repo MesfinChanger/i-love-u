@@ -70,7 +70,7 @@ export async function createSharedKey(privateKey: CryptoKey, publicKey: CryptoKe
   );
 }
 
-export async function encryptMessage(key: CryptoKey, text: string) {
+export async function encryptText(text: string, key: CryptoKey) {
   const iv = window.crypto.getRandomValues(new Uint8Array(12));
   const encrypted = await window.crypto.subtle.encrypt(
     {
@@ -87,7 +87,7 @@ export async function encryptMessage(key: CryptoKey, text: string) {
   };
 }
 
-export async function decryptMessage(key: CryptoKey, cipherText: string, iv: string) {
+export async function decryptText(cipherText: string, iv: string, key: CryptoKey) {
   const encrypted = Uint8Array.from(atob(cipherText), c => c.charCodeAt(0));
   const ivArray = Uint8Array.from(atob(iv), c => c.charCodeAt(0));
 

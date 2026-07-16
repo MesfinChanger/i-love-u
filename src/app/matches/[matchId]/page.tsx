@@ -9,8 +9,8 @@ import {
   Loader2, 
   ShieldCheck
 } from 'lucide-react';
-import { auth, db, useUser, useCollection, useDoc } from '@/firebase';
-import { collection, addDoc, query, orderBy, serverTimestamp, doc, where, updateDoc, getDoc } from 'firebase/firestore';
+import { db, useUser, useCollection, useDoc } from '@/firebase';
+import { collection, query, orderBy, serverTimestamp, doc, updateDoc, getDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { moderateText } from '@/ai/flows/moderate-text-flow';
 import { useToast } from '@/hooks/use-toast';
@@ -19,8 +19,8 @@ import {
   importPublicKey, 
   importPrivateKey, 
   createSharedKey, 
-  encryptMessage, 
-  decryptMessage 
+  encryptText, 
+  decryptText 
 } from '@/lib/crypto';
 import { cn } from '@/lib/utils';
 import { sendMessage } from '@/services/chat.service';
@@ -52,7 +52,6 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
 
   const messagesQuery = useMemoFirebase(() => {
     if (!db || !matchId) return null;
-    // High-Fidelity Subcollection Path
     return query(
       collection(db, 'conversations', matchId, 'messages'), 
       orderBy('createdAt', 'asc')
@@ -73,7 +72,7 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
         const keySnap = await getDoc(doc(db, 'publicKeys', partnerId));
         const keyData = keySnap.data();
         
-        if (keyData?.publicKey && keyData.algorithm === 'ECDH-P256') {
+        if (keyData?.publicKey) {
           const myPrivKey = await importPrivateKey(privKeyStr);
           const partnerPubKey = await importPublicKey(keyData.publicKey);
 
@@ -100,7 +99,7 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
       for (const msg of messages as any[]) {
         if (msg.encryptedText && msg.iv && !newDecrypted[msg.id]) {
           try {
-            const text = await decryptMessage(sharedKey, msg.encryptedText, msg.iv);
+            const text = await decryptText(msg.encryptedText, msg.iv, sharedKey);
             newDecrypted[msg.id] = text;
             changed = true;
           } catch (e) {
@@ -138,7 +137,7 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
 
       // E2EE Message Securing (AES-GCM Protocol)
       if (sharedKey) {
-        const encrypted = await encryptMessage(sharedKey, newMessage);
+        const encrypted = await encryptText(newMessage, sharedKey);
         if (encrypted) {
           messagePayload.encryptedText = encrypted.cipherText;
           messagePayload.iv = encrypted.iv;
@@ -149,7 +148,6 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
         messagePayload.text = newMessage;
       }
 
-      // Broadcasting via Chat Protocol Service
       await sendMessage(matchId, messagePayload);
       
       await updateDoc(doc(db, 'conversations', matchId), {

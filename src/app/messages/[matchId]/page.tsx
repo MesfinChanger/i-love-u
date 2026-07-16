@@ -10,7 +10,7 @@ import {
   ShieldCheck
 } from 'lucide-react';
 import { db, useUser, useCollection, useDoc } from '@/firebase';
-import { collection, addDoc, query, orderBy, serverTimestamp, doc, where, updateDoc, getDoc } from 'firebase/firestore';
+import { collection, query, orderBy, serverTimestamp, doc, updateDoc, getDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { moderateText } from '@/ai/flows/moderate-text-flow';
 import { useToast } from '@/hooks/use-toast';
@@ -19,8 +19,8 @@ import {
   importPublicKey, 
   importPrivateKey, 
   createSharedKey, 
-  encryptMessage, 
-  decryptMessage 
+  encryptText, 
+  decryptText 
 } from '@/lib/crypto';
 import { cn } from '@/lib/utils';
 import { sendMessage } from '@/services/chat.service';
@@ -89,7 +89,7 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
       for (const msg of messages as any[]) {
         if (msg.encryptedText && msg.iv && !newDecrypted[msg.id]) {
           try {
-            const text = await decryptMessage(sharedKey, msg.encryptedText, msg.iv);
+            const text = await decryptText(msg.encryptedText, msg.iv, sharedKey);
             newDecrypted[msg.id] = text;
             changed = true;
           } catch (e) {
@@ -126,7 +126,7 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
       };
 
       if (sharedKey) {
-        const encrypted = await encryptMessage(sharedKey, newMessage);
+        const encrypted = await encryptText(newMessage, sharedKey);
         if (encrypted) {
           messagePayload.encryptedText = encrypted.cipherText;
           messagePayload.iv = encrypted.iv;
