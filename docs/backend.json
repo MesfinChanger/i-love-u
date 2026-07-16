@@ -1,4 +1,3 @@
-
 {
   "entities": {
     "UserProfile": {
@@ -108,7 +107,23 @@
         "description": { "type": "string" },
         "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["walletId", "userId", "type", "amount", "currency", "status"]
+      "required": ["userId", "type", "amount", "currency", "status"]
+    },
+    "Payment": {
+      "title": "Payment Bridge Record",
+      "description": "A registry of a financial bridge attempt.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "provider": { "type": "string", "enum": ["stripe", "paypal", "bank", "mobile_money"] },
+        "amount": { "type": "number" },
+        "currency": { "type": "string" },
+        "type": { "type": "string", "enum": ["purchase", "donation", "subscription", "refund", "transfer"] },
+        "status": { "type": "string", "enum": ["created", "processing", "completed", "failed"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "provider", "amount", "currency", "type", "status"]
     },
     "Block": {
       "title": "User Block",
@@ -289,6 +304,7 @@
     "/trustScores/{userId}": { "schema": "TrustScore", "description": "High-fidelity reputation registry" },
     "/wallets/{userId}": { "schema": "Wallet", "description": "Prosperity registries for hearts" },
     "/transactions/{transactionId}": { "schema": "Transaction", "description": "Prosperity transaction logs (Global Protocol)" },
+    "/payments/{paymentId}": { "schema": "Payment", "description": "Global financial bridge registry" },
     "/blocks/{blockId}": { "schema": "Block", "description": "Community safety registry" },
     "/reports/{reportId}": { "schema": "Report", "description": "Accountability and moderation registry" },
     "/sparkProfiles/{userId}": { "schema": "SparkProfile", "description": "Public discovery profiles" },

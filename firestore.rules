@@ -51,6 +51,12 @@ service cloud.firestore {
       allow create: if request.auth != null;
     }
 
+    // Global Payment Bridge Registry
+    match /payments/{paymentId} {
+      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null;
+    }
+
     // Community Safety Registry
     match /blocks/{blockId} {
       allow read: if request.auth != null && request.auth.uid == resource.data.blockerId;
