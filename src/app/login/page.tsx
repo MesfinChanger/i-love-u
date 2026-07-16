@@ -38,6 +38,10 @@ import { COUNTRIES } from '@/lib/world-data';
 import { useTranslation } from '@/components/providers/LanguageProvider';
 import { cn } from '@/lib/utils';
 
+/**
+ * @fileOverview Refined Authentication Hub.
+ * Hardened guest access protocol with explicit bridge diagnostics.
+ */
 function LoginContent() {
   const auth = useAuth();
   const db = useFirestore();
@@ -60,14 +64,23 @@ function LoginContent() {
   const [agreedHuman, setAgreedHuman] = useState(false);
 
   useEffect(() => {
-    // Frictionless Entry: Returning hearts (including verified guests) go straight to discovery.
+    // Frictionless Entry: Redirect returning hearts (including guest sessions)
     if (user && !authLoading) {
       router.push('/discover');
     }
   }, [user, authLoading, router]);
 
   const handleAuth = async () => {
-    if (!email || !password || !auth) return;
+    if (!email || !password) return;
+    
+    if (!auth) {
+      toast({
+        variant: "destructive",
+        title: "Bridge Disconnected",
+        description: "The authentication bridge is waiting for cloud credentials. ❤️"
+      });
+      return;
+    }
     
     const cleanEmail = email.trim();
 
@@ -123,7 +136,6 @@ function LoginContent() {
             age: 18
           });
         }
-        router.push('/discover');
       } else {
         await signInWithEmailAndPassword(auth, cleanEmail, password);
       }
@@ -146,7 +158,15 @@ function LoginContent() {
   };
 
   const handleGuestLogin = async () => {
-    if (!auth) return;
+    if (!auth) {
+      toast({
+        variant: "destructive",
+        title: "Bridge Disconnected",
+        description: "Anonymous Auth is waiting for a valid NEXT_PUBLIC_FIREBASE_API_KEY. ✨"
+      });
+      return;
+    }
+
     setIsLoading(true);
     try {
       await signInAnonymously(auth);
@@ -154,12 +174,15 @@ function LoginContent() {
         title: "Guest Session Launched",
         description: "Welcome! You are exploring as a guest heart. ❤️"
       });
-      // Navigation is handled by the useEffect observer
+      // Navigation is handled by the useEffect observer on 'user' change
     } catch (error: any) {
+      console.error("Guest Auth Error:", error);
       toast({ 
         variant: "destructive", 
         title: "Guest Access Ripple", 
-        description: "Could not launch guest session. Please check your connection. ✨" 
+        description: error.code === 'auth/operation-not-allowed' 
+          ? "Anonymous Auth must be enabled in the Firebase Console. ✨"
+          : "Could not launch guest session. Please check your connection. ❤️" 
       });
     } finally {
       setIsLoading(false);
