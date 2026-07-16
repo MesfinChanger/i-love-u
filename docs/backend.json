@@ -11,17 +11,15 @@
         "username": { "type": "string" },
         "displayName": { "type": "string" },
         "photoURL": { "type": "string" },
-        "accountType": { "type": "string", "enum": ["guest", "free", "premium", "business"] },
-        "status": { "type": "string", "enum": ["active", "blocked", "deleted"] },
-        "bio": { "type": "string" },
         "country": { "type": "string" },
-        "policyAccepted": { "type": "boolean", "default": false },
-        "isSeller": { "type": "boolean", "default": false },
-        "isAdvertiser": { "type": "boolean", "default": false },
-        "role": { "type": "string", "default": "member" },
+        "language": { "type": "string" },
+        "bio": { "type": "string" },
+        "interests": { "type": "array", "items": { "type": "string" } },
+        "accountType": { "type": "string", "enum": ["guest", "free", "premium", "business"] },
         "createdAt": { "type": "string", "format": "date-time" },
         "updatedAt": { "type": "string", "format": "date-time" }
-      }
+      },
+      "required": ["uid", "email", "username", "displayName", "interests", "accountType", "createdAt", "updatedAt"]
     },
     "Relationship": {
       "title": "Relationship",

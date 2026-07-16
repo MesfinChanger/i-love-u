@@ -1,3 +1,4 @@
+
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -30,13 +31,13 @@ service cloud.firestore {
 
     match /ideaPool/{id} {
       allow read: if true;
-      allow create: if isAuthenticated() && hasAcceptedPolicy() && isOwner(request.resource.data.authorId);
+      allow create: if isAuthenticated() && isOwner(request.resource.data.authorId);
       allow update, delete: if isAuthenticated() && isOwner(resource.data.authorId);
     }
 
     match /communityMessages/{id} {
       allow read: if true;
-      allow create: if isAuthenticated() && hasAcceptedPolicy() && isOwner(request.resource.data.authorId);
+      allow create: if isAuthenticated() && isOwner(request.resource.data.authorId);
     }
 
     match /shops/{id} {
