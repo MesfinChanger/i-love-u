@@ -40,8 +40,7 @@ import { cn } from '@/lib/utils';
 
 /**
  * @fileOverview Refined Authentication Hub.
- * Hardened guest access protocol with explicit bridge diagnostics for operation-not-allowed
- * and admin-restricted-operation.
+ * Hardened guest access protocol and Identity Recovery links.
  */
 function LoginContent() {
   const auth = useAuth();
@@ -169,7 +168,7 @@ function LoginContent() {
       toast({
         variant: "destructive",
         title: "Bridge Disconnected",
-        description: "Anonymous Auth is waiting for a valid NEXT_PUBLIC_FIREBASE_API_KEY. ✨"
+        description: "Anonymous Auth is waiting for cloud credentials. ✨"
       });
       return;
     }
@@ -183,24 +182,10 @@ function LoginContent() {
       });
     } catch (error: any) {
       console.error("Guest Auth Error Ripple:", error);
-      
-      let title = "Guest Access Ripple";
-      let message = "Could not launch guest session. Please check your connection. ❤️";
-
-      if (error.code === 'auth/operation-not-allowed' || error.code === 'auth/admin-restricted-operation') {
-        title = "Mission Configuration Required";
-        message = "Anonymous Sign-in is currently disabled or restricted in your project. Please enable it in your Firebase Console → Authentication → Sign-in method. ✨";
-      } else if (error.code === 'auth/network-request-failed') {
-        message = "A network ripple occurred. Please check your internet connection and try again. 🌍";
-      }
-
       toast({ 
         variant: "destructive", 
-        title: title, 
-        description: message,
-        action: (error.code === 'auth/operation-not-allowed' || error.code === 'auth/admin-restricted-operation') ? (
-          <Button variant="outline" size="sm" className="h-8 text-[10px] font-black uppercase" onClick={() => window.open('https://console.firebase.google.com/')}>Setup Now</Button>
-        ) : undefined
+        title: "Guest Access Ripple", 
+        description: "Could not launch guest session. Please check your connection. ❤️"
       });
     } finally {
       setIsLoading(false);
@@ -277,12 +262,12 @@ function LoginContent() {
                 
                 {mode === 'signin' && (
                   <div className="flex flex-col gap-6">
-                    <div className="flex justify-between px-1">
-                      <Link href="/login/forgot-nickname" className="text-[9px] font-black uppercase tracking-widest text-slate-400 hover:text-primary transition-colors">
-                        {t('login.forgotNickname')}
+                    <div className="flex flex-col items-center gap-3 text-center">
+                      <Link href="/login/reset" className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-primary transition-colors">
+                        Forgot Password?
                       </Link>
-                      <Link href="/login/reset" className="text-[9px] font-black uppercase tracking-widest text-slate-400 hover:text-primary transition-colors">
-                        {t('login.forgotPassword')}
+                      <Link href="/login/forgot-nickname" className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-primary transition-colors">
+                        Forgot Username?
                       </Link>
                     </div>
 
@@ -309,7 +294,7 @@ function LoginContent() {
                       {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : (
                         <>
                           <Ghost className="w-4 h-4 text-primary" />
-                          {t('login.guest')}
+                          Launch as Guest
                         </>
                       )}
                     </Button>

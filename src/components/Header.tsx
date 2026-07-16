@@ -82,13 +82,17 @@ export function Header() {
     setIsSigningOut(true);
     try {
       await signOut(auth);
+
       toast({
         title: "Signed Out",
         description: "You have been safely signed out.",
       });
+
       router.push("/login");
+
     } catch (error) {
       console.error("Sign out error:", error);
+
       toast({
         variant: "destructive",
         title: "Sign Out Failed",
