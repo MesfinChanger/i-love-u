@@ -98,3 +98,19 @@ export interface Message {
   timestamp: any;
   status: "sent" | "delivered" | "read";
 }
+
+export interface PublicKey {
+  userId: string;
+  publicKey: string;
+  algorithm: "ECDH-P256";
+  createdAt: any;
+  rotatedAt?: any;
+}
+
+export interface Notification {
+  type: "message" | "like" | "match" | "order" | "idea";
+  title: string;
+  body: string;
+  read: boolean;
+  createdAt: any;
+}
