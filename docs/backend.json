@@ -65,7 +65,7 @@
     },
     "Circle": {
       "title": "Community Circle",
-      "description": "A community gathering space registered in the communities collection.",
+      "description": "A community gathering space.",
       "type": "object",
       "properties": {
         "id": { "type": "string" },
@@ -79,6 +79,16 @@
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["name", "ownerId", "privacy", "memberCount"]
+    },
+    "CircleMember": {
+      "title": "Circle Member",
+      "description": "A heart participating in a community gathering.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "role": { "type": "string", "enum": ["owner", "admin", "member"] },
+        "joinedAt": { "type": "string", "format": "date-time" }
+      }
     },
     "PoolPost": {
       "title": "Pool Post",
@@ -203,6 +213,7 @@
     "/sparkLikes/{likeId}": { "schema": "SparkLike", "description": "Connection attempts registry" },
     "/matches/{matchId}": { "schema": "Match", "description": "Established high-fidelity connections" },
     "/communities/{communityId}": { "schema": "Circle", "description": "Community gatherings" },
+    "/communities/{communityId}/members/{memberId}": { "schema": "CircleMember", "description": "Circle participant registry" },
     "/ideaPool/{postId}": { "schema": "PoolPost", "description": "Global consciousness pool" },
     "/communityMessages/{msgId}": { "schema": "CommunityMessage", "description": "Global wall broadcasts" },
     "/shops/{shopId}": { "schema": "Shop", "description": "Marketplace stores" },

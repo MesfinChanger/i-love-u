@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -10,6 +9,10 @@ import { Heart, Loader2, Sparkles, MapPin } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 
+/**
+ * @fileOverview ❤️ Spark - High-Fidelity Discovery Module.
+ * Consolidates mystery discovery with the Spark Like Protocol.
+ */
 export default function SparkPage() {
   const { user } = useUser();
   const { toast } = useToast();
@@ -33,7 +36,7 @@ export default function SparkPage() {
 
   const handleLike = async (targetId: string) => {
     if (!user) {
-      toast({ variant: "destructive", title: "Identity Required", description: "Please join the revolution to spark connections. ❤️" });
+      window.dispatchEvent(new CustomEvent('open-auth-gate'));
       return;
     }
     

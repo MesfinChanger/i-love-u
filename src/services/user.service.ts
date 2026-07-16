@@ -1,4 +1,3 @@
-
 import {
   doc,
   setDoc,
@@ -8,6 +7,11 @@ import {
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { UserProfile } from "@/types";
+
+/**
+ * @fileOverview User Protocol Service.
+ * Manages high-fidelity identity creation and synchronization.
+ */
 
 export async function createUserProfile(profile: UserProfile) {
   await setDoc(
