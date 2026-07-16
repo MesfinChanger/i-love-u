@@ -67,3 +67,20 @@ export async function createMatch(
     }
   );
 }
+
+// Friendship Protocol
+export async function createFriendship(
+  userA: string,
+  userB: string
+) {
+  const friendshipId = [userA, userB].sort().join("_");
+
+  await setDoc(
+    doc(db, "friendships", friendshipId),
+    {
+      userA,
+      userB,
+      status: "pending"
+    }
+  );
+}

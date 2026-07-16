@@ -1,3 +1,4 @@
+
 /**
  * @fileOverview High-Fidelity Community Type Definitions.
  */
@@ -43,6 +44,12 @@ export interface Match {
   users: string[];
   status: "active" | "ended";
   createdAt: any;
+}
+
+export interface Friendship {
+  userA: string;
+  userB: string;
+  status: "pending" | "accepted" | "blocked";
 }
 
 export interface Circle {

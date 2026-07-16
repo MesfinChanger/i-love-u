@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "UserProfile": {
@@ -62,6 +63,17 @@
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["users", "status", "createdAt"]
+    },
+    "Friendship": {
+      "title": "Friendship",
+      "description": "A high-fidelity cultural exchange connection.",
+      "type": "object",
+      "properties": {
+        "userA": { "type": "string" },
+        "userB": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "accepted", "blocked"] }
+      },
+      "required": ["userA", "userB", "status"]
     },
     "Circle": {
       "title": "Community Circle",
@@ -212,6 +224,7 @@
     "/sparkProfiles/{userId}": { "schema": "SparkProfile", "description": "Public discovery profiles" },
     "/sparkLikes/{likeId}": { "schema": "SparkLike", "description": "Connection attempts registry" },
     "/matches/{matchId}": { "schema": "Match", "description": "Established high-fidelity connections" },
+    "/friendships/{friendshipId}": { "schema": "Friendship", "description": "Cultural bridge registry" },
     "/communities/{communityId}": { "schema": "Circle", "description": "Community gatherings" },
     "/communities/{communityId}/members/{memberId}": { "schema": "CircleMember", "description": "Circle participant registry" },
     "/ideaPool/{postId}": { "schema": "PoolPost", "description": "Global consciousness pool" },
