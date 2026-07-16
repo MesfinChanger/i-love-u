@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "UserProfile": {
@@ -140,6 +141,19 @@
         "issuedAt": { "type": "string", "format": "date-time" }
       },
       "required": ["id", "transactionId", "customerId", "amount", "currency", "issuedAt"]
+    },
+    "AuditLog": {
+      "title": "Financial Audit Log",
+      "description": "High-fidelity immutable record of sensitive financial actions.",
+      "type": "object",
+      "properties": {
+        "action": { "type": "string" },
+        "userId": { "type": "string" },
+        "amount": { "type": "number" },
+        "currency": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["action", "userId", "timestamp"]
     },
     "Block": {
       "title": "User Block",
@@ -322,6 +336,7 @@
     "/transactions/{transactionId}": { "schema": "Transaction", "description": "Prosperity transaction logs (Global Protocol)" },
     "/payments/{paymentId}": { "schema": "Payment", "description": "Global financial bridge registry" },
     "/receipts/{receiptId}": { "schema": "Receipt", "description": "Formal prosperity transfer registries" },
+    "/auditLogs/{logId}": { "schema": "AuditLog", "description": "High-fidelity financial audit logs" },
     "/blocks/{blockId}": { "schema": "Block", "description": "Community safety registry" },
     "/reports/{reportId}": { "schema": "Report", "description": "Accountability and moderation registry" },
     "/sparkProfiles/{userId}": { "schema": "SparkProfile", "description": "Public discovery profiles" },

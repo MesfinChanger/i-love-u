@@ -1,3 +1,4 @@
+
 /**
  * @fileOverview High-Fidelity Community Type Definitions.
  */
@@ -12,6 +13,7 @@ export * from './wallet';
 export * from './transaction';
 export * from './payment';
 export * from './receipt';
+export * from './audit';
 
 export type IdeaCategory =
   | "economics"
