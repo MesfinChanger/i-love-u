@@ -1,7 +1,7 @@
 
 /**
  * @fileOverview Universal Firebase Bridge.
- * Re-exports initialized instances for high-fidelity service interaction.
+ * Exports direct instances for simplified interaction.
  */
 
 import { auth, db, storage } from "@/firebase/init";

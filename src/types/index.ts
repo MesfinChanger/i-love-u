@@ -25,3 +25,10 @@ export interface Notification {
   read: boolean;
   createdAt: any;
 }
+
+export interface SparkLike {
+  fromUserId: string;
+  toUserId: string;
+  status: "pending" | "accepted" | "declined";
+  createdAt: any;
+}

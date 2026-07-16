@@ -1,8 +1,4 @@
 
-/**
- * @fileOverview High-Fidelity User Management Service.
- */
-
 import {
   doc,
   setDoc,
@@ -10,11 +6,10 @@ import {
   updateDoc,
   serverTimestamp
 } from "firebase/firestore";
-import { db } from "@/firebase";
+import { db } from "@/lib/firebase";
 import { UserProfile } from "@/types";
 
 export async function createUserProfile(profile: UserProfile) {
-  if (!db) return;
   await setDoc(
     doc(db, "users", profile.uid),
     {
@@ -26,7 +21,6 @@ export async function createUserProfile(profile: UserProfile) {
 }
 
 export async function getUserProfile(uid: string) {
-  if (!db) return null;
   const snapshot = await getDoc(
     doc(db, "users", uid)
   );
@@ -38,7 +32,6 @@ export async function getUserProfile(uid: string) {
 }
 
 export async function updateUserProfile(uid: string, data: Partial<UserProfile>) {
-  if (!db) return;
   await updateDoc(
     doc(db, "users", uid),
     {

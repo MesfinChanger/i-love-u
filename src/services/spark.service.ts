@@ -1,8 +1,4 @@
 
-/**
- * @fileOverview High-Fidelity Discovery and Spark Service.
- */
-
 import {
   collection,
   doc,
@@ -12,13 +8,10 @@ import {
   where,
   serverTimestamp
 } from "firebase/firestore";
-import { db } from "@/firebase";
+import { db } from "@/lib/firebase";
 
-/**
- * Creates or updates a high-fidelity Spark Profile.
- */
+// Create Spark profile
 export async function createSparkProfile(profile: any) {
-  if (!db) return;
   await setDoc(
     doc(db, "sparkProfiles", profile.userId),
     {
@@ -28,11 +21,8 @@ export async function createSparkProfile(profile: any) {
   );
 }
 
-/**
- * Discovers public hearts swimming in the Spark stream.
- */
+// Discover people
 export async function discoverSparkUsers() {
-  if (!db) return [];
   const q = query(
     collection(db, "sparkProfiles"),
     where("visibility", "==", "public")

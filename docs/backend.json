@@ -41,6 +41,18 @@
       },
       "required": ["userId", "age", "gender", "country", "relationshipGoal"]
     },
+    "SparkLike": {
+      "title": "Spark Like",
+      "description": "A heart-to-heart connection attempt.",
+      "type": "object",
+      "properties": {
+        "fromUserId": { "type": "string" },
+        "toUserId": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "accepted", "declined"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["fromUserId", "toUserId", "status", "createdAt"]
+    },
     "Relationship": {
       "title": "Relationship",
       "description": "A connection between two hearts.",
@@ -189,6 +201,7 @@
   "firestore": {
     "/users/{userId}": { "schema": "UserProfile", "description": "Private heart identities" },
     "/sparkProfiles/{userId}": { "schema": "SparkProfile", "description": "Public discovery profiles" },
+    "/sparkLikes/{likeId}": { "schema": "SparkLike", "description": "Connection attempts registry" },
     "/relationships/{relId}": { "schema": "Relationship", "description": "Connections registry" },
     "/circles/{circleId}": { "schema": "Circle", "description": "Community gatherings" },
     "/ideaPool/{postId}": { "schema": "PoolPost", "description": "Global consciousness pool" },

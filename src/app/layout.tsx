@@ -4,11 +4,6 @@ import './globals.css';
 import MainNavigation from "@/components/navigation/MainNavigation";
 import { ClientProviders } from '@/components/providers/ClientProviders';
 
-/**
- * @fileOverview High-Fidelity Root Layout.
- * Synchronized with the global navigation bridge and community providers.
- */
-
 export const viewport: Viewport = {
   themeColor: '#FF3366',
   width: 'device-width',
