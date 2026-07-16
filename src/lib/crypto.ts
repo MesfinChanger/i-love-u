@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * @fileOverview Modern End-to-End Encryption (E2EE) using ECDH and AES-GCM.
+ * @fileOverview Standard Modern End-to-End Encryption (E2EE) using ECDH and AES-GCM.
  * Optimized for high-performance key agreement and authenticated encryption.
  */
 

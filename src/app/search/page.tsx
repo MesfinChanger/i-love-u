@@ -26,6 +26,10 @@ import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { useTranslation } from '@/components/providers/LanguageProvider';
 import Image from 'next/image';
 
+/**
+ * @fileOverview Find Hearts module featuring the Spark Creation Protocol.
+ * Adheres to the requested global conversations schema.
+ */
 function SearchContent() {
   const { user } = useUser();
   const db = useFirestore();
@@ -60,12 +64,15 @@ function SearchContent() {
   }, [allProfiles, searchTerm, user?.uid]);
 
   const handleAction = async (targetUid: string, type: 'friend' | 'date') => {
-    if (!user || !db) {
+    if (!user) {
       window.dispatchEvent(new CustomEvent('open-auth-gate'));
       return;
     }
+    if (!db) return;
 
     setIsProcessing(targetUid);
+    
+    // Aligned with requested createSparkChat schema
     const participants = [user.uid, targetUid].sort();
     const conversationId = participants.join('_');
 

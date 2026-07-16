@@ -7,41 +7,38 @@ import { firebaseConfig } from './config';
 /**
  * @fileOverview Resilient Firebase Initializer.
  * Hardened to only boot services if production credentials are present.
- * Returns null instances during the "Provisioning" phase to prevent runtime crashes.
+ * Exports direct instances for auth, db, and storage as requested.
  */
-export function initializeFirebase(): { 
-  app: FirebaseApp | null; 
-  db: Firestore | null; 
-  auth: Auth | null;
-  storage: FirebaseStorage | null;
-} {
-  if (typeof window === 'undefined') {
-    return { app: null, db: null, auth: null, storage: null };
-  }
 
+let app: FirebaseApp | null = null;
+let db: Firestore | null = null;
+let auth: Auth | null = null;
+let storage: FirebaseStorage | null = null;
+
+if (typeof window !== 'undefined') {
   const apiKey = firebaseConfig.apiKey;
-  
-  // Basic structural check for Firebase API Keys to detect placeholders
   const isKeyValid = !!(apiKey && 
                      apiKey.length > 10 && 
                      !apiKey.includes("PLACEHOLDER") &&
                      !apiKey.includes("REPLACE_WITH") &&
                      !apiKey.includes("YOUR_"));
 
-  if (!isKeyValid) {
-    console.warn("I Love U: Regional Bridge is waiting for a valid NEXT_PUBLIC_FIREBASE_API_KEY to reach the cloud.");
-    return { app: null, db: null, auth: null, storage: null };
+  if (isKeyValid) {
+    try {
+      app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+      db = getFirestore(app);
+      auth = getAuth(app);
+      storage = getStorage(app);
+    } catch (error: any) {
+      console.error("I Love U: Critical Bridge Failure:", error);
+    }
+  } else {
+    console.warn("I Love U: Regional Bridge is waiting for a valid NEXT_PUBLIC_FIREBASE_API_KEY.");
   }
+}
 
-  try {
-    const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
-    const storage = getStorage(app);
-    
-    return { app, db, auth, storage };
-  } catch (error: any) {
-    console.error("I Love U: Critical Bridge Failure:", error);
-    return { app: null, db: null, auth: null, storage: null };
-  }
+export { app, db, auth, storage };
+
+export function initializeFirebase() {
+  return { app, db, auth, storage };
 }

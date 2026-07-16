@@ -51,7 +51,7 @@ import { SUPPORTED_LANGUAGES } from '@/lib/world-data';
 
 /**
  * @fileOverview The Unified Mission Hub Header.
- * Consolidates all navigation and platform tools into a single "The Mission" center.
+ * Consolidates all navigation and platform tools into a single control center.
  * Features the requested Unified Sign-Out Protocol.
  */
 export function Header() {
@@ -76,6 +76,7 @@ export function Header() {
     window.dispatchEvent(new CustomEvent('open-auth-gate'));
   };
 
+  // Unified Sign-Out Protocol
   const handleSignOut = async () => {
     if (!auth || isSigningOut) return;
     setIsSigningOut(true);

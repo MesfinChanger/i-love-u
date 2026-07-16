@@ -46,6 +46,7 @@ import { useTranslation } from '@/components/providers/LanguageProvider';
 /**
  * @fileOverview Discovery Hub featuring the Presence Grid Protocol.
  * Explicitly separates hearts by Online/Offline status and enforces Commercial Access Rules.
+ * Profile pictures are vibrant and 100% visible in both sections.
  */
 export default function DiscoverPage() {
   const { user } = useUser();
@@ -107,6 +108,7 @@ export default function DiscoverPage() {
           const override = presenceOverrides[id];
           return {
             id,
+            uid: id,
             name: u.publicNickname || "Mystery Heart", 
             age: u.age,
             photoUrl: u.photoUrl || u.publicPhotoUrl || null,
@@ -143,6 +145,7 @@ export default function DiscoverPage() {
     }
     if (!db) return;
 
+    // High-Fidelity Conversation Schema: userId1, userId2 in deterministic order
     const participants = [user.uid, targetId].sort();
     const conversationId = participants.join('_');
     

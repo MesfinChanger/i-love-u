@@ -2,7 +2,7 @@
 
 /**
  * @fileOverview Flattened Firebase Barrel File.
- * Re-exports components explicitly to prevent circular dependencies and ChunkLoadErrors.
+ * Re-exports components and direct instances explicitly.
  */
 
 export * from './provider';
@@ -13,6 +13,5 @@ export * from './firestore/use-doc';
 export * from './storage/use-storage';
 export * from './use-memo-firebase';
 
-// Helper for direct initialization access
-import { initializeFirebase } from './init';
-export { initializeFirebase };
+// Direct Instance Re-exports
+export { app, db, auth, storage, initializeFirebase } from './init';

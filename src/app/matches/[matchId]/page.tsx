@@ -28,6 +28,7 @@ import { cn } from '@/lib/utils';
 /**
  * @fileOverview High-Fidelity E2EE Chat Room.
  * Implements the High-Fidelity Conversation Protocol with ECDH shared keys and AES-GCM encryption.
+ * Synchronized with the global conversations and messages registry.
  */
 export default function ChatPage({ params }: { params: Promise<{ matchId: string }> }) {
   const { matchId } = use(params);
@@ -143,6 +144,7 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
         return;
       }
 
+      // Payload aligned with requested sendEncryptedMessage schema
       const messagePayload: any = {
         conversationId: matchId,
         senderId: user.uid,
