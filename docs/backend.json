@@ -348,6 +348,42 @@
         "timezone": { "type": "string" }
       },
       "required": ["name", "code", "currency", "language", "timezone"]
+    },
+    "Researcher": {
+      "title": "Researcher Profile",
+      "description": "Specialized identity for community development experts.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "field": { "type": "string" },
+        "specializations": { "type": "array", "items": { "type": "string" } },
+        "institution": { "type": "string" },
+        "publications": { "type": "number" },
+        "projects": { "type": "number" },
+        "verified": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "title", "field", "verified"]
+    },
+    "ResearchProject": {
+      "title": "Research Project",
+      "description": "Collaborative scientific and community development projects.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "category": { "type": "string", "enum": ["physics", "chemistry", "biology", "technology", "medicine", "environment", "agriculture", "mathematics", "social_science"] },
+        "ownerId": { "type": "string" },
+        "teamMembers": { "type": "array", "items": { "type": "string" } },
+        "status": { "type": "string", "enum": ["idea", "planning", "researching", "review", "published"] },
+        "startDate": { "type": "string", "format": "date-time" },
+        "endDate": { "type": "string", "format": "date-time" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "title", "category", "ownerId", "status", "createdAt"]
     }
   },
   "auth": {
@@ -377,6 +413,8 @@
     "/orders/{orderId}": { "schema": "Order", "description": "Recorded purchase transactions" },
     "/organizations/{orgId}": { "schema": "Organization", "description": "Global community organization registry" },
     "/organizations/{orgId}/members/{memberId}": { "schema": "OrganizationMember", "description": "High-Fidelity organization membership registry" },
-    "/countries/{countryCode}": { "schema": "Country", "description": "Global regional configuration registry" }
+    "/countries/{countryCode}": { "schema": "Country", "description": "Global regional configuration registry" },
+    "/researchers/{userId}": { "schema": "Researcher", "description": "Verified specialized researcher profiles" },
+    "/researchProjects/{projectId}": { "schema": "ResearchProject", "description": "Community-driven research initiatives" }
   }
 }
