@@ -20,6 +20,34 @@
       },
       "required": ["uid", "username", "displayName", "interests", "accountType"]
     },
+    "DeviceSession": {
+      "title": "Device Session",
+      "description": "Registered heartbeat of a device used by a heart.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "deviceName": { "type": "string" },
+        "deviceType": { "type": "string", "enum": ["web", "android", "ios"] },
+        "browser": { "type": "string" },
+        "ipAddress": { "type": "string" },
+        "lastActive": { "type": "string", "format": "date-time" },
+        "trusted": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "SecurityEvent": {
+      "title": "Security Event",
+      "description": "Audit log for identity protection.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "type": { "type": "string", "enum": ["login", "logout", "password_change", "device_added", "suspicious_activity"] },
+        "description": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    },
     "SparkProfile": {
       "title": "Spark Profile",
       "description": "Discovery and matching schema for romantic and cultural sparks.",
@@ -39,18 +67,6 @@
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["userId", "age", "gender", "country", "relationshipGoal"]
-    },
-    "SparkLike": {
-      "title": "Spark Like",
-      "description": "A heart-to-heart connection attempt.",
-      "type": "object",
-      "properties": {
-        "fromUserId": { "type": "string" },
-        "toUserId": { "type": "string" },
-        "status": { "type": "string", "enum": ["pending", "accepted", "declined"] },
-        "createdAt": { "type": "string", "format": "date-time" }
-      },
-      "required": ["fromUserId", "toUserId", "status", "createdAt"]
     },
     "Match": {
       "title": "Match",
@@ -90,45 +106,6 @@
         "createdAt": { "type": "string", "format": "date-time" },
         "status": { "type": "string", "enum": ["sent", "delivered", "read"] }
       }
-    },
-    "Circle": {
-      "title": "Community Circle",
-      "description": "A community gathering space.",
-      "type": "object",
-      "properties": {
-        "id": { "type": "string" },
-        "name": { "type": "string" },
-        "description": { "type": "string" },
-        "category": { "type": "string", "enum": ["Technology", "Business", "Education", "Travel", "Culture", "Sports", "Music", "Environment", "General"] },
-        "imageURL": { "type": "string" },
-        "ownerId": { "type": "string" },
-        "privacy": { "type": "string", "enum": ["open", "private"] },
-        "memberCount": { "type": "number" },
-        "createdAt": { "type": "string", "format": "date-time" }
-      },
-      "required": ["name", "ownerId", "privacy", "memberCount"]
-    },
-    "CircleMember": {
-      "title": "Circle Member",
-      "description": "A heart participating in a community gathering.",
-      "type": "object",
-      "properties": {
-        "userId": { "type": "string" },
-        "role": { "type": "string", "enum": ["owner", "admin", "member"] },
-        "joinedAt": { "type": "string", "format": "date-time" }
-      }
-    },
-    "Friendship": {
-      "title": "Cultural Bridge",
-      "description": "A formal friendship connection between two hearts.",
-      "type": "object",
-      "properties": {
-        "userA": { "type": "string" },
-        "userB": { "type": "string" },
-        "status": { "type": "string", "enum": ["pending", "friends", "blocked"] },
-        "createdAt": { "type": "string", "format": "date-time" }
-      },
-      "required": ["userA", "userB", "status"]
     },
     "Store": {
       "title": "Artisan Store",
@@ -187,12 +164,10 @@
   },
   "firestore": {
     "/users/{userId}": { "schema": "UserProfile", "description": "Private heart identities" },
+    "/users/{userId}/sessions/{sessionId}": { "schema": "DeviceSession", "description": "Registered device heartbeats" },
+    "/users/{userId}/securityEvents/{eventId}": { "schema": "SecurityEvent", "description": "Identity protection audit logs" },
     "/sparkProfiles/{userId}": { "schema": "SparkProfile", "description": "Public discovery profiles" },
-    "/sparkLikes/{likeId}": { "schema": "SparkLike", "description": "Connection attempts registry" },
     "/matches/{matchId}": { "schema": "Match", "description": "Established high-fidelity connections" },
-    "/friendships/{friendshipId}": { "schema": "Friendship", "description": "Cultural bridge registry" },
-    "/communities/{communityId}": { "schema": "Circle", "description": "Community gatherings" },
-    "/communities/{communityId}/members/{memberId}": { "schema": "CircleMember", "description": "Circle participant registry" },
     "/conversations/{convId}": { "schema": "Conversation", "description": "Secured communication channels" },
     "/conversations/{convId}/messages/{msgId}": { "schema": "Message", "description": "Secured high-fidelity subcollection messages" },
     "/shops/{shopId}": { "schema": "Store", "description": "Verified local artisan shops" },

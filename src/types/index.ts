@@ -6,6 +6,7 @@ export * from './chat';
 export * from './circle';
 export * from './spark';
 export * from './shopping';
+export * from './security';
 
 export type IdeaCategory =
   | "economics"
