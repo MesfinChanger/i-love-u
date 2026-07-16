@@ -50,8 +50,9 @@ import { useToast } from '@/hooks/use-toast';
 import { SUPPORTED_LANGUAGES } from '@/lib/world-data';
 
 /**
- * @fileOverview The platform header.
- * Proactively triggers Universal Auth Gate for unauthenticated sessions via "Launch Spark".
+ * @fileOverview The Unified Platform Header.
+ * Consolidates all navigation and platform tools into a single "Mission Hub" for one-click access.
+ * Proactively triggers Universal Auth Gate for unauthenticated sessions.
  */
 export function Header() {
   const auth = useAuth();
@@ -113,11 +114,11 @@ export function Header() {
 
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="text-primary/40 hover:text-primary transition-colors ml-1" aria-label="Open Navigation">
+              <Button variant="ghost" size="icon" className="text-primary hover:text-primary transition-colors ml-1" aria-label="Open Mission Hub">
                 <Menu className="w-6 h-6" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-[280px] p-0 border-none shadow-2xl rounded-r-[3rem] overflow-hidden flex flex-col bg-white">
+            <SheetContent side="left" className="w-[300px] p-0 border-none shadow-2xl rounded-r-[3rem] overflow-hidden flex flex-col bg-white">
               <SheetHeader className="p-8 bg-primary/5 border-b shrink-0 text-left">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-white rounded-2xl shadow-sm">
@@ -125,12 +126,13 @@ export function Header() {
                   </div>
                   <div>
                     <SheetTitle className="text-2xl font-black tracking-tighter uppercase leading-none">The Mission</SheetTitle>
-                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-primary/60 mt-1">Universal Navigation</p>
+                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-primary/60 mt-1">Unified Control Hub</p>
                   </div>
                 </div>
               </SheetHeader>
 
               <nav className="flex-grow overflow-y-auto p-6 space-y-2 no-scrollbar">
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-4 mb-2">Navigation</p>
                 {navItems.map((item) => {
                   const isActive = pathname === item.href || (item.href === '/matches' && pathname?.startsWith('/matches')) || (item.href === '/shop' && pathname?.startsWith('/shop'));
                   return (
@@ -155,7 +157,7 @@ export function Header() {
                 })}
 
                 <div className="pt-6 mt-6 border-t border-dashed space-y-2">
-                   <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-4 mb-2">Platform Tools</p>
+                   <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-4 mb-2">Mission Tools</p>
                    
                    <DonationDialog trigger={
                       <button className="flex items-center gap-4 p-4 rounded-[1.5rem] transition-all w-full text-slate-600 hover:bg-primary/5 hover:text-primary group text-left">
@@ -173,7 +175,7 @@ export function Header() {
                       <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center group-hover:bg-white group-hover:shadow-md transition-all">
                         <MessageSquare className="w-5 h-5" />
                       </div>
-                      <span className="font-black text-sm uppercase tracking-widest">Feedback</span>
+                      <span className="font-black text-sm uppercase tracking-widest">Give Feedback</span>
                    </button>
 
                    <DropdownMenu>
@@ -188,7 +190,7 @@ export function Header() {
                           </div>
                         </button>
                      </DropdownMenuTrigger>
-                     <DropdownMenuContent className="w-56 rounded-2xl p-2 border-none shadow-2xl max-h-80 overflow-y-auto" side="right" align="end">
+                     <DropdownMenuContent className="w-56 rounded-2xl p-2 border-none shadow-2xl max-h-80 overflow-y-auto" side="right" align="start">
                         {SUPPORTED_LANGUAGES.map((lang) => (
                           <DropdownMenuItem 
                             key={lang.name} 
@@ -208,28 +210,30 @@ export function Header() {
                      </DropdownMenuContent>
                    </DropdownMenu>
 
-                  {user ? (
-                    <button 
-                      onClick={handleSignOut}
-                      disabled={isSigningOut}
-                      className="flex items-center gap-4 p-4 rounded-[1.5rem] transition-all w-full text-slate-400 hover:text-red-500 hover:bg-red-50 group"
-                    >
-                      <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center group-hover:bg-white group-hover:shadow-md transition-all">
-                        {isSigningOut ? <Loader2 className="w-5 h-5 animate-spin" /> : <LogOut className="w-5 h-5" />}
-                      </div>
-                      <span className="font-black text-sm uppercase tracking-widest">Sign Out</span>
-                    </button>
-                  ) : (
-                    <button 
-                      onClick={triggerAuthGate}
-                      className="flex items-center gap-4 p-4 rounded-[1.5rem] transition-all w-full text-primary hover:bg-primary/5 group"
-                    >
-                      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-white group-hover:shadow-md transition-all">
-                        <LogIn className="w-5 h-5" />
-                      </div>
-                      <span className="font-black text-sm uppercase tracking-widest">Identify Heart</span>
-                    </button>
-                  )}
+                  <div className="pt-6 mt-6 border-t border-dashed">
+                    {user ? (
+                      <button 
+                        onClick={handleSignOut}
+                        disabled={isSigningOut}
+                        className="flex items-center gap-4 p-4 rounded-[1.5rem] transition-all w-full text-slate-400 hover:text-red-500 hover:bg-red-50 group"
+                      >
+                        <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center group-hover:bg-white group-hover:shadow-md transition-all">
+                          {isSigningOut ? <Loader2 className="w-5 h-5 animate-spin" /> : <LogOut className="w-5 h-5" />}
+                        </div>
+                        <span className="font-black text-sm uppercase tracking-widest">Sign Out</span>
+                      </button>
+                    ) : (
+                      <button 
+                        onClick={() => { triggerAuthGate(); }}
+                        className="flex items-center gap-4 p-4 rounded-[1.5rem] transition-all w-full text-primary hover:bg-primary/5 group"
+                      >
+                        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-white group-hover:shadow-md transition-all">
+                          <LogIn className="w-5 h-5" />
+                        </div>
+                        <span className="font-black text-sm uppercase tracking-widest">Identify Heart</span>
+                      </button>
+                    )}
+                  </div>
                 </div>
               </nav>
 
@@ -245,33 +249,6 @@ export function Header() {
         </div>
         
         <div className="flex items-center gap-1">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="text-primary/60 hover:text-primary h-10 px-2 gap-2" aria-label="Select Language">
-                <Languages className="w-5 h-5" />
-                <span className="text-[10px] font-black uppercase tracking-widest hidden sm:inline-block">{language}</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-48 rounded-2xl p-2 border-none shadow-2xl mr-4 max-h-80 overflow-y-auto" align="end">
-              {SUPPORTED_LANGUAGES.map((lang) => (
-                <DropdownMenuItem 
-                  key={lang.name} 
-                  onClick={() => setLanguage(lang.name)}
-                  className={cn(
-                    "rounded-xl py-3 px-4 font-bold text-xs uppercase tracking-wider cursor-pointer flex items-center justify-between",
-                    language === lang.name ? "bg-primary/10 text-primary" : "hover:bg-muted"
-                  )}
-                >
-                  <div className="flex flex-col">
-                    <span>{lang.name}</span>
-                    <span className="text-[9px] opacity-40 font-medium">{lang.native}</span>
-                  </div>
-                  {language === lang.name && <Check className="w-4 h-4" />}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-
           <DonationDialog />
           
           <Button variant="ghost" size="icon" onClick={triggerAssistant} className="text-primary/60 hover:text-primary w-10 h-10" aria-label="Ask Spark Guide">
