@@ -23,7 +23,12 @@ import {
   decryptMessage 
 } from '@/lib/crypto';
 import { cn } from '@/lib/utils';
+import { sendMessage } from '@/services/chat.service';
 
+/**
+ * @fileOverview Messages Module - Secured Spark Chat.
+ * Synchronized with the conversation subcollection protocol.
+ */
 export default function ChatPage({ params }: { params: Promise<{ matchId: string }> }) {
   const { matchId } = use(params);
   const { user } = useUser();
@@ -48,9 +53,8 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
   const messagesQuery = useMemoFirebase(() => {
     if (!db || !matchId) return null;
     return query(
-      collection(db, 'messages'), 
-      where('conversationId', '==', matchId),
-      orderBy('timestamp', 'asc')
+      collection(db, 'conversations', matchId, 'messages'), 
+      orderBy('createdAt', 'asc')
     );
   }, [matchId]);
   
@@ -117,10 +121,8 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
       }
 
       const messagePayload: any = {
-        conversationId: matchId,
         senderId: user.uid,
-        status: "sent",
-        timestamp: serverTimestamp(),
+        type: "text",
       };
 
       if (sharedKey) {
@@ -133,7 +135,8 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
         messagePayload.text = newMessage;
       }
 
-      await addDoc(collection(db, 'messages'), messagePayload);
+      await sendMessage(matchId, messagePayload);
+      
       await updateDoc(doc(db, 'conversations', matchId), {
         lastMessage: sharedKey ? "[Secured Message]" : newMessage.slice(0, 50),
         lastUpdatedAt: serverTimestamp()

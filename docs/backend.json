@@ -117,6 +117,18 @@
         "role": { "type": "string", "enum": ["owner", "admin", "member"] },
         "joinedAt": { "type": "string", "format": "date-time" }
       }
+    },
+    "Friendship": {
+      "title": "Cultural Bridge",
+      "description": "A formal friendship connection between two hearts.",
+      "type": "object",
+      "properties": {
+        "userA": { "type": "string" },
+        "userB": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "friends", "blocked"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userA", "userB", "status"]
     }
   },
   "auth": {
@@ -131,6 +143,6 @@
     "/communities/{communityId}": { "schema": "Circle", "description": "Community gatherings" },
     "/communities/{communityId}/members/{memberId}": { "schema": "CircleMember", "description": "Circle participant registry" },
     "/conversations/{convId}": { "schema": "Conversation", "description": "Secured communication channels" },
-    "/messages/{msgId}": { "schema": "Message", "description": "Secured high-fidelity messages" }
+    "/conversations/{convId}/messages/{msgId}": { "schema": "Message", "description": "Secured high-fidelity subcollection messages" }
   }
 }

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect, useRef, use } from 'react';
@@ -24,10 +23,11 @@ import {
   decryptMessage 
 } from '@/lib/crypto';
 import { cn } from '@/lib/utils';
+import { sendMessage } from '@/services/chat.service';
 
 /**
  * @fileOverview High-Fidelity E2EE Chat Room.
- * Synchronized with the high-fidelity PublicKey Schema (ECDH-P256).
+ * Synchronized with the high-fidelity subcollection path and ECDH-P256 Protocol.
  */
 export default function ChatPage({ params }: { params: Promise<{ matchId: string }> }) {
   const { matchId } = use(params);
@@ -42,9 +42,6 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
   const [sharedKey, setSharedKey] = useState<CryptoKey | null>(null);
 
   const currentUserId = user?.uid;
-
-  const userRef = useMemoFirebase(() => db && currentUserId ? doc(db, 'users', currentUserId) : null, [currentUserId]);
-  const { data: myProfile } = useDoc(userRef);
   
   const convRef = useMemoFirebase(() => db && matchId ? doc(db, 'conversations', matchId) : null, [matchId]);
   const { data: convData, loading: matchLoading } = useDoc(convRef);
@@ -55,10 +52,10 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
 
   const messagesQuery = useMemoFirebase(() => {
     if (!db || !matchId) return null;
+    // High-Fidelity Subcollection Path
     return query(
-      collection(db, 'messages'), 
-      where('conversationId', '==', matchId),
-      orderBy('timestamp', 'asc')
+      collection(db, 'conversations', matchId, 'messages'), 
+      orderBy('createdAt', 'asc')
     );
   }, [matchId]);
   
@@ -73,7 +70,6 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
       if (!privKeyStr) return;
 
       try {
-        // Fetch partner's public key from the dedicated high-fidelity registry
         const keySnap = await getDoc(doc(db, 'publicKeys', partnerId));
         const keyData = keySnap.data();
         
@@ -136,11 +132,8 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
       }
 
       const messagePayload: any = {
-        conversationId: matchId,
         senderId: user.uid,
-        encryptedMedia: [],
-        status: "sent",
-        timestamp: serverTimestamp(),
+        type: "text",
       };
 
       // E2EE Message Securing (AES-GCM Protocol)
@@ -156,7 +149,8 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
         messagePayload.text = newMessage;
       }
 
-      await addDoc(collection(db, 'messages'), messagePayload);
+      // Broadcasting via Chat Protocol Service
+      await sendMessage(matchId, messagePayload);
       
       await updateDoc(doc(db, 'conversations', matchId), {
         lastMessage: sharedKey ? "[Secured Message]" : newMessage.slice(0, 50),
