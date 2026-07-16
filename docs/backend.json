@@ -3,7 +3,7 @@
   "entities": {
     "UserProfile": {
       "title": "User Profile",
-      "description": "Unified heart identity and personality schema. Restricted to 18+.",
+      "description": "Unified heart identity, personality, and discovery schema. Restricted to 18+.",
       "type": "object",
       "properties": {
         "uid": { "type": "string" },
@@ -24,6 +24,12 @@
         "education": { "type": "string" },
         "hobbies": { "type": "array", "items": { "type": "string" } },
         "values": { "type": "array", "items": { "type": "string" } },
+        "datingGoal": { "type": "string", "enum": ["serious", "friendship", "marriage", "exploring"] },
+        "preferredAgeRange": { "type": "string" },
+        "preferredCountries": { "type": "array", "items": { "type": "string" } },
+        "personalityTags": { "type": "array", "items": { "type": "string" } },
+        "verified": { "type": "boolean", "default": false },
+        "visibility": { "type": "string", "enum": ["public", "private", "hidden"] },
         "privacySettings": { "type": "object" },
         "role": { "type": "string", "default": "member" },
         "policyAccepted": { "type": "boolean", "default": false },

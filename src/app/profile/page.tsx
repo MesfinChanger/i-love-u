@@ -37,7 +37,11 @@ import {
   GraduationCap,
   Sparkles,
   Languages,
-  X
+  X,
+  Target,
+  Compass,
+  Eye,
+  Globe
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useUser, useFirestore, useAuth, useDoc, useFirebaseStorage } from '@/firebase';
@@ -53,10 +57,11 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { LiveCamera } from '@/components/LiveCamera';
 import Link from 'next/link';
+import { COUNTRIES } from '@/lib/world-data';
 
 /**
  * @fileOverview Profile Management Hub.
- * Optimized for Sovereign Authority visibility and the new High-Fidelity Personality Schema.
+ * Unified identity console featuring Discovery Preferences and Personality Schema.
  */
 function ProfileContent() {
   const { user } = useUser();
@@ -71,7 +76,7 @@ function ProfileContent() {
   const [cameraTarget, setCameraTarget] = useState<'avatar' | 'gallery' | 'video' | null>(null);
   const [sovereignId, setSovereignId] = useState<string | null>(null);
 
-  // Schema Fields
+  // Identity Fields
   const [username, setUsername] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [phone, setPhone] = useState('');
@@ -82,11 +87,18 @@ function ProfileContent() {
   const [profession, setProfession] = useState('');
   const [education, setEducation] = useState('');
   
-  // Array Fields
+  // Array & Pref Fields
   const [languages, setLanguages] = useState<string[]>([]);
   const [hobbies, setHobbies] = useState<string[]>([]);
   const [values, setValues] = useState<string[]>([]);
   const [interests, setInterests] = useState<string[]>([]);
+  
+  // Discovery Layer
+  const [datingGoal, setDatingGoal] = useState('exploring');
+  const [preferredAgeRange, setPreferredAgeRange] = useState('18-99');
+  const [preferredCountries, setPreferredCountries] = useState<string[]>([]);
+  const [personalityTags, setPersonalityTags] = useState<string[]>([]);
+  const [visibility, setVisibility] = useState('public');
 
   const [isSaving, setIsSaving] = useState(false);
 
@@ -121,6 +133,13 @@ function ProfileContent() {
       setHobbies(profileData.hobbies || []);
       setValues(profileData.values || []);
       setInterests(profileData.interests || []);
+      
+      // Load Discovery Layer
+      setDatingGoal(profileData.datingGoal || 'exploring');
+      setPreferredAgeRange(profileData.preferredAgeRange || '18-99');
+      setPreferredCountries(profileData.preferredCountries || []);
+      setPersonalityTags(profileData.personalityTags || []);
+      setVisibility(profileData.visibility || 'public');
     }
   }, [profileData]);
 
@@ -142,14 +161,21 @@ function ProfileContent() {
         hobbies,
         values,
         interests,
+        // Discovery Layer
+        datingGoal,
+        preferredAgeRange,
+        preferredCountries,
+        personalityTags,
+        visibility,
         updatedAt: serverTimestamp()
       };
 
       await setDoc(doc(db, 'users', user.uid), updatePayload, { merge: true });
 
-      // Update public profile for discovery (sanitized)
+      // Mirror to Public Profile
       await setDoc(doc(db, 'publicProfiles', user.uid), {
         uid: user.uid,
+        userId: user.uid,
         username,
         displayName,
         photoURL,
@@ -157,11 +183,15 @@ function ProfileContent() {
         gender,
         profession,
         interests,
-        updatedAt: serverTimestamp(),
-        status: profileData?.status || 'active'
+        personalityTags,
+        datingGoal,
+        verified: profileData?.verified || false,
+        visibility,
+        status: profileData?.status || 'active',
+        updatedAt: serverTimestamp()
       }, { merge: true });
 
-      toast({ title: "Identity Synchronized", description: "Your Personality Schema has been updated. ❤️" });
+      toast({ title: "Identity Synchronized", description: "Your Preferences have been updated. ❤️" });
     } catch (e) {
       toast({ variant: "destructive", title: "Sync Ripple", description: "Failed to save profile details." });
     } finally {
@@ -193,52 +223,32 @@ function ProfileContent() {
             </Avatar>
             <div className="text-left">
               <div className="flex items-center gap-2">
-                 <h1 className="text-2xl font-black tracking-tighter uppercase leading-none">{displayName || 'Console'}</h1>
+                 <h1 className="text-2xl font-black tracking-tighter uppercase leading-none">{displayName || 'Heart'}</h1>
+                 {profileData?.verified && <Badge className="bg-blue-500 text-white border-none h-5 px-2"><CheckCircle2 className="w-3 h-3" /></Badge>}
                  {(isUserSovereign || profileData?.role === 'admin') && <Badge className="bg-slate-900 text-white font-black text-[7px] uppercase tracking-widest px-2 h-5 flex items-center gap-1"><Zap className="w-2 h-2 text-primary" /> Admin</Badge>}
               </div>
-              <p className="text-[10px] text-muted-foreground font-black uppercase tracking-[0.3em] mt-1">High-Fidelity Protocol</p>
+              <p className="text-[10px] text-muted-foreground font-black uppercase tracking-[0.3em] mt-1">Discovery Console Active</p>
             </div>
           </div>
           <Button size="sm" onClick={handleSave} disabled={isSaving} className="gradient-bg rounded-full font-black uppercase text-[9px] h-10 px-6 gap-2">
             {isSaving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
-            Save Schema
+            Save Hub
           </Button>
         </div>
 
-        {isUserSovereign && (
-          <Link href="/admin/approvals">
-            <Card className="rounded-3xl border-none shadow-xl bg-slate-900 text-white p-6 mb-8 hover:scale-[1.02] transition-transform group cursor-pointer overflow-hidden relative">
-               <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:rotate-12 transition-transform">
-                  <Gavel className="w-24 h-24 text-primary" />
-               </div>
-               <div className="relative z-10 flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                     <div className="w-12 h-12 rounded-2xl bg-primary/20 flex items-center justify-center border border-primary/30">
-                        <Zap className="w-6 h-6 text-primary" />
-                     </div>
-                     <div className="text-left leading-none">
-                        <h3 className="font-black text-lg tracking-tighter uppercase">Sovereign Command</h3>
-                        <p className="text-[8px] font-black uppercase text-primary tracking-widest mt-1">Assign User Roles & Permissions</p>
-                     </div>
-                  </div>
-                  <Star className="w-5 h-5 fill-primary text-primary" />
-               </div>
-            </Card>
-          </Link>
-        )}
-
-        <Tabs defaultValue="personal" className="w-full">
-           <TabsList className="grid grid-cols-4 h-14 bg-white/50 backdrop-blur-md rounded-2xl p-1 mb-6 border shadow-sm">
-              <TabsTrigger value="personal" className="rounded-xl text-[9px] font-black uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:shadow-sm">Identity</TabsTrigger>
-              <TabsTrigger value="personality" className="rounded-xl text-[9px] font-black uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:shadow-sm">Personality</TabsTrigger>
-              <TabsTrigger value="account" className="rounded-xl text-[9px] font-black uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:shadow-sm">Account</TabsTrigger>
-              <TabsTrigger value="security" className="rounded-xl text-[9px] font-black uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:shadow-sm">Safety</TabsTrigger>
+        <Tabs defaultValue="identity" className="w-full">
+           <TabsList className="grid grid-cols-5 h-14 bg-white/50 backdrop-blur-md rounded-2xl p-1 mb-6 border shadow-sm">
+              <TabsTrigger value="identity" className="rounded-xl text-[8px] font-black uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:shadow-sm">Identity</TabsTrigger>
+              <TabsTrigger value="personality" className="rounded-xl text-[8px] font-black uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:shadow-sm">Traits</TabsTrigger>
+              <TabsTrigger value="discovery" className="rounded-xl text-[8px] font-black uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:shadow-sm">Match</TabsTrigger>
+              <TabsTrigger value="account" className="rounded-xl text-[8px] font-black uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:shadow-sm">Core</TabsTrigger>
+              <TabsTrigger value="security" className="rounded-xl text-[8px] font-black uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:shadow-sm">Safety</TabsTrigger>
            </TabsList>
 
-           <TabsContent value="personal" className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+           <TabsContent value="identity" className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
               <Card className="rounded-[2rem] border-none shadow-sm bg-white p-8 space-y-6">
                  <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Username (ID)</Label>
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Unique Username</Label>
                     <Input value={username} onChange={e => setUsername(e.target.value)} className="h-12 rounded-xl bg-muted/20 border-none font-bold" placeholder="@nickname" />
                  </div>
                  <div className="space-y-2">
@@ -260,21 +270,13 @@ function ProfileContent() {
                              <SelectItem value="male" className="rounded-xl">Male</SelectItem>
                              <SelectItem value="female" className="rounded-xl">Female</SelectItem>
                              <SelectItem value="non-binary" className="rounded-xl">Non-binary</SelectItem>
-                             <SelectItem value="prefer-not-to-say" className="rounded-xl">Prefer not to say</SelectItem>
                           </SelectContent>
                        </Select>
                     </div>
                  </div>
                  <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Bio (Heart Journey)</Label>
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Bio (Mission Statement)</Label>
                     <Textarea value={bio} onChange={e => setBio(e.target.value)} className="min-h-[100px] rounded-xl bg-muted/20 border-none font-medium italic" placeholder="Tell the community about your mission..." />
-                 </div>
-                 <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Profile Photo URL</Label>
-                    <div className="flex gap-2">
-                       <Input value={photoURL} onChange={e => setPhotoURL(e.target.value)} className="h-12 rounded-xl bg-muted/20 border-none font-bold" placeholder="https://..." />
-                       <Button variant="outline" size="icon" className="h-12 w-12 rounded-xl border-2" onClick={() => { setCameraTarget('avatar'); setIsCameraOpen(true); }}><Camera className="w-5 h-5" /></Button>
-                    </div>
                  </div>
               </Card>
            </TabsContent>
@@ -293,65 +295,109 @@ function ProfileContent() {
                  </div>
 
                  <div className="space-y-4">
-                    <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1 flex items-center gap-2"><Sparkles className="w-3 h-3 text-primary" /> Interests & Hobbies</Label>
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1 flex items-center gap-2"><Sparkles className="w-3 h-3 text-primary" /> Interests</Label>
                     <div className="flex flex-wrap gap-2">
-                       {hobbies.map(h => (
-                          <Badge key={h} className="bg-primary/10 text-primary hover:bg-red-50 border-none px-3 py-1.5 rounded-full group cursor-pointer" onClick={() => removeItem(hobbies, setHobbies, h)}>
-                             {h} <X className="w-2.5 h-2.5 ml-1.5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                       {interests.map(i => (
+                          <Badge key={i} className="bg-primary/10 text-primary hover:bg-red-50 border-none px-3 py-1.5 rounded-full group cursor-pointer" onClick={() => removeItem(interests, setInterests, i)}>
+                             {i} <X className="w-2.5 h-2.5 ml-1.5 opacity-0 group-hover:opacity-100 transition-opacity" />
                           </Badge>
                        ))}
                        <Input 
-                         placeholder="+ Add Hobby" 
+                         placeholder="+ Add Interest" 
                          className="w-32 h-8 rounded-full bg-muted/40 border-none text-[10px] px-4 font-bold" 
                          onKeyDown={e => {
                             if (e.key === 'Enter') {
-                               addItem(hobbies, setHobbies, e.currentTarget.value);
+                               addItem(interests, setInterests, e.currentTarget.value);
                                e.currentTarget.value = '';
                             }
                          }}
                        />
                     </div>
                  </div>
+              </Card>
+           </TabsContent>
 
-                 <div className="space-y-4">
-                    <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1 flex items-center gap-2"><Star className="w-3 h-3 text-secondary" /> Personal Values</Label>
-                    <div className="flex flex-wrap gap-2">
-                       {values.map(v => (
-                          <Badge key={v} className="bg-secondary/10 text-secondary-foreground hover:bg-amber-50 border-none px-3 py-1.5 rounded-full group cursor-pointer" onClick={() => removeItem(values, setValues, v)}>
-                             {v} <X className="w-2.5 h-2.5 ml-1.5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                          </Badge>
-                       ))}
-                       <Input 
-                         placeholder="+ Add Value" 
-                         className="w-32 h-8 rounded-full bg-muted/40 border-none text-[10px] px-4 font-bold" 
-                         onKeyDown={e => {
-                            if (e.key === 'Enter') {
-                               addItem(values, setValues, e.currentTarget.value);
-                               e.currentTarget.value = '';
-                            }
-                         }}
-                       />
+           <TabsContent value="discovery" className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <Card className="rounded-[2rem] border-none shadow-sm bg-white p-8 space-y-8">
+                 <div className="space-y-6">
+                    <div className="flex items-center gap-3 text-primary mb-2">
+                       <Target className="w-5 h-5" />
+                       <h3 className="font-black text-sm uppercase tracking-widest">Discovery Preferences</h3>
                     </div>
-                 </div>
 
-                 <div className="space-y-4">
-                    <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1 flex items-center gap-2"><Languages className="w-3 h-3" /> Languages</Label>
-                    <div className="flex flex-wrap gap-2">
-                       {languages.map(l => (
-                          <Badge key={l} className="bg-blue-50 text-blue-600 hover:bg-blue-100 border-none px-3 py-1.5 rounded-full group cursor-pointer" onClick={() => removeItem(languages, setLanguages, l)}>
-                             {l} <X className="w-2.5 h-2.5 ml-1.5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                          </Badge>
-                       ))}
-                       <Input 
-                         placeholder="+ Add Language" 
-                         className="w-32 h-8 rounded-full bg-muted/40 border-none text-[10px] px-4 font-bold" 
-                         onKeyDown={e => {
-                            if (e.key === 'Enter') {
-                               addItem(languages, setLanguages, e.currentTarget.value);
-                               e.currentTarget.value = '';
-                            }
-                         }}
-                       />
+                    <div className="grid grid-cols-2 gap-4">
+                       <div className="space-y-2">
+                          <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Dating Goal</Label>
+                          <Select value={datingGoal} onValueChange={setDatingGoal}>
+                             <SelectTrigger className="h-12 rounded-xl bg-muted/20 border-none font-bold">
+                                <SelectValue placeholder="Select Goal" />
+                             </SelectTrigger>
+                             <SelectContent className="rounded-2xl border-none shadow-2xl">
+                                <SelectItem value="serious" className="rounded-xl">Serious</SelectItem>
+                                <SelectItem value="friendship" className="rounded-xl">Friendship</SelectItem>
+                                <SelectItem value="marriage" className="rounded-xl">Marriage</SelectItem>
+                                <SelectItem value="exploring" className="rounded-xl">Exploring</SelectItem>
+                             </SelectContent>
+                          </Select>
+                       </div>
+                       <div className="space-y-2">
+                          <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Age Range</Label>
+                          <Input value={preferredAgeRange} onChange={e => setPreferredAgeRange(e.target.value)} className="h-12 rounded-xl bg-muted/20 border-none font-bold" placeholder="e.g. 24-35" />
+                       </div>
+                    </div>
+
+                    <div className="space-y-4">
+                       <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1 flex items-center gap-2"><Globe className="w-3 h-3 text-blue-500" /> Target Regions</Label>
+                       <div className="flex flex-wrap gap-2">
+                          {preferredCountries.map(c => (
+                             <Badge key={c} className="bg-blue-50 text-blue-600 hover:bg-blue-100 border-none px-3 py-1.5 rounded-full group cursor-pointer" onClick={() => removeItem(preferredCountries, setPreferredCountries, c)}>
+                                {c} <X className="w-2.5 h-2.5 ml-1.5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                             </Badge>
+                          ))}
+                          <Select onValueChange={(val) => addItem(preferredCountries, setPreferredCountries, val)}>
+                             <SelectTrigger className="w-32 h-8 rounded-full bg-muted/40 border-none text-[10px] px-4 font-bold">
+                                <SelectValue placeholder="+ Country" />
+                             </SelectTrigger>
+                             <SelectContent className="max-h-64 rounded-2xl border-none shadow-2xl">
+                                {COUNTRIES.map(country => <SelectItem key={country.code} value={country.code} className="rounded-xl">{country.name}</SelectItem>)}
+                             </SelectContent>
+                          </Select>
+                       </div>
+                    </div>
+
+                    <div className="space-y-4">
+                       <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1 flex items-center gap-2"><Compass className="w-3 h-3 text-secondary" /> Personality Tags</Label>
+                       <div className="flex flex-wrap gap-2">
+                          {personalityTags.map(t => (
+                             <Badge key={t} className="bg-secondary/10 text-secondary-foreground hover:bg-amber-50 border-none px-3 py-1.5 rounded-full group cursor-pointer" onClick={() => removeItem(personalityTags, setPersonalityTags, t)}>
+                                {t} <X className="w-2.5 h-2.5 ml-1.5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                             </Badge>
+                          ))}
+                          <Input 
+                            placeholder="+ Add Tag" 
+                            className="w-32 h-8 rounded-full bg-muted/40 border-none text-[10px] px-4 font-bold" 
+                            onKeyDown={e => {
+                               if (e.key === 'Enter') {
+                                  addItem(personalityTags, setPersonalityTags, e.currentTarget.value);
+                                  e.currentTarget.value = '';
+                               }
+                            }}
+                          />
+                       </div>
+                    </div>
+
+                    <div className="space-y-2 pt-4 border-t border-dashed">
+                       <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1 flex items-center gap-2"><Eye className="w-3 h-3" /> Visibility</Label>
+                       <Select value={visibility} onValueChange={setVisibility}>
+                          <SelectTrigger className="h-12 rounded-xl bg-muted/20 border-none font-bold">
+                             <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="rounded-2xl border-none shadow-2xl">
+                             <SelectItem value="public" className="rounded-xl">Public Discoverability</SelectItem>
+                             <SelectItem value="private" className="rounded-xl">Matched Hearts Only</SelectItem>
+                             <SelectItem value="hidden" className="rounded-xl">Hidden from Search</SelectItem>
+                          </SelectContent>
+                       </Select>
                     </div>
                  </div>
               </Card>
@@ -368,7 +414,7 @@ function ProfileContent() {
                  </div>
                  <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                       <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Country</p>
+                       <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Current Country</p>
                        <div className="h-12 flex items-center px-4 rounded-xl bg-muted/20 font-bold text-sm">{profileData?.country || 'Global'}</div>
                     </div>
                     <div className="space-y-2">
@@ -387,25 +433,15 @@ function ProfileContent() {
                        <h4 className="font-black text-xs uppercase tracking-widest">Privacy Protocol</h4>
                     </div>
                     <p className="text-[10px] text-white/70 font-medium italic leading-relaxed uppercase tracking-widest">
-                       "Safety is Mandatory." Your full data is only revealed to matched sparks. Public profiles are sanitized for mission discovery.
+                       "Safety is Mandatory." Your full preferences are only used to enhance compatibility. All private messages remain E2EE secured.
                     </p>
                  </div>
-                 
-                 <div className="space-y-4 pt-4 border-t border-dashed">
-                    <div className="flex items-center justify-between">
-                       <div className="space-y-0.5">
-                          <p className="text-sm font-bold">Public Discoverability</p>
-                          <p className="text-[10px] text-muted-foreground uppercase">Visible in Global Search</p>
-                       </div>
-                       <Switch defaultChecked />
+                 <div className="flex items-center justify-between p-4 border rounded-2xl">
+                    <div className="space-y-0.5">
+                       <p className="text-sm font-bold">Encrypted Messaging</p>
+                       <p className="text-[10px] text-muted-foreground uppercase">ECDH Active</p>
                     </div>
-                    <div className="flex items-center justify-between">
-                       <div className="space-y-0.5">
-                          <p className="text-sm font-bold">Encrypted Messaging</p>
-                          <p className="text-[10px] text-muted-foreground uppercase">ECDH/AES-GCM Protocol Active</p>
-                       </div>
-                       <Badge className="bg-green-100 text-green-700 h-6 text-[8px] font-black border-none uppercase">Secured</Badge>
-                    </div>
+                    <Badge className="bg-green-100 text-green-700 h-6 text-[8px] font-black border-none uppercase">Secured</Badge>
                  </div>
               </Card>
            </TabsContent>

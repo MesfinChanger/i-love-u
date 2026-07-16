@@ -41,7 +41,7 @@ import { cn } from '@/lib/utils';
 
 /**
  * @fileOverview Identity Recovery Hub.
- * Features links for Forgot Password and Forgot Username retrieval.
+ * Optimized with the Unified Heart Identity and Discovery Layer.
  */
 function LoginContent() {
   const { user, loading: authLoading } = useUser();
@@ -98,7 +98,7 @@ function LoginContent() {
       if (mode === 'signup') {
         const res = await createUserWithEmailAndPassword(auth, cleanEmail, password);
         
-        // E2EE Identity Generation (ECDH Protocol)
+        // E2EE Identity Generation
         const keyPair = await generateKeyPair();
         if (keyPair) {
           const publicKeyStr = await exportPublicKey(keyPair.publicKey);
@@ -108,9 +108,10 @@ function LoginContent() {
           localStorage.setItem('iloveu_policy_accepted', 'true');
 
           if (db) {
-            // Updated UserProfile Schema
+            // Unified Heart Identity + Discovery Layer
             const userData = {
-              uid: res.user.uid, 
+              uid: res.user.uid,
+              userId: res.user.uid, 
               email: cleanEmail, 
               phone: null,
               username: nickname,
@@ -119,6 +120,7 @@ function LoginContent() {
               accountType: 'free',
               status: 'active',
               createdAt: serverTimestamp(),
+              updatedAt: serverTimestamp(),
               lastLogin: serverTimestamp(),
               country: country || 'Global',
               language: language,
@@ -126,34 +128,44 @@ function LoginContent() {
               publicKey: publicKeyStr,
               role: 'member',
               policyAccepted: true,
-              policyAcceptedAt: serverTimestamp(),
-              legalConsent: {
-                ageVerified: true,
-                termsAgreed: true,
-                responsibilityAcknowledged: true,
-                humanVerified: true,
-                timestamp: new Date().toISOString()
-              }
+              
+              // Personality Layer Default
+              bio: "New heart joining the revolution.",
+              languages: [language],
+              interests: [],
+              hobbies: [],
+              values: [],
+              
+              // Discovery Layer Default
+              datingGoal: 'exploring',
+              preferredAgeRange: '18-99',
+              preferredCountries: country ? [country] : [],
+              personalityTags: [],
+              verified: false,
+              visibility: 'public'
             };
 
             await setDoc(doc(db, 'users', res.user.uid), userData, { merge: true });
 
             await setDoc(doc(db, 'publicProfiles', res.user.uid), {
               uid: res.user.uid,
+              userId: res.user.uid,
               username: nickname,
+              displayName: nickname,
               country: country || 'Global',
               verified: false,
               bio: "New heart joining the revolution.",
               photoURL: '',
-              age: 18,
               accountType: 'free',
-              status: 'active'
+              status: 'active',
+              datingGoal: 'exploring',
+              personalityTags: [],
+              visibility: 'public'
             });
           }
         }
       } else {
         await signInWithEmailAndPassword(auth, cleanEmail, password);
-        // Track last login
         if (db && auth.currentUser) {
           await setDoc(doc(db, 'users', auth.currentUser.uid), {
             lastLogin: serverTimestamp()
@@ -163,57 +175,32 @@ function LoginContent() {
     } catch (error: any) {
       console.error("Auth error:", error);
       let message = "Please check your secure phrase and try again. ❤️";
-      
-      if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-        message = "You do not have a valid credential. Please Subscribe to our mission by using the Join tab! ✨";
-      }
-
-      toast({ 
-        variant: "destructive", 
-        title: "Access Ripple", 
-        description: message 
-      });
+      toast({ variant: "destructive", title: "Access Ripple", description: message });
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleGuestLogin = async () => {
-    if (!auth) {
-      toast({
-        variant: "destructive",
-        title: "Bridge Disconnected",
-        description: "Anonymous Auth is waiting for cloud credentials. ✨"
-      });
-      return;
-    }
-
+    if (!auth) return;
     setIsLoading(true);
     try {
       const res = await signInAnonymously(auth);
       if (db) {
          await setDoc(doc(db, 'users', res.user.uid), {
            uid: res.user.uid,
+           userId: res.user.uid,
            accountType: 'guest',
            status: 'active',
-           createdAt: serverTimestamp(),
-           lastLogin: serverTimestamp(),
            username: `Guest_${res.user.uid.slice(0, 5)}`,
            displayName: 'Guest Heart',
-           timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+           createdAt: serverTimestamp(),
+           lastLogin: serverTimestamp()
          }, { merge: true });
       }
-      toast({
-        title: "Guest Session Launched",
-        description: "Welcome! You are exploring as a guest heart. ❤️"
-      });
+      toast({ title: "Guest Session Launched", description: "Welcome! ❤️" });
     } catch (error: any) {
-      console.error("Guest Auth Error Ripple:", error);
-      toast({ 
-        variant: "destructive", 
-        title: "Guest Access Ripple", 
-        description: "Could not launch guest session. ❤️"
-      });
+      toast({ variant: "destructive", title: "Guest Access Ripple", description: "Could not launch guest session." });
     } finally {
       setIsLoading(false);
     }
@@ -241,16 +228,15 @@ function LoginContent() {
         </div>
 
         <Card className="border-none shadow-[0_30px_100px_-10px_rgba(0,0,0,0.1)] rounded-[3.5rem] overflow-hidden bg-white">
-          <div className="bg-primary/5 p-8 border-b text-center relative overflow-hidden group">
-            <Sparkles className="absolute top-4 right-4 w-6 h-6 text-primary/10 group-hover:rotate-12 transition-transform" />
+          <div className="bg-primary/5 p-8 border-b text-center relative overflow-hidden">
             <ShieldCheck className="w-6 h-6 text-primary mx-auto mb-2" />
             <p className="text-[10px] font-black uppercase tracking-widest text-primary">Mission Protocol</p>
           </div>
 
           <Tabs value={mode} onValueChange={(v) => setMode(v as any)} className="w-full">
             <TabsList className="grid grid-cols-2 h-16 bg-white p-1 border-b">
-              <TabsTrigger value="signin" className="font-black uppercase text-[10px] tracking-widest data-[state=active]:text-primary">Sign In</TabsTrigger>
-              <TabsTrigger value="signup" className="font-black uppercase text-[10px] tracking-widest data-[state=active]:text-primary">Join</TabsTrigger>
+              <TabsTrigger value="signin" className="font-black uppercase text-[10px] tracking-widest">Sign In</TabsTrigger>
+              <TabsTrigger value="signup" className="font-black uppercase text-[10px] tracking-widest">Join</TabsTrigger>
             </TabsList>
             
             <CardContent className="p-10 space-y-6">
@@ -268,7 +254,7 @@ function LoginContent() {
                       </div>
                     </SelectTrigger>
                     <SelectContent className="max-h-64 rounded-2xl border-none shadow-2xl">
-                      {COUNTRIES.map(c => <SelectItem key={c.code} value={c.code} className="rounded-xl py-3 font-medium">{c.name}</SelectItem>)}
+                      {COUNTRIES.map(c => <SelectItem key={c.code} value={c.code}>{c.name}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>
@@ -290,40 +276,11 @@ function LoginContent() {
                 {mode === 'signin' && (
                   <div className="flex flex-col gap-6">
                     <div className="flex flex-col items-center gap-3 text-center">
-                      <Link href="/login/reset" className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-primary transition-colors">
-                        Forgot Password?
-                      </Link>
-                      <Link href="/login/forgot-nickname" className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-primary transition-colors">
-                        Forgot Username?
-                      </Link>
+                      <Link href="/login/reset" className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-primary transition-colors">Forgot Password?</Link>
+                      <Link href="/login/forgot-nickname" className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-primary transition-colors">Forgot Username?</Link>
                     </div>
-
-                    <Button 
-                      onClick={handleAuth} 
-                      disabled={isLoading || !email || !password} 
-                      className="w-full h-16 rounded-[1.8rem] font-black uppercase tracking-[0.2em] text-xs shadow-xl transition-all active:scale-95 gradient-bg shadow-primary/20"
-                    >
+                    <Button onClick={handleAuth} disabled={isLoading || !email || !password} className="w-full h-16 rounded-[1.8rem] font-black uppercase tracking-[0.2em] text-xs shadow-xl transition-all active:scale-95 gradient-bg shadow-primary/20">
                       {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Launch Spark'}
-                    </Button>
-
-                    <div className="relative flex items-center gap-4 py-2">
-                       <div className="flex-grow h-px bg-slate-100" />
-                       <span className="text-[9px] font-black text-slate-300 uppercase tracking-[0.3em]">or</span>
-                       <div className="flex-grow h-px bg-slate-100" />
-                    </div>
-
-                    <Button 
-                      variant="outline" 
-                      onClick={handleGuestLogin} 
-                      disabled={isLoading}
-                      className="w-full h-14 rounded-2xl border-2 font-black uppercase tracking-widest text-[9px] hover:bg-slate-50 transition-all active:scale-95 gap-2"
-                    >
-                      {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : (
-                        <>
-                          <Ghost className="w-4 h-4 text-primary" />
-                          Launch as Guest
-                        </>
-                      )}
                     </Button>
                   </div>
                 )}
@@ -331,30 +288,25 @@ function LoginContent() {
 
               {mode === 'signup' && (
                 <div className="space-y-6">
-                  <div className="space-y-4 pt-2 border-t border-dashed animate-in fade-in duration-500">
-                    <div className="flex items-start space-x-3 p-3 bg-slate-50 rounded-2xl border border-slate-200">
-                      <Checkbox id="age-verify" checked={agreedAge} onCheckedChange={(checked) => setAgreedAge(!!checked)} className="mt-1 border-slate-400 data-[state=checked]:bg-primary" />
-                      <label htmlFor="age-verify" className="text-[10px] font-black uppercase tracking-tight text-slate-700 cursor-pointer">I am 18+ years old.</label>
+                  <div className="space-y-4 pt-2 border-t border-dashed">
+                    <div className="flex items-start space-x-3 p-3 bg-slate-50 rounded-2xl">
+                      <Checkbox id="age-verify" checked={agreedAge} onCheckedChange={(checked) => setAgreedAge(!!checked)} />
+                      <label htmlFor="age-verify" className="text-[10px] font-black uppercase tracking-tight text-slate-700">I am 18+ years old.</label>
                     </div>
-                    <div className="flex items-start space-x-3 p-3 bg-slate-50 rounded-2xl border border-slate-200">
-                      <Checkbox id="terms-verify" checked={agreedTerms} onCheckedChange={(checked) => setAgreedTerms(!!checked)} className="mt-1 border-slate-400 data-[state=checked]:bg-primary" />
+                    <div className="flex items-start space-x-3 p-3 bg-slate-50 rounded-2xl">
+                      <Checkbox id="terms-verify" checked={agreedTerms} onCheckedChange={(checked) => setAgreedTerms(!!checked)} />
                       <div className="text-[10px] font-black uppercase tracking-tight text-slate-700">I agree to Terms & Privacy.</div>
                     </div>
-                    <div className="flex items-start space-x-3 p-3 bg-slate-50 rounded-2xl border border-slate-200">
-                      <Checkbox id="human-verify" checked={agreedHuman} onCheckedChange={(checked) => setAgreedHuman(!!checked)} className="mt-1 border-slate-400 data-[state=checked]:bg-primary" />
-                      <label htmlFor="human-verify" className="text-[10px] font-black uppercase tracking-tight text-slate-700 cursor-pointer flex items-center gap-2"><BotOff className="w-3.5 h-3.5" /> Verified Human.</label>
+                    <div className="flex items-start space-x-3 p-3 bg-slate-50 rounded-2xl">
+                      <Checkbox id="human-verify" checked={agreedHuman} onCheckedChange={(checked) => setAgreedHuman(!!checked)} />
+                      <label htmlFor="human-verify" className="text-[10px] font-black uppercase tracking-tight text-slate-700 flex items-center gap-2"><BotOff className="w-3.5 h-3.5" /> Verified Human.</label>
                     </div>
-                    <div className="flex items-start space-x-3 p-3 bg-primary/5 rounded-2xl border border-primary/10">
-                      <Checkbox id="responsibility-verify" checked={agreedResponsibility} onCheckedChange={(checked) => setAgreedResponsibility(!!checked)} className="mt-1 border-primary data-[state=checked]:bg-primary" />
-                      <label htmlFor="responsibility-verify" className="text-[10px] font-black uppercase tracking-tight text-slate-700 cursor-pointer">Interactions are my own responsibility.</label>
+                    <div className="flex items-start space-x-3 p-3 bg-primary/5 rounded-2xl">
+                      <Checkbox id="responsibility-verify" checked={agreedResponsibility} onCheckedChange={(checked) => setAgreedResponsibility(!!checked)} />
+                      <label htmlFor="responsibility-verify" className="text-[10px] font-black uppercase tracking-tight text-slate-700">Interactions are my own responsibility.</label>
                     </div>
                   </div>
-                  
-                  <Button 
-                    onClick={handleAuth} 
-                    disabled={isSignupDisabled} 
-                    className={cn("w-full h-16 rounded-[1.8rem] font-black uppercase tracking-[0.2em] text-xs shadow-xl transition-all active:scale-95", isSignupDisabled ? "bg-slate-200 text-slate-400" : "gradient-bg shadow-primary/20")}
-                  >
+                  <Button onClick={handleAuth} disabled={isSignupDisabled} className={cn("w-full h-16 rounded-[1.8rem] font-black uppercase tracking-[0.2em] text-xs shadow-xl active:scale-95", isSignupDisabled ? "bg-slate-200 text-slate-400" : "gradient-bg shadow-primary/20")}>
                     {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Join the Revolution'}
                   </Button>
                 </div>
