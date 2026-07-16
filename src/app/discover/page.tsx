@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -330,18 +329,19 @@ function DiscoverCard({ item, isRestricted, onAction }: any) {
          <p className="text-[11px] text-white/80 leading-relaxed font-medium line-clamp-2 italic">"{item.bio}"</p>
 
          <div className="flex gap-2 pt-2">
-            <button 
+            <Button 
               onClick={() => onAction('friend')}
+              variant="outline"
               className={cn("flex-1 h-10 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white hover:text-primary font-black uppercase text-[8px] tracking-widest flex items-center justify-center gap-1.5 transition-all", isRestricted && "opacity-40 cursor-not-allowed")}
             >
               <Send className="w-3 h-3" /> Invite
-            </button>
-            <button 
+            </Button>
+            <Button 
               onClick={() => onAction('date')}
               className={cn("flex-1 h-10 rounded-xl gradient-bg shadow-lg font-black uppercase text-[8px] tracking-widest flex items-center justify-center gap-1.5 active:scale-95 transition-all", isRestricted && "opacity-40 cursor-not-allowed")}
             >
-              <Heart className="w-3 h-3 fill-current" /> Spark
-            </button>
+              💫 Spark Chat
+            </Button>
          </div>
       </div>
     </Card>

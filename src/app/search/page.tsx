@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useMemo, Suspense } from 'react';
@@ -207,8 +206,7 @@ function SearchContent() {
                             disabled={isProcessing === p.uid}
                             className="flex-1 h-12 rounded-xl gradient-bg font-black text-[9px] uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-105 transition-all gap-2"
                           >
-                            {isProcessing === p.uid ? <Loader2 className="w-3 h-3 animate-spin" /> : <Heart className="w-3 h-3 fill-current" />}
-                            Spark
+                            {isProcessing === p.uid ? <Loader2 className="w-3 h-3 animate-spin" /> : "💫 Spark Chat"}
                           </Button>
                         </div>
                       </div>
