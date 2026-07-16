@@ -5,8 +5,9 @@ import { useUser } from '@/firebase';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Heart, X, Sparkles, TrendingDown, Globe } from 'lucide-react';
+import { Heart, X, Sparkles, TrendingDown, Globe, Zap } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { useTranslation } from './providers/LanguageProvider';
 
 /**
  * @fileOverview Vibrant Registration Reminder.
@@ -14,6 +15,7 @@ import { useState, useEffect } from 'react';
  */
 export function RegistrationReminder() {
   const { user, loading } = useUser();
+  const { t } = useTranslation();
   const pathname = usePathname();
   const [isVisible, setIsVisible] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -70,23 +72,23 @@ export function RegistrationReminder() {
           </div>
           <div>
             <h4 className="font-black text-2xl tracking-tighter text-slate-900 leading-none">
-              {isGuest ? 'Join the' : 'Start Your'} <span className="text-primary">Journey.</span>
+              {isGuest ? 'Secure Your' : 'Start Your'} <span className="text-primary">Journey.</span>
             </h4>
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground mt-1.5">Reaching Every Heart</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground mt-1.5">Identity Ripple Protocol</p>
           </div>
         </div>
         
         <p className="text-base text-slate-600 leading-relaxed mb-8 font-medium italic">
           {isGuest 
-            ? '"Guests explore, but members prosper." Create a permanent identity to secure your matches and support global job creation. ❤️'
+            ? '"Guests explore, but members prosper." Convert your ripple into a permanent spark to secure your matches and support global job creation. ❤️'
             : '"Your happiness builds lives." Register now to connect with respectful hearts and help us end world poverty together. ❤️'}
         </p>
         
         <div className="grid grid-cols-2 gap-4">
           <Button asChild className="h-16 rounded-2xl gradient-bg font-black uppercase tracking-[0.1em] text-xs shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all group/btn">
             <Link href="/login" className="flex items-center gap-2">
-              Launch Spark
-              <Sparkles className="w-4 h-4 group-hover/btn:rotate-12 transition-transform" />
+              <Zap className="w-4 h-4" />
+              Join Mission
             </Link>
           </Button>
           <Button 
@@ -96,7 +98,7 @@ export function RegistrationReminder() {
           >
             <Link href="/donate" className="flex items-center gap-2">
               <TrendingDown className="w-4 h-4 text-primary" />
-              Support Mission
+              Fund Jobs
             </Link>
           </Button>
         </div>

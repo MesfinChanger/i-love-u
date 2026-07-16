@@ -17,6 +17,12 @@ const baseTranslations = {
     shop: "Shop",
     profile: "Profile"
   },
+  guest: {
+    sessionTitle: "Guest Session Active",
+    sessionDesc: "Explore respectfully. Join to secure your matches.",
+    joinAction: "Create Identity",
+    modeIndicator: "GUEST PROTOCOL"
+  },
   pool: {
     title: "Prosperity Pool",
     subtitle: "Swim in the Ocean of Knowledge",

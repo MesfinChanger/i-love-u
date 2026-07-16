@@ -30,7 +30,8 @@ import {
   ChevronUp,
   Wifi,
   WifiOff,
-  CheckCircle2
+  CheckCircle2,
+  ArrowRight
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -104,6 +105,7 @@ export default function DiscoverPage() {
 
   const viewerCountry = myProfile?.country || 'GLOBAL';
   const hasAcceptedPolicy = myProfile?.policyAccepted === true;
+  const isGuest = user?.isAnonymous;
   
   // Presence Stabilization Logic
   useEffect(() => {
@@ -207,7 +209,27 @@ export default function DiscoverPage() {
     <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
       <Header />
       
-      {!hasAcceptedPolicy && (
+      {isGuest && (
+        <div className="bg-primary/5 border-b border-primary/10 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 animate-in slide-in-from-top-2 sticky top-16 z-40 backdrop-blur-xl">
+           <div className="flex items-center gap-4 text-primary">
+              <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center animate-pulse">
+                <Ghost className="w-5 h-5" />
+              </div>
+              <div className="text-left">
+                <p className="text-[10px] font-black uppercase tracking-[0.2em]">{t('guest.sessionTitle')}</p>
+                <p className="text-xs font-medium text-slate-500 italic leading-none mt-1">{t('guest.sessionDesc')}</p>
+              </div>
+           </div>
+           <Button asChild size="sm" className="rounded-full gradient-bg h-9 px-6 font-black uppercase text-[9px] tracking-widest shadow-lg shadow-primary/20 gap-2">
+              <Link href="/login">
+                {t('guest.joinAction')}
+                <ArrowRight className="w-3 h-3" />
+              </Link>
+           </Button>
+        </div>
+      )}
+
+      {!hasAcceptedPolicy && !isGuest && (
         <div className="bg-amber-100 border-b border-amber-200 px-4 py-3 flex items-center justify-between animate-in slide-in-from-top-2 z-40 sticky top-16">
            <div className="flex items-center gap-2 text-amber-800">
               <ShieldAlert className="w-4 h-4" />
