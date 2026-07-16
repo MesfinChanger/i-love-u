@@ -3,6 +3,7 @@ import {
   doc,
   addDoc,
   setDoc,
+  getDocs,
   serverTimestamp
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -62,4 +63,19 @@ export async function createOrder(
   );
 
   return ref.id;
+}
+
+/**
+ * Get Stores Protocol.
+ * Retrieves all registered artisan shops from the community registry.
+ */
+export async function getStores() {
+  const snapshot = await getDocs(
+    collection(db, "shops")
+  );
+
+  return snapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data()
+  }));
 }
