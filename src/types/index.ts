@@ -1,4 +1,3 @@
-
 /**
  * @fileOverview High-Fidelity Community Type Definitions.
  */
@@ -16,6 +15,12 @@ export interface UserProfile {
   accountType: "guest" | "free" | "premium" | "business";
   createdAt: any;
   updatedAt: any;
+}
+
+export interface Match {
+  users: string[];
+  status: "active" | "ended";
+  createdAt: any;
 }
 
 export interface Notification {

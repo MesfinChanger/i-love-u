@@ -1,4 +1,3 @@
-
 import {
   collection,
   doc,
@@ -46,6 +45,23 @@ export async function sendSparkLike(fromUserId: string, toUserId: string) {
       fromUserId,
       toUserId,
       status: "pending",
+      createdAt: serverTimestamp()
+    }
+  );
+}
+
+// Match Protocol
+export async function createMatch(
+  userA: string,
+  userB: string
+) {
+  const matchId = [userA, userB].sort().join("_");
+
+  await setDoc(
+    doc(db, "matches", matchId),
+    {
+      users: [userA, userB],
+      status: "active",
       createdAt: serverTimestamp()
     }
   );
