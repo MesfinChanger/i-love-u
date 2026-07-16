@@ -1,3 +1,9 @@
+
+'use client';
+
+/**
+ * @fileOverview 🛒 Shopping - Marketplace and Prosperity Module.
+ */
 export default function Shopping() {
   return (
     <div className="p-8 space-y-4">

@@ -1,3 +1,9 @@
+
+'use client';
+
+/**
+ * @fileOverview 🤝 Circle - Community Gathering Module.
+ */
 export default function Circle() {
   return (
     <div className="p-8 space-y-4">

@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "UserProfile": {
@@ -20,6 +21,26 @@
       },
       "required": ["uid", "username", "displayName", "interests", "accountType"]
     },
+    "SparkProfile": {
+      "title": "Spark Profile",
+      "description": "Discovery and matching schema for romantic and cultural sparks.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "age": { "type": "number" },
+        "gender": { "type": "string" },
+        "country": { "type": "string" },
+        "city": { "type": "string" },
+        "bio": { "type": "string" },
+        "interests": { "type": "array", "items": { "type": "string" } },
+        "relationshipGoal": { "type": "string", "enum": ["friendship", "dating", "serious", "marriage"] },
+        "preferredCountries": { "type": "array", "items": { "type": "string" } },
+        "verified": { "type": "boolean" },
+        "visibility": { "type": "string", "enum": ["public", "hidden"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "age", "gender", "country", "relationshipGoal"]
+    },
     "Notification": {
       "title": "Notification",
       "description": "Private heart alert.",
@@ -38,7 +59,8 @@
     "providers": ["google.com", "password", "phone", "anonymous"]
   },
   "firestore": {
-    "/users/{userId}": { "schema": "UserProfile", "description": "Private profiles" },
+    "/users/{userId}": { "schema": "UserProfile", "description": "Private heart identities" },
+    "/sparkProfiles/{userId}": { "schema": "SparkProfile", "description": "Public discovery profiles" },
     "/users/{userId}/notifications/{notificationId}": { "schema": "Notification", "description": "User alerts" }
   }
 }

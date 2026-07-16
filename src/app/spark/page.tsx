@@ -1,3 +1,9 @@
+
+'use client';
+
+/**
+ * @fileOverview ❤️ Spark - High-Fidelity Discovery Module.
+ */
 export default function Spark() {
   return (
     <div className="p-8 space-y-4">

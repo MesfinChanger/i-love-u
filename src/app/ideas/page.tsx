@@ -1,3 +1,9 @@
+
+'use client';
+
+/**
+ * @fileOverview 💡 Idea Pool - Global Consciousness Module.
+ */
 export default function Ideas() {
   return (
     <div className="p-8 space-y-6">

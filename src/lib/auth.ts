@@ -1,3 +1,8 @@
+
+/**
+ * @fileOverview Authentication Bridge Helpers.
+ */
+
 import {
   onAuthStateChanged,
   User

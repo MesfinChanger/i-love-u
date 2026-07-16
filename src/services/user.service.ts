@@ -1,3 +1,8 @@
+
+/**
+ * @fileOverview High-Fidelity User Management Service.
+ */
+
 import {
   doc,
   setDoc,

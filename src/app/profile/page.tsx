@@ -1,17 +1,26 @@
 
-"use client";
+'use client';
 
 import { useEffect, useState } from "react";
-import { auth } from "@/firebase";
 import { Header } from "@/components/Header";
 import { BottomNav } from "@/components/BottomNav";
-import { useUser } from "@/firebase";
+import { useUser, db } from "@/firebase";
+import { doc, onSnapshot } from "firebase/firestore";
 
 /**
- * @fileOverview Identity Discovery Profile.
+ * @fileOverview Identity Discovery Profile - Refactored for High-Fidelity Mission.
  */
 export default function ProfilePage() {
-  const { user, loading } = useUser();
+  const { user, loading: authLoading } = useUser();
+  const [profile, setProfile] = useState<any>(null);
+
+  useEffect(() => {
+    if (!user || !db) return;
+    const unsub = onSnapshot(doc(db, 'users', user.uid), (snap) => {
+      if (snap.exists()) setProfile(snap.data());
+    });
+    return () => unsub();
+  }, [user]);
 
   return (
     <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
@@ -21,23 +30,29 @@ export default function ProfilePage() {
           👤 Profile
         </h1>
         
-        {loading ? (
+        {(authLoading || !profile) ? (
           <p className="text-muted-foreground animate-pulse font-black uppercase text-[10px] tracking-widest">Synchronizing Identity...</p>
         ) : (
           <div className="space-y-4">
             <p className="text-xl text-muted-foreground font-medium italic">
-              "You are the architect of your own heart." Manage your community identity and security protocols here.
+              "You are the architect of your own heart."
             </p>
-            {user && (
-              <div className="p-8 bg-white rounded-[2.5rem] shadow-xl border border-primary/5">
-                <p className="text-[10px] font-black uppercase text-primary tracking-widest mb-1">Authenticated Email</p>
-                <p className="font-bold text-lg">{user.email || "Guest Session"}</p>
-                <div className="mt-6 pt-6 border-t border-dashed">
-                  <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1">User UID</p>
-                  <p className="font-mono text-xs text-slate-500">{user.uid}</p>
+            <div className="p-8 bg-white rounded-[2.5rem] shadow-xl border border-primary/5">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-16 h-16 rounded-2xl gradient-bg flex items-center justify-center text-white font-black text-2xl">
+                  {profile.displayName?.[0] || 'U'}
+                </div>
+                <div>
+                  <h2 className="text-2xl font-black tracking-tight">{profile.displayName || profile.username}</h2>
+                  <p className="text-[10px] font-black uppercase text-primary tracking-widest">{profile.accountType} Heart</p>
                 </div>
               </div>
-            )}
+              
+              <div className="space-y-4 pt-6 border-t border-dashed">
+                <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1">Authenticated Email</p>
+                <p className="font-bold text-lg">{profile.email}</p>
+              </div>
+            </div>
           </div>
         )}
       </main>
