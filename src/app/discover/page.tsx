@@ -8,7 +8,6 @@ import {
   Sparkles, 
   MapPin, 
   Loader2, 
-  Star, 
   Send, 
   ChevronDown, 
   ChevronUp, 
@@ -20,7 +19,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { BottomNav } from '@/components/BottomNav';
-import { useUser, useFirestore, useDoc, useCollection } from '@/firebase';
+import { useUser, db } from '@/firebase';
 import { doc, setDoc, collection, serverTimestamp, query } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
@@ -40,6 +39,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { useDoc, useCollection } from '@/firebase';
 import Link from 'next/link';
 import { useTranslation } from '@/components/providers/LanguageProvider';
 
@@ -50,7 +50,6 @@ import { useTranslation } from '@/components/providers/LanguageProvider';
  */
 export default function DiscoverPage() {
   const { user } = useUser();
-  const db = useFirestore();
   const { toast } = useToast();
   const { t } = useTranslation();
 
@@ -66,7 +65,7 @@ export default function DiscoverPage() {
   const userRef = useMemoFirebase(() => {
     if (!db || !user?.uid) return null;
     return doc(db, 'users', user.uid);
-  }, [db, user?.uid]);
+  }, [user?.uid]);
   const { data: myProfile } = useDoc(userRef);
 
   // Commercial Access Logic
@@ -77,7 +76,7 @@ export default function DiscoverPage() {
   const discoveryQuery = useMemoFirebase(() => {
     if (!db) return null;
     return query(collection(db, 'publicProfiles'));
-  }, [db]);
+  }, []);
   const { data: discoveryItems, loading: usersLoading } = useCollection(discoveryQuery);
 
   useEffect(() => {

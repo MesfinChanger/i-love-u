@@ -7,10 +7,9 @@ import {
   Send, 
   ChevronLeft, 
   Loader2, 
-  ShieldCheck,
-  Zap
+  ShieldCheck
 } from 'lucide-react';
-import { useUser, useFirestore, useCollection, useDoc } from '@/firebase';
+import { auth, db, useUser, useCollection, useDoc } from '@/firebase';
 import { collection, addDoc, query, orderBy, serverTimestamp, doc, where, updateDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { moderateText } from '@/ai/flows/moderate-text-flow';
@@ -33,7 +32,6 @@ import { cn } from '@/lib/utils';
 export default function ChatPage({ params }: { params: Promise<{ matchId: string }> }) {
   const { matchId } = use(params);
   const { user } = useUser();
-  const db = useFirestore();
   const router = useRouter();
   const { toast } = useToast();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -45,18 +43,18 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
 
   const currentUserId = user?.uid;
 
-  const userRef = useMemoFirebase(() => db && currentUserId ? doc(db, 'users', currentUserId) : null, [db, currentUserId]);
+  const userRef = useMemoFirebase(() => db && currentUserId ? doc(db, 'users', currentUserId) : null, [currentUserId]);
   const { data: myProfile } = useDoc(userRef);
   
   const isCommercial = myProfile?.isSeller || myProfile?.isAdvertiser;
   const hasAcceptedPolicy = myProfile?.policyAccepted === true;
   const isInteractionRestricted = isCommercial && !hasAcceptedPolicy;
 
-  const convRef = useMemoFirebase(() => db && matchId ? doc(db, 'conversations', matchId) : null, [db, matchId]);
+  const convRef = useMemoFirebase(() => db && matchId ? doc(db, 'conversations', matchId) : null, [matchId]);
   const { data: convData, loading: matchLoading } = useDoc(convRef);
 
   const partnerId = useMemo(() => convData?.participants?.find((id: string) => id !== currentUserId), [convData?.participants, currentUserId]);
-  const partnerRef = useMemoFirebase(() => db && partnerId ? doc(db, 'users', partnerId) : null, [db, partnerId]);
+  const partnerRef = useMemoFirebase(() => db && partnerId ? doc(db, 'users', partnerId) : null, [partnerId]);
   const { data: partnerProfile } = useDoc(partnerRef);
 
   const messagesQuery = useMemoFirebase(() => {
@@ -66,7 +64,7 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
       where('conversationId', '==', matchId),
       orderBy('createdAt', 'asc')
     );
-  }, [db, matchId]);
+  }, [matchId]);
   
   const { data: messages, loading: messagesLoading } = useCollection(messagesQuery);
 

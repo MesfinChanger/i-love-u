@@ -2,7 +2,7 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth, useUser, useFirestore } from '@/firebase';
+import { auth, db } from '@/firebase';
 import { 
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword,
@@ -27,8 +27,7 @@ import {
   Globe,
   Sparkles,
   BotOff,
-  Ghost,
-  AlertTriangle
+  Ghost
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
@@ -36,6 +35,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { generateKeyPair, exportPublicKey, exportPrivateKey } from '@/lib/crypto';
 import { COUNTRIES } from '@/lib/world-data';
 import { useTranslation } from '@/components/providers/LanguageProvider';
+import { useUser } from '@/firebase';
 import { cn } from '@/lib/utils';
 
 /**
@@ -43,8 +43,6 @@ import { cn } from '@/lib/utils';
  * Hardened guest access protocol and Identity Recovery links.
  */
 function LoginContent() {
-  const auth = useAuth();
-  const db = useFirestore();
   const { user, loading: authLoading } = useUser();
   const router = useRouter();
   const { toast } = useToast();

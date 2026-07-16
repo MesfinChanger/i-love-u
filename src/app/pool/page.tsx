@@ -22,7 +22,7 @@ import {
   Cpu, 
   Brain 
 } from 'lucide-react';
-import { useUser, useFirestore, useCollection, useDoc } from '@/firebase';
+import { useUser, db, useCollection, useDoc } from '@/firebase';
 import { collection, addDoc, query, orderBy, serverTimestamp, limit, where, doc } from 'firebase/firestore';
 import { moderateText } from '@/ai/flows/moderate-text-flow';
 import { useToast } from '@/hooks/use-toast';
@@ -54,7 +54,6 @@ const TOPICS: TopicDefinition[] = [
 
 export default function ProsperityPoolPage() {
   const { user } = useUser();
-  const db = useFirestore();
   const { toast } = useToast();
   const { t } = useTranslation();
 
@@ -68,7 +67,7 @@ export default function ProsperityPoolPage() {
     setMounted(true);
   }, []);
 
-  const userRef = useMemoFirebase(() => db && user?.uid ? doc(db, 'users', user.uid) : null, [db, user?.uid]);
+  const userRef = useMemoFirebase(() => db && user?.uid ? doc(db, 'users', user.uid) : null, [user?.uid]);
   const { data: myProfile } = useDoc(userRef);
 
   const isAdmin = myProfile?.role === 'admin';
@@ -83,10 +82,10 @@ export default function ProsperityPoolPage() {
     switch (topicId) {
       case 'General': return true;
       case 'Economy': return myProfile.isSeller || myProfile.isAdvertiser;
-      case 'Technology': return myProfile.isSeller;
+      case 'Technology': return myProfile.isSeller || isAdmin;
       case 'Science':
       case 'Philosophy': return myProfile.verified === true;
-      case 'Politics': return false; // Admins only
+      case 'Politics': return isAdmin; 
       default: return true;
     }
   };
@@ -98,7 +97,7 @@ export default function ProsperityPoolPage() {
       q = query(collection(db, 'ideaPool'), where('topic', '==', activeTopic), orderBy('timestamp', 'desc'), limit(50));
     }
     return q;
-  }, [db, activeTopic]);
+  }, [activeTopic]);
 
   const { data: thoughts, loading } = useCollection(poolQuery);
 

@@ -8,8 +8,6 @@ import {
   CircleHelp, 
   X, 
   Sparkles, 
-  Star, 
-  MessageCircle, 
   Menu,
   Globe2,
   ShoppingBag,
@@ -44,7 +42,7 @@ import { useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useTranslation } from './providers/LanguageProvider';
-import { useAuth, useUser } from '@/firebase';
+import { auth, useUser } from '@/firebase';
 import { signOut } from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 import { SUPPORTED_LANGUAGES } from '@/lib/world-data';
@@ -55,7 +53,6 @@ import { SUPPORTED_LANGUAGES } from '@/lib/world-data';
  * Features the requested Unified Sign-Out Protocol.
  */
 export function Header() {
-  const auth = useAuth();
   const { user } = useUser();
   const router = useRouter();
   const { toast } = useToast();

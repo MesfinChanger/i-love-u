@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/firebase';
+import { auth } from '@/firebase';
 import { sendPasswordResetEmail } from 'firebase/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,12 +25,12 @@ import { cn } from '@/lib/utils';
  * Hardened with Bridge Detection and Delivery Heartbeat to ensure hearts receive reset links.
  */
 export default function ResetPasswordPage() {
-  const auth = useAuth();
   const { toast } = useToast();
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSent, setIsSent] = useState(false);
   const [currentYear, setCurrentYear] = useState('');
+  const [message, setMessage] = useState('');
 
   useEffect(() => {
     setCurrentYear(new Date().getFullYear().toString());
@@ -59,9 +59,11 @@ export default function ResetPasswordPage() {
     }
 
     setIsLoading(true);
+    setMessage('');
     try {
       await sendPasswordResetEmail(auth, cleanEmail);
       setIsSent(true);
+      setMessage("Reset email sent. Check your inbox.");
       toast({
         title: "Email Dispatched",
         description: "Check your inbox (and spam folder) for a secure recovery link. ❤️",
@@ -69,18 +71,20 @@ export default function ResetPasswordPage() {
     } catch (error: any) {
       console.error("Reset Error Ripple:", error);
       
-      let message = "We couldn't find a heart associated with that email. Please verify and try again.";
-      
+      let errorMsg = error.message;
       if (error.code === 'auth/too-many-requests') {
-        message = "Too many recovery attempts. Please wait a heartbeat and try again for security. ❤️";
+        errorMsg = "Too many recovery attempts. Please wait a heartbeat and try again for security. ❤️";
       } else if (error.code === 'auth/invalid-email') {
-        message = "The email format is invalid. Please double-check your entry. ✨";
+        errorMsg = "The email format is invalid. Please double-check your entry. ✨";
+      } else if (error.code === 'auth/user-not-found') {
+        errorMsg = "We couldn't find a heart associated with that email. Please verify and try again.";
       }
 
+      setMessage(errorMsg);
       toast({
         variant: "destructive",
         title: "Access Ripple",
-        description: message,
+        description: errorMsg,
       });
     } finally {
       setIsLoading(false);
@@ -148,7 +152,7 @@ export default function ResetPasswordPage() {
                     <Input 
                       type="email" 
                       required
-                      placeholder="heart@example.com"
+                      placeholder="Email address"
                       value={email} 
                       onChange={(e) => setEmail(e.target.value)} 
                       className="h-12 border-none border-b-2 border-slate-100 rounded-none px-0 font-bold text-base focus-visible:ring-0 focus-visible:border-primary transition-all" 
@@ -171,10 +175,16 @@ export default function ResetPasswordPage() {
                   {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : (
                     <span className="flex items-center gap-3">
                       <Sparkles className="w-4 h-4" />
-                      Dispatch Link
+                      Send Reset Link
                     </span>
                   )}
                 </Button>
+
+                {message && (
+                  <p className={cn("text-[10px] text-center font-bold uppercase tracking-tight", isSent ? "text-green-600" : "text-red-500")}>
+                    {message}
+                  </p>
+                )}
 
                 <p className="text-[9px] text-center text-slate-300 uppercase font-black tracking-[0.3em]">
                   © {currentYear} • Global Security Protocol
