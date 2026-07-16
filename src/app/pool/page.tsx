@@ -25,7 +25,9 @@ import {
   TrendingDown,
   Scale,
   Brain,
-  Clock
+  Clock,
+  Lock,
+  CheckCircle2
 } from 'lucide-react';
 import { useUser, useFirestore, useCollection, useDoc } from '@/firebase';
 import { collection, addDoc, query, orderBy, serverTimestamp, limit, where, doc } from 'firebase/firestore';
@@ -36,16 +38,26 @@ import { useTranslation } from '@/components/providers/LanguageProvider';
 import { cn } from '@/lib/utils';
 
 /**
- * @fileOverview Prosperity Pool.
- * Implements role-aware restrictions for Sellers and Purchasers.
+ * @fileOverview Prosperity Pool with Topic Access Control.
+ * Grants posting access based on user role and profile status.
  */
-const TOPICS = [
-  { id: 'Economy', icon: TrendingDown, color: 'text-green-500', bg: 'bg-green-50' },
-  { id: 'Politics', icon: Scale, color: 'text-amber-500', bg: 'bg-amber-50' },
-  { id: 'Science', icon: Microscope, color: 'text-purple-500', bg: 'bg-purple-50' },
-  { id: 'Technology', icon: Cpu, color: 'text-blue-500', bg: 'bg-blue-50' },
-  { id: 'Philosophy', icon: Brain, color: 'text-rose-500', bg: 'bg-rose-50' },
-  { id: 'General', icon: MessageSquare, color: 'text-slate-500', bg: 'bg-slate-50' }
+
+interface TopicDefinition {
+  id: string;
+  icon: any;
+  color: string;
+  bg: string;
+  requiredRole?: string;
+  description: string;
+}
+
+const TOPICS: TopicDefinition[] = [
+  { id: 'Economy', icon: TrendingDown, color: 'text-green-500', bg: 'bg-green-50', description: 'Requires Seller or Advertiser status' },
+  { id: 'Politics', icon: Scale, color: 'text-amber-500', bg: 'bg-amber-50', requiredRole: 'admin', description: 'Restricted to Platform Administrators' },
+  { id: 'Science', icon: Microscope, color: 'text-purple-500', bg: 'bg-purple-50', description: 'Requires Verified Heart status' },
+  { id: 'Technology', icon: Cpu, color: 'text-blue-500', bg: 'bg-blue-50', description: 'Requires Seller or Artisan status' },
+  { id: 'Philosophy', icon: Brain, color: 'text-rose-500', bg: 'bg-rose-50', description: 'Requires Verified Heart status' },
+  { id: 'General', icon: MessageSquare, color: 'text-slate-500', bg: 'bg-slate-50', description: 'Open to all Community Hearts' }
 ];
 
 export default function ProsperityPoolPage() {
@@ -70,6 +82,22 @@ export default function ProsperityPoolPage() {
   const hasAcceptedPolicy = myProfile?.policyAccepted === true;
   const isCommercial = myProfile?.isSeller || myProfile?.isAdvertiser;
   const isInteractionRestricted = isCommercial && !hasAcceptedPolicy;
+  const isAdmin = myProfile?.role === 'admin';
+
+  const checkAccess = (topicId: string) => {
+    if (!myProfile) return false;
+    if (isAdmin) return true;
+
+    switch (topicId) {
+      case 'General': return true;
+      case 'Economy': return myProfile.isSeller || myProfile.isAdvertiser;
+      case 'Technology': return myProfile.isSeller;
+      case 'Science':
+      case 'Philosophy': return myProfile.verified === true;
+      case 'Politics': return false; // Admins only
+      default: return true;
+    }
+  };
 
   const poolQuery = useMemoFirebase(() => {
     if (!db) return null;
@@ -88,6 +116,11 @@ export default function ProsperityPoolPage() {
     
     if (isInteractionRestricted) {
       toast({ variant: "destructive", title: "Access Restricted", description: "Sellers and Purchasers must commit to the Respect Protocol before diving in. ❤️" });
+      return;
+    }
+
+    if (!checkAccess(selectedTopic)) {
+      toast({ variant: "destructive", title: "Access Denied", description: `Your profile doesn't meet the requirements for ${selectedTopic}. ✨` });
       return;
     }
 
@@ -153,40 +186,58 @@ export default function ProsperityPoolPage() {
               <CardContent className="p-8 space-y-6">
                  <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-2">
-                       {TOPICS.map(topic => (
-                          <button 
-                            key={topic.id}
-                            onClick={() => setSelectedTopic(topic.id)}
-                            className={cn(
-                              "p-3 rounded-2xl border flex flex-col items-center gap-2 transition-all active:scale-95",
-                              selectedTopic === topic.id ? "bg-slate-900 text-white border-slate-900 shadow-lg" : "hover:bg-slate-50 border-slate-100"
-                            )}
-                          >
-                             <topic.icon className={cn("w-4 h-4", selectedTopic === topic.id ? "text-primary" : topic.color)} />
-                             <span className="text-[9px] font-black uppercase tracking-widest">{topic.id}</span>
-                          </button>
-                       ))}
+                       {TOPICS.map(topic => {
+                          const hasAccess = checkAccess(topic.id);
+                          return (
+                            <button 
+                              key={topic.id}
+                              onClick={() => hasAccess && setSelectedTopic(topic.id)}
+                              className={cn(
+                                "p-3 rounded-2xl border flex flex-col items-center gap-2 transition-all active:scale-95 group relative overflow-hidden",
+                                selectedTopic === topic.id ? "bg-slate-900 text-white border-slate-900 shadow-lg" : "hover:bg-slate-50 border-slate-100",
+                                !hasAccess && "opacity-40 grayscale cursor-not-allowed bg-slate-50"
+                              )}
+                              title={topic.description}
+                            >
+                               {!hasAccess && <Lock className="absolute top-1 right-1 w-2.5 h-2.5 text-slate-400" />}
+                               <topic.icon className={cn("w-4 h-4", selectedTopic === topic.id ? "text-primary" : topic.color)} />
+                               <span className="text-[9px] font-black uppercase tracking-widest">{topic.id}</span>
+                            </button>
+                          );
+                       })}
                     </div>
+
+                    <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100">
+                       <p className="text-[9px] font-bold text-blue-600 uppercase tracking-tight">
+                         Selected Topic: <span className="font-black">{selectedTopic}</span>
+                       </p>
+                       <p className="text-[8px] text-slate-400 font-medium italic leading-none mt-1">
+                         {TOPICS.find(t => t.id === selectedTopic)?.description}
+                       </p>
+                    </div>
+
                     <Textarea 
                       value={newThought}
                       onChange={e => setNewThought(e.target.value)}
                       placeholder={isInteractionRestricted ? "Commercial Approval Required" : t('pool.placeholder')}
                       className="min-h-[140px] rounded-[1.5rem] border-none bg-muted/40 p-5 font-medium italic text-sm leading-relaxed"
-                      disabled={isInteractionRestricted}
+                      disabled={isInteractionRestricted || !checkAccess(selectedTopic)}
                     />
                  </div>
+                 
                  <div className="bg-slate-900 p-5 rounded-2xl space-y-3 shadow-lg relative overflow-hidden group">
                     <div className="flex items-center gap-2 text-primary">
                        <ShieldCheck className="w-4 h-4" />
                        <span className="text-[9px] font-black uppercase tracking-widest">Pool Regulation</span>
                     </div>
                     <p className="text-[8px] text-white/60 font-bold uppercase leading-relaxed tracking-widest">
-                       {isInteractionRestricted ? "Sellers and Purchasers must agree to the respect policy before contributing." : "Politics and Economy thoughts must be shared with Love. Any toxicity is purged."}
+                       {isInteractionRestricted ? "Sellers and Purchasers must agree to the respect policy before contributing." : "Topic access is granted based on profile status. Respect & Love is Mandatory."}
                     </p>
                  </div>
+
                  <Button 
                    onClick={handlePostThought}
-                   disabled={isSending || !newThought.trim() || isInteractionRestricted}
+                   disabled={isSending || !newThought.trim() || isInteractionRestricted || !checkAccess(selectedTopic)}
                    className="w-full h-14 rounded-2xl gradient-bg font-black uppercase text-xs tracking-widest shadow-xl shadow-primary/20 gap-3"
                  >
                    {isSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
