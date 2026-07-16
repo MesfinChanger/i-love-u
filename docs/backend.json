@@ -155,6 +155,21 @@
       },
       "required": ["action", "userId", "timestamp"]
     },
+    "AnalyticsEvent": {
+      "title": "Analytics Event",
+      "description": "Mission optimization tracking for community heartbeats.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "organizationId": { "type": "string" },
+        "eventType": { "type": "string", "enum": ["login", "spark_created", "message_sent", "circle_joined", "idea_created", "product_viewed", "purchase_completed", "course_completed"] },
+        "module": { "type": "string", "enum": ["identity", "spark", "circle", "chat", "shopping", "learning", "research"] },
+        "metadata": { "type": "object" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["eventType", "module", "createdAt"]
+    },
     "Block": {
       "title": "User Block",
       "description": "A record of a heart maintaining its sacred space.",
@@ -337,6 +352,7 @@
     "/payments/{paymentId}": { "schema": "Payment", "description": "Global financial bridge registry" },
     "/receipts/{receiptId}": { "schema": "Receipt", "description": "Formal prosperity transfer registries" },
     "/auditLogs/{logId}": { "schema": "AuditLog", "description": "High-fidelity financial audit logs" },
+    "/analyticsEvents/{eventId}": { "schema": "AnalyticsEvent", "description": "Global mission optimization tracking" },
     "/blocks/{blockId}": { "schema": "Block", "description": "Community safety registry" },
     "/reports/{reportId}": { "schema": "Report", "description": "Accountability and moderation registry" },
     "/sparkProfiles/{userId}": { "schema": "SparkProfile", "description": "Public discovery profiles" },

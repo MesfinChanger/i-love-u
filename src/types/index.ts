@@ -1,4 +1,3 @@
-
 /**
  * @fileOverview High-Fidelity Community Type Definitions.
  */
@@ -14,6 +13,7 @@ export * from './transaction';
 export * from './payment';
 export * from './receipt';
 export * from './audit';
+export * from './analytics';
 
 export type IdeaCategory =
   | "economics"

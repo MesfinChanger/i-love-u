@@ -72,6 +72,12 @@ service cloud.firestore {
       allow read: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
 
+    // High-Fidelity Analytics Protocol
+    match /analyticsEvents/{eventId} {
+      allow create: if request.auth != null;
+      allow read: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
     // Community Safety Registry
     match /blocks/{blockId} {
       allow read: if request.auth != null && request.auth.uid == resource.data.blockerId;
@@ -119,6 +125,11 @@ service cloud.firestore {
       allow read: if true;
       allow create: if request.auth != null;
       allow update, delete: if request.auth.uid == resource.data.storeId;
+    }
+
+    match /objects/{objectId} {
+      allow read: if true;
+      allow write: if request.auth != null;
     }
 
     match /orders/{orderId} {
