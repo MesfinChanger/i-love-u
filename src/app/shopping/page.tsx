@@ -1,5 +1,9 @@
 'use client';
 
+/**
+ * @fileOverview Refactored Marketplace module.
+ * A premium marketplace supporting local artisans.
+ */
 export default function Shopping() {
   return (
     <div className="p-8">

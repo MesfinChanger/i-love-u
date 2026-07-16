@@ -1,5 +1,9 @@
 'use client';
 
+/**
+ * @fileOverview Refactored Messages module.
+ * Your high-fidelity secured sacred spaces.
+ */
 export default function Messages() {
   return (
     <div className="p-8">

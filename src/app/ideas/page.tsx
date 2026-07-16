@@ -1,5 +1,9 @@
 'use client';
 
+/**
+ * @fileOverview Refactored Idea Pool module.
+ * Swim in the ocean of global consciousness.
+ */
 export default function Ideas() {
   return (
     <div className="p-8">

@@ -2,7 +2,7 @@
 
 /**
  * @fileOverview Refactored Spark Discovery module.
- * Simplified as requested to focus on core dating and meaningful connections.
+ * Focused on dating and meaningful connections.
  */
 export default function Spark() {
   return (

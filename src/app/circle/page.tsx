@@ -1,5 +1,9 @@
 'use client';
 
+/**
+ * @fileOverview Refactored Community Circle module.
+ * Focused on friendship and communities.
+ */
 export default function Circle() {
   return (
     <div className="p-8">
@@ -7,7 +11,7 @@ export default function Circle() {
         🤝 Circle
       </h1>
       <p className="text-muted-foreground text-lg font-medium italic">
-        Gather around shared missions and cultural exchange.
+        Friendship and communities.
       </p>
     </div>
   );
