@@ -35,3 +35,18 @@ export async function discoverSparkUsers() {
     ...doc.data()
   }));
 }
+
+// Spark Like Protocol
+export async function sendSparkLike(fromUserId: string, toUserId: string) {
+  const id = `${fromUserId}_${toUserId}`;
+
+  await setDoc(
+    doc(db, "sparkLikes", id),
+    {
+      fromUserId,
+      toUserId,
+      status: "pending",
+      createdAt: serverTimestamp()
+    }
+  );
+}
