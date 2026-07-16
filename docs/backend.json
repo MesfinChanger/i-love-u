@@ -212,6 +212,25 @@
         "shippingStatus": { "type": "string", "enum": ["processing", "shipped", "delivered"] },
         "createdAt": { "type": "string", "format": "date-time" }
       }
+    },
+    "Organization": {
+      "title": "Community Organization",
+      "description": "Registered entities within the Prosperity Revolution.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "type": { "type": "string", "enum": ["company", "school", "government", "ngo", "church", "hospital", "community"] },
+        "logo": { "type": "string" },
+        "website": { "type": "string" },
+        "country": { "type": "string" },
+        "city": { "type": "string" },
+        "timezone": { "type": "string" },
+        "ownerId": { "type": "string" },
+        "verified": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "name", "type", "ownerId"]
     }
   },
   "auth": {
@@ -232,6 +251,7 @@
     "/conversations/{convId}/messages/{msgId}": { "schema": "Message", "description": "Secured high-fidelity subcollection messages" },
     "/shops/{shopId}": { "schema": "Store", "description": "Verified local artisan shops" },
     "/products/{productId}": { "schema": "Product", "description": "Marketplace product listings" },
-    "/orders/{orderId}": { "schema": "Order", "description": "Recorded purchase transactions" }
+    "/orders/{orderId}": { "schema": "Order", "description": "Recorded purchase transactions" },
+    "/organizations/{orgId}": { "schema": "Organization", "description": "Global community organization registry" }
   }
 }

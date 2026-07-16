@@ -8,6 +8,7 @@ export * from './circle';
 export * from './spark';
 export * from './shopping';
 export * from './security';
+export * from './organization';
 
 export type IdeaCategory =
   | "economics"
