@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -23,7 +22,7 @@ import { cn } from '@/lib/utils';
 
 /**
  * @fileOverview Secure Recovery Protocol Page.
- * Hardened with Bridge Detection and Input Sanitation to ensure recovery links are dispatched reliably.
+ * Hardened with Bridge Detection and Delivery Heartbeat to ensure hearts receive reset links.
  */
 export default function ResetPasswordPage() {
   const auth = useAuth();
@@ -129,8 +128,8 @@ export default function ResetPasswordPage() {
                   </p>
                   <div className="p-4 bg-amber-50 rounded-2xl border border-amber-100 flex items-start gap-3 text-left">
                     <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                    <p className="text-[10px] text-amber-800 font-bold uppercase tracking-tight">
-                      Important: Look for an email from <strong>noreply@iLoveU.com</strong>. If you don't see it within 60 seconds, please check your Spam or Junk folder.
+                    <p className="text-[10px] text-amber-800 font-black uppercase tracking-tight">
+                      Important: Look for an email from <strong>noreply@iLoveU.com</strong>. If you don't see it within 60 seconds, please check your <span className="underline">Spam or Junk</span> folder.
                     </p>
                   </div>
                 </div>

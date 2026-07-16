@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -13,7 +12,8 @@ import {
   ShieldCheck,
   CheckCircle2,
   Sparkles,
-  User
+  User,
+  AlertTriangle
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
@@ -22,7 +22,7 @@ import { cn } from '@/lib/utils';
 
 /**
  * @fileOverview Identity Recovery Protocol (Forgot Nickname).
- * Guides hearts to retrieve their unique community nickname via email reminder.
+ * Hardened feedback loop to ensure hearts retrieve their unique community nickname.
  */
 export default function ForgotNicknamePage() {
   const { toast } = useToast();
@@ -106,8 +106,14 @@ export default function ForgotNicknamePage() {
                 <div className="space-y-3">
                   <h2 className="text-xl font-black uppercase tracking-tight text-slate-900">Check Your Heart</h2>
                   <p className="text-xs text-muted-foreground font-medium italic leading-relaxed">
-                    {t('login.nicknameSent')}
+                    If an account exists for <strong>{email}</strong>, a nickname reminder has been sent. ❤️
                   </p>
+                  <div className="p-4 bg-blue-50 rounded-2xl border border-blue-100 flex items-start gap-3 text-left">
+                    <AlertTriangle className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+                    <p className="text-[10px] text-blue-800 font-black uppercase tracking-tight">
+                      Note: Remember to check your <span className="underline">Spam</span> folder. Our reminders sometimes get filtered by strict email providers.
+                    </p>
+                  </div>
                 </div>
                 <Button asChild className="w-full h-16 rounded-2xl gradient-bg font-black uppercase tracking-widest text-[10px] shadow-xl shadow-primary/20">
                   <Link href="/login">Return to Login</Link>

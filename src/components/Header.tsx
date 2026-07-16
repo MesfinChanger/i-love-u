@@ -76,7 +76,7 @@ export function Header() {
     window.dispatchEvent(new CustomEvent('open-auth-gate'));
   };
 
-  // Unified Sign-Out Protocol
+  // Unified Sign-Out Protocol (Synchronized Snippet)
   const handleSignOut = async () => {
     if (!auth || isSigningOut) return;
     setIsSigningOut(true);
