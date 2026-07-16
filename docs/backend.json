@@ -1,4 +1,3 @@
-
 {
   "entities": {
     "UserProfile": {
@@ -64,17 +63,33 @@
       },
       "required": ["users", "status", "createdAt"]
     },
-    "Friendship": {
-      "title": "Friendship",
-      "description": "A high-fidelity cultural exchange connection.",
+    "Conversation": {
+      "title": "Conversation",
+      "description": "A shared communication channel.",
       "type": "object",
       "properties": {
-        "userA": { "type": "string" },
-        "userB": { "type": "string" },
-        "status": { "type": "string", "enum": ["pending", "friends", "blocked"] },
+        "id": { "type": "string" },
+        "type": { "type": "string", "enum": ["spark", "circle-private", "circle-group", "shopping", "idea"] },
+        "participants": { "type": "array", "items": { "type": "string" } },
+        "title": { "type": "string" },
+        "imageURL": { "type": "string" },
+        "encryptionVersion": { "type": "string" },
         "createdAt": { "type": "string", "format": "date-time" }
-      },
-      "required": ["userA", "userB", "status"]
+      }
+    },
+    "Message": {
+      "title": "Message",
+      "description": "A secured piece of communication.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "senderId": { "type": "string" },
+        "encryptedText": { "type": "string" },
+        "iv": { "type": "string" },
+        "type": { "type": "string", "enum": ["text", "image", "voice", "file"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "status": { "type": "string", "enum": ["sent", "delivered", "read"] }
+      }
     },
     "Circle": {
       "title": "Community Circle",
@@ -114,6 +129,8 @@
     "/matches/{matchId}": { "schema": "Match", "description": "Established high-fidelity connections" },
     "/friendships/{friendshipId}": { "schema": "Friendship", "description": "Cultural bridge registry" },
     "/communities/{communityId}": { "schema": "Circle", "description": "Community gatherings" },
-    "/communities/{communityId}/members/{memberId}": { "schema": "CircleMember", "description": "Circle participant registry" }
+    "/communities/{communityId}/members/{memberId}": { "schema": "CircleMember", "description": "Circle participant registry" },
+    "/conversations/{convId}": { "schema": "Conversation", "description": "Secured communication channels" },
+    "/messages/{msgId}": { "schema": "Message", "description": "Secured high-fidelity messages" }
   }
 }

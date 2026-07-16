@@ -1,7 +1,10 @@
-
 /**
  * @fileOverview High-Fidelity Community Type Definitions.
  */
+
+export * from './chat';
+export * from './circle';
+export * from './spark';
 
 export interface UserProfile {
   uid: string;
@@ -16,21 +19,6 @@ export interface UserProfile {
   accountType: "guest" | "free" | "premium" | "business";
   createdAt: any;
   updatedAt: any;
-}
-
-export interface SparkProfile {
-  userId: string;
-  age: number;
-  gender: string;
-  country: string;
-  city: string;
-  bio: string;
-  interests: string[];
-  relationshipGoal: "friendship" | "dating" | "serious" | "marriage";
-  preferredCountries: string[];
-  verified: boolean;
-  visibility: "public" | "hidden";
-  createdAt: any;
 }
 
 export interface SparkLike {
@@ -50,27 +38,6 @@ export interface Friendship {
   userA: string;
   userB: string;
   status: "pending" | "friends" | "blocked";
-  createdAt: any;
-}
-
-export interface Circle {
-  id: string;
-  name: string;
-  description: string;
-  category: 
-    | "Technology"
-    | "Business"
-    | "Education"
-    | "Travel"
-    | "Culture"
-    | "Sports"
-    | "Music"
-    | "Environment"
-    | "General";
-  imageURL?: string;
-  ownerId: string;
-  privacy: "open" | "private";
-  memberCount: number;
   createdAt: any;
 }
 
