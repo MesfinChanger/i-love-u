@@ -51,7 +51,7 @@
     },
     "PoolPost": {
       "title": "Pool Post",
-      "description": "A thought shared in the global Prosperity Pool.",
+      "description": "A thought shared in the global Consciousness Pool.",
       "type": "object",
       "properties": {
         "authorId": { "type": "string" },
@@ -184,7 +184,7 @@
     "/users/{userId}/notifications/{notificationId}": { "schema": "Notification", "description": "User alerts" },
     "/publicProfiles/{userId}": { "schema": "UserProfile", "description": "Vibrant discovery data" },
     "/relationships/{relationshipId}": { "schema": "Relationship", "description": "Friend and block registry" },
-    "/circle/{circleId}": { "schema": "Circle", "description": "Sacred gatherings" },
+    "/circles/{circleId}": { "schema": "Circle", "description": "Sacred gatherings" },
     "/ideaPool/{postId}": { "schema": "PoolPost", "description": "Knowledge pool" },
     "/communityMessages/{messageId}": { "schema": "CommunityMessage", "description": "Global Wall" },
     "/shops/{shopId}": { "schema": "Shop", "description": "Artisan storefronts" },
