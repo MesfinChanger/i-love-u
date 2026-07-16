@@ -72,7 +72,8 @@
     "/publicProfiles/{userId}": { "schema": "UserProfile", "description": "Discovery data" },
     "/conversations/{conversationId}": { "schema": "Conversation", "description": "Unified connections" },
     "/messages/{messageId}": { "schema": "Message", "description": "Global message registry" },
+    "/communityMessages/{messageId}": { "description": "Global Wall messages" },
     "/ideaPool/{postId}": { "description": "Global knowledge pool" },
-    "/siteSettings/{settingId}": { "description": "Global platform settings including sovereignty" }
+    "/siteSettings/{settingId}": { "description": "Global platform settings" }
   }
 }

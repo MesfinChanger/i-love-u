@@ -141,11 +141,11 @@ export default function DiscoverPage() {
     try {
       await setDoc(doc(db, 'conversations', conversationId), {
         participants: participants,
-        createdAt: serverTimestamp(),
-        lastMessage: type === 'date' ? "A Spark invitation has been sent! ✨" : "Connection invitation sent 🤝",
+        type: type === 'date' ? 'spark' : 'friend',
         status: "pending",
         invitedBy: user.uid,
-        type: type === 'date' ? 'spark' : 'friend'
+        lastMessage: type === 'date' ? "A Spark invitation has been sent! ✨" : "Connection invitation sent 🤝",
+        createdAt: serverTimestamp(),
       }, { merge: true });
       
       toast({ title: "Invitation Sent!", description: "Waiting for them to accept your spark. ❤️" });
