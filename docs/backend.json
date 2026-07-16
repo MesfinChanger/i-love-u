@@ -49,8 +49,7 @@
         "fromUserId": { "type": "string" },
         "toUserId": { "type": "string" },
         "createdAt": { "type": "string", "format": "date-time" },
-        "status": { "type": "string", "enum": ["pending", "matched"] },
-        "type": { "type": "string", "enum": ["spark", "friend"] }
+        "status": { "type": "string", "enum": ["pending", "matched"] }
       }
     },
     "Relationship": {
@@ -61,19 +60,6 @@
         "userA": { "type": "string" },
         "userB": { "type": "string" },
         "status": { "type": "string", "enum": ["friends", "blocked"] },
-        "createdAt": { "type": "string", "format": "date-time" }
-      }
-    },
-    "Message": {
-      "title": "Message",
-      "description": "A secured E2EE message within a conversation.",
-      "type": "object",
-      "properties": {
-        "conversationId": { "type": "string" },
-        "senderId": { "type": "string" },
-        "encryptedText": { "type": "string" },
-        "iv": { "type": "string" },
-        "text": { "type": "string" },
         "createdAt": { "type": "string", "format": "date-time" }
       }
     },
@@ -106,6 +92,16 @@
         "commentsCount": { "type": "number", "default": 0 },
         "createdAt": { "type": "string", "format": "date-time" }
       }
+    },
+    "CommunityMessage": {
+      "title": "Community Message",
+      "description": "A public thought shared on the Global Wall.",
+      "type": "object",
+      "properties": {
+        "authorId": { "type": "string" },
+        "text": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
     }
   },
   "auth": {
@@ -115,9 +111,8 @@
     "/users/{userId}": { "schema": "UserProfile", "description": "Private user profiles" },
     "/publicProfiles/{userId}": { "schema": "UserProfile", "description": "Discovery data" },
     "/connections/{connectionId}": { "schema": "Connection", "description": "Match and Invitation registry" },
-    "/relationships/{relationshipId}": { "schema": "Relationship", "description": "High-security registry for friend states and community blocking." },
-    "/messages/{messageId}": { "schema": "Message", "description": "Global message registry" },
-    "/communityMessages/{messageId}": { "description": "Global Wall messages" },
+    "/relationships/{relationshipId}": { "schema": "Relationship", "description": "Friend states and community blocking." },
+    "/communityMessages/{messageId}": { "schema": "CommunityMessage", "description": "Global Wall messages" },
     "/ideaPool/{postId}": { "schema": "PoolPost", "description": "Global knowledge pool" },
     "/circles/{circleId}": { "schema": "Circle", "description": "Global community circles registry" },
     "/siteSettings/{settingId}": { "description": "Global platform settings" }
