@@ -93,6 +93,23 @@
       },
       "required": ["userId", "currency", "availableBalance", "status"]
     },
+    "Transaction": {
+      "title": "Prosperity Transaction",
+      "description": "Financial heartbeat of a heart's prosperity journey.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "walletId": { "type": "string" },
+        "userId": { "type": "string" },
+        "type": { "type": "string", "enum": ["deposit", "withdrawal", "purchase", "refund", "transfer", "donation", "subscription"] },
+        "amount": { "type": "number" },
+        "currency": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "completed", "failed", "cancelled"] },
+        "description": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["walletId", "userId", "type", "amount", "currency", "status"]
+    },
     "Block": {
       "title": "User Block",
       "description": "A record of a heart maintaining its sacred space.",
@@ -271,6 +288,7 @@
     "/devices/{deviceId}": { "schema": "DeviceSession", "description": "Global device registry" },
     "/trustScores/{userId}": { "schema": "TrustScore", "description": "High-fidelity reputation registry" },
     "/wallets/{userId}": { "schema": "Wallet", "description": "Prosperity registries for hearts" },
+    "/wallets/{userId}/transactions/{transactionId}": { "schema": "Transaction", "description": "Prosperity transaction logs" },
     "/blocks/{blockId}": { "schema": "Block", "description": "Community safety registry" },
     "/reports/{reportId}": { "schema": "Report", "description": "Accountability and moderation registry" },
     "/sparkProfiles/{userId}": { "schema": "SparkProfile", "description": "Public discovery profiles" },
