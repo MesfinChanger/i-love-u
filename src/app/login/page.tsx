@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect, Suspense } from 'react';
@@ -28,7 +27,8 @@ import {
   Globe,
   Sparkles,
   BotOff,
-  Ghost
+  Ghost,
+  AlertTriangle
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
@@ -40,7 +40,7 @@ import { cn } from '@/lib/utils';
 
 /**
  * @fileOverview Refined Authentication Hub.
- * Hardened guest access protocol with explicit bridge diagnostics.
+ * Hardened guest access protocol with explicit bridge diagnostics for operation-not-allowed.
  */
 function LoginContent() {
   const auth = useAuth();
@@ -64,7 +64,6 @@ function LoginContent() {
   const [agreedHuman, setAgreedHuman] = useState(false);
 
   useEffect(() => {
-    // Frictionless Entry: Redirect returning hearts (including guest sessions)
     if (user && !authLoading) {
       router.push('/discover');
     }
@@ -174,15 +173,26 @@ function LoginContent() {
         title: "Guest Session Launched",
         description: "Welcome! You are exploring as a guest heart. ❤️"
       });
-      // Navigation is handled by the useEffect observer on 'user' change
     } catch (error: any) {
-      console.error("Guest Auth Error:", error);
+      console.error("Guest Auth Error Ripple:", error);
+      
+      let title = "Guest Access Ripple";
+      let message = "Could not launch guest session. Please check your connection. ❤️";
+
+      if (error.code === 'auth/operation-not-allowed') {
+        title = "Mission Configuration Required";
+        message = "Anonymous Sign-in is currently disabled. Please enable it in your Firebase Console → Authentication → Sign-in method. ✨";
+      } else if (error.code === 'auth/network-request-failed') {
+        message = "A network ripple occurred. Please check your internet connection and try again. 🌍";
+      }
+
       toast({ 
         variant: "destructive", 
-        title: "Guest Access Ripple", 
-        description: error.code === 'auth/operation-not-allowed' 
-          ? "Anonymous Auth must be enabled in the Firebase Console. ✨"
-          : "Could not launch guest session. Please check your connection. ❤️" 
+        title: title, 
+        description: message,
+        action: error.code === 'auth/operation-not-allowed' ? (
+          <Button variant="outline" size="sm" className="h-8 text-[10px] font-black uppercase" onClick={() => window.open('https://console.firebase.google.com/')}>Setup Now</Button>
+        ) : undefined
       });
     } finally {
       setIsLoading(false);
