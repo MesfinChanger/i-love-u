@@ -11,10 +11,10 @@ import {
   Loader2, 
   ArrowLeft, 
   Mail,
-  ShieldCheck,
   CheckCircle2,
   Sparkles,
-  AlertTriangle
+  AlertTriangle,
+  ShieldCheck
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
@@ -22,29 +22,27 @@ import { cn } from '@/lib/utils';
 
 /**
  * @fileOverview Secure Recovery Protocol Page.
- * Hardened with Bridge Detection and Delivery Heartbeat to ensure hearts receive reset links.
+ * Implements the requested password reset logic with high-fidelity diagnostics.
  */
-export default function ResetPasswordPage() {
+export default function ForgotPassword() {
   const { toast } = useToast();
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSent, setIsSent] = useState(false);
-  const [currentYear, setCurrentYear] = useState('');
   const [message, setMessage] = useState('');
+  const [currentYear, setCurrentYear] = useState('');
 
   useEffect(() => {
     setCurrentYear(new Date().getFullYear().toString());
   }, []);
 
-  const handleResetRequest = async (e: React.FormEvent) => {
-    e.preventDefault();
+  async function reset() {
     const cleanEmail = email.trim();
-
     if (!cleanEmail) {
       toast({
         variant: "destructive",
         title: "Email Required",
-        description: "Please enter your registered email to receive a link. ❤️",
+        description: "Please enter your registered email. ❤️",
       });
       return;
     }
@@ -53,7 +51,7 @@ export default function ResetPasswordPage() {
       toast({
         variant: "destructive",
         title: "Bridge Disconnected",
-        description: "The secure recovery bridge is waiting for cloud credentials. Please check your connection. ✨",
+        description: "The authentication bridge is waiting for cloud credentials. ✨",
       });
       return;
     }
@@ -66,30 +64,20 @@ export default function ResetPasswordPage() {
       setMessage("Reset email sent. Check your inbox.");
       toast({
         title: "Email Dispatched",
-        description: "Check your inbox (and spam folder) for a secure recovery link. ❤️",
+        description: "Check your inbox for a secure recovery link. ❤️",
       });
     } catch (error: any) {
       console.error("Reset Error Ripple:", error);
-      
-      let errorMsg = error.message;
-      if (error.code === 'auth/too-many-requests') {
-        errorMsg = "Too many recovery attempts. Please wait a heartbeat and try again for security. ❤️";
-      } else if (error.code === 'auth/invalid-email') {
-        errorMsg = "The email format is invalid. Please double-check your entry. ✨";
-      } else if (error.code === 'auth/user-not-found') {
-        errorMsg = "We couldn't find a heart associated with that email. Please verify and try again.";
-      }
-
-      setMessage(errorMsg);
+      setMessage(error.message);
       toast({
         variant: "destructive",
         title: "Access Ripple",
-        description: errorMsg,
+        description: error.message,
       });
     } finally {
       setIsLoading(false);
     }
-  };
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-[#fcfcfc] items-center justify-center p-6 relative overflow-hidden">
@@ -115,7 +103,7 @@ export default function ResetPasswordPage() {
           <div className="bg-primary/5 p-8 border-b border-primary/10">
              <div className="flex items-center justify-center gap-2">
                 <ShieldCheck className="w-5 h-5 text-primary" />
-                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Secure Recovery Protocol</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Forgot Password</p>
              </div>
           </div>
 
@@ -128,24 +116,21 @@ export default function ResetPasswordPage() {
                 <div className="space-y-3">
                   <h2 className="text-xl font-black uppercase tracking-tight text-slate-900">Check Your Heart</h2>
                   <p className="text-xs text-muted-foreground font-medium italic leading-relaxed">
-                    A secure recovery link has been sent to <strong>{email}</strong>. 
+                    {message} ❤️
                   </p>
                   <div className="p-4 bg-amber-50 rounded-2xl border border-amber-100 flex items-start gap-3 text-left">
                     <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                     <p className="text-[10px] text-amber-800 font-black uppercase tracking-tight">
-                      Important: Look for an email from <strong>noreply@iLoveU.com</strong>. If you don't see it within 60 seconds, please check your <span className="underline">Spam or Junk</span> folder.
+                      Note: Look for an email from <strong>noreply@iLoveU.com</strong>.
                     </p>
                   </div>
                 </div>
                 <Button asChild className="w-full h-16 rounded-2xl gradient-bg font-black uppercase tracking-widest text-[10px] shadow-xl shadow-primary/20">
                   <Link href="/login">Return to Login</Link>
                 </Button>
-                <button onClick={() => setIsSent(false)} className="text-[9px] font-black uppercase tracking-widest text-slate-400 hover:text-primary transition-colors">
-                  Try a different email
-                </button>
               </div>
             ) : (
-              <form onSubmit={handleResetRequest} className="space-y-8">
+              <div className="space-y-8">
                 <div className="space-y-4">
                   <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-800 ml-1">REGISTERED EMAIL</p>
                   <div className="relative">
@@ -159,13 +144,10 @@ export default function ResetPasswordPage() {
                     />
                     <Mail className="absolute right-0 bottom-3 w-4 h-4 text-slate-200" />
                   </div>
-                  <p className="text-[9px] text-muted-foreground italic font-medium">
-                    "Every heart is valued." Enter the email associated with your mission to reset your secure phrase.
-                  </p>
                 </div>
 
                 <Button 
-                  type="submit"
+                  onClick={reset}
                   disabled={isLoading || !email} 
                   className={cn(
                     "w-full h-20 rounded-[2rem] font-black uppercase tracking-[0.3em] text-sm shadow-xl active:scale-95 transition-all",
@@ -180,16 +162,10 @@ export default function ResetPasswordPage() {
                   )}
                 </Button>
 
-                {message && (
-                  <p className={cn("text-[10px] text-center font-bold uppercase tracking-tight", isSent ? "text-green-600" : "text-red-500")}>
-                    {message}
-                  </p>
-                )}
-
                 <p className="text-[9px] text-center text-slate-300 uppercase font-black tracking-[0.3em]">
                   © {currentYear} • Global Security Protocol
                 </p>
-              </form>
+              </div>
             )}
           </CardContent>
         </Card>

@@ -48,9 +48,8 @@ import { useToast } from '@/hooks/use-toast';
 import { SUPPORTED_LANGUAGES } from '@/lib/world-data';
 
 /**
- * @fileOverview The Unified Mission Hub Header.
- * Consolidates all navigation and platform tools into a single control center.
- * Features the requested Unified Sign-Out Protocol.
+ * @fileOverview Unified Mission Hub Header.
+ * Implements the Unified Sign-Out Protocol.
  */
 export function Header() {
   const { user } = useUser();
@@ -73,7 +72,7 @@ export function Header() {
     window.dispatchEvent(new CustomEvent('open-auth-gate'));
   };
 
-  // Unified Sign-Out Protocol (Synchronized Snippet)
+  // Unified Sign-Out Protocol
   const handleSignOut = async () => {
     if (!auth || isSigningOut) return;
     setIsSigningOut(true);

@@ -39,8 +39,8 @@ import { useUser } from '@/firebase';
 import { cn } from '@/lib/utils';
 
 /**
- * @fileOverview Refined Authentication Hub.
- * Hardened guest access protocol and Identity Recovery links.
+ * @fileOverview Identity Recovery Hub.
+ * Features links for Forgot Password and Forgot Username retrieval.
  */
 function LoginContent() {
   const { user, loading: authLoading } = useUser();
@@ -183,7 +183,7 @@ function LoginContent() {
       toast({ 
         variant: "destructive", 
         title: "Guest Access Ripple", 
-        description: "Could not launch guest session. Please check your connection. ❤️"
+        description: "Could not launch guest session. ❤️"
       });
     } finally {
       setIsLoading(false);

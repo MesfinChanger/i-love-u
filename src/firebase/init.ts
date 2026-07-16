@@ -6,7 +6,6 @@ import { firebaseConfig } from './config';
 
 /**
  * @fileOverview Resilient Firebase Initializer.
- * Hardened to only boot services if production credentials are present.
  * Exports direct instances for auth, db, and storage as requested.
  */
 
@@ -15,7 +14,6 @@ let db: Firestore;
 let auth: Auth;
 let storage: FirebaseStorage;
 
-// Standard Initialization Structure with Safety Checks
 const apiKey = firebaseConfig.apiKey;
 const isKeyValid = !!(apiKey && 
                    apiKey.length > 10 && 
@@ -32,8 +30,6 @@ if (typeof window !== 'undefined' && isKeyValid) {
   } catch (error: any) {
     console.error("I Love U: Critical Bridge Failure:", error);
   }
-} else if (typeof window !== 'undefined') {
-  console.warn("I Love U: Regional Bridge is waiting for a valid NEXT_PUBLIC_FIREBASE_API_KEY.");
 }
 
 export { app, db, auth, storage };

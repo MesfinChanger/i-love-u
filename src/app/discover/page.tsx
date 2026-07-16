@@ -45,8 +45,7 @@ import { useTranslation } from '@/components/providers/LanguageProvider';
 
 /**
  * @fileOverview Discovery Hub featuring the Presence Grid Protocol.
- * Explicitly separates hearts by Online/Offline status and enforces Commercial Access Rules.
- * Profile pictures are vibrant and 100% visible in both sections.
+ * Profiles are 100% visible and vibrant in both Online and Offline sections.
  */
 export default function DiscoverPage() {
   const { user } = useUser();
@@ -68,7 +67,6 @@ export default function DiscoverPage() {
   }, [user?.uid]);
   const { data: myProfile } = useDoc(userRef);
 
-  // Commercial Access Logic
   const isCommercial = myProfile?.isSeller || myProfile?.isAdvertiser;
   const hasAcceptedPolicy = myProfile?.policyAccepted === true;
   const isInteractionRestricted = isCommercial && !hasAcceptedPolicy;
@@ -138,13 +136,12 @@ export default function DiscoverPage() {
       toast({ 
         variant: "destructive", 
         title: "Commercial Access Restricted", 
-        description: "Sellers and Purchasers must commit to the Respect Protocol first. ❤️" 
+        description: "Protocol agreement required. ❤️" 
       });
       return;
     }
     if (!db) return;
 
-    // High-Fidelity Conversation Schema: userId1, userId2 in deterministic order
     const participants = [user.uid, targetId].sort();
     const conversationId = participants.join('_');
     
@@ -158,7 +155,7 @@ export default function DiscoverPage() {
         createdAt: serverTimestamp(),
       }, { merge: true });
       
-      toast({ title: "Invitation Sent!", description: "Waiting for them to accept your spark. ❤️" });
+      toast({ title: "Invitation Sent!", description: "Waiting for them to accept. ❤️" });
     } catch (e) {
       toast({ variant: "destructive", title: "Action Failed", description: "Respectful invitation could not be sent." });
     }
@@ -178,7 +175,7 @@ export default function DiscoverPage() {
         <div className="bg-amber-100 border-b border-amber-200 px-4 py-3 flex items-center justify-between animate-in slide-in-from-top-2 z-40 sticky top-16">
            <div className="flex items-center gap-2 text-amber-800">
               <ShieldAlert className="w-4 h-4" />
-              <p className="text-[10px] font-bold uppercase tracking-tight">View Only Mode: Commercial Approval Required</p>
+              <p className="text-[10px] font-bold uppercase tracking-tight">View Only Mode: Protocol Required</p>
            </div>
            <Link href="/policy/agree">
               <Button size="sm" variant="ghost" className="h-7 text-[9px] font-black uppercase text-amber-900 hover:bg-amber-200">Agree to Unlock</Button>

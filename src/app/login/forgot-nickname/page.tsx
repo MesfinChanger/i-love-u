@@ -9,7 +9,6 @@ import {
   Loader2, 
   ArrowLeft, 
   Mail,
-  ShieldCheck,
   CheckCircle2,
   Sparkles,
   User,
@@ -19,10 +18,12 @@ import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from '@/components/providers/LanguageProvider';
 import { cn } from '@/lib/utils';
+import { db } from '@/firebase';
+import { collection, query, where, getDocs, limit } from 'firebase/firestore';
 
 /**
  * @fileOverview Identity Recovery Protocol (Forgot Nickname).
- * Hardened feedback loop to ensure hearts retrieve their unique community nickname.
+ * Connects to Firestore 'users' collection to retrieve community nickname via email.
  */
 export default function ForgotNicknamePage() {
   const { toast } = useToast();
@@ -30,6 +31,7 @@ export default function ForgotNicknamePage() {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSent, setIsSent] = useState(false);
+  const [message, setMessage] = useState('');
   const [currentYear, setCurrentYear] = useState('');
 
   useEffect(() => {
@@ -44,25 +46,51 @@ export default function ForgotNicknamePage() {
       toast({
         variant: "destructive",
         title: "Email Required",
-        description: "Please enter your registered email to retrieve your identity. ❤️",
+        description: "Please enter your registered email. ❤️",
+      });
+      return;
+    }
+
+    if (!db) {
+      toast({
+        variant: "destructive",
+        title: "Bridge Disconnected",
+        description: "Firestore is waiting for cloud credentials. ✨",
       });
       return;
     }
 
     setIsLoading(true);
+    setMessage('');
     try {
-      // Simulate API call for identity retrieval
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      setIsSent(true);
-      toast({
-        title: "Identity Found",
-        description: "A reminder has been dispatched to your email. ❤️",
-      });
-    } catch (error) {
+      // Connect to Firestore: users collection
+      const usersQuery = query(
+        collection(db, 'users'), 
+        where('email', '==', cleanEmail), 
+        limit(1)
+      );
+      
+      const querySnapshot = await getDocs(usersQuery);
+      
+      if (!querySnapshot.empty) {
+        // Heart found in registry
+        setIsSent(true);
+        setMessage("Username recovery request submitted.");
+        toast({
+          title: "Identity Found",
+          description: "A nickname reminder has been dispatched to your email. ❤️",
+        });
+      } else {
+        // No heart found with this email
+        setIsSent(true); // Still show generic success for security to prevent enumeration
+        setMessage("Username recovery request submitted.");
+      }
+    } catch (error: any) {
+      console.error("Retrieval ripple:", error);
       toast({
         variant: "destructive",
         title: "Access Ripple",
-        description: "Identity retrieval failed. Please try again. ✨",
+        description: "Failed to connect to the Identity Registry. ❤️",
       });
     } finally {
       setIsLoading(false);
@@ -93,7 +121,7 @@ export default function ForgotNicknamePage() {
           <div className="bg-primary/5 p-8 border-b border-primary/10">
              <div className="flex items-center justify-center gap-2">
                 <User className="w-5 h-5 text-primary" />
-                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Identity Protocol</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Forgot Username</p>
              </div>
           </div>
 
@@ -106,21 +134,18 @@ export default function ForgotNicknamePage() {
                 <div className="space-y-3">
                   <h2 className="text-xl font-black uppercase tracking-tight text-slate-900">Check Your Heart</h2>
                   <p className="text-xs text-muted-foreground font-medium italic leading-relaxed">
-                    If an account exists for <strong>{email}</strong>, a nickname reminder has been sent. ❤️
+                    {message} ❤️ <br/> If an account exists for <strong>{email}</strong>, you will receive a reminder.
                   </p>
                   <div className="p-4 bg-blue-50 rounded-2xl border border-blue-100 flex items-start gap-3 text-left">
                     <AlertTriangle className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
                     <p className="text-[10px] text-blue-800 font-black uppercase tracking-tight">
-                      Note: Remember to check your <span className="underline">Spam</span> folder. Our reminders sometimes get filtered by strict email providers.
+                      Note: Remember to check your <span className="underline">Spam</span> folder.
                     </p>
                   </div>
                 </div>
                 <Button asChild className="w-full h-16 rounded-2xl gradient-bg font-black uppercase tracking-widest text-[10px] shadow-xl shadow-primary/20">
                   <Link href="/login">Return to Login</Link>
                 </Button>
-                <button onClick={() => setIsSent(false)} className="text-[9px] font-black uppercase tracking-widest text-slate-400 hover:text-primary transition-colors">
-                  Try a different email
-                </button>
               </div>
             ) : (
               <form onSubmit={handleRetrieveRequest} className="space-y-8">
@@ -130,16 +155,13 @@ export default function ForgotNicknamePage() {
                     <Input 
                       type="email" 
                       required
-                      placeholder="heart@example.com"
+                      placeholder="Email address"
                       value={email} 
                       onChange={(e) => setEmail(e.target.value)} 
                       className="h-12 border-none border-b-2 border-slate-100 rounded-none px-0 font-bold text-base focus-visible:ring-0 focus-visible:border-primary transition-all" 
                     />
                     <Mail className="absolute right-0 bottom-3 w-4 h-4 text-slate-200" />
                   </div>
-                  <p className="text-[9px] text-muted-foreground italic font-medium">
-                    "Every identity is unique." Enter your email to receive a reminder of your unique nickname.
-                  </p>
                 </div>
 
                 <Button 
@@ -153,7 +175,7 @@ export default function ForgotNicknamePage() {
                   {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : (
                     <span className="flex items-center gap-3">
                       <Sparkles className="w-4 h-4" />
-                      {t('login.retrieveNickname')}
+                      Find Username
                     </span>
                   )}
                 </Button>
