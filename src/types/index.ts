@@ -49,7 +49,8 @@ export interface Match {
 export interface Friendship {
   userA: string;
   userB: string;
-  status: "pending" | "accepted" | "blocked";
+  status: "pending" | "friends" | "blocked";
+  createdAt: any;
 }
 
 export interface Circle {

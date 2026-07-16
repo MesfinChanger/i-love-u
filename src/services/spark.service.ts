@@ -10,6 +10,11 @@ import {
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
+/**
+ * @fileOverview Spark Protocol Service.
+ * Orchestrates high-fidelity discovery, matching, and connections.
+ */
+
 // Create Spark profile
 export async function createSparkProfile(profile: any) {
   await setDoc(
@@ -68,19 +73,23 @@ export async function createMatch(
   );
 }
 
-// Friendship Protocol
-export async function createFriendship(
+/**
+ * Friendship Protocol.
+ * Establishes a cultural bridge between two hearts.
+ */
+export async function addFriend(
   userA: string,
   userB: string
 ) {
-  const friendshipId = [userA, userB].sort().join("_");
+  const id = [userA, userB].sort().join("_");
 
   await setDoc(
-    doc(db, "friendships", friendshipId),
+    doc(db, "friendships", id),
     {
       userA,
       userB,
-      status: "pending"
+      status: "friends",
+      createdAt: serverTimestamp()
     }
   );
 }

@@ -5,6 +5,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
+/**
+ * @fileOverview Global Navigation Bridge.
+ * Orchestrates platform-wide routing for every heart.
+ */
+
 const menu = [
   { name: "🏠 Home", path: "/" },
   { name: "❤️ Spark", path: "/spark" },
@@ -19,7 +24,7 @@ export default function MainNavigation() {
   const pathname = usePathname();
 
   return (
-    <nav className="flex gap-2 p-4 border-b bg-white overflow-x-auto no-scrollbar">
+    <nav className="flex gap-2 p-4 border-b bg-white overflow-x-auto no-scrollbar" role="navigation" aria-label="Primary Navigation">
       {menu.map((item) => (
         <Link
           key={item.path}
