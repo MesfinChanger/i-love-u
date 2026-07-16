@@ -1,4 +1,3 @@
-
 /**
  * @fileOverview High-Fidelity Community Type Definitions.
  */
@@ -9,6 +8,7 @@ export * from './spark';
 export * from './shopping';
 export * from './security';
 export * from './organization';
+export * from './wallet';
 
 export type IdeaCategory =
   | "economics"

@@ -78,6 +78,21 @@
       },
       "required": ["userId", "score"]
     },
+    "Wallet": {
+      "title": "Heart Wallet",
+      "description": "Prosperity registry for store balances and mission funding.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "currency": { "type": "string" },
+        "availableBalance": { "type": "number" },
+        "pendingBalance": { "type": "number" },
+        "status": { "type": "string", "enum": ["active", "locked", "closed"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "currency", "availableBalance", "status"]
+    },
     "Block": {
       "title": "User Block",
       "description": "A record of a heart maintaining its sacred space.",
@@ -255,6 +270,7 @@
     "/users/{userId}/securityEvents/{eventId}": { "schema": "SecurityEvent", "description": "Identity protection audit logs" },
     "/devices/{deviceId}": { "schema": "DeviceSession", "description": "Global device registry" },
     "/trustScores/{userId}": { "schema": "TrustScore", "description": "High-fidelity reputation registry" },
+    "/wallets/{userId}": { "schema": "Wallet", "description": "Prosperity registries for hearts" },
     "/blocks/{blockId}": { "schema": "Block", "description": "Community safety registry" },
     "/reports/{reportId}": { "schema": "Report", "description": "Accountability and moderation registry" },
     "/sparkProfiles/{userId}": { "schema": "SparkProfile", "description": "Public discovery profiles" },
@@ -265,6 +281,6 @@
     "/products/{productId}": { "schema": "Product", "description": "Marketplace product listings" },
     "/orders/{orderId}": { "schema": "Order", "description": "Recorded purchase transactions" },
     "/organizations/{orgId}": { "schema": "Organization", "description": "Global community organization registry" },
-    "/organizations/{orgId}/members/{memberId}": { "schema": "OrganizationMember", "description": "High-fidelity organization membership registry" }
+    "/organizations/{orgId}/members/{memberId}": { "schema": "OrganizationMember", "description": "High-Fidelity organization membership registry" }
   }
 }
