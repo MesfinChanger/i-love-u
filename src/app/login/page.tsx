@@ -7,6 +7,7 @@ import { useAuth, useUser, useFirestore } from '@/firebase';
 import { 
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword,
+  signInAnonymously,
 } from 'firebase/auth';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
@@ -26,7 +27,8 @@ import {
   Lock,
   Globe,
   Sparkles,
-  BotOff
+  BotOff,
+  Ghost
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
@@ -143,6 +145,26 @@ function LoginContent() {
     }
   };
 
+  const handleGuestLogin = async () => {
+    if (!auth) return;
+    setIsLoading(true);
+    try {
+      await signInAnonymously(auth);
+      toast({
+        title: "Guest Session Launched",
+        description: "Welcome! You are exploring as a guest heart. ❤️"
+      });
+    } catch (error: any) {
+      toast({ 
+        variant: "destructive", 
+        title: "Guest Access Ripple", 
+        description: "Could not launch guest session. Please check your connection. ✨" 
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const isSignupDisabled = isLoading || !email || !password || !nickname || !agreedAge || !agreedTerms || !agreedResponsibility || !agreedHuman;
 
   if (authLoading) return <div className="flex items-center justify-center min-h-screen"><Loader2 className="animate-spin text-primary" /></div>;
@@ -210,8 +232,9 @@ function LoginContent() {
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
+                
                 {mode === 'signin' && (
-                  <div className="flex flex-col gap-2 pt-1">
+                  <div className="flex flex-col gap-6">
                     <div className="flex justify-between px-1">
                       <Link href="/login/forgot-nickname" className="text-[9px] font-black uppercase tracking-widest text-slate-400 hover:text-primary transition-colors">
                         {t('login.forgotNickname')}
@@ -220,38 +243,68 @@ function LoginContent() {
                         {t('login.forgotPassword')}
                       </Link>
                     </div>
+
+                    <Button 
+                      onClick={handleAuth} 
+                      disabled={isLoading || !email || !password} 
+                      className="w-full h-16 rounded-[1.8rem] font-black uppercase tracking-[0.2em] text-xs shadow-xl transition-all active:scale-95 gradient-bg shadow-primary/20"
+                    >
+                      {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Launch Spark'}
+                    </Button>
+
+                    <div className="relative flex items-center gap-4 py-2">
+                       <div className="flex-grow h-px bg-slate-100" />
+                       <span className="text-[9px] font-black text-slate-300 uppercase tracking-[0.3em]">or</span>
+                       <div className="flex-grow h-px bg-slate-100" />
+                    </div>
+
+                    <Button 
+                      variant="outline" 
+                      onClick={handleGuestLogin} 
+                      disabled={isLoading}
+                      className="w-full h-14 rounded-2xl border-2 font-black uppercase tracking-widest text-[9px] hover:bg-slate-50 transition-all active:scale-95 gap-2"
+                    >
+                      {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : (
+                        <>
+                          <Ghost className="w-4 h-4 text-primary" />
+                          {t('login.guest')}
+                        </>
+                      )}
+                    </Button>
                   </div>
                 )}
               </div>
 
               {mode === 'signup' && (
-                <div className="space-y-4 pt-2 border-t border-dashed animate-in fade-in duration-500">
-                  <div className="flex items-start space-x-3 p-3 bg-slate-50 rounded-2xl border border-slate-200">
-                    <Checkbox id="age-verify" checked={agreedAge} onCheckedChange={(checked) => setAgreedAge(!!checked)} className="mt-1 border-slate-400 data-[state=checked]:bg-primary" />
-                    <label htmlFor="age-verify" className="text-[10px] font-black uppercase tracking-tight text-slate-700 cursor-pointer">I am 18+ years old.</label>
+                <div className="space-y-6">
+                  <div className="space-y-4 pt-2 border-t border-dashed animate-in fade-in duration-500">
+                    <div className="flex items-start space-x-3 p-3 bg-slate-50 rounded-2xl border border-slate-200">
+                      <Checkbox id="age-verify" checked={agreedAge} onCheckedChange={(checked) => setAgreedAge(!!checked)} className="mt-1 border-slate-400 data-[state=checked]:bg-primary" />
+                      <label htmlFor="age-verify" className="text-[10px] font-black uppercase tracking-tight text-slate-700 cursor-pointer">I am 18+ years old.</label>
+                    </div>
+                    <div className="flex items-start space-x-3 p-3 bg-slate-50 rounded-2xl border border-slate-200">
+                      <Checkbox id="terms-verify" checked={agreedTerms} onCheckedChange={(checked) => setAgreedTerms(!!checked)} className="mt-1 border-slate-400 data-[state=checked]:bg-primary" />
+                      <div className="text-[10px] font-black uppercase tracking-tight text-slate-700">I agree to Terms & Privacy.</div>
+                    </div>
+                    <div className="flex items-start space-x-3 p-3 bg-slate-50 rounded-2xl border border-slate-200">
+                      <Checkbox id="human-verify" checked={agreedHuman} onCheckedChange={(checked) => setAgreedHuman(!!checked)} className="mt-1 border-slate-400 data-[state=checked]:bg-primary" />
+                      <label htmlFor="human-verify" className="text-[10px] font-black uppercase tracking-tight text-slate-700 cursor-pointer flex items-center gap-2"><BotOff className="w-3.5 h-3.5" /> Verified Human.</label>
+                    </div>
+                    <div className="flex items-start space-x-3 p-3 bg-primary/5 rounded-2xl border border-primary/10">
+                      <Checkbox id="responsibility-verify" checked={agreedResponsibility} onCheckedChange={(checked) => setAgreedResponsibility(!!checked)} className="mt-1 border-primary data-[state=checked]:bg-primary" />
+                      <label htmlFor="responsibility-verify" className="text-[10px] font-black uppercase tracking-tight text-slate-700 cursor-pointer">Interactions are my own responsibility.</label>
+                    </div>
                   </div>
-                  <div className="flex items-start space-x-3 p-3 bg-slate-50 rounded-2xl border border-slate-200">
-                    <Checkbox id="terms-verify" checked={agreedTerms} onCheckedChange={(checked) => setAgreedTerms(!!checked)} className="mt-1 border-slate-400 data-[state=checked]:bg-primary" />
-                    <div className="text-[10px] font-black uppercase tracking-tight text-slate-700">I agree to Terms & Privacy.</div>
-                  </div>
-                  <div className="flex items-start space-x-3 p-3 bg-slate-50 rounded-2xl border border-slate-200">
-                    <Checkbox id="human-verify" checked={agreedHuman} onCheckedChange={(checked) => setAgreedHuman(!!checked)} className="mt-1 border-slate-400 data-[state=checked]:bg-primary" />
-                    <label htmlFor="human-verify" className="text-[10px] font-black uppercase tracking-tight text-slate-700 cursor-pointer flex items-center gap-2"><BotOff className="w-3.5 h-3.5" /> Verified Human.</label>
-                  </div>
-                  <div className="flex items-start space-x-3 p-3 bg-primary/5 rounded-2xl border border-primary/10">
-                    <Checkbox id="responsibility-verify" checked={agreedResponsibility} onCheckedChange={(checked) => setAgreedResponsibility(!!checked)} className="mt-1 border-primary data-[state=checked]:bg-primary" />
-                    <label htmlFor="responsibility-verify" className="text-[10px] font-black uppercase tracking-tight text-slate-700 cursor-pointer">Interactions are my own responsibility.</label>
-                  </div>
+                  
+                  <Button 
+                    onClick={handleAuth} 
+                    disabled={isSignupDisabled} 
+                    className={cn("w-full h-16 rounded-[1.8rem] font-black uppercase tracking-[0.2em] text-xs shadow-xl transition-all active:scale-95", isSignupDisabled ? "bg-slate-200 text-slate-400" : "gradient-bg shadow-primary/20")}
+                  >
+                    {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Join the Revolution'}
+                  </Button>
                 </div>
               )}
-              
-              <Button 
-                onClick={handleAuth} 
-                disabled={mode === 'signup' ? isSignupDisabled : (isLoading || !email || !password)} 
-                className={cn("w-full h-16 rounded-[1.8rem] font-black uppercase tracking-[0.2em] text-xs shadow-xl transition-all active:scale-95", (mode === 'signup' && isSignupDisabled) ? "bg-slate-200 text-slate-400" : "gradient-bg shadow-primary/20")}
-              >
-                {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : mode === 'signin' ? 'Launch Spark' : 'Join the Revolution'}
-              </Button>
             </CardContent>
           </Tabs>
         </Card>
