@@ -19,10 +19,6 @@ import {
   Zap, 
   Clock, 
   Lock, 
-  Scale, 
-  TrendingDown, 
-  Cpu, 
-  Brain,
   ThumbsUp
 } from 'lucide-react';
 import { useUser, db, useCollection, useDoc } from '@/firebase';
@@ -32,27 +28,12 @@ import { useToast } from '@/hooks/use-toast';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { useTranslation } from '@/components/providers/LanguageProvider';
 import { cn } from '@/lib/utils';
+import { ideaCategories } from '@/constants/categories';
 
 /**
  * @fileOverview Prosperity Pool with Topic Access Control Protocol.
- * Refactored to strictly adhere to the PoolPost schema.
+ * Refactored to utilize the standardized Idea Category Registry.
  */
-
-interface TopicDefinition {
-  id: 'economics' | 'technology' | 'politics' | 'philosophy' | 'general';
-  icon: any;
-  color: string;
-  bg: string;
-  description: string;
-}
-
-const TOPICS: TopicDefinition[] = [
-  { id: 'economics', icon: TrendingDown, color: 'text-green-500', bg: 'bg-green-50', description: 'Requires Seller or Advertiser status' },
-  { id: 'politics', icon: Scale, color: 'text-amber-500', bg: 'bg-amber-50', description: 'Restricted to Platform Administrators' },
-  { id: 'philosophy', icon: Brain, color: 'text-rose-500', bg: 'bg-rose-50', description: 'Requires Verified Heart status' },
-  { id: 'technology', icon: Cpu, color: 'text-blue-500', bg: 'bg-blue-50', description: 'Requires Seller or Admin status' },
-  { id: 'general', icon: MessageSquare, color: 'text-slate-500', bg: 'bg-slate-50', description: 'Open to all Community Hearts' }
-];
 
 export default function ProsperityPoolPage() {
   const { user } = useUser();
@@ -62,7 +43,7 @@ export default function ProsperityPoolPage() {
   const [activeTopic, setActiveTopic] = useState('All');
   const [title, setTitle] = useState('');
   const [newThought, setNewThought] = useState('');
-  const [selectedTopic, setSelectedTopic] = useState<TopicDefinition['id']>('general');
+  const [selectedTopic, setSelectedTopic] = useState<string>('general');
   const [isSending, setIsSending] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -86,6 +67,7 @@ export default function ProsperityPoolPage() {
       case 'general': return true;
       case 'economics': return myProfile.isSeller || myProfile.isAdvertiser;
       case 'technology': return myProfile.isSeller || isAdmin;
+      case 'science': return myProfile.verified === true;
       case 'philosophy': return myProfile.verified === true;
       case 'politics': return isAdmin; 
       default: return true;
@@ -193,22 +175,22 @@ export default function ProsperityPoolPage() {
               <CardContent className="p-8 space-y-6">
                  <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-2">
-                       {TOPICS.map(topic => {
-                          const hasAccess = checkAccess(topic.id);
+                       {ideaCategories.map(topic => {
+                          const hasAccess = checkAccess(topic.value);
                           return (
                             <button 
-                              key={topic.id}
-                              onClick={() => hasAccess && setSelectedTopic(topic.id)}
+                              key={topic.value}
+                              onClick={() => hasAccess && setSelectedTopic(topic.value)}
                               className={cn(
                                 "p-3 rounded-2xl border flex flex-col items-center gap-2 transition-all active:scale-95 group relative overflow-hidden",
-                                selectedTopic === topic.id ? "bg-slate-900 text-white border-slate-900 shadow-lg" : "hover:bg-slate-50 border-slate-100",
+                                selectedTopic === topic.value ? "bg-slate-900 text-white border-slate-900 shadow-lg" : "hover:bg-slate-50 border-slate-100",
                                 !hasAccess && "opacity-40 grayscale cursor-not-allowed bg-slate-50"
                               )}
                               title={topic.description}
                             >
                                {!hasAccess && <Lock className="absolute top-1 right-1 w-2.5 h-2.5 text-slate-400" />}
-                               <topic.icon className={cn("w-4 h-4", selectedTopic === topic.id ? "text-primary" : topic.color)} />
-                               <span className="text-[9px] font-black uppercase tracking-widest">{topic.id}</span>
+                               <span className="text-lg">{topic.icon}</span>
+                               <span className="text-[9px] font-black uppercase tracking-widest">{topic.name}</span>
                             </button>
                           );
                        })}
@@ -258,15 +240,15 @@ export default function ProsperityPoolPage() {
               >
                 The Whole Pool
               </Button>
-              {TOPICS.map(topic => (
+              {ideaCategories.map(topic => (
                  <Button 
-                   key={topic.id} 
-                   variant={activeTopic === topic.id ? 'default' : 'ghost'} 
-                   onClick={() => setActiveTopic(topic.id)}
+                   key={topic.value} 
+                   variant={activeTopic === topic.value ? 'default' : 'ghost'} 
+                   onClick={() => setActiveTopic(topic.value)}
                    className="rounded-full font-black uppercase text-[10px] tracking-widest h-10 px-6 shrink-0 gap-2"
                  >
-                   <topic.icon className="w-3.5 h-3.5" />
-                   {topic.id}
+                   <span>{topic.icon}</span>
+                   {topic.name}
                  </Button>
               ))}
            </div>
@@ -295,7 +277,7 @@ export default function ProsperityPoolPage() {
 }
 
 function PoolPostCard({ post }: { post: any }) {
-  const topicInfo = TOPICS.find(t => t.id === post.category) || TOPICS[4];
+  const categoryInfo = ideaCategories.find(t => t.value === post.category) || ideaCategories[5];
   const authorRef = useMemoFirebase(() => db ? doc(db, 'users', post.authorId) : null, [post.authorId]);
   const { data: author } = useDoc(authorRef);
 
@@ -314,9 +296,9 @@ function PoolPostCard({ post }: { post: any }) {
                    </p>
                 </div>
              </div>
-             <Badge className={cn("border-none px-4 h-7 text-[9px] font-black uppercase tracking-widest gap-2", topicInfo.bg, topicInfo.color)}>
-                <topicInfo.icon className="w-3 h-3" />
-                {post.category}
+             <Badge className="border-none px-4 h-7 text-[9px] font-black uppercase tracking-widest gap-2 bg-blue-50 text-blue-600">
+                <span>{categoryInfo.icon}</span>
+                {categoryInfo.name}
              </Badge>
           </div>
 
