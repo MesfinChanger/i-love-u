@@ -40,7 +40,8 @@ import { cn } from '@/lib/utils';
 
 /**
  * @fileOverview Refined Authentication Hub.
- * Hardened guest access protocol with explicit bridge diagnostics for operation-not-allowed.
+ * Hardened guest access protocol with explicit bridge diagnostics for operation-not-allowed
+ * and admin-restricted-operation (Identity Platform configuration ripples).
  */
 function LoginContent() {
   const auth = useAuth();
@@ -179,9 +180,9 @@ function LoginContent() {
       let title = "Guest Access Ripple";
       let message = "Could not launch guest session. Please check your connection. ❤️";
 
-      if (error.code === 'auth/operation-not-allowed') {
+      if (error.code === 'auth/operation-not-allowed' || error.code === 'auth/admin-restricted-operation') {
         title = "Mission Configuration Required";
-        message = "Anonymous Sign-in is currently disabled. Please enable it in your Firebase Console → Authentication → Sign-in method. ✨";
+        message = "Anonymous Sign-in is currently disabled or restricted in your project. Please enable it in your Firebase Console → Authentication → Sign-in method. ✨";
       } else if (error.code === 'auth/network-request-failed') {
         message = "A network ripple occurred. Please check your internet connection and try again. 🌍";
       }
@@ -190,7 +191,7 @@ function LoginContent() {
         variant: "destructive", 
         title: title, 
         description: message,
-        action: error.code === 'auth/operation-not-allowed' ? (
+        action: (error.code === 'auth/operation-not-allowed' || error.code === 'auth/admin-restricted-operation') ? (
           <Button variant="outline" size="sm" className="h-8 text-[10px] font-black uppercase" onClick={() => window.open('https://console.firebase.google.com/')}>Setup Now</Button>
         ) : undefined
       });

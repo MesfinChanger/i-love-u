@@ -55,7 +55,7 @@ This allows your web application to securely upload media from your browser to y
    ```
 
 ## 3. Enable Anonymous Authentication
-If guest sign-in fails with a "Mission Configuration Required" toast:
+If guest sign-in fails with a "Mission Configuration Required" or `auth/admin-restricted-operation` toast:
 
 1. Go to the [Firebase Console](https://console.firebase.google.com/).
 2. Click **Build** → **Authentication**.
@@ -63,6 +63,9 @@ If guest sign-in fails with a "Mission Configuration Required" toast:
 4. Click **Add new provider**.
 5. Select **Anonymous**.
 6. Switch the toggle to **Enable** and click **Save**.
+
+### Troubleshooting `auth/admin-restricted-operation`
+If enabling Anonymous sign-in doesn't fix it, ensure your project's Identity Platform settings allow anonymous users. In some Google Cloud projects, you may need to enable the "Identity Toolkit API" in the [API Console](https://console.cloud.google.com/).
 
 ## 4. Mandatory Respect
 Remember: Every technical configuration supports our mission to eliminate poverty through job creation. Respect is Mandatory. ❤️
