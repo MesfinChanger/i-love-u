@@ -65,8 +65,8 @@ import Link from 'next/link';
 import { useTranslation } from '@/components/providers/LanguageProvider';
 
 /**
- * @fileOverview Discovery Grid Protocol with Expandable Presence Sections.
- * Hardened to prevent hydration mismatches and Firestore assertion ripples.
+ * @fileOverview Discovery Grid Protocol with Explicit Online/Offline Sections.
+ * Hardened to prevent hydration mismatches and ensure high-fidelity image visibility.
  */
 export default function DiscoverPage() {
   const { user } = useUser();
@@ -261,7 +261,7 @@ export default function DiscoverPage() {
           </div>
         )}
 
-        {/* LIVE SECTION */}
+        {/* ONLINE SECTION */}
         <Collapsible open={isLiveExpanded} onOpenChange={setIsLiveExpanded} className="space-y-6">
            <div className="flex items-center justify-between border-b pb-4">
               <div className="flex items-center gap-4">
@@ -269,8 +269,8 @@ export default function DiscoverPage() {
                     <Wifi className="w-5 h-5 animate-pulse" />
                  </div>
                  <div className="text-left">
-                    <h2 className="text-xl font-black tracking-tight uppercase leading-none">Live Now</h2>
-                    <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mt-1">{liveHearts.length} Hearts Online</p>
+                    <h2 className="text-xl font-black tracking-tight uppercase leading-none">Online Hearts</h2>
+                    <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mt-1">{liveHearts.length} Members Available</p>
                  </div>
               </div>
               <CollapsibleTrigger asChild>
@@ -310,8 +310,8 @@ export default function DiscoverPage() {
                     <WifiOff className="w-5 h-5" />
                  </div>
                  <div className="text-left">
-                    <h2 className="text-xl font-black tracking-tight uppercase leading-none">Resting Hearts</h2>
-                    <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mt-1">{restingHearts.length} Members Away</p>
+                    <h2 className="text-xl font-black tracking-tight uppercase leading-none">Offline Hearts</h2>
+                    <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mt-1">{restingHearts.length} Members Resting</p>
                  </div>
               </div>
               <CollapsibleTrigger asChild>
@@ -323,7 +323,7 @@ export default function DiscoverPage() {
            </div>
            
            <CollapsibleContent className="animate-in fade-in slide-in-from-top-2 duration-300">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 opacity-80">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                 {restingHearts.map((heart: any) => (
                   <DiscoverCard 
                     key={heart.id} 
