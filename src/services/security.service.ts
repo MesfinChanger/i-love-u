@@ -74,3 +74,28 @@ export async function initializeTrustScore(userId: string) {
     reports: 0
   }, { merge: true });
 }
+
+/**
+ * Trust Calculation Protocol.
+ * Dynamically computes a heart's trust score based on verification and reviews.
+ */
+export function calculateTrustScore(data: any) {
+  let score = 50;
+
+  if (data.verifiedEmail)
+    score += 15;
+
+  if (data.verifiedPhone)
+    score += 15;
+
+  if (data.positiveReviews > 10)
+    score += 10;
+
+  if (data.reports > 0)
+    score -= 20;
+
+  return Math.max(
+    0,
+    Math.min(score, 100)
+  );
+}
