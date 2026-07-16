@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useUser } from '@/firebase';
@@ -8,8 +9,8 @@ import { Heart, X, Sparkles, TrendingDown, Globe } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 /**
- * @fileOverview Vibrant Registration Reminder for guests.
- * Optimized with high-fidelity visuals and mission-focused copy to encourage community growth.
+ * @fileOverview Vibrant Registration Reminder.
+ * Optimized with high-fidelity visuals to encourage guest hearts to join the permanent mission.
  */
 export function RegistrationReminder() {
   const { user, loading } = useUser();
@@ -31,8 +32,12 @@ export function RegistrationReminder() {
     localStorage.setItem('iloveu_registration_reminder_hidden', 'true');
   };
 
-  // Don't show if auth is loading, user is logged in, they are on the login/policy pages, or it was dismissed
-  if (!mounted || loading || user || pathname === '/login' || pathname === '/policy/agree') return null;
+  // Logic: Show if user is anonymous (Guest) or not logged in at all.
+  const isGuest = user?.isAnonymous;
+  const showNudge = !user || isGuest;
+
+  // Don't show if auth is loading, they are on auth pages, or it was dismissed
+  if (!mounted || loading || !showNudge || pathname === '/login' || pathname === '/policy/agree') return null;
   if (!isVisible) return null;
 
   return (
@@ -65,14 +70,16 @@ export function RegistrationReminder() {
           </div>
           <div>
             <h4 className="font-black text-2xl tracking-tighter text-slate-900 leading-none">
-              Start Your <span className="text-primary">Journey.</span>
+              {isGuest ? 'Join the' : 'Start Your'} <span className="text-primary">Journey.</span>
             </h4>
             <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground mt-1.5">Reaching Every Heart</p>
           </div>
         </div>
         
         <p className="text-base text-slate-600 leading-relaxed mb-8 font-medium italic">
-          "Your happiness builds lives." Register now to connect with respectful hearts and help us end world poverty through global job creation. ❤️
+          {isGuest 
+            ? '"Guests explore, but members prosper." Create a permanent identity to secure your matches and support global job creation. ❤️'
+            : '"Your happiness builds lives." Register now to connect with respectful hearts and help us end world poverty together. ❤️'}
         </p>
         
         <div className="grid grid-cols-2 gap-4">

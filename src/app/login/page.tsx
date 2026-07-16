@@ -60,7 +60,7 @@ function LoginContent() {
   const [agreedHuman, setAgreedHuman] = useState(false);
 
   useEffect(() => {
-    // Frictionless Entry: Returning hearts go straight to discovery.
+    // Frictionless Entry: Returning hearts (including verified guests) go straight to discovery.
     if (user && !authLoading) {
       router.push('/discover');
     }
@@ -154,6 +154,7 @@ function LoginContent() {
         title: "Guest Session Launched",
         description: "Welcome! You are exploring as a guest heart. ❤️"
       });
+      // Navigation is handled by the useEffect observer
     } catch (error: any) {
       toast({ 
         variant: "destructive", 
