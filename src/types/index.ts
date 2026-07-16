@@ -5,6 +5,7 @@
 export * from './chat';
 export * from './circle';
 export * from './spark';
+export * from './shopping';
 
 export interface UserProfile {
   uid: string;

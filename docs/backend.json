@@ -129,6 +129,57 @@
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["userA", "userB", "status"]
+    },
+    "Store": {
+      "title": "Artisan Store",
+      "description": "A verified shop in the local community.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "ownerId": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "logoURL": { "type": "string" },
+        "country": { "type": "string" },
+        "category": { "type": "string" },
+        "verified": { "type": "boolean" },
+        "rating": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "Product": {
+      "title": "Shop Product",
+      "description": "An item for sale in the marketplace.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "storeId": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "images": { "type": "array", "items": { "type": "string" } },
+        "price": { "type": "number" },
+        "currency": { "type": "string" },
+        "category": { "type": "string" },
+        "inventory": { "type": "number" },
+        "status": { "type": "string", "enum": ["active", "inactive"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "Order": {
+      "title": "Marketplace Order",
+      "description": "A recorded purchase transaction.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "buyerId": { "type": "string" },
+        "sellerId": { "type": "string" },
+        "products": { "type": "array", "items": { "type": "object" } },
+        "total": { "type": "number" },
+        "currency": { "type": "string" },
+        "paymentStatus": { "type": "string", "enum": ["pending", "paid", "failed"] },
+        "shippingStatus": { "type": "string", "enum": ["processing", "shipped", "delivered"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
     }
   },
   "auth": {
@@ -143,6 +194,9 @@
     "/communities/{communityId}": { "schema": "Circle", "description": "Community gatherings" },
     "/communities/{communityId}/members/{memberId}": { "schema": "CircleMember", "description": "Circle participant registry" },
     "/conversations/{convId}": { "schema": "Conversation", "description": "Secured communication channels" },
-    "/conversations/{convId}/messages/{msgId}": { "schema": "Message", "description": "Secured high-fidelity subcollection messages" }
+    "/conversations/{convId}/messages/{msgId}": { "schema": "Message", "description": "Secured high-fidelity subcollection messages" },
+    "/shops/{shopId}": { "schema": "Store", "description": "Verified local artisan shops" },
+    "/products/{productId}": { "schema": "Product", "description": "Marketplace product listings" },
+    "/orders/{orderId}": { "schema": "Order", "description": "Recorded purchase transactions" }
   }
 }
