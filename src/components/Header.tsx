@@ -15,6 +15,7 @@ import {
   ShoppingBag,
   User,
   LogOut,
+  LogIn,
   Loader2,
   Languages,
   Check,
