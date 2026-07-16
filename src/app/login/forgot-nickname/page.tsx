@@ -81,8 +81,8 @@ export default function ForgotNicknamePage() {
           description: "A nickname reminder has been dispatched to your email. ❤️",
         });
       } else {
-        // No heart found with this email
-        setIsSent(true); // Still show generic success for security to prevent enumeration
+        // No heart found with this email (Security: Show generic success to prevent enumeration)
+        setIsSent(true);
         setMessage("Username recovery request submitted.");
       }
     } catch (error: any) {

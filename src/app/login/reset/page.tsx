@@ -14,7 +14,8 @@ import {
   CheckCircle2,
   Sparkles,
   AlertTriangle,
-  ShieldCheck
+  ShieldCheck,
+  Clock
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
@@ -22,7 +23,7 @@ import { cn } from '@/lib/utils';
 
 /**
  * @fileOverview Secure Recovery Protocol Page.
- * Implements the requested password reset logic with high-fidelity diagnostics.
+ * Implements requested reset logic with high-fidelity diagnostics.
  */
 export default function ForgotPassword() {
   const { toast } = useToast();
@@ -118,11 +119,17 @@ export default function ForgotPassword() {
                   <p className="text-xs text-muted-foreground font-medium italic leading-relaxed">
                     {message} ❤️
                   </p>
-                  <div className="p-4 bg-amber-50 rounded-2xl border border-amber-100 flex items-start gap-3 text-left">
-                    <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                    <p className="text-[10px] text-amber-800 font-black uppercase tracking-tight">
-                      Note: Look for an email from <strong>noreply@iLoveU.com</strong>.
-                    </p>
+                  <div className="space-y-4">
+                    <div className="p-4 bg-amber-50 rounded-2xl border border-amber-100 flex items-start gap-3 text-left">
+                      <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                      <p className="text-[10px] text-amber-800 font-black uppercase tracking-tight">
+                        Note: Check your <span className="underline">Spam</span> folder and wait 60 seconds.
+                      </p>
+                    </div>
+                    <div className="flex items-center justify-center gap-2 text-slate-300">
+                      <Clock className="w-3.5 h-3.5" />
+                      <p className="text-[8px] font-black uppercase tracking-widest">Delivery Heartbeat Active</p>
+                    </div>
                   </div>
                 </div>
                 <Button asChild className="w-full h-16 rounded-2xl gradient-bg font-black uppercase tracking-widest text-[10px] shadow-xl shadow-primary/20">

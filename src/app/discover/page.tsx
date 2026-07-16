@@ -48,7 +48,7 @@ import { useTranslation } from '@/components/providers/LanguageProvider';
  * Profiles are 100% visible and vibrant in both Online and Offline sections.
  */
 export default function DiscoverPage() {
-  const { user } = useUser();
+  const { user } = userUser();
   const { toast } = useToast();
   const { t } = useTranslation();
 
