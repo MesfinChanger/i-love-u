@@ -23,7 +23,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 
 export default function CommunityPage() {
-  const { user } = user = useUser();
+  const { user } = useUser();
   const db = useFirestore();
   const { uploadFile } = useFirebaseStorage();
   const { toast } = useToast();
@@ -44,7 +44,12 @@ export default function CommunityPage() {
 
   const handleSendMessage = async (e?: React.FormEvent) => {
     e?.preventDefault();
-    if (!newMessage.trim() || !user || !db || isSending) return;
+    if (!user) {
+      window.dispatchEvent(new CustomEvent('open-auth-gate'));
+      return;
+    }
+
+    if (!newMessage.trim() || !db || isSending) return;
     
     if (isInteractionRestricted) {
       toast({ variant: "destructive", title: "Posting Restricted", description: "Commercial users must commit to the Respect Protocol first. ❤️" });
@@ -108,7 +113,7 @@ export default function CommunityPage() {
 
         <div className="space-y-6">
            {loading ? (
-             <div className="flex justify-center py-10"><Loader2 className="animate-spin text-primary" /></div>
+             <div className="flex justify-center py-10"><Loader2 className="animate-spin text-primary opacity-20" /></div>
            ) : messages?.map((msg: any) => (
              <Card key={msg.id} className="rounded-[2.5rem] border-none shadow-md overflow-hidden bg-white">
                 <CardContent className="p-6 space-y-4">

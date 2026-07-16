@@ -32,7 +32,7 @@ import { cn } from '@/lib/utils';
 
 /**
  * @fileOverview Prosperity Pool with Topic Access Control.
- * Grants posting access based on user role and profile status.
+ * Proactively triggers Universal Auth Gate for unauthenticated thought-leaders.
  */
 
 interface TopicDefinition {
@@ -104,7 +104,12 @@ export default function ProsperityPoolPage() {
 
   const handlePostThought = async (e?: React.FormEvent) => {
     e?.preventDefault();
-    if (!newThought.trim() || !user || !db || isSending) return;
+    if (!user) {
+      window.dispatchEvent(new CustomEvent('open-auth-gate'));
+      return;
+    }
+
+    if (!newThought.trim() || !db || isSending) return;
     
     if (isInteractionRestricted) {
       toast({ variant: "destructive", title: "Access Restricted", description: "Commercial users must commit to the Respect Protocol first. ❤️" });

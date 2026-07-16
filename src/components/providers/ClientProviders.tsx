@@ -9,6 +9,7 @@ import { MissionNudge } from '@/components/MissionNudge';
 import { LanguageProvider } from './LanguageProvider';
 import { FeedbackBox } from '@/components/FeedbackBox';
 import { IdleLogoutProvider } from './IdleLogoutProvider';
+import { AuthGateDialog } from '@/components/AuthGateDialog';
 
 /**
  * @fileOverview Wraps all client-side providers for the application.
@@ -21,6 +22,7 @@ export function ClientProviders({ children }: { children: React.ReactNode }) {
         <IdleLogoutProvider>
           {children}
           <SparkAssistant />
+          <AuthGateDialog />
           <FeedbackBox />
           <RegistrationReminder />
           <MissionNudge />

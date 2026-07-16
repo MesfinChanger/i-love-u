@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -44,16 +43,18 @@ import { useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useTranslation } from './providers/LanguageProvider';
-import { useAuth } from '@/firebase';
+import { useAuth, useUser } from '@/firebase';
 import { signOut } from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 import { SUPPORTED_LANGUAGES } from '@/lib/world-data';
 
 /**
- * @fileOverview The platform header, featuring a vertical navigation menu and Notification Center.
+ * @fileOverview The platform header.
+ * Proactively triggers Universal Auth Gate for unauthenticated sessions via "Launch Spark".
  */
 export function Header() {
   const auth = useAuth();
+  const { user } = useUser();
   const router = useRouter();
   const { toast } = useToast();
   const [hasNotifications, setHasNotifications] = useState(true);
@@ -67,6 +68,10 @@ export function Header() {
 
   const triggerFeedback = () => {
     window.dispatchEvent(new CustomEvent('toggle-feedback-box'));
+  };
+
+  const triggerAuthGate = () => {
+    window.dispatchEvent(new CustomEvent('open-auth-gate'));
   };
 
   const handleSignOut = async () => {
@@ -202,16 +207,28 @@ export function Header() {
                      </DropdownMenuContent>
                    </DropdownMenu>
 
-                  <button 
-                    onClick={handleSignOut}
-                    disabled={isSigningOut}
-                    className="flex items-center gap-4 p-4 rounded-[1.5rem] transition-all w-full text-slate-400 hover:text-red-500 hover:bg-red-50 group"
-                  >
-                    <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center group-hover:bg-white group-hover:shadow-md transition-all">
-                      {isSigningOut ? <Loader2 className="w-5 h-5 animate-spin" /> : <LogOut className="w-5 h-5" />}
-                    </div>
-                    <span className="font-black text-sm uppercase tracking-widest">Sign Out</span>
-                  </button>
+                  {user ? (
+                    <button 
+                      onClick={handleSignOut}
+                      disabled={isSigningOut}
+                      className="flex items-center gap-4 p-4 rounded-[1.5rem] transition-all w-full text-slate-400 hover:text-red-500 hover:bg-red-50 group"
+                    >
+                      <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center group-hover:bg-white group-hover:shadow-md transition-all">
+                        {isSigningOut ? <Loader2 className="w-5 h-5 animate-spin" /> : <LogOut className="w-5 h-5" />}
+                      </div>
+                      <span className="font-black text-sm uppercase tracking-widest">Sign Out</span>
+                    </button>
+                  ) : (
+                    <button 
+                      onClick={triggerAuthGate}
+                      className="flex items-center gap-4 p-4 rounded-[1.5rem] transition-all w-full text-primary hover:bg-primary/5 group"
+                    >
+                      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-white group-hover:shadow-md transition-all">
+                        <LogIn className="w-5 h-5" />
+                      </div>
+                      <span className="font-black text-sm uppercase tracking-widest">Identify Heart</span>
+                    </button>
+                  )}
                 </div>
               </nav>
 

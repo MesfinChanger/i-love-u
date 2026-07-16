@@ -54,6 +54,7 @@ import { useTranslation } from '@/components/providers/LanguageProvider';
 /**
  * @fileOverview Discovery Grid Protocol.
  * Implements Online/Offline sorting and role-aware View Only restrictions.
+ * Proactively triggers Universal Auth Gate for unauthenticated sessions.
  */
 export default function DiscoverPage() {
   const { user } = useUser();
@@ -81,9 +82,9 @@ export default function DiscoverPage() {
   const isInteractionRestricted = isCommercial && !hasAcceptedPolicy;
 
   const discoveryQuery = useMemoFirebase(() => {
-    if (!db || !user?.uid) return null;
+    if (!db) return null;
     return query(collection(db, 'publicProfiles'));
-  }, [db, user?.uid]);
+  }, [db]);
   const { data: discoveryItems, loading: usersLoading } = useCollection(discoveryQuery);
 
   useEffect(() => {
@@ -136,11 +137,16 @@ export default function DiscoverPage() {
   }, [discoveryItems, user?.uid, mounted, presenceOverrides]);
 
   const handleSparkAction = async (targetId: string, type: 'friend' | 'date') => {
+    if (!user) {
+      window.dispatchEvent(new CustomEvent('open-auth-gate'));
+      return;
+    }
+
     if (isInteractionRestricted) {
       toast({ variant: "destructive", title: "Commercial Interaction Locked", description: "Sellers and Purchasers must agree to our Mandatory Policy before sparking. ✨" });
       return;
     }
-    if (!user || !db) return;
+    if (!db) return;
 
     const uids = [user.uid, targetId].sort();
     const matchId = uids.join('_');
@@ -159,7 +165,7 @@ export default function DiscoverPage() {
     }
   };
 
-  if (!mounted || (usersLoading && db && user?.uid)) return (
+  if (!mounted || (usersLoading && db)) return (
     <div className="flex items-center justify-center min-h-screen bg-muted/30">
       <Loader2 className="w-10 h-10 animate-spin text-primary opacity-20" />
     </div>
@@ -169,6 +175,18 @@ export default function DiscoverPage() {
     <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
       <Header />
       
+      {user?.isAnonymous && (
+        <div className="bg-primary/10 border-b border-primary/20 px-4 py-3 flex items-center justify-between animate-in slide-in-from-top-2 z-40 sticky top-16 backdrop-blur-md">
+           <div className="flex items-center gap-2 text-primary">
+              <Sparkles className="w-4 h-4 animate-pulse" />
+              <p className="text-[10px] font-black uppercase tracking-tight">Guest Session Active: Explore & Spark respectfully. ❤️</p>
+           </div>
+           <Link href="/login">
+              <Button size="sm" variant="ghost" className="h-7 text-[9px] font-black uppercase text-primary hover:bg-primary/10">Secure Identity</Button>
+           </Link>
+        </div>
+      )}
+
       {isInteractionRestricted && (
         <div className="bg-amber-100 border-b border-amber-200 px-4 py-3 flex items-center justify-between animate-in slide-in-from-top-2 z-40 sticky top-16">
            <div className="flex items-center gap-2 text-amber-800">
@@ -229,7 +247,7 @@ export default function DiscoverPage() {
            </CollapsibleContent>
         </Collapsible>
 
-        {/* OFFLINE SECTION - VIBRANT & VISIBLE */}
+        {/* OFFLINE SECTION */}
         <Collapsible open={isOfflineExpanded} onOpenChange={setIsOfflineExpanded} className="space-y-6">
            <div className="flex items-center justify-between border-b pb-4">
               <div className="flex items-center gap-4">
@@ -337,19 +355,18 @@ function DiscoverCard({ item, isRestricted, onAction }: any) {
          <p className="text-[11px] text-white/80 leading-relaxed font-medium line-clamp-2 italic">"{item.bio}"</p>
 
          <div className="flex gap-2 pt-2">
-            <Button 
-              variant="outline" 
+            <button 
               onClick={() => onAction('friend')}
-              className={cn("flex-1 h-10 rounded-xl bg-white/10 border-white/20 text-white hover:bg-white hover:text-primary font-black uppercase text-[8px] tracking-widest gap-1.5 transition-all", isRestricted && "opacity-40 cursor-not-allowed")}
+              className={cn("flex-1 h-10 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white hover:text-primary font-black uppercase text-[8px] tracking-widest flex items-center justify-center gap-1.5 transition-all", isRestricted && "opacity-40 cursor-not-allowed")}
             >
               <Send className="w-3 h-3" /> Invite
-            </Button>
-            <Button 
+            </button>
+            <button 
               onClick={() => onAction('date')}
-              className={cn("flex-1 h-10 rounded-xl gradient-bg shadow-lg font-black uppercase text-[8px] tracking-widest gap-1.5 active:scale-95", isRestricted && "opacity-40 cursor-not-allowed")}
+              className={cn("flex-1 h-10 rounded-xl gradient-bg shadow-lg font-black uppercase text-[8px] tracking-widest flex items-center justify-center gap-1.5 active:scale-95 transition-all", isRestricted && "opacity-40 cursor-not-allowed")}
             >
               <Heart className="w-3 h-3 fill-current" /> Spark
-            </Button>
+            </button>
          </div>
       </div>
     </Card>
