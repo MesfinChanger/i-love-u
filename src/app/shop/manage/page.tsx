@@ -21,17 +21,23 @@ import {
   ShieldAlert,
   Clock,
   CheckCircle2,
-  FileCheck
+  FileCheck,
+  Plus,
+  Trash2,
+  ImageIcon,
+  Tags
 } from 'lucide-react';
-import { useUser, useFirestore, useDoc } from '@/firebase';
-import { doc, setDoc, updateDoc } from 'firebase/firestore';
+import { useUser, useFirestore, useDoc, useCollection } from '@/firebase';
+import { doc, setDoc, updateDoc, collection, addDoc, serverTimestamp, query, where, deleteDoc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { createSubscriptionSession } from '@/lib/stripe-actions';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { CURRENCIES } from '@/lib/world-data';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
+import Image from 'next/image';
 
 function SellerManageContent() {
   const { user } = useUser();
@@ -55,12 +61,28 @@ function SellerManageContent() {
   }, [db, user]);
   const { data: profile } = useDoc(userRef);
 
+  // Shop Identity State
   const [shopName, setShopName] = useState('');
   const [shopDesc, setShopDesc] = useState('');
   const [isSubscribing, setIsSubscribing] = useState(false);
   const [isRequestingNegotiation, setIsRequestingNegotiation] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [mounted, setMounted] = useState(false);
+
+  // Product Management State
+  const [newProductName, setNewProductName] = useState('');
+  const [newProductDesc, setNewProductDesc] = useState('');
+  const [newProductPrice, setNewProductPrice] = useState('');
+  const [newProductCategory, setNewProductCategory] = useState('General');
+  const [newProductInventory, setNewProductInventory] = useState('10');
+  const [newProductImageUrl, setNewProductImageUrl] = useState('');
+  const [isAddingProduct, setIsAddingProduct] = useState(false);
+
+  const productsQuery = useMemoFirebase(() => {
+    if (!db || !user) return null;
+    return query(collection(db, 'products'), where('storeId', '==', user.uid));
+  }, [db, user]);
+  const { data: myProducts, loading: productsLoading } = useCollection(productsQuery);
 
   // Hold Protocol: Load Draft
   useEffect(() => {
@@ -164,15 +186,13 @@ function SellerManageContent() {
     setIsSaving(true);
     try {
       const shopId = `shop-${user.uid}`;
-      
-      // Strictly adhering to requested Shop schema
       await setDoc(doc(db, 'shops', shopId), {
         ownerId: user.uid,
         name: shopName.trim(),
         description: shopDesc.trim(),
-        logo: profile.photoURL || 'https://picsum.photos/seed/shop/200/200',
+        logo: profile.photoURL || `https://picsum.photos/seed/${user.uid}/200/200`,
         country: profile.country || 'Global',
-        rating: profile.shopRating || 5, // Default for new shops
+        rating: profile.shopRating || 5,
         verified: profile.isSellerVerified || false
       }, { merge: true });
       
@@ -180,6 +200,44 @@ function SellerManageContent() {
       toast({ title: "Shop Updated", description: "Your virtual store is live. ✨" });
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleAddProduct = async () => {
+    if (!user || !db || !newProductName || !newProductPrice) return;
+    setIsAddingProduct(true);
+    try {
+      await addDoc(collection(db, 'products'), {
+        storeId: user.uid,
+        name: newProductName.trim(),
+        description: newProductDesc.trim(),
+        price: parseFloat(newProductPrice),
+        currency: userCurrency,
+        category: newProductCategory,
+        inventory: parseInt(newProductInventory),
+        images: [newProductImageUrl || `https://picsum.photos/seed/${newProductName.length}/600/600`],
+        createdAt: serverTimestamp()
+      });
+
+      setNewProductName('');
+      setNewProductDesc('');
+      setNewProductPrice('');
+      setNewProductImageUrl('');
+      toast({ title: "Product Listed", description: "Your item is now live in the marketplace! ❤️" });
+    } catch (e) {
+      toast({ variant: "destructive", title: "Error", description: "Failed to list product." });
+    } finally {
+      setIsAddingProduct(false);
+    }
+  };
+
+  const handleDeleteProduct = async (id: string) => {
+    if (!db) return;
+    try {
+      await deleteDoc(doc(db, 'products', id));
+      toast({ title: "Product Removed", description: "Listing has been deleted." });
+    } catch (e) {
+      toast({ variant: "destructive", title: "Error", description: "Could not remove listing." });
     }
   };
 
@@ -194,8 +252,8 @@ function SellerManageContent() {
               </div>
               <div className="space-y-3">
                  <h1 className="text-4xl font-black tracking-tighter uppercase">Verification Pending</h1>
-                 <p className="text-muted-foreground font-medium leading-relaxed italic">
-                   "Quality builds trust." Our administrators are thoroughly checking your ID, address, and profile for our Mandatory Respect Policy.
+                 <p className="text-muted-foreground font-medium italic">
+                   "Quality builds trust." Our administrators are thoroughly checking your ID, address, and profile alignment.
                  </p>
               </div>
               <div className="bg-slate-900 p-8 rounded-[2.5rem] space-y-4 shadow-xl border border-primary/20">
@@ -207,7 +265,6 @@ function SellerManageContent() {
                     <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary" /> Tax ID & Identity Verification</li>
                     <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary" /> Physical Address Proof</li>
                     <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary" /> Respect & Love Policy Signing</li>
-                    <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary" /> Human Verification Status</li>
                  </ul>
               </div>
               <Button variant="outline" className="w-full h-14 rounded-2xl font-black uppercase text-[10px] tracking-widest border-2" onClick={() => router.push('/discover')}>Return to Discovery</Button>
@@ -221,7 +278,7 @@ function SellerManageContent() {
   return (
     <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
       <Header />
-      <main className="container mx-auto px-4 py-8 max-w-4xl" role="main">
+      <main className="container mx-auto px-4 py-8 max-w-5xl" role="main">
         {!isApprovedSeller ? (
           <div className="space-y-8 text-center py-12">
             <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
@@ -261,7 +318,7 @@ function SellerManageContent() {
                   <CardDescription>Perfect for expanding</CardDescription>
                 </CardHeader>
                 <CardContent className="flex-grow">
-                  <p className="text-xs text-muted-foreground leading-relaxed italic">{currencySymbol}{basicPrice}/mo flat monthly rate. Subject to admin approval.</p>
+                  <p className="text-xs text-muted-foreground leading-relaxed italic">{currencySymbol}{basicPrice}/mo flat monthly rate.</p>
                 </CardContent>
                 <CardFooter>
                   <Button className="w-full rounded-2xl h-12 gradient-bg font-bold" onClick={() => handleSubscribe('basic_seller')} disabled={isSubscribing}>
@@ -279,7 +336,7 @@ function SellerManageContent() {
                   <CardDescription>Established brands</CardDescription>
                 </CardHeader>
                 <CardContent className="flex-grow">
-                  <p className="text-xs text-muted-foreground leading-relaxed italic">{currencySymbol}{proPrice}/mo. Gain maximum visibility and trust badges.</p>
+                  <p className="text-xs text-muted-foreground leading-relaxed italic">{currencySymbol}{proPrice}/mo. Gain maximum visibility.</p>
                 </CardContent>
                 <CardFooter>
                   <Button className="w-full rounded-2xl h-12 gradient-bg font-bold shadow-xl shadow-primary/20" onClick={() => handleSubscribe('pro_seller')} disabled={isSubscribing}>
@@ -288,26 +345,13 @@ function SellerManageContent() {
                 </CardFooter>
               </Card>
             </div>
-
-            <div className="p-10 bg-slate-900 rounded-[3rem] text-white space-y-6 max-w-2xl mx-auto mt-12 shadow-2xl relative overflow-hidden group">
-               <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:rotate-12 transition-transform">
-                  <ShieldAlert className="w-32 h-32 text-primary" />
-               </div>
-               <div className="relative z-10 flex items-center gap-4 text-primary justify-center">
-                  <HeartHandshake className="w-10 h-10" />
-                  <h3 className="font-black text-3xl uppercase tracking-tighter">Identity Protocol</h3>
-               </div>
-               <p className="text-base text-white/70 italic leading-relaxed px-4">
-                 "Prosperity is built on integrity." Every Seller undergoes a thorough administrative check-up of their identity, business address, and policy alignment.
-               </p>
-            </div>
           </div>
         ) : (
           <div className="space-y-8">
             <div className="flex justify-between items-end">
               <div>
-                <h1 className="text-4xl font-black tracking-tighter">Manage Your Shop</h1>
-                <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1">Verified Seller Console</p>
+                <h1 className="text-4xl font-black tracking-tighter">Seller Console</h1>
+                <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1">Verified Store Management</p>
               </div>
               <Badge className="bg-green-100 text-green-700 border-none px-4 h-8 text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
                 <CheckCircle2 className="w-3.5 h-3.5" />
@@ -315,42 +359,132 @@ function SellerManageContent() {
               </Badge>
             </div>
 
-            <Card className="rounded-[2.5rem] border-none shadow-xl overflow-hidden bg-white">
-              <CardHeader className="bg-primary/5 border-b p-8 flex flex-row items-center justify-between">
-                <CardTitle className="flex items-center gap-3">
-                  <Store className="w-8 h-8 text-primary" />
-                  Store Identity
-                </CardTitle>
-                <Save className="w-6 h-6 text-primary/20" />
-              </CardHeader>
-              <CardContent className="p-8 space-y-6">
-                <div className="space-y-3">
-                  <Label htmlFor="shop-name" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Shop Name</Label>
-                  <Input id="shop-name" placeholder="e.g. Blossom Luxury Gifts" value={shopName} onChange={e => setShopName(e.target.value)} className="rounded-2xl h-14 bg-muted/20 border-none px-6 text-lg font-bold" />
-                </div>
-                <div className="space-y-3">
-                  <Label htmlFor="shop-desc" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Store Description</Label>
-                  <Textarea id="shop-desc" placeholder="Describe your mission and what you sell..." value={shopDesc} onChange={e => setShopDesc(e.target.value)} className="rounded-[1.5rem] min-h-[120px] bg-muted/20 border-none p-6" />
-                </div>
-                <Button className="w-full h-16 rounded-2xl gradient-bg font-black uppercase tracking-widest text-xs shadow-xl shadow-primary/20 gap-2" onClick={handleSaveShop} disabled={isSaving}>
-                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                  Update Storefront & Save
-                </Button>
-              </CardContent>
-            </Card>
+            <Tabs defaultValue="inventory" className="w-full">
+              <TabsList className="grid grid-cols-2 h-14 bg-white/50 backdrop-blur-md rounded-2xl p-1 mb-8 border">
+                <TabsTrigger value="inventory" className="rounded-xl text-[10px] font-black uppercase tracking-widest gap-2">
+                   <Package className="w-4 h-4" />
+                   Inventory
+                </TabsTrigger>
+                <TabsTrigger value="storefront" className="rounded-xl text-[10px] font-black uppercase tracking-widest gap-2">
+                   <Store className="w-4 h-4" />
+                   Storefront
+                </TabsTrigger>
+              </TabsList>
 
-            <div className="grid grid-cols-2 gap-6">
-              <Card className="p-8 text-center space-y-3 rounded-[2.5rem] border-none shadow-sm bg-white">
-                <Package className="w-10 h-10 text-primary mx-auto opacity-20" />
-                <div className="text-4xl font-black tracking-tighter">12</div>
-                <div className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Active Products</div>
-              </Card>
-              <Card className="p-8 text-center space-y-3 rounded-[2.5rem] border-none shadow-sm bg-white">
-                <CreditCard className="w-10 h-10 text-green-500 mx-auto opacity-20" />
-                <div className="text-4xl font-black tracking-tighter">{currencySymbol}4,250</div>
-                <div className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Monthly Sales</div>
-              </Card>
-            </div>
+              <TabsContent value="storefront" className="animate-in fade-in slide-in-from-bottom-2">
+                <Card className="rounded-[2.5rem] border-none shadow-xl overflow-hidden bg-white">
+                  <CardHeader className="bg-primary/5 border-b p-8 flex flex-row items-center justify-between">
+                    <CardTitle className="flex items-center gap-3">
+                      <Store className="w-8 h-8 text-primary" />
+                      Store Identity
+                    </CardTitle>
+                    <Save className="w-6 h-6 text-primary/20" />
+                  </CardHeader>
+                  <CardContent className="p-8 space-y-6">
+                    <div className="space-y-3">
+                      <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 ml-1">Shop Name</Label>
+                      <Input placeholder="e.g. Blossom Luxury Gifts" value={shopName} onChange={e => setShopName(e.target.value)} className="rounded-2xl h-14 bg-muted/20 border-none px-6 text-lg font-bold" />
+                    </div>
+                    <div className="space-y-3">
+                      <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 ml-1">Store Description</Label>
+                      <Textarea placeholder="Describe your mission and what you sell..." value={shopDesc} onChange={e => setShopDesc(e.target.value)} className="rounded-[1.5rem] min-h-[120px] bg-muted/20 border-none p-6" />
+                    </div>
+                    <Button className="w-full h-16 rounded-2xl gradient-bg font-black uppercase tracking-widest text-xs shadow-xl gap-2" onClick={handleSaveShop} disabled={isSaving}>
+                      {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                      Update Storefront
+                    </Button>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="inventory" className="space-y-8 animate-in fade-in slide-in-from-bottom-2">
+                 <div className="grid lg:grid-cols-12 gap-8">
+                    <div className="lg:col-span-5">
+                       <Card className="rounded-[2.5rem] border-none shadow-xl bg-white sticky top-24 overflow-hidden">
+                          <CardHeader className="bg-slate-900 text-white p-8">
+                             <CardTitle className="text-xl font-black uppercase tracking-tighter flex items-center gap-3">
+                                <Plus className="w-6 h-6 text-primary" />
+                                Add Product
+                             </CardTitle>
+                          </CardHeader>
+                          <CardContent className="p-8 space-y-5">
+                             <div className="space-y-1.5">
+                                <Label className="text-[9px] font-black uppercase tracking-widest ml-1">Product Name</Label>
+                                <Input value={newProductName} onChange={e => setNewProductName(e.target.value)} placeholder="e.g. Handmade Leather Bag" className="h-12 rounded-xl bg-muted/30 border-none font-bold" />
+                             </div>
+                             <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-1.5">
+                                   <Label className="text-[9px] font-black uppercase tracking-widest ml-1">Price ({currencySymbol})</Label>
+                                   <Input type="number" value={newProductPrice} onChange={e => setNewProductPrice(e.target.value)} placeholder="0.00" className="h-12 rounded-xl bg-muted/30 border-none font-bold" />
+                                </div>
+                                <div className="space-y-1.5">
+                                   <Label className="text-[9px] font-black uppercase tracking-widest ml-1">Stock</Label>
+                                   <Input type="number" value={newProductInventory} onChange={e => setNewProductInventory(e.target.value)} placeholder="10" className="h-12 rounded-xl bg-muted/30 border-none font-bold" />
+                                </div>
+                             </div>
+                             <div className="space-y-1.5">
+                                <Label className="text-[9px] font-black uppercase tracking-widest ml-1">Category</Label>
+                                <Input value={newProductCategory} onChange={e => setNewProductCategory(e.target.value)} placeholder="General" className="h-12 rounded-xl bg-muted/30 border-none font-bold" />
+                             </div>
+                             <div className="space-y-1.5">
+                                <Label className="text-[9px] font-black uppercase tracking-widest ml-1">Image URL</Label>
+                                <Input value={newProductImageUrl} onChange={e => setNewProductImageUrl(e.target.value)} placeholder="https://..." className="h-12 rounded-xl bg-muted/30 border-none font-bold text-xs" />
+                             </div>
+                             <div className="space-y-1.5">
+                                <Label className="text-[9px] font-black uppercase tracking-widest ml-1">Description</Label>
+                                <Textarea value={newProductDesc} onChange={e => setNewProductDesc(e.target.value)} placeholder="What makes this product special?" className="min-h-[100px] rounded-xl bg-muted/30 border-none font-medium italic text-xs" />
+                             </div>
+                             <Button onClick={handleAddProduct} disabled={isAddingProduct || !newProductName || !newProductPrice} className="w-full h-14 rounded-2xl gradient-bg font-black uppercase text-[10px] tracking-widest shadow-xl">
+                                {isAddingProduct ? <Loader2 className="w-4 h-4 animate-spin" /> : "Sync Listing"}
+                             </Button>
+                          </CardContent>
+                       </Card>
+                    </div>
+
+                    <div className="lg:col-span-7 space-y-6">
+                       <h2 className="text-xl font-black uppercase tracking-tight flex items-center gap-3 ml-2">
+                          <Tags className="w-5 h-5 text-primary" />
+                          Live Inventory
+                       </h2>
+
+                       <div className="grid gap-4">
+                          {productsLoading ? (
+                             <div className="flex justify-center py-20 opacity-20"><Loader2 className="w-10 h-10 animate-spin text-primary" /></div>
+                          ) : myProducts && myProducts.length > 0 ? (
+                             myProducts.map((p: any) => (
+                                <Card key={p.id} className="rounded-[2rem] border-none shadow-md bg-white overflow-hidden group hover:shadow-xl transition-all">
+                                   <div className="flex items-center p-4 gap-4">
+                                      <div className="relative w-20 h-20 rounded-2xl overflow-hidden bg-muted shrink-0">
+                                         <Image src={p.images?.[0] || 'https://picsum.photos/seed/product/200/200'} alt={p.name} fill className="object-cover" />
+                                      </div>
+                                      <div className="flex-grow min-w-0">
+                                         <div className="flex items-center justify-between mb-1">
+                                            <h3 className="font-black text-lg truncate tracking-tight">{p.name}</h3>
+                                            <Badge className="bg-primary/10 text-primary border-none text-[8px] font-black">{currencySymbol}{p.price}</Badge>
+                                         </div>
+                                         <p className="text-[10px] text-muted-foreground font-medium italic line-clamp-1 mb-2">"{p.description}"</p>
+                                         <div className="flex items-center gap-3">
+                                            <Badge variant="outline" className="text-[7px] font-black uppercase border-muted-foreground/20 text-muted-foreground/60">{p.category}</Badge>
+                                            <span className="text-[8px] font-bold uppercase tracking-widest text-slate-300">{p.inventory} in stock</span>
+                                         </div>
+                                      </div>
+                                      <Button variant="ghost" size="icon" onClick={() => handleDeleteProduct(p.id)} className="rounded-xl text-muted-foreground/20 hover:text-red-500 hover:bg-red-50 transition-colors">
+                                         <Trash2 className="w-4 h-4" />
+                                      </Button>
+                                   </div>
+                                </Card>
+                             ))
+                          ) : (
+                             <div className="text-center py-24 bg-white/40 rounded-[3rem] border-2 border-dashed border-muted">
+                                <Package className="w-12 h-12 text-muted-foreground/20 mx-auto mb-4" />
+                                <p className="text-sm font-black uppercase text-muted-foreground tracking-widest">No products listed yet.</p>
+                             </div>
+                          )}
+                       </div>
+                    </div>
+                 </div>
+              </TabsContent>
+            </Tabs>
           </div>
         )}
       </main>

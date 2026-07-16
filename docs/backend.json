@@ -55,6 +55,22 @@
         "verified": { "type": "boolean", "default": false }
       }
     },
+    "Product": {
+      "title": "Product",
+      "description": "A specific item for sale by a verified shop.",
+      "type": "object",
+      "properties": {
+        "storeId": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "images": { "type": "array", "items": { "type": "string" } },
+        "price": { "type": "number" },
+        "currency": { "type": "string" },
+        "category": { "type": "string" },
+        "inventory": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    },
     "Connection": {
       "title": "Connection",
       "description": "An invitation or established match between two hearts.",
@@ -130,6 +146,7 @@
     "/ideaPool/{postId}": { "schema": "PoolPost", "description": "Global knowledge pool" },
     "/circles/{circleId}": { "schema": "Circle", "description": "Global community circles registry" },
     "/shops/{shopId}": { "schema": "Shop", "description": "Verified seller storefronts" },
+    "/products/{productId}": { "schema": "Product", "description": "Artisan products listed by verified shops" },
     "/siteSettings/{settingId}": { "description": "Global platform settings" }
   }
 }

@@ -27,11 +27,12 @@ import {
   Store,
   ChevronRight,
   Sparkles,
-  X
+  X,
+  Package
 } from 'lucide-react';
 import Image from 'next/image';
 import { useFirestore, useCollection, useUser, useDoc } from '@/firebase';
-import { collection, query, addDoc, serverTimestamp, doc, where, limit } from 'firebase/firestore';
+import { collection, query, addDoc, serverTimestamp, doc, where, limit, orderBy } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -49,7 +50,7 @@ import {
 } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 
-const GIFT_CATEGORIES = ["Flowers", "Jewelry", "Electronics", "Apparel", "Home", "Ornamental"];
+const GIFT_CATEGORIES = ["All", "Flowers", "Jewelry", "Electronics", "Apparel", "Home", "Ornamental", "General"];
 
 function ShopContent() {
   const { user } = useUser();
@@ -60,10 +61,10 @@ function ShopContent() {
   const router = useRouter();
   
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeCategory, setActiveCategory] = useState('All');
   const [isPurchasing, setIsPurchasing] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
 
-  // Recipient Context: Fetch recipient ID from URL
   const recipientId = searchParams.get('recipientId');
 
   useEffect(() => {
@@ -82,7 +83,6 @@ function ShopContent() {
   }, [db, recipientId]);
   const { data: recipientProfile } = useDoc(recipientRef);
 
-  // Determine target location for "Nearest" logic
   const targetLocation = useMemo(() => {
     if (recipientProfile) {
       return {
@@ -100,7 +100,6 @@ function ShopContent() {
     };
   }, [recipientProfile, myProfile]);
 
-  // Fetch local shops based on the target country (Synchronized with Shop Schema)
   const localShopsQuery = useMemoFirebase(() => {
     if (!db || !targetLocation.country) return null;
     return query(
@@ -114,10 +113,14 @@ function ShopContent() {
 
   const productsQuery = useMemoFirebase(() => {
     if (!db) return null;
-    return query(collection(db, 'global_products'), limit(20));
-  }, [db]);
+    let q = query(collection(db, 'products'), orderBy('createdAt', 'desc'), limit(50));
+    if (activeCategory !== 'All') {
+      q = query(collection(db, 'products'), where('category', '==', activeCategory), orderBy('createdAt', 'desc'), limit(50));
+    }
+    return q;
+  }, [db, activeCategory]);
 
-  const { data: dbProducts, loading: productsLoading } = useCollection(productsQuery);
+  const { data: products, loading: productsLoading } = useCollection(productsQuery);
 
   // Guest State
   const [showGuestForm, setShowGuestForm] = useState(false);
@@ -138,17 +141,10 @@ function ShopContent() {
     }
   }, [searchParams, toast]);
 
-  const mockProducts = [
-    { id: '1', name: 'Premium Roses', price: 29.99, category: 'Flowers', imageUrl: 'https://picsum.photos/seed/roses/300/300' },
-    { id: '2', name: 'Diamond Pendant', price: 1299.99, category: 'Jewelry', imageUrl: 'https://picsum.photos/seed/diamond/300/300' },
-    { id: '3', name: 'Smart Coffee Maker', price: 199.99, category: 'Home', imageUrl: 'https://picsum.photos/seed/coffee/300/300' },
-    { id: '4', name: 'Designer Heels', price: 450.00, category: 'Apparel', imageUrl: 'https://picsum.photos/seed/shoes/300/300' },
-    { id: '5', name: 'Gold Watch', price: 850.00, category: 'Jewelry', imageUrl: 'https://picsum.photos/seed/watch/300/300' },
-    { id: '6', name: 'Crystal Vase', price: 75.00, category: 'Ornamental', imageUrl: 'https://picsum.photos/seed/vase/300/300' },
-  ];
-
-  const displayProducts = (dbProducts && dbProducts.length > 0) ? dbProducts : mockProducts;
-  const filteredProducts = displayProducts.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()));
+  const filteredProducts = useMemo(() => {
+    if (!products) return [];
+    return products.filter(p => p.name?.toLowerCase().includes(searchQuery.toLowerCase()));
+  }, [products, searchQuery]);
 
   const userCurrency = myProfile?.currency || 'USD';
   const currencySymbol = CURRENCIES.find(c => c.code === userCurrency)?.symbol || '$';
@@ -171,7 +167,7 @@ function ShopContent() {
         zip: myProfile?.postalCode || ''
       };
 
-      const result = await createGiftPurchaseSession(product.name, product.price, userCurrency, user.uid, details);
+      const result = await createGiftPurchaseSession(product.name, product.price, product.currency || userCurrency, user.uid, details);
       if (result?.url) {
         window.location.href = result.url;
       } else if (result?.error) {
@@ -199,7 +195,7 @@ function ShopContent() {
     setIsPurchasing(pendingProduct.id);
     setShowGuestForm(false);
     try {
-      const result = await createGiftPurchaseSession(pendingProduct.name, pendingProduct.price, userCurrency, 'guest', {
+      const result = await createGiftPurchaseSession(pendingProduct.name, pendingProduct.price, pendingProduct.currency || userCurrency, 'guest', {
         email: guestEmail,
         phone: guestPhone,
         address: guestAddress,
@@ -224,17 +220,6 @@ function ShopContent() {
     <div className="flex flex-col min-h-screen bg-muted/30 pb-24 relative">
       <Header />
       
-      {isPurchasing && (
-        <div className="fixed inset-0 z-[100] bg-white/95 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-300">
-           <div className="w-24 h-24 bg-primary/10 rounded-[3rem] flex items-center justify-center mb-8 relative">
-              <Loader2 className="w-12 h-12 text-primary animate-spin" />
-              <ShoppingCart className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 text-primary/40" />
-           </div>
-           <h2 className="text-3xl font-black tracking-tighter uppercase">Securing Shop Window</h2>
-           <p className="text-muted-foreground text-lg font-medium italic mt-2">Opening the Payment Bridge... ❤️</p>
-        </div>
-      )}
-
       <main className="container mx-auto px-4 py-4 max-w-7xl">
         <div className="flex flex-col md:flex-row justify-between items-center mb-10 gap-6">
           <div className="text-center md:text-left">
@@ -270,7 +255,6 @@ function ShopContent() {
           </div>
         </div>
 
-        {/* NEAREST ARTISANS SECTION - Synchronized with new Shop Schema */}
         <section className="mb-12 space-y-6">
           <div className="flex items-center justify-between px-2">
              <div className="space-y-1">
@@ -280,7 +264,6 @@ function ShopContent() {
                 </h2>
                 <p className="text-[9px] font-black uppercase text-muted-foreground tracking-widest">Supporting prosperity in {targetLocation.country}</p>
              </div>
-             <Badge variant="outline" className="h-6 font-black uppercase text-[8px] tracking-widest">Global Crafts</Badge>
           </div>
 
           <div className="flex gap-6 overflow-x-auto pb-4 no-scrollbar">
@@ -293,11 +276,7 @@ function ShopContent() {
                 <Card key={shop.id} className="min-w-[300px] rounded-[2.5rem] border-none shadow-lg bg-white overflow-hidden group hover:scale-[1.02] transition-all cursor-pointer">
                   <CardContent className="p-6 flex items-center gap-4">
                     <div className="w-16 h-16 rounded-2xl bg-primary/5 flex items-center justify-center relative shrink-0">
-                       {shop.logo ? (
-                         <Image src={shop.logo} alt={shop.name} fill className="object-cover rounded-2xl" />
-                       ) : (
-                         <Store className="w-8 h-8 text-primary" />
-                       )}
+                       <Image src={shop.logo || `https://picsum.photos/seed/${shop.ownerId}/200/200`} alt={shop.name} fill className="object-cover rounded-2xl" />
                        {shop.verified && (
                          <div className="absolute -top-1 -right-1 bg-blue-500 w-4 h-4 rounded-full border-2 border-white flex items-center justify-center">
                             <CheckCircle2 className="w-2.5 h-2.5 text-white" />
@@ -312,16 +291,13 @@ function ShopContent() {
                           <span className="text-[9px] font-bold text-slate-400 uppercase">{shop.rating || 5}.0 Rating</span>
                        </div>
                     </div>
-                    <Button variant="ghost" size="icon" className="ml-auto rounded-full bg-muted group-hover:bg-primary group-hover:text-white transition-colors">
-                      <ChevronRight className="w-4 h-4" />
-                    </Button>
                   </CardContent>
                 </Card>
               ))
             ) : (
               <div className="w-full p-10 text-center bg-white/40 rounded-[2.5rem] border-2 border-dashed flex flex-col items-center gap-3">
                  <Building2 className="w-8 h-8 text-muted-foreground/20" />
-                 <p className="text-xs font-bold text-muted-foreground italic">"Global hearts, local impact." Connecting to verified shops...</p>
+                 <p className="text-xs font-bold text-muted-foreground italic">"Connecting to verified local artisans..."</p>
               </div>
             )}
           </div>
@@ -329,38 +305,60 @@ function ShopContent() {
 
         <div className="flex gap-2 overflow-x-auto pb-6 mb-6 no-scrollbar">
           {GIFT_CATEGORIES.map(cat => (
-            <Badge key={cat} variant="secondary" className="px-5 py-2 text-[10px] font-black uppercase cursor-pointer hover:bg-primary hover:text-white transition-colors whitespace-nowrap shadow-sm">
+            <Badge 
+              key={cat} 
+              variant="secondary" 
+              onClick={() => setActiveCategory(cat)}
+              className={cn(
+                "px-5 py-2 text-[10px] font-black uppercase cursor-pointer transition-all whitespace-nowrap shadow-sm border-2",
+                activeCategory === cat ? "bg-primary text-white border-primary" : "bg-white text-muted-foreground border-transparent hover:border-primary/20"
+              )}
+            >
               {cat}
             </Badge>
           ))}
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-          {filteredProducts.map((product: any) => (
-            <Card key={product.id} className="overflow-hidden border-none shadow-sm hover:shadow-2xl transition-all group rounded-[2.5rem] bg-white flex flex-col relative">
-              <div className="relative aspect-square overflow-hidden m-2 rounded-[2rem]">
-                <Image src={product.imageUrl} alt={product.name} fill className="object-cover group-hover:scale-110 transition-transform duration-700" />
-                <Badge className="absolute bottom-4 right-4 bg-black/40 backdrop-blur-md border-none text-[8px] font-black uppercase tracking-widest px-3 h-6">{product.category}</Badge>
-              </div>
-              <CardHeader className="p-6 pb-0 flex-grow">
-                <CardTitle className="text-lg font-black truncate tracking-tight mb-1">{product.name}</CardTitle>
-                <div className="flex items-center justify-between">
-                   <p className="text-primary font-black text-2xl">{currencySymbol}{product.price}</p>
-                   {recipientProfile && <p className="text-[9px] font-black uppercase text-pink-500">For {targetLocation.name}</p>}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
+          {productsLoading ? (
+             Array(10).fill(0).map((_, i) => (
+                <div key={i} className="aspect-[3/4] bg-white rounded-[2.5rem] animate-pulse" />
+             ))
+          ) : filteredProducts.length > 0 ? (
+            filteredProducts.map((product: any) => (
+              <Card key={product.id} className="overflow-hidden border-none shadow-sm hover:shadow-2xl transition-all group rounded-[2.5rem] bg-white flex flex-col relative">
+                <div className="relative aspect-square overflow-hidden m-2 rounded-[2rem]">
+                  <Image src={product.images?.[0] || 'https://picsum.photos/seed/product/400/400'} alt={product.name} fill className="object-cover group-hover:scale-110 transition-transform duration-700" />
+                  <Badge className="absolute bottom-4 right-4 bg-black/40 backdrop-blur-md border-none text-[8px] font-black uppercase tracking-widest px-3 h-6">{product.category}</Badge>
                 </div>
-              </CardHeader>
-              <CardFooter className="p-6 pt-4">
-                <Button 
-                  className="w-full h-14 rounded-2xl gradient-bg gap-3 font-black text-[11px] uppercase tracking-widest shadow-xl shadow-primary/10 active:scale-95 transition-all group/buy" 
-                  onClick={() => handlePurchase(product)}
-                  disabled={!!isPurchasing}
-                >
-                  {isPurchasing === product.id ? <Loader2 className="w-5 h-5 animate-spin" /> : <ShoppingCart className="w-5 h-5 transition-transform group-hover/buy:-translate-y-1" />}
-                  {recipientProfile ? 'Secure for Partner' : t('shop.buy')}
-                </Button>
-              </CardFooter>
-            </Card>
-          ))}
+                <CardHeader className="p-6 pb-0 flex-grow">
+                  <div className="flex justify-between items-start gap-2">
+                     <CardTitle className="text-lg font-black truncate tracking-tight mb-1">{product.name}</CardTitle>
+                     {product.inventory < 5 && <Badge className="bg-amber-100 text-amber-600 border-none text-[7px] font-black px-1.5 h-4 shrink-0">LOW STOCK</Badge>}
+                  </div>
+                  <div className="flex items-center justify-between">
+                     <p className="text-primary font-black text-2xl">{product.currency || currencySymbol}{product.price}</p>
+                     {recipientProfile && <p className="text-[9px] font-black uppercase text-pink-500">For {targetLocation.name}</p>}
+                  </div>
+                </CardHeader>
+                <CardFooter className="p-6 pt-4">
+                  <Button 
+                    className="w-full h-14 rounded-2xl gradient-bg gap-3 font-black text-[11px] uppercase tracking-widest shadow-xl shadow-primary/10 active:scale-95 transition-all group/buy" 
+                    onClick={() => handlePurchase(product)}
+                    disabled={!!isPurchasing || product.inventory === 0}
+                  >
+                    {isPurchasing === product.id ? <Loader2 className="w-5 h-5 animate-spin" /> : <ShoppingCart className="w-5 h-5 transition-transform group-hover/buy:-translate-y-1" />}
+                    {product.inventory === 0 ? 'Out of Stock' : (recipientProfile ? 'Secure for Partner' : t('shop.buy'))}
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))
+          ) : (
+            <div className="col-span-full py-32 text-center opacity-20">
+               <Package className="w-20 h-20 mx-auto mb-4" />
+               <p className="text-xl font-black uppercase tracking-widest">No products found in this category.</p>
+            </div>
+          )}
         </div>
       </main>
 
@@ -370,8 +368,8 @@ function ShopContent() {
               <div className="w-16 h-16 bg-primary/20 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-primary/30">
                 <ShoppingCart className="w-8 h-8 text-primary" />
               </div>
-              <DialogTitle className="text-2xl font-black uppercase tracking-tight">Purchase as Guest</DialogTitle>
-              <DialogDescription className="text-[9px] font-bold text-primary uppercase tracking-[0.2em] mt-1">Transaction Protocol</DialogDescription>
+              <DialogTitle className="text-2xl font-black uppercase tracking-tight">Purchase Listing</DialogTitle>
+              <DialogDescription className="text-[9px] font-bold text-primary uppercase tracking-[0.2em] mt-1">Unified Transaction Protocol</DialogDescription>
            </DialogHeader>
            <form onSubmit={handleGuestSubmit} className="p-8 space-y-6">
               <div className="space-y-4">
@@ -433,12 +431,9 @@ function ShopContent() {
                        />
                     </div>
                  </div>
-                 <p className="text-[9px] text-muted-foreground italic font-medium leading-tight text-center">
-                    Billing address and contact (email/phone) are required for guest hearts. ❤️
-                 </p>
               </div>
               <Button type="submit" className="w-full h-16 rounded-2xl gradient-bg font-black uppercase text-xs tracking-widest shadow-xl gap-2">
-                Secure Gift Now <ArrowRight className="w-4 h-4" />
+                Pay Now <ArrowRight className="w-4 h-4" />
               </Button>
            </form>
         </DialogContent>
