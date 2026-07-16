@@ -76,6 +76,21 @@
         "text": { "type": "string" },
         "createdAt": { "type": "string", "format": "date-time" }
       }
+    },
+    "Circle": {
+      "title": "Community Circle",
+      "description": "A gathering space for hearts sharing a specific vibration.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "category": { "type": "string" },
+        "ownerId": { "type": "string" },
+        "imageURL": { "type": "string" },
+        "memberCount": { "type": "number", "default": 1 },
+        "privacy": { "type": "string", "enum": ["open", "private"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
     }
   },
   "auth": {
@@ -89,6 +104,7 @@
     "/messages/{messageId}": { "schema": "Message", "description": "Global message registry" },
     "/communityMessages/{messageId}": { "description": "Global Wall messages" },
     "/ideaPool/{postId}": { "description": "Global knowledge pool" },
+    "/circles/{circleId}": { "schema": "Circle", "description": "Global community circles registry" },
     "/siteSettings/{settingId}": { "description": "Global platform settings" }
   }
 }

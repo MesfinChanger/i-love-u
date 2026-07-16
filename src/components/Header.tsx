@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -20,7 +21,8 @@ import {
   MessageSquare,
   Home,
   TrendingDown,
-  Waves
+  Waves,
+  Users
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DonationDialog } from '@/components/DonationDialog';
@@ -102,6 +104,7 @@ export function Header() {
   const navItems = [
     { href: '/', icon: Home, label: t('nav.home'), color: 'text-slate-600' },
     { href: '/discover', icon: Sparkles, label: t('nav.discover'), color: 'text-primary' },
+    { href: '/circles', icon: Users, label: "Circles", color: 'text-primary' },
     { href: '/pool', icon: Waves, label: t('nav.pool'), color: 'text-blue-500' },
     { href: '/search', icon: Search, label: t('nav.search'), color: 'text-blue-500' },
     { href: '/community', icon: Globe2, label: t('nav.global'), color: 'text-green-500' },
@@ -143,7 +146,7 @@ export function Header() {
               <nav className="flex-grow overflow-y-auto p-6 space-y-2 no-scrollbar">
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-4 mb-2">Navigation</p>
                 {navItems.map((item) => {
-                  const isActive = pathname === item.href || (item.href === '/matches' && pathname?.startsWith('/matches')) || (item.href === '/shop' && pathname?.startsWith('/shop'));
+                  const isActive = pathname === item.href || (item.href === '/matches' && pathname?.startsWith('/matches')) || (item.href === '/shop' && pathname?.startsWith('/shop')) || (item.href === '/circles' && pathname?.startsWith('/circles'));
                   return (
                     <Link 
                       key={item.href} 
