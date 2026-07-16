@@ -41,6 +41,134 @@
       },
       "required": ["userId", "age", "gender", "country", "relationshipGoal"]
     },
+    "Relationship": {
+      "title": "Relationship",
+      "description": "A connection between two hearts.",
+      "type": "object",
+      "properties": {
+        "userA": { "type": "string" },
+        "userB": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "matched", "blocked"] },
+        "type": { "type": "string", "enum": ["spark", "friend"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "Circle": {
+      "title": "Circle",
+      "description": "A community gathering space.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "category": { "type": "string" },
+        "ownerId": { "type": "string" },
+        "imageURL": { "type": "string" },
+        "memberCount": { "type": "number" },
+        "privacy": { "type": "string", "enum": ["open", "private"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "PoolPost": {
+      "title": "Pool Post",
+      "description": "A thought swimming in the Prosperity Pool.",
+      "type": "object",
+      "properties": {
+        "authorId": { "type": "string" },
+        "category": { "type": "string" },
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "likesCount": { "type": "number" },
+        "commentsCount": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "CommunityMessage": {
+      "title": "Community Message",
+      "description": "A broadcast on the Global Wall.",
+      "type": "object",
+      "properties": {
+        "authorId": { "type": "string" },
+        "text": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "Shop": {
+      "title": "Shop",
+      "description": "A verified seller's storefront.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "logo": { "type": "string" },
+        "country": { "type": "string" },
+        "rating": { "type": "number" },
+        "verified": { "type": "boolean" }
+      }
+    },
+    "Product": {
+      "title": "Product",
+      "description": "An item listed for sale.",
+      "type": "object",
+      "properties": {
+        "storeId": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "price": { "type": "number" },
+        "currency": { "type": "string" },
+        "category": { "type": "string" },
+        "inventory": { "type": "number" },
+        "images": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "Order": {
+      "title": "Order",
+      "description": "A transaction record.",
+      "type": "object",
+      "properties": {
+        "buyerId": { "type": "string" },
+        "sellerId": { "type": "string" },
+        "products": { "type": "array" },
+        "total": { "type": "number" },
+        "paymentStatus": { "type": "string" },
+        "shippingStatus": { "type": "string" }
+      }
+    },
+    "Conversation": {
+      "title": "Conversation",
+      "description": "A private chat session.",
+      "type": "object",
+      "properties": {
+        "participants": { "type": "array", "items": { "type": "string" } },
+        "lastMessage": { "type": "string" },
+        "lastUpdatedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "Message": {
+      "title": "Message",
+      "description": "A secure communication segment.",
+      "type": "object",
+      "properties": {
+        "conversationId": { "type": "string" },
+        "senderId": { "type": "string" },
+        "text": { "type": "string" },
+        "encryptedText": { "type": "string" },
+        "iv": { "type": "string" },
+        "status": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      }
+    },
+    "PublicKey": {
+      "title": "Public Key",
+      "description": "E2EE encryption registry.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "publicKey": { "type": "string" },
+        "algorithm": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    },
     "Notification": {
       "title": "Notification",
       "description": "Private heart alert.",
@@ -61,6 +189,16 @@
   "firestore": {
     "/users/{userId}": { "schema": "UserProfile", "description": "Private heart identities" },
     "/sparkProfiles/{userId}": { "schema": "SparkProfile", "description": "Public discovery profiles" },
+    "/relationships/{relId}": { "schema": "Relationship", "description": "Connections registry" },
+    "/circles/{circleId}": { "schema": "Circle", "description": "Community gatherings" },
+    "/ideaPool/{postId}": { "schema": "PoolPost", "description": "Global consciousness pool" },
+    "/communityMessages/{msgId}": { "schema": "CommunityMessage", "description": "Global wall broadcasts" },
+    "/shops/{shopId}": { "schema": "Shop", "description": "Marketplace stores" },
+    "/products/{productId}": { "schema": "Product", "description": "Marketplace items" },
+    "/orders/{orderId}": { "schema": "Order", "description": "Transaction registry" },
+    "/conversations/{convId}": { "schema": "Conversation", "description": "Chat rooms" },
+    "/messages/{msgId}": { "schema": "Message", "description": "Chat content" },
+    "/publicKeys/{userId}": { "schema": "PublicKey", "description": "Encryption keys" },
     "/users/{userId}/notifications/{notificationId}": { "schema": "Notification", "description": "User alerts" }
   }
 }
