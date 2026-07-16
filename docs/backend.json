@@ -384,6 +384,20 @@
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["id", "title", "category", "ownerId", "status", "createdAt"]
+    },
+    "Experiment": {
+      "title": "Research Experiment",
+      "description": "Technical trial or scientific test within a research project.",
+      "type": "object",
+      "properties": {
+        "projectId": { "type": "string" },
+        "name": { "type": "string" },
+        "hypothesis": { "type": "string" },
+        "method": { "type": "string" },
+        "results": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["projectId", "name", "hypothesis", "method", "createdAt"]
     }
   },
   "auth": {
@@ -415,6 +429,7 @@
     "/organizations/{orgId}/members/{memberId}": { "schema": "OrganizationMember", "description": "High-Fidelity organization membership registry" },
     "/countries/{countryCode}": { "schema": "Country", "description": "Global regional configuration registry" },
     "/researchers/{userId}": { "schema": "Researcher", "description": "Verified specialized researcher profiles" },
-    "/researchProjects/{projectId}": { "schema": "ResearchProject", "description": "Community-driven research initiatives" }
+    "/researchProjects/{projectId}": { "schema": "ResearchProject", "description": "Community-driven research initiatives" },
+    "/researchProjects/{projectId}/experiments/{experimentId}": { "schema": "Experiment", "description": "High-Fidelity experiment registry for research projects" }
   }
 }

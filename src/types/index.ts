@@ -19,6 +19,7 @@ export * from './currency';
 export * from './country';
 export * from './researcher';
 export * from './researchProject';
+export * from './experiment';
 
 export type IdeaCategory =
   | "economics"
