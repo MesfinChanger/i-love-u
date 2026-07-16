@@ -89,7 +89,7 @@ function ShopContent() {
         city: recipientProfile.city,
         state: recipientProfile.state,
         country: recipientProfile.country,
-        name: recipientProfile.displayName || recipientProfile.publicNickname || "Partner"
+        name: recipientProfile.displayName || recipientProfile.username || "Partner"
       };
     }
     return {
@@ -100,18 +100,17 @@ function ShopContent() {
     };
   }, [recipientProfile, myProfile]);
 
-  // Fetch local sellers based on target city
-  const localSellersQuery = useMemoFirebase(() => {
-    if (!db || !targetLocation.city) return null;
+  // Fetch local shops based on the target country (Synchronized with Shop Schema)
+  const localShopsQuery = useMemoFirebase(() => {
+    if (!db || !targetLocation.country) return null;
     return query(
-      collection(db, 'users'),
-      where('isSeller', '==', true),
-      where('city', '==', targetLocation.city),
+      collection(db, 'shops'),
+      where('country', '==', targetLocation.country),
       limit(10)
     );
-  }, [db, targetLocation.city]);
+  }, [db, targetLocation.country]);
 
-  const { data: localSellers, loading: sellersLoading } = useCollection(localSellersQuery);
+  const { data: localShops, loading: shopsLoading } = useCollection(localShopsQuery);
 
   const productsQuery = useMemoFirebase(() => {
     if (!db) return null;
@@ -271,56 +270,62 @@ function ShopContent() {
           </div>
         </div>
 
-        {/* NEAREST ARTISANS SECTION - Prioritizes recipient's location */}
-        {targetLocation.city && (
-          <section className="mb-12 space-y-6">
-            <div className="flex items-center justify-between px-2">
-               <div className="space-y-1">
-                  <h2 className="text-xl font-black tracking-tight flex items-center gap-2">
-                    <MapPin className="w-5 h-5 text-primary" />
-                    Artisans Near {targetLocation.city}
-                  </h2>
-                  <p className="text-[9px] font-black uppercase text-muted-foreground tracking-widest">Supporting local prosperity for {targetLocation.name}</p>
-               </div>
-               <Badge variant="outline" className="h-6 font-black uppercase text-[8px] tracking-widest">Local Priority</Badge>
-            </div>
+        {/* NEAREST ARTISANS SECTION - Synchronized with new Shop Schema */}
+        <section className="mb-12 space-y-6">
+          <div className="flex items-center justify-between px-2">
+             <div className="space-y-1">
+                <h2 className="text-xl font-black tracking-tight flex items-center gap-2">
+                  <MapPin className="w-5 h-5 text-primary" />
+                  Local Artisans
+                </h2>
+                <p className="text-[9px] font-black uppercase text-muted-foreground tracking-widest">Supporting prosperity in {targetLocation.country}</p>
+             </div>
+             <Badge variant="outline" className="h-6 font-black uppercase text-[8px] tracking-widest">Global Crafts</Badge>
+          </div>
 
-            <div className="flex gap-6 overflow-x-auto pb-4 no-scrollbar">
-              {sellersLoading ? (
-                Array(3).fill(0).map((_, i) => (
-                  <div key={i} className="min-w-[280px] h-32 bg-white rounded-[2rem] animate-pulse" />
-                ))
-              ) : localSellers && localSellers.length > 0 ? (
-                localSellers.map((seller: any) => (
-                  <Card key={seller.id} className="min-w-[300px] rounded-[2.5rem] border-none shadow-lg bg-white overflow-hidden group hover:scale-[1.02] transition-all cursor-pointer">
-                    <CardContent className="p-6 flex items-center gap-4">
-                      <div className="w-16 h-16 rounded-2xl bg-primary/5 flex items-center justify-center relative shrink-0">
+          <div className="flex gap-6 overflow-x-auto pb-4 no-scrollbar">
+            {shopsLoading ? (
+              Array(3).fill(0).map((_, i) => (
+                <div key={i} className="min-w-[280px] h-32 bg-white rounded-[2rem] animate-pulse" />
+              ))
+            ) : localShops && localShops.length > 0 ? (
+              localShops.map((shop: any) => (
+                <Card key={shop.id} className="min-w-[300px] rounded-[2.5rem] border-none shadow-lg bg-white overflow-hidden group hover:scale-[1.02] transition-all cursor-pointer">
+                  <CardContent className="p-6 flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-2xl bg-primary/5 flex items-center justify-center relative shrink-0">
+                       {shop.logo ? (
+                         <Image src={shop.logo} alt={shop.name} fill className="object-cover rounded-2xl" />
+                       ) : (
                          <Store className="w-8 h-8 text-primary" />
-                         <div className="absolute -top-1 -right-1 bg-green-500 w-3 h-3 rounded-full border-2 border-white" />
-                      </div>
-                      <div className="min-w-0">
-                         <h3 className="font-black text-lg truncate leading-none">{seller.publicNickname || seller.displayName || "Local Shop"}</h3>
-                         <p className="text-[10px] text-muted-foreground font-medium italic mt-1">{seller.city}, {seller.country}</p>
-                         <div className="flex items-center gap-1.5 mt-2">
-                            <Star className="w-3 h-3 text-secondary fill-secondary" />
-                            <span className="text-[9px] font-bold text-slate-400 uppercase">Verified Merchant</span>
+                       )}
+                       {shop.verified && (
+                         <div className="absolute -top-1 -right-1 bg-blue-500 w-4 h-4 rounded-full border-2 border-white flex items-center justify-center">
+                            <CheckCircle2 className="w-2.5 h-2.5 text-white" />
                          </div>
-                      </div>
-                      <Button variant="ghost" size="icon" className="ml-auto rounded-full bg-muted group-hover:bg-primary group-hover:text-white transition-colors">
-                        <ChevronRight className="w-4 h-4" />
-                      </Button>
-                    </CardContent>
-                  </Card>
-                ))
-              ) : (
-                <div className="w-full p-10 text-center bg-white/40 rounded-[2.5rem] border-2 border-dashed flex flex-col items-center gap-3">
-                   <Building2 className="w-8 h-8 text-muted-foreground/20" />
-                   <p className="text-xs font-bold text-muted-foreground italic">"Global hearts, local impact." Searching for nearest artisans...</p>
-                </div>
-              )}
-            </div>
-          </section>
-        )}
+                       )}
+                    </div>
+                    <div className="min-w-0">
+                       <h3 className="font-black text-lg truncate leading-none">{shop.name}</h3>
+                       <p className="text-[10px] text-muted-foreground font-medium italic mt-1 truncate">{shop.country}</p>
+                       <div className="flex items-center gap-1.5 mt-2">
+                          <Star className="w-3 h-3 text-secondary fill-secondary" />
+                          <span className="text-[9px] font-bold text-slate-400 uppercase">{shop.rating || 5}.0 Rating</span>
+                       </div>
+                    </div>
+                    <Button variant="ghost" size="icon" className="ml-auto rounded-full bg-muted group-hover:bg-primary group-hover:text-white transition-colors">
+                      <ChevronRight className="w-4 h-4" />
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <div className="w-full p-10 text-center bg-white/40 rounded-[2.5rem] border-2 border-dashed flex flex-col items-center gap-3">
+                 <Building2 className="w-8 h-8 text-muted-foreground/20" />
+                 <p className="text-xs font-bold text-muted-foreground italic">"Global hearts, local impact." Connecting to verified shops...</p>
+              </div>
+            )}
+          </div>
+        </section>
 
         <div className="flex gap-2 overflow-x-auto pb-6 mb-6 no-scrollbar">
           {GIFT_CATEGORIES.map(cat => (
@@ -333,14 +338,6 @@ function ShopContent() {
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
           {filteredProducts.map((product: any) => (
             <Card key={product.id} className="overflow-hidden border-none shadow-sm hover:shadow-2xl transition-all group rounded-[2.5rem] bg-white flex flex-col relative">
-              {targetLocation.city && Math.random() > 0.7 && (
-                <div className="absolute top-4 left-4 z-20">
-                   <Badge className="bg-primary text-white border-none text-[8px] font-black uppercase h-6 px-3 shadow-lg flex items-center gap-1.5">
-                     <Sparkles className="w-3 h-3" />
-                     LOCAL FAVORITE
-                   </Badge>
-                </div>
-              )}
               <div className="relative aspect-square overflow-hidden m-2 rounded-[2rem]">
                 <Image src={product.imageUrl} alt={product.name} fill className="object-cover group-hover:scale-110 transition-transform duration-700" />
                 <Badge className="absolute bottom-4 right-4 bg-black/40 backdrop-blur-md border-none text-[8px] font-black uppercase tracking-widest px-3 h-6">{product.category}</Badge>

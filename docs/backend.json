@@ -41,6 +41,20 @@
         "timezone": { "type": "string" }
       }
     },
+    "Shop": {
+      "title": "Shop",
+      "description": "A verified seller storefront in the prosperity marketplace.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "logo": { "type": "string" },
+        "country": { "type": "string" },
+        "rating": { "type": "number", "default": 0 },
+        "verified": { "type": "boolean", "default": false }
+      }
+    },
     "Connection": {
       "title": "Connection",
       "description": "An invitation or established match between two hearts.",
@@ -115,6 +129,7 @@
     "/communityMessages/{messageId}": { "schema": "CommunityMessage", "description": "Global Wall messages" },
     "/ideaPool/{postId}": { "schema": "PoolPost", "description": "Global knowledge pool" },
     "/circles/{circleId}": { "schema": "Circle", "description": "Global community circles registry" },
+    "/shops/{shopId}": { "schema": "Shop", "description": "Verified seller storefronts" },
     "/siteSettings/{settingId}": { "description": "Global platform settings" }
   }
 }

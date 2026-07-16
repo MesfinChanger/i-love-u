@@ -160,15 +160,20 @@ function SellerManageContent() {
   };
 
   const handleSaveShop = async () => {
-    if (!user || !db) return;
+    if (!user || !db || !profile) return;
     setIsSaving(true);
     try {
       const shopId = `shop-${user.uid}`;
+      
+      // Strictly adhering to requested Shop schema
       await setDoc(doc(db, 'shops', shopId), {
         ownerId: user.uid,
-        name: shopName,
-        description: shopDesc,
-        logoUrl: 'https://picsum.photos/seed/shop/200/200'
+        name: shopName.trim(),
+        description: shopDesc.trim(),
+        logo: profile.photoURL || 'https://picsum.photos/seed/shop/200/200',
+        country: profile.country || 'Global',
+        rating: profile.shopRating || 5, // Default for new shops
+        verified: profile.isSellerVerified || false
       }, { merge: true });
       
       localStorage.removeItem(`shop_draft_${user.uid}`);
