@@ -91,6 +91,21 @@
         "privacy": { "type": "string", "enum": ["open", "private"] },
         "createdAt": { "type": "string", "format": "date-time" }
       }
+    },
+    "PoolPost": {
+      "title": "Pool Post",
+      "description": "A mission-driven thought shared in the global Prosperity Pool.",
+      "type": "object",
+      "properties": {
+        "authorId": { "type": "string" },
+        "category": { "type": "string", "enum": ["economics", "technology", "politics", "philosophy", "general"] },
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "media": { "type": "array", "items": { "type": "string" } },
+        "likesCount": { "type": "number", "default": 0 },
+        "commentsCount": { "type": "number", "default": 0 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
     }
   },
   "auth": {
@@ -103,7 +118,7 @@
     "/relationships/{relationshipId}": { "schema": "Relationship", "description": "High-security registry for friend states and community blocking." },
     "/messages/{messageId}": { "schema": "Message", "description": "Global message registry" },
     "/communityMessages/{messageId}": { "description": "Global Wall messages" },
-    "/ideaPool/{postId}": { "description": "Global knowledge pool" },
+    "/ideaPool/{postId}": { "schema": "PoolPost", "description": "Global knowledge pool" },
     "/circles/{circleId}": { "schema": "Circle", "description": "Global community circles registry" },
     "/siteSettings/{settingId}": { "description": "Global platform settings" }
   }
