@@ -11,7 +11,7 @@ import {
   ShieldCheck
 } from 'lucide-react';
 import { useUser, useFirestore, useCollection, useDoc } from '@/firebase';
-import { collection, addDoc, query, orderBy, serverTimestamp, doc, where } from 'firebase/firestore';
+import { collection, addDoc, query, orderBy, serverTimestamp, doc, where, updateDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { moderateText } from '@/ai/flows/moderate-text-flow';
 import { useToast } from '@/hooks/use-toast';
@@ -145,9 +145,11 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
       if (sharedKey) {
         const encrypted = await encryptMessage(sharedKey, newMessage);
         if (encrypted) {
+          // Strictly matching requested schema: conversationId, senderId, encryptedText, iv, createdAt
           messagePayload.encryptedText = encrypted.cipherText;
           messagePayload.iv = encrypted.iv;
-          messagePayload.text = "[Secured Content]";
+        } else {
+           messagePayload.text = newMessage; // Fallback if encryption fails
         }
       } else {
         messagePayload.text = newMessage;
