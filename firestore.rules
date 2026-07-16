@@ -57,6 +57,15 @@ service cloud.firestore {
       allow create: if request.auth != null;
     }
 
+    // Formal Prosperity Receipt Registry
+    match /receipts/{receiptId} {
+      allow read: if request.auth != null && (
+        request.auth.uid == resource.data.customerId || 
+        request.auth.uid == resource.data.sellerId
+      );
+      allow create: if false; // System generated only via Admin protocol
+    }
+
     // Community Safety Registry
     match /blocks/{blockId} {
       allow read: if request.auth != null && request.auth.uid == resource.data.blockerId;

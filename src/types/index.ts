@@ -11,6 +11,7 @@ export * from './organization';
 export * from './wallet';
 export * from './transaction';
 export * from './payment';
+export * from './receipt';
 
 export type IdeaCategory =
   | "economics"
