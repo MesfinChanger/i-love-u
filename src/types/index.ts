@@ -21,6 +21,8 @@ export * from './researcher';
 export * from './researchProject';
 export * from './experiment';
 export * from './publication';
+export * from './learner';
+export * from './course';
 
 export type IdeaCategory =
   | "economics"

@@ -21,6 +21,41 @@
       },
       "required": ["uid", "username", "displayName", "interests", "accountType"]
     },
+    "Learner": {
+      "title": "Learner Profile",
+      "description": "Educational registry for hearts tracking their prosperity through learning.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "skills": { "type": "array", "items": { "type": "string" } },
+        "interests": { "type": "array", "items": { "type": "string" } },
+        "completedCourses": { "type": "number" },
+        "certificates": { "type": "number" },
+        "learningGoals": { "type": "array", "items": { "type": "string" } },
+        "level": { "type": "string", "enum": ["beginner", "intermediate", "advanced"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "level"]
+    },
+    "Course": {
+      "title": "Educational Course",
+      "description": "Registered curriculum for community skill sharing.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "category": { "type": "string", "enum": ["science", "technology", "economics", "philosophy", "language", "business", "arts"] },
+        "teacherId": { "type": "string" },
+        "lessons": { "type": "array", "items": { "type": "string" } },
+        "level": { "type": "string", "enum": ["beginner", "intermediate", "advanced"] },
+        "price": { "type": "number" },
+        "status": { "type": "string", "enum": ["draft", "published"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "category", "teacherId", "level", "status"]
+    },
     "PrivacySettings": {
       "title": "Privacy Settings",
       "description": "User-specific visibility and interaction control registry.",
@@ -421,6 +456,8 @@
   },
   "firestore": {
     "/users/{userId}": { "schema": "UserProfile", "description": "Private heart identities" },
+    "/learners/{userId}": { "schema": "Learner", "description": "Educational progress registries" },
+    "/courses/{courseId}": { "schema": "Course", "description": "Global educational listings" },
     "/users/{userId}/settings/privacy": { "schema": "PrivacySettings", "description": "User visibility and interaction control" },
     "/users/{userId}/sessions/{sessionId}": { "schema": "DeviceSession", "description": "Registered device heartbeats" },
     "/users/{userId}/securityEvents/{eventId}": { "schema": "SecurityEvent", "description": "Identity protection audit logs" },
