@@ -7,7 +7,11 @@ service cloud.firestore {
     function isOwner(userId) { return isAuthenticated() && request.auth.uid == userId; }
 
     match /users/{userId} {
-      allow read, write: if isOwner(userId);
+      allow read: if isAuthenticated();
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId);
+      allow delete: if isOwner(userId);
+      
       match /notifications/{id} { allow read, write: if isOwner(userId); }
     }
 
@@ -56,7 +60,8 @@ service cloud.firestore {
     }
 
     match /messages/{id} {
-      allow read, write: if isAuthenticated();
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
     }
 
     match /publicKeys/{userId} {
