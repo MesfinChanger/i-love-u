@@ -3,7 +3,7 @@
   "entities": {
     "UserProfile": {
       "title": "User Profile",
-      "description": "Unified heart identity schema. Restricted to 18+.",
+      "description": "Unified heart identity and personality schema. Restricted to 18+.",
       "type": "object",
       "properties": {
         "uid": { "type": "string" },
@@ -14,15 +14,25 @@
         "photoURL": { "type": "string" },
         "accountType": { "type": "string", "enum": ["guest", "free", "premium", "business"] },
         "status": { "type": "string", "enum": ["active", "blocked", "deleted"] },
+        "bio": { "type": "string" },
+        "birthday": { "type": "string", "format": "date" },
+        "gender": { "type": "string" },
+        "location": { "type": "object" },
+        "languages": { "type": "array", "items": { "type": "string" } },
+        "interests": { "type": "array", "items": { "type": "string" } },
+        "profession": { "type": "string" },
+        "education": { "type": "string" },
+        "hobbies": { "type": "array", "items": { "type": "string" } },
+        "values": { "type": "array", "items": { "type": "string" } },
+        "privacySettings": { "type": "object" },
+        "role": { "type": "string", "default": "member" },
+        "policyAccepted": { "type": "boolean", "default": false },
         "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" },
         "lastLogin": { "type": "string", "format": "date-time" },
         "country": { "type": "string" },
         "language": { "type": "string" },
-        "timezone": { "type": "string" },
-        "bio": { "type": "string" },
-        "age": { "type": "number" },
-        "role": { "type": "string", "default": "member" },
-        "policyAccepted": { "type": "boolean", "default": false }
+        "timezone": { "type": "string" }
       }
     },
     "Conversation": {
