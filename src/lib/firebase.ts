@@ -1,6 +1,6 @@
 
 /**
- * @fileOverview Universal Firebase Bridge.
+ * @fileOverview High-Fidelity Firebase Bridge.
  * Exports direct instances for simplified interaction.
  */
 

@@ -38,3 +38,10 @@ export interface SparkLike {
   status: "pending" | "accepted" | "declined";
   createdAt: any;
 }
+
+export interface Relationship {
+  userA: string;
+  userB: string;
+  status: "blocked" | "friend" | "dating";
+  createdAt: any;
+}

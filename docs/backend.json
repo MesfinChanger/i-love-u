@@ -69,15 +69,17 @@
       "description": "A community gathering space.",
       "type": "object",
       "properties": {
+        "id": { "type": "string" },
         "name": { "type": "string" },
         "description": { "type": "string" },
-        "category": { "type": "string" },
-        "ownerId": { "type": "string" },
+        "category": { "type": "string", "enum": ["travel", "technology", "business", "education", "culture", "sports", "general"] },
         "imageURL": { "type": "string" },
-        "memberCount": { "type": "number" },
+        "ownerId": { "type": "string" },
         "privacy": { "type": "string", "enum": ["open", "private"] },
+        "memberCount": { "type": "number" },
         "createdAt": { "type": "string", "format": "date-time" }
-      }
+      },
+      "required": ["id", "name", "ownerId", "privacy", "memberCount"]
     },
     "PoolPost": {
       "title": "Pool Post",
@@ -190,12 +192,11 @@
         "body": { "type": "string" },
         "read": { "type": "boolean", "default": false },
         "createdAt": { "type": "string", "format": "date-time" }
-      },
-      "required": ["type", "title", "body", "createdAt"]
+      }
     }
   },
   "auth": {
-    "providers": ["google.com", "password", "phone", "anonymous"]
+    "providers": ["google.com", "password", "anonymous"]
   },
   "firestore": {
     "/users/{userId}": { "schema": "UserProfile", "description": "Private heart identities" },
