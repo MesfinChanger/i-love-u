@@ -7,6 +7,14 @@ export * from './circle';
 export * from './spark';
 export * from './shopping';
 
+export type IdeaCategory =
+  | "economics"
+  | "technology"
+  | "science"
+  | "politics"
+  | "philosophy"
+  | "general";
+
 export interface UserProfile {
   uid: string;
   email: string;
