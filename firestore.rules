@@ -38,6 +38,12 @@ service cloud.firestore {
       allow write: if false; // System managed reputation
     }
 
+    // Community Safety Registry
+    match /blocks/{blockId} {
+      allow read: if request.auth != null && request.auth.uid == resource.data.blockerId;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.blockerId;
+    }
+
     // Public discovery profiles
     match /sparkProfiles/{userId} {
       allow read: if request.auth != null;

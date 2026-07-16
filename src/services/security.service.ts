@@ -99,3 +99,20 @@ export function calculateTrustScore(data: any) {
     Math.min(score, 100)
   );
 }
+
+/**
+ * Block User Protocol.
+ * Establishes a safety record for hearts maintaining their sacred space.
+ */
+export async function blockUser(
+  userId: string,
+  blockedUserId: string,
+  reason?: string
+) {
+  await addDoc(collection(db, "blocks"), {
+    blockerId: userId,
+    blockedUserId,
+    reason: reason || "Respect Protocol Enforcement",
+    createdAt: serverTimestamp()
+  });
+}

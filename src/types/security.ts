@@ -53,3 +53,14 @@ export interface PrivacySettings {
   showEmail: boolean;
   showPhone: boolean;
 }
+
+/**
+ * @fileOverview Community Safety Block Definition.
+ */
+export interface Block {
+  id: string;
+  blockerId: string;
+  blockedUserId: string;
+  reason?: string;
+  createdAt: any;
+}

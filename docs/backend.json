@@ -78,6 +78,18 @@
       },
       "required": ["userId", "score"]
     },
+    "Block": {
+      "title": "User Block",
+      "description": "A record of a heart maintaining its sacred space.",
+      "type": "object",
+      "properties": {
+        "blockerId": { "type": "string" },
+        "blockedUserId": { "type": "string" },
+        "reason": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["blockerId", "blockedUserId", "createdAt"]
+    },
     "SparkProfile": {
       "title": "Spark Profile",
       "description": "Discovery and matching schema for romantic and cultural sparks.",
@@ -199,6 +211,7 @@
     "/users/{userId}/securityEvents/{eventId}": { "schema": "SecurityEvent", "description": "Identity protection audit logs" },
     "/devices/{deviceId}": { "schema": "DeviceSession", "description": "Global device registry" },
     "/trustScores/{userId}": { "schema": "TrustScore", "description": "High-fidelity reputation registry" },
+    "/blocks/{blockId}": { "schema": "Block", "description": "Community safety registry" },
     "/sparkProfiles/{userId}": { "schema": "SparkProfile", "description": "Public discovery profiles" },
     "/matches/{matchId}": { "schema": "Match", "description": "Established high-fidelity connections" },
     "/conversations/{convId}": { "schema": "Conversation", "description": "Secured communication channels" },
