@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, Suspense } from 'react';
@@ -41,7 +42,7 @@ function LoginContent() {
   const { user, loading: authLoading } = useUser();
   const router = useRouter();
   const { toast } = useToast();
-  const { language } = useTranslation();
+  const { language, t } = useTranslation();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -209,6 +210,13 @@ function LoginContent() {
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
+                {mode === 'signin' && (
+                  <div className="flex justify-end px-1">
+                    <Link href="/login/reset" className="text-[9px] font-black uppercase tracking-widest text-slate-400 hover:text-primary transition-colors">
+                      {t('login.forgotPassword')}
+                    </Link>
+                  </div>
+                )}
               </div>
 
               {mode === 'signup' && (
