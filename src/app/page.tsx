@@ -4,15 +4,25 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Heart, PlayCircle } from 'lucide-react';
-import { useUser } from '@/firebase';
+import { useUser, auth } from '@/firebase';
 import HeroMosaic from '@/components/HeroMosaic';
 import { Header } from '@/components/Header';
 
+/**
+ * @fileOverview Landing Page for the Prosperity Revolution.
+ * Includes Step 3 diagnostic to verify authentication state during synchronization.
+ */
 export default function Home() {
   const { user } = useUser();
   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => { 
+    setMounted(true); 
+    
+    // Step 3 — Check Authentication
+    // Diagnostics to verify if the heart is identified in the global bridge.
+    console.log("Current User Sync Status:", auth.currentUser);
+  }, []);
 
   if (!mounted) return <div className="flex items-center justify-center min-h-screen"><Heart className="w-12 h-12 text-primary animate-heartbeat fill-primary" /></div>;
 
@@ -32,7 +42,7 @@ export default function Home() {
               </p>
               <div className="flex flex-wrap gap-4 pt-4">
                 <Button size="lg" className="h-16 px-10 rounded-full text-base font-black gradient-bg shadow-2xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all" asChild>
-                  <Link href={user ? "/spark" : "/login"}>Join the Movement</Link>
+                  <Link href={user ? "/discover" : "/login"}>Join the Movement</Link>
                 </Button>
                 <Button variant="outline" size="lg" className="h-16 px-10 rounded-full text-base font-bold border border-slate-200 bg-white" asChild>
                   <Link href="/donate">Watch Our Story</Link>
