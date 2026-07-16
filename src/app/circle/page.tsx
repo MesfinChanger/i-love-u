@@ -1,107 +1,72 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Header } from '@/components/Header';
 import { BottomNav } from '@/components/BottomNav';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { 
   Users, 
   Plus, 
   Loader2, 
-  Search, 
   Sparkles, 
-  Lock, 
-  Globe2, 
-  Compass,
-  ArrowRight
+  ArrowRight,
+  ShieldCheck,
+  Zap,
+  Globe
 } from 'lucide-react';
-import { useUser, db, useCollection } from '@/firebase';
-import { collection, query, orderBy, limit, where } from 'firebase/firestore';
-import { createCircle, discoverCircles } from '@/services/circle.service';
+import { useUser } from '@/firebase';
+import { discoverCircles, joinCircle } from '@/services/circle.service';
 import { useToast } from '@/hooks/use-toast';
-import { useMemoFirebase } from '@/firebase/use-memo-firebase';
-import { cn } from '@/lib/utils';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogTrigger,
-  DialogDescription 
-} from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from '@/components/ui/select';
 import Image from 'next/image';
+import { Circle } from '@/types';
 
-const CIRCLE_CATEGORIES = ["Prosperity", "Technology", "Arts", "Health", "Social", "Business"];
-
+/**
+ * @fileOverview 🤝 Circle - High-Fidelity Community Discovery Module.
+ * Consolidates community gatherings with the Join Circle Protocol.
+ */
 export default function CirclePage() {
   const { user } = useUser();
   const { toast } = useToast();
-  
-  const [searchTerm, setSearchQuery] = useState('');
-  const [activeCategory, setActiveCategory] = useState('All');
-  const [isCreateOpen, setIsOpen] = useState(false);
-  
-  // Create Circle State
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [category, setCategory] = useState('Social');
-  const [privacy, setPrivacy] = useState<'open' | 'private'>('open');
-  const [isCreating, setIsCreating] = useState(false);
+  const [communities, setCommunities] = useState<Circle[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isJoining, setIsJoining] = useState<string | null>(null);
 
-  const circlesQuery = useMemoFirebase(() => {
-    if (!db) return null;
-    let q = query(collection(db, 'communities'), orderBy('createdAt', 'desc'), limit(50));
-    if (activeCategory !== 'All') {
-      q = query(collection(db, 'communities'), where('category', '==', activeCategory), orderBy('createdAt', 'desc'), limit(50));
+  // Discovery Lifecycle
+  useEffect(() => {
+    async function load() {
+      try {
+        const data = await discoverCircles();
+        setCommunities(data as Circle[]);
+      } catch (e) {
+        console.error("Circle Discovery Ripple:", e);
+      } finally {
+        setLoading(false);
+      }
     }
-    return q;
-  }, [activeCategory]);
+    load();
+  }, []);
 
-  const { data: circles, loading } = useCollection(circlesQuery);
-
-  const filteredCircles = useMemo(() => {
-    if (!circles) return [];
-    return circles.filter((c: any) => 
-      c.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.description?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [circles, searchTerm]);
-
-  const handleCreateCircle = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user || isCreating) return;
-
-    setIsCreating(true);
+  /**
+   * Join Circle Protocol.
+   * Establishes a formal relationship with a community vibration.
+   */
+  const handleJoin = async (circleId: string) => {
+    if (!user) {
+      // Trigger universal auth gate if heart is not identified
+      window.dispatchEvent(new CustomEvent('open-auth-gate'));
+      return;
+    }
+    
+    setIsJoining(circleId);
     try {
-      await createCircle({
-        name: name.trim(),
-        description: description.trim(),
-        category,
-        ownerId: user.uid,
-        imageURL: `https://picsum.photos/seed/${name.length}/600/400`,
-        privacy,
-      });
-
-      toast({ title: "Circle Established", description: "Your community is now live in the cloud! ✨" });
-      setIsOpen(false);
-      setName('');
-      setDescription('');
+      await joinCircle(circleId, user.uid);
+      toast({ title: "Joined Community!", description: "You are now synchronized with this vibration. ✨" });
     } catch (e) {
-      toast({ variant: "destructive", title: "Registration Ripple", description: "Could not establish circle." });
+      toast({ variant: "destructive", title: "Action Failed", description: "Could not commit to circle." });
     } finally {
-      setIsCreating(false);
+      setIsJoining(null);
     }
   };
 
@@ -109,179 +74,101 @@ export default function CirclePage() {
     <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
       <Header />
       
-      <section className="bg-white border-b py-16 px-6 text-center overflow-hidden relative">
-         <div className="absolute top-0 right-0 p-10 opacity-5 -rotate-12 translate-x-20">
-            <Users className="w-96 h-96 text-primary" />
-         </div>
-         <div className="max-w-2xl mx-auto space-y-6 relative z-10">
-            <div className="w-20 h-20 bg-primary/10 rounded-[2.5rem] flex items-center justify-center mx-auto shadow-xl ring-8 ring-white">
-               <Users className="w-10 h-10 text-primary" />
+      <main className="container mx-auto px-4 py-12 max-w-6xl space-y-12">
+        {/* Module Header */}
+        <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="space-y-3 text-center md:text-left">
+            <div className="flex items-center gap-3 text-primary justify-center md:justify-start">
+              <Users className="w-8 h-8 animate-pulse" />
+              <h1 className="text-5xl font-black tracking-tighter uppercase leading-none">Community Circles</h1>
             </div>
-            <h1 className="text-5xl font-black tracking-tighter uppercase leading-[0.9]">
-               Community <br/><span className="gradient-text">Circles</span>
-            </h1>
-            <p className="text-xl text-muted-foreground font-medium italic">
-               "Gather around a shared mission of love and prosperity."
-            </p>
-         </div>
-      </section>
-
-      <main className="container mx-auto px-6 py-10 max-w-7xl">
-        <div className="flex flex-col lg:flex-row justify-between items-center mb-10 gap-6">
-           <div className="flex gap-2 w-full lg:w-auto">
-              <div className="relative flex-grow lg:w-80">
-                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/40" />
-                 <Input 
-                   placeholder="Find a circle..." 
-                   className="pl-12 h-14 rounded-full bg-white border-none shadow-sm font-bold"
-                   value={searchTerm}
-                   onChange={e => setSearchQuery(e.target.value)}
-                 />
-              </div>
-              
-              <Dialog open={isCreateOpen} onOpenChange={setIsOpen}>
-                 <DialogTrigger asChild>
-                    <Button className="h-14 px-8 rounded-full gradient-bg font-black uppercase text-[10px] tracking-widest shadow-xl shadow-primary/20 gap-2 shrink-0">
-                       <Plus className="w-4 h-4" />
-                       Launch Circle
-                    </Button>
-                 </DialogTrigger>
-                 <DialogContent className="sm:max-w-md rounded-[3rem] border-none shadow-2xl p-0 overflow-hidden bg-white">
-                    <div className="bg-primary/5 p-10 text-center border-b">
-                       <Users className="w-10 h-10 text-primary mx-auto mb-4" />
-                       <DialogTitle className="text-2xl font-black uppercase tracking-tighter">Establish Circle</DialogTitle>
-                       <DialogDescription className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60 mt-1">Unified Gathering Protocol</DialogDescription>
-                    </div>
-                    <form onSubmit={handleCreateCircle} className="p-8 space-y-6">
-                       <div className="space-y-4">
-                          <div className="space-y-1.5">
-                             <Label className="text-[10px] font-black uppercase tracking-widest ml-1">Circle Name</Label>
-                             <Input required value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Village Builders" className="h-12 rounded-xl bg-muted/20 border-none font-bold" />
-                          </div>
-                          <div className="grid grid-cols-2 gap-4">
-                             <div className="space-y-1.5">
-                                <Label className="text-[10px] font-black uppercase tracking-widest ml-1">Category</Label>
-                                <Select value={category} onValueChange={setCategory}>
-                                   <SelectTrigger className="h-12 rounded-xl bg-muted/20 border-none font-bold">
-                                      <SelectValue />
-                                   </SelectTrigger>
-                                   <SelectContent className="rounded-2xl border-none shadow-2xl">
-                                      {CIRCLE_CATEGORIES.map(cat => <SelectItem key={cat} value={cat} className="rounded-xl">{cat}</SelectItem>)}
-                                   </SelectContent>
-                                </Select>
-                             </div>
-                             <div className="space-y-1.5">
-                                <Label className="text-[10px] font-black uppercase tracking-widest ml-1">Privacy</Label>
-                                <Select value={privacy} onValueChange={(v: any) => setPrivacy(v)}>
-                                   <SelectTrigger className="h-12 rounded-xl bg-muted/20 border-none font-bold">
-                                      <SelectValue />
-                                   </SelectTrigger>
-                                   <SelectContent className="rounded-2xl border-none shadow-2xl">
-                                      <SelectItem value="open" className="rounded-xl">Open Access</SelectItem>
-                                      <SelectItem value="private" className="rounded-xl">Verified Only</SelectItem>
-                                   </SelectContent>
-                                </Select>
-                             </div>
-                          </div>
-                          <div className="space-y-1.5">
-                             <Label className="text-[10px] font-black uppercase tracking-widest ml-1">Description</Label>
-                             <Textarea required value={description} onChange={e => setDescription(e.target.value)} placeholder="What is the mission of this circle?" className="min-h-[100px] rounded-xl bg-muted/20 border-none p-4 font-medium italic text-sm" />
-                          </div>
-                       </div>
-                       <Button type="submit" disabled={isCreating || !name || !description} className="w-full h-16 rounded-2xl gradient-bg font-black uppercase tracking-widest text-xs shadow-xl">
-                          {isCreating ? <Loader2 className="w-5 h-5 animate-spin" /> : "Verify & Launch"}
-                       </Button>
-                    </form>
-                 </DialogContent>
-              </Dialog>
-           </div>
-
-           <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar w-full lg:w-auto">
-              {['All', ...CIRCLE_CATEGORIES].map(cat => (
-                 <Button 
-                   key={cat} 
-                   variant={activeCategory === cat ? 'default' : 'ghost'}
-                   onClick={() => setActiveCategory(cat)}
-                   className={cn(
-                     "rounded-full h-11 px-6 font-black uppercase text-[9px] tracking-widest shrink-0 shadow-sm",
-                     activeCategory === cat ? "bg-slate-900 text-white" : "bg-white hover:bg-slate-50"
-                   )}
-                 >
-                    {cat}
-                 </Button>
-              ))}
-           </div>
+            <p className="text-xl text-muted-foreground font-medium italic">"Gather around a shared mission of love and prosperity."</p>
+          </div>
+          <Button className="h-16 px-10 rounded-2xl gradient-bg font-black uppercase tracking-widest text-xs shadow-xl shadow-primary/20 gap-2 active:scale-95 transition-all">
+             <Plus className="w-5 h-5" /> Launch Circle
+          </Button>
         </div>
 
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-32 opacity-20">
-             <Loader2 className="w-12 h-12 animate-spin text-primary" />
-             <p className="text-[10px] font-black uppercase tracking-widest mt-4">Scanning Circles...</p>
+          <div className="flex flex-col items-center justify-center py-40 gap-4 opacity-20">
+            <Loader2 className="w-12 h-12 animate-spin text-primary" />
+            <p className="text-sm font-black uppercase tracking-widest">Scanning Frequencies...</p>
           </div>
-        ) : filteredCircles.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-             {filteredCircles.map((circle: any) => (
-               <Card key={circle.id} className="rounded-[2.5rem] border-none shadow-lg overflow-hidden bg-white hover:shadow-2xl transition-all group flex flex-col">
-                  <div className="relative aspect-[16/10] overflow-hidden">
-                     <Image 
-                       src={circle.imageURL || 'https://picsum.photos/seed/circle/600/400'} 
-                       alt={circle.name} 
-                       fill 
-                       className="object-cover transition-transform duration-700 group-hover:scale-110" 
-                       data-ai-hint="community gathering"
-                     />
-                     <div className="absolute top-4 left-4">
-                        <Badge className="bg-black/40 backdrop-blur-md text-white border-none text-[8px] font-black uppercase tracking-widest px-3 h-6">
-                           {circle.category}
-                        </Badge>
-                     </div>
-                     <div className="absolute top-4 right-4">
-                        {circle.privacy === 'private' ? (
-                          <div className="w-8 h-8 rounded-full bg-black/20 backdrop-blur-md flex items-center justify-center text-white"><Lock className="w-3.5 h-3.5" /></div>
-                        ) : (
-                          <div className="w-8 h-8 rounded-full bg-green-500/20 backdrop-blur-md flex items-center justify-center text-green-400"><Globe2 className="w-3.5 h-3.5" /></div>
-                        )}
-                     </div>
-                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60" />
-                     <div className="absolute bottom-4 left-6 right-6">
-                        <h3 className="text-white text-2xl font-black tracking-tighter truncate">{circle.name}</h3>
-                     </div>
+        ) : communities.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {communities.map((circle) => (
+              <Card key={circle.id} className="rounded-[2.5rem] border-none shadow-xl bg-white overflow-hidden group hover:scale-[1.02] transition-all flex flex-col">
+                <div className="aspect-[16/10] bg-muted relative overflow-hidden">
+                  <Image 
+                    src={circle.imageURL || `https://picsum.photos/seed/${circle.id}/600/400`} 
+                    alt={circle.name} 
+                    fill 
+                    className="object-cover transition-transform duration-700 group-hover:scale-110"
+                    data-ai-hint="community gathering"
+                  />
+                  <div className="absolute top-6 left-6">
+                    <Badge className="bg-black/40 backdrop-blur-md text-white border-none px-3 py-1 font-black text-[9px] uppercase tracking-[0.2em]">{circle.category}</Badge>
                   </div>
-                  <CardContent className="p-8 flex-grow flex flex-col justify-between">
-                     <p className="text-sm text-muted-foreground font-medium italic line-clamp-3 mb-6 leading-relaxed">
-                        "{circle.description}"
-                     </p>
-                     
-                     <div className="flex items-center justify-between pt-6 border-t border-dashed">
-                        <div className="flex items-center gap-2">
-                           <div className="w-8 h-8 rounded-xl bg-primary/5 flex items-center justify-center text-primary">
-                              <Users className="w-4 h-4" />
-                           </div>
-                           <div>
-                              <p className="text-[10px] font-black leading-none">{circle.memberCount}</p>
-                              <p className="text-[7px] font-bold text-muted-foreground uppercase">Hearts</p>
-                           </div>
+                  {circle.privacy === 'private' && (
+                    <div className="absolute top-6 right-6">
+                       <Badge className="bg-amber-500 text-white border-none px-3 py-1 font-black text-[9px] uppercase tracking-widest">Verified Only</Badge>
+                    </div>
+                  )}
+                </div>
+                <CardContent className="p-8 space-y-4 flex-grow">
+                  <CardTitle className="text-3xl font-black tracking-tighter truncate group-hover:text-primary transition-colors">{circle.name}</CardTitle>
+                  <p className="text-muted-foreground font-medium italic line-clamp-3 leading-relaxed">"{circle.description}"</p>
+                  
+                  <div className="pt-4 flex items-center justify-between border-t border-dashed">
+                     <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-xl bg-primary/5 flex items-center justify-center text-primary">
+                           <Users className="w-4 h-4" />
                         </div>
-                        <Button variant="ghost" size="sm" className="rounded-xl h-10 px-4 text-[9px] font-black uppercase tracking-widest gap-2 hover:bg-primary/5 hover:text-primary group-hover:translate-x-1 transition-all">
-                           Enter Circle <ArrowRight className="w-3 h-3" />
-                        </Button>
+                        <span className="text-xs font-black uppercase tracking-widest">{circle.memberCount} Hearts</span>
                      </div>
-                  </CardContent>
-               </Card>
-             ))}
+                     <Badge variant="outline" className="border-muted-foreground/20 text-muted-foreground/60 font-black text-[8px] uppercase tracking-widest">{circle.privacy} access</Badge>
+                  </div>
+                </CardContent>
+                <CardFooter className="p-8 pt-0">
+                  <Button 
+                    onClick={() => handleJoin(circle.id)} 
+                    disabled={isJoining === circle.id}
+                    className="w-full h-14 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-black uppercase tracking-widest text-[10px] shadow-xl active:scale-95 transition-all gap-2"
+                  >
+                    {isJoining === circle.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <ArrowRight className="w-4 h-4" />}
+                    Enter Circle
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))}
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center py-32 text-center space-y-6 opacity-20">
-             <div className="relative">
-                <Compass className="w-24 h-24 text-slate-400 animate-spin-slow" />
-                <Sparkles className="absolute -top-2 -right-2 w-8 h-8 text-primary animate-pulse" />
-             </div>
-             <div className="space-y-2">
-                <h3 className="text-2xl font-black tracking-tighter uppercase">Quiet vibration</h3>
-                <p className="text-sm font-bold uppercase tracking-widest max-w-[240px]">Be the spark and establish the first circle in this category.</p>
-             </div>
+          <div className="py-40 text-center opacity-20 space-y-6">
+            <div className="relative inline-block">
+               <Users className="w-24 h-24 mx-auto mb-4" />
+               <Sparkles className="absolute -top-2 -right-2 w-8 h-8 text-primary animate-pulse" />
+            </div>
+            <p className="text-xl font-black uppercase tracking-widest">The community is quiet. Be the first spark and launch a circle.</p>
           </div>
         )}
+
+        {/* Community Protocol Section */}
+        <div className="p-10 bg-slate-900 rounded-[3rem] border border-primary/20 shadow-2xl relative overflow-hidden group">
+           <Zap className="absolute top-0 right-0 p-10 w-48 h-48 text-primary opacity-5 group-hover:rotate-12 transition-transform" />
+           <div className="relative z-10 space-y-6 max-w-2xl">
+              <div className="flex items-center gap-4 text-primary">
+                 <ShieldCheck className="w-8 h-8" />
+                 <h4 className="text-2xl font-black uppercase tracking-tighter">Community Integrity Protocol</h4>
+              </div>
+              <p className="text-lg text-white/70 font-medium italic leading-relaxed uppercase tracking-widest">
+                "Respect & Love is Mandatory." Every circle is a sacred gathering space monitored by the community heartbeat to ensure prosperity and safety for every member.
+              </p>
+              <div className="flex items-center gap-3 pt-2">
+                 <Globe className="w-4 h-4 text-blue-400" />
+                 <span className="text-[10px] font-black uppercase tracking-[0.3em] text-blue-400/60">Unified Prosperity Network</span>
+              </div>
+           </div>
+        </div>
       </main>
 
       <BottomNav />
