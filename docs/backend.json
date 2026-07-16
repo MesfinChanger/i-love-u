@@ -52,6 +52,20 @@
         "createdAt": { "type": "string", "format": "date-time" }
       }
     },
+    "Message": {
+      "title": "Message",
+      "description": "A secured, encrypted message packet.",
+      "type": "object",
+      "properties": {
+        "senderId": { "type": "string" },
+        "encryptedText": { "type": "string" },
+        "encryptedMedia": { "type": "array", "items": { "type": "string" } },
+        "iv": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "status": { "type": "string", "enum": ["sent", "delivered", "read"] },
+        "conversationId": { "type": "string" }
+      }
+    },
     "Shop": {
       "title": "Shop",
       "description": "A verified seller storefront in the prosperity marketplace.",
@@ -178,6 +192,7 @@
     "/publicProfiles/{userId}": { "schema": "UserProfile", "description": "Discovery data" },
     "/connections/{connectionId}": { "schema": "Connection", "description": "Match and Invitation registry" },
     "/conversations/{conversationId}": { "schema": "Conversation", "description": "High-fidelity chat rooms" },
+    "/messages/{messageId}": { "schema": "Message", "description": "High-fidelity secured messages" },
     "/relationships/{relationshipId}": { "schema": "Relationship", "description": "Friend states and community blocking." },
     "/communityMessages/{messageId}": { "schema": "CommunityMessage", "description": "Global Wall messages" },
     "/ideaPool/{postId}": { "schema": "PoolPost", "description": "Global knowledge pool" },

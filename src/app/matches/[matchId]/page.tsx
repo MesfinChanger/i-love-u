@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect, useRef, use } from 'react';
@@ -26,8 +27,8 @@ import { cn } from '@/lib/utils';
 
 /**
  * @fileOverview High-Fidelity E2EE Chat Room.
- * Implements the High-Fidelity Conversation Protocol with ECDH shared keys and AES-GCM encryption.
- * Synchronized with the global conversations and messages registry.
+ * Implements the High-Fidelity Message Protocol with ECDH shared keys and AES-GCM encryption.
+ * Synchronized with the global messages registry using strictly requested fields.
  */
 export default function ChatPage({ params }: { params: Promise<{ matchId: string }> }) {
   const { matchId } = use(params);
@@ -62,7 +63,7 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
     return query(
       collection(db, 'messages'), 
       where('conversationId', '==', matchId),
-      orderBy('createdAt', 'asc')
+      orderBy('timestamp', 'asc')
     );
   }, [matchId]);
   
@@ -142,11 +143,13 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
         return;
       }
 
-      // Payload aligned with requested sendEncryptedMessage schema
+      // Payload strictly aligned with requested high-fidelity Message schema
       const messagePayload: any = {
         conversationId: matchId,
         senderId: user.uid,
-        createdAt: serverTimestamp(),
+        encryptedMedia: [],
+        status: "sent",
+        timestamp: serverTimestamp(),
       };
 
       // E2EE Message Securing (AES-GCM Protocol)
@@ -162,7 +165,7 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
         messagePayload.text = newMessage;
       }
 
-      // Sync with top-level messages collection
+      // Sync with top-level messages registry
       await addDoc(collection(db, 'messages'), messagePayload);
       
       await updateDoc(doc(db, 'conversations', matchId), {
