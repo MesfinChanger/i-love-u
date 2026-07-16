@@ -1,3 +1,4 @@
+
 'use server';
 
 import { stripe, isStripeConfigured } from './stripe-server';
@@ -127,8 +128,7 @@ export async function createSubscriptionSession(planType: 'basic_seller' | 'pro_
 }
 
 export async function createGiftPurchaseSession(
-  productName: string, 
-  amount: number, 
+  product: { id: string, name: string, price: number, sellerId: string }, 
   currency: string, 
   userId: string,
   details?: { email?: string; phone?: string; address?: string; city?: string; state?: string; zip?: string }
@@ -146,10 +146,10 @@ export async function createGiftPurchaseSession(
           price_data: {
             currency: currency.toLowerCase(),
             product_data: {
-              name: productName,
+              name: product.name,
               description: 'Gift for a mysterious heart connection.',
             },
-            unit_amount: Math.round(amount * 100),
+            unit_amount: Math.round(product.price * 100),
           },
           quantity: 1,
         },
@@ -160,7 +160,9 @@ export async function createGiftPurchaseSession(
       metadata: { 
         userId: userId || 'guest', 
         type: 'gift_purchase', 
-        productName,
+        productId: product.id,
+        productName: product.name,
+        sellerId: product.sellerId,
         email: details?.email || '',
         phone: details?.phone || '',
         address: details?.address || '',

@@ -71,6 +71,31 @@
         "createdAt": { "type": "string", "format": "date-time" }
       }
     },
+    "Order": {
+      "title": "Order",
+      "description": "A recorded transaction between a buyer and an artisan.",
+      "type": "object",
+      "properties": {
+        "buyerId": { "type": "string" },
+        "sellerId": { "type": "string" },
+        "products": { 
+          "type": "array", 
+          "items": { 
+            "type": "object",
+            "properties": {
+              "productId": { "type": "string" },
+              "name": { "type": "string" },
+              "price": { "type": "number" },
+              "quantity": { "type": "number" }
+            }
+          }
+        },
+        "total": { "type": "number" },
+        "paymentStatus": { "type": "string", "enum": ["pending", "paid", "failed"] },
+        "shippingStatus": { "type": "string", "enum": ["pending", "shipped", "delivered"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    },
     "Connection": {
       "title": "Connection",
       "description": "An invitation or established match between two hearts.",
@@ -147,6 +172,7 @@
     "/circles/{circleId}": { "schema": "Circle", "description": "Global community circles registry" },
     "/shops/{shopId}": { "schema": "Shop", "description": "Verified seller storefronts" },
     "/products/{productId}": { "schema": "Product", "description": "Artisan products listed by verified shops" },
+    "/orders/{orderId}": { "schema": "Order", "description": "Marketplace transaction ledger" },
     "/siteSettings/{settingId}": { "description": "Global platform settings" }
   }
 }

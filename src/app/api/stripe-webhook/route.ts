@@ -6,7 +6,7 @@ import Stripe from 'stripe';
 
 /**
  * @fileOverview Universal Stripe Webhook Collector.
- * Automatically records successful sessions into the 'transactions' collection.
+ * Automatically records successful sessions into the 'orders' collection following requested schema.
  */
 
 export async function POST(req: Request) {
@@ -30,19 +30,43 @@ export async function POST(req: Request) {
     const session = event.data.object as Stripe.Checkout.Session;
 
     try {
-      await adminDb.collection('transactions').add({
-        stripeSessionId: session.id,
-        userId: session.metadata?.userId || 'guest',
-        type: session.metadata?.type || 'unknown',
-        amount: session.amount_total ? session.amount_total / 100 : 0,
-        currency: session.currency,
-        paymentStatus: 'completed',
-        metadata: session.metadata || {},
-        createdAt: new Date(),
-      });
-      console.log(`Mission Funded: Transaction recorded for session ${session.id}`);
+      const type = session.metadata?.type;
+      
+      // Prosperity Protocol: If it's a gift purchase, record as an Order
+      if (type === 'gift_purchase') {
+        await adminDb.collection('orders').add({
+          buyerId: session.metadata?.userId || 'guest',
+          sellerId: session.metadata?.sellerId || 'unknown',
+          products: [
+            {
+              productId: session.metadata?.productId || 'gift',
+              name: session.metadata?.productName || 'Spark Gift',
+              price: session.amount_total ? session.amount_total / 100 : 0,
+              quantity: 1
+            }
+          ],
+          total: session.amount_total ? session.amount_total / 100 : 0,
+          paymentStatus: 'paid',
+          shippingStatus: 'pending',
+          createdAt: new Date(),
+        });
+      } else {
+        // Generic Transactions (Donations, Ads, Subs)
+        await adminDb.collection('transactions').add({
+          stripeSessionId: session.id,
+          userId: session.metadata?.userId || 'guest',
+          type: session.metadata?.type || 'unknown',
+          amount: session.amount_total ? session.amount_total / 100 : 0,
+          currency: session.currency,
+          paymentStatus: 'completed',
+          metadata: session.metadata || {},
+          createdAt: new Date(),
+        });
+      }
+      
+      console.log(`Mission Funded: Entry recorded for session ${session.id}`);
     } catch (dbError) {
-      console.error('Firestore Transaction Recording Ripple:', dbError);
+      console.error('Firestore Recording Ripple:', dbError);
     }
   }
 

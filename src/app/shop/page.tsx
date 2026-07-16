@@ -167,7 +167,12 @@ function ShopContent() {
         zip: myProfile?.postalCode || ''
       };
 
-      const result = await createGiftPurchaseSession(product.name, product.price, product.currency || userCurrency, user.uid, details);
+      const result = await createGiftPurchaseSession(
+        { id: product.id, name: product.name, price: product.price, sellerId: product.storeId },
+        product.currency || userCurrency, 
+        user.uid, 
+        details
+      );
       if (result?.url) {
         window.location.href = result.url;
       } else if (result?.error) {
@@ -195,14 +200,19 @@ function ShopContent() {
     setIsPurchasing(pendingProduct.id);
     setShowGuestForm(false);
     try {
-      const result = await createGiftPurchaseSession(pendingProduct.name, pendingProduct.price, pendingProduct.currency || userCurrency, 'guest', {
-        email: guestEmail,
-        phone: guestPhone,
-        address: guestAddress,
-        city: guestCity,
-        state: guestState,
-        zip: guestZip
-      });
+      const result = await createGiftPurchaseSession(
+        { id: pendingProduct.id, name: pendingProduct.name, price: pendingProduct.price, sellerId: pendingProduct.storeId },
+        pendingProduct.currency || userCurrency, 
+        'guest', 
+        {
+          email: guestEmail,
+          phone: guestPhone,
+          address: guestAddress,
+          city: guestCity,
+          state: guestState,
+          zip: guestZip
+        }
+      );
       if (result?.url) {
         window.location.href = result.url;
       } else if (result?.error) {

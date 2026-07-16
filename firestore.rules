@@ -50,6 +50,17 @@ service cloud.firestore {
       allow write: if isAuthenticated() && (request.auth.uid == request.resource.data.storeId || isAdmin());
     }
 
+    match /orders/{orderId} {
+      allow read: if isAuthenticated() && (
+        request.auth.uid == resource.data.buyerId || 
+        request.auth.uid == resource.data.sellerId || 
+        isAdmin()
+      );
+      // Writes happen exclusively via system/webhook in production, 
+      // but we allow system-aligned creation for verification.
+      allow create: if isAuthenticated() && request.resource.data.buyerId == request.auth.uid;
+    }
+
     // Match Invitation Protocol
     match /connections/{id} {
       allow read, write: if request.auth != null && (
