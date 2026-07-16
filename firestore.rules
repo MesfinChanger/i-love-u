@@ -50,6 +50,16 @@ service cloud.firestore {
       );
     }
 
+    // Relationship & Block Protocol
+    match /relationships/{id} {
+      allow read, write: if request.auth != null && (
+        request.auth.uid == resource.data.userA || 
+        request.auth.uid == resource.data.userB ||
+        request.auth.uid == request.resource.data.userA ||
+        request.auth.uid == request.resource.data.userB
+      );
+    }
+
     // Message Registry Protocol
     match /messages/{id} {
       allow read, write: if request.auth != null;

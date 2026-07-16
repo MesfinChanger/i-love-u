@@ -15,13 +15,14 @@ import {
   Wifi, 
   WifiOff, 
   ShieldAlert, 
-  Clock 
+  Clock,
+  ShieldX
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { BottomNav } from '@/components/BottomNav';
 import { useUser, db } from '@/firebase';
-import { doc, setDoc, collection, serverTimestamp, query } from 'firebase/firestore';
+import { doc, setDoc, collection, serverTimestamp, query, where, onSnapshot } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { cn } from '@/lib/utils';
@@ -47,7 +48,7 @@ import { useTranslation } from '@/components/providers/LanguageProvider';
 /**
  * @fileOverview Discovery Hub featuring the Presence Grid Protocol.
  * Profiles are 100% visible and vibrant in both Online and Offline sections.
- * Synchronized with the Match Invitation Protocol.
+ * Synchronized with the Match Invitation and Relationship/Block Protocols.
  */
 export default function DiscoverPage() {
   const { user } = useUser();
@@ -58,6 +59,7 @@ export default function DiscoverPage() {
   const [isLiveExpanded, setIsLiveExpanded] = useState(true);
   const [isOfflineExpanded, setIsOfflineExpanded] = useState(true);
   const [presenceOverrides, setPresenceShimmer] = useState<Record<string, { isOnline: boolean, lastActive: string }>>({});
+  const [blockedUids, setBlockedUids] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     setMounted(true);
@@ -68,6 +70,25 @@ export default function DiscoverPage() {
     return doc(db, 'users', user.uid);
   }, [user?.uid]);
   const { data: myProfile } = useDoc(userRef);
+
+  // Block Protocol Listener
+  useEffect(() => {
+    if (!db || !user?.uid) return;
+    const q = query(
+      collection(db, 'relationships'),
+      where('status', '==', 'blocked')
+    );
+    const unsub = onSnapshot(q, (snap) => {
+      const uids = new Set<string>();
+      snap.docs.forEach(doc => {
+        const data = doc.data();
+        if (data.userA === user.uid) uids.add(data.userB);
+        if (data.userB === user.uid) uids.add(data.userA);
+      });
+      setBlockedUids(uids);
+    });
+    return () => unsub();
+  }, [user?.uid]);
 
   const isCommercial = myProfile?.accountType === 'business';
   const hasAcceptedPolicy = myProfile?.policyAccepted === true;
@@ -101,7 +122,10 @@ export default function DiscoverPage() {
     const hasItems = mounted && discoveryItems && discoveryItems.length > 0;
     const allHearts = hasItems 
       ? (discoveryItems || [])
-        .filter((u: any) => u.uid !== user?.uid && u.status !== 'blocked')
+        .filter((u: any) => {
+          const id = u.uid || u.id;
+          return id !== user?.uid && u.status !== 'blocked' && !blockedUids.has(id);
+        })
         .map((u: any) => {
           const id = u.uid || u.id;
           const override = presenceOverrides[id];
@@ -126,7 +150,7 @@ export default function DiscoverPage() {
       liveHearts: allHearts.filter((h: any) => h.isOnline),
       restingHearts: allHearts.filter((h: any) => !h.isOnline)
     };
-  }, [discoveryItems, user?.uid, mounted, presenceOverrides]);
+  }, [discoveryItems, user?.uid, mounted, presenceOverrides, blockedUids]);
 
   const handleSparkAction = async (targetId: string, type: 'friend' | 'date') => {
     if (!user) {
@@ -135,21 +159,15 @@ export default function DiscoverPage() {
     }
 
     if (isInteractionRestricted) {
-      toast({ 
-        variant: "destructive", 
-        title: "Commercial Access Restricted", 
-        description: "Protocol agreement required. ❤️" 
-      });
+      toast({ variant: "destructive", title: "Commercial Access Restricted", description: "Protocol agreement required. ❤️" });
       return;
     }
     if (!db) return;
 
-    // Use sorted ID for deterministic connection registry
     const participants = [user.uid, targetId].sort();
     const connectionId = participants.join('_');
     
     try {
-      // Synchronized with Match Invitation Protocol schema
       await setDoc(doc(db, 'connections', connectionId), {
         fromUserId: user.uid,
         toUserId: targetId,
@@ -161,6 +179,23 @@ export default function DiscoverPage() {
       toast({ title: "Invitation Sent!", description: "Waiting for them to accept. ❤️" });
     } catch (e) {
       toast({ variant: "destructive", title: "Action Failed", description: "Respectful invitation could not be sent." });
+    }
+  };
+
+  const handleBlockAction = async (targetId: string) => {
+    if (!user || !db) return;
+    const participants = [user.uid, targetId].sort();
+    const relationshipId = participants.join('_');
+    try {
+      await setDoc(doc(db, 'relationships', relationshipId), {
+        userA: participants[0],
+        userB: participants[1],
+        status: "blocked",
+        createdAt: serverTimestamp(),
+      });
+      toast({ title: "Heart Blocked", description: "This profile will no longer appear in your feed. ✨" });
+    } catch (e) {
+      toast({ variant: "destructive", title: "Error", description: "Could not complete block protocol." });
     }
   };
 
@@ -220,7 +255,8 @@ export default function DiscoverPage() {
                       key={heart.id} 
                       item={heart} 
                       isRestricted={isInteractionRestricted} 
-                      onAction={(type: any) => handleSparkAction(heart.id, type)} 
+                      onAction={(type: any) => handleSparkAction(heart.id, type)}
+                      onBlock={() => handleBlockAction(heart.id)}
                     />
                   ))}
                 </div>
@@ -257,7 +293,8 @@ export default function DiscoverPage() {
                     key={heart.id} 
                     item={heart} 
                     isRestricted={isInteractionRestricted} 
-                    onAction={(type: any) => handleSparkAction(heart.id, type)} 
+                    onAction={(type: any) => handleSparkAction(heart.id, type)}
+                    onBlock={() => handleBlockAction(heart.id)}
                   />
                 ))}
               </div>
@@ -270,7 +307,7 @@ export default function DiscoverPage() {
   );
 }
 
-function DiscoverCard({ item, isRestricted, onAction }: any) {
+function DiscoverCard({ item, isRestricted, onAction, onBlock }: any) {
   const mediaItems = [];
   if (item.videoURL) mediaItems.push({ type: 'video', url: item.videoURL });
   if (item.photoURL) mediaItems.push({ type: 'image', url: item.photoURL });
@@ -322,6 +359,18 @@ function DiscoverCard({ item, isRestricted, onAction }: any) {
             {item.isOnline ? <div className="w-1 h-1 bg-white rounded-full animate-pulse" /> : <Clock className="w-2.5 h-2.5" />}
             {item.isOnline ? 'Live Now' : `Last Active: ${item.lastActive}`}
          </Badge>
+      </div>
+
+      <div className="absolute top-6 right-6 z-30 opacity-0 group-hover:opacity-100 transition-opacity">
+         <Button 
+           variant="ghost" 
+           size="icon" 
+           onClick={onBlock}
+           className="w-8 h-8 rounded-full bg-black/20 backdrop-blur-md text-white hover:bg-red-500 transition-colors"
+           title="Block Heart"
+         >
+            <ShieldX className="w-4 h-4" />
+         </Button>
       </div>
 
       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent pointer-events-none" />

@@ -18,17 +18,18 @@ import {
   Ghost,
   ShieldCheck,
   Star,
-  ImageIcon
+  ImageIcon,
+  ShieldX
 } from 'lucide-react';
 import { useUser, useFirestore, useCollection } from '@/firebase';
-import { query, collection, doc, setDoc, serverTimestamp, limit } from 'firebase/firestore';
+import { query, collection, doc, setDoc, serverTimestamp, limit, where, onSnapshot } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { useTranslation } from '@/components/providers/LanguageProvider';
 import Image from 'next/image';
 
 /**
- * @fileOverview Find Hearts module synchronized with the Match Invitation Protocol.
+ * @fileOverview Find Hearts module synchronized with the Match Invitation and Block Protocols.
  */
 function SearchContent() {
   const { user } = useUser();
@@ -39,10 +40,30 @@ function SearchContent() {
   const [mounted, setMounted] = useState(false);
   const [searchTerm, setSearchQuery] = useState('');
   const [isProcessing, setIsProcessing] = useState<string | null>(null);
+  const [blockedUids, setBlockedUids] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Block Protocol Listener
+  useEffect(() => {
+    if (!db || !user?.uid) return;
+    const q = query(
+      collection(db, 'relationships'),
+      where('status', '==', 'blocked')
+    );
+    const unsub = onSnapshot(q, (snap) => {
+      const uids = new Set<string>();
+      snap.docs.forEach(doc => {
+        const data = doc.data();
+        if (data.userA === user.uid) uids.add(data.userB);
+        if (data.userB === user.uid) uids.add(data.userA);
+      });
+      setBlockedUids(uids);
+    });
+    return () => unsub();
+  }, [user?.uid]);
 
   const profilesQuery = useMemoFirebase(() => {
     if (!db || !user?.uid) return null;
@@ -55,14 +76,16 @@ function SearchContent() {
     if (!allProfiles) return [];
     const queryStr = searchTerm.toLowerCase();
     return allProfiles.filter((p: any) => {
-      if (p.uid === user?.uid) return false;
+      const id = p.uid || p.id;
+      if (id === user?.uid || blockedUids.has(id)) return false;
+      
       const usernameMatch = p.username?.toLowerCase().includes(queryStr);
       const nameMatch = p.displayName?.toLowerCase().includes(queryStr);
       const interestMatch = p.interests?.some((i: string) => i.toLowerCase().includes(queryStr));
       const bioMatch = p.bio?.toLowerCase().includes(queryStr);
       return queryStr === '' || usernameMatch || nameMatch || interestMatch || bioMatch;
     });
-  }, [allProfiles, searchTerm, user?.uid]);
+  }, [allProfiles, searchTerm, user?.uid, blockedUids]);
 
   const handleAction = async (targetUid: string, type: 'friend' | 'date') => {
     if (!user) {
@@ -72,13 +95,10 @@ function SearchContent() {
     if (!db) return;
 
     setIsProcessing(targetUid);
-    
-    // Deterministic connection ID
     const participants = [user.uid, targetUid].sort();
     const connectionId = participants.join('_');
 
     try {
-      // Aligned with Match Invitation Protocol schema
       await setDoc(doc(db, 'connections', connectionId), {
         fromUserId: user.uid,
         toUserId: targetUid,
@@ -87,18 +107,28 @@ function SearchContent() {
         createdAt: serverTimestamp(),
       }, { merge: true });
       
-      toast({ 
-        title: "Invitation Sent!", 
-        description: "Your respectful request is on its way. ❤️" 
-      });
+      toast({ title: "Invitation Sent!", description: "Your respectful request is on its way. ❤️" });
     } catch (e) {
-      toast({ 
-        variant: "destructive", 
-        title: "Action Failed", 
-        description: "Could not send invitation." 
-      });
+      toast({ variant: "destructive", title: "Action Failed", description: "Could not send invitation." });
     } finally {
       setIsProcessing(null);
+    }
+  };
+
+  const handleBlockAction = async (targetUid: string) => {
+    if (!user || !db) return;
+    const participants = [user.uid, targetUid].sort();
+    const relationshipId = participants.join('_');
+    try {
+      await setDoc(doc(db, 'relationships', relationshipId), {
+        userA: participants[0],
+        userB: participants[1],
+        status: "blocked",
+        createdAt: serverTimestamp(),
+      });
+      toast({ title: "Heart Blocked", description: "The community vibration has been adjusted. ✨" });
+    } catch (e) {
+      toast({ variant: "destructive", title: "Error", description: "Block protocol failed." });
     }
   };
 
@@ -154,7 +184,7 @@ function SearchContent() {
                           <>
                             <Image 
                               src={p.photoURL} 
-                              alt={p.username} 
+                              alt={p.username || "Profile"} 
                               fill 
                               className="object-cover"
                             />
@@ -171,6 +201,15 @@ function SearchContent() {
                           </div>
                         )}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent sm:hidden" />
+                        
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          onClick={() => handleBlockAction(p.uid)}
+                          className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/20 backdrop-blur-md text-white opacity-0 group-hover:opacity-100 hover:bg-red-500 transition-all z-20"
+                        >
+                           <ShieldX className="w-4 h-4" />
+                        </Button>
                       </div>
 
                       <div className="p-6 flex-grow flex flex-col justify-between min-w-0">
@@ -212,7 +251,7 @@ function SearchContent() {
                           <Button 
                             onClick={() => handleAction(p.uid, 'date')}
                             disabled={isProcessing === p.uid}
-                            className="flex-1 h-12 rounded-xl gradient-bg font-black text-[9px] uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-105 transition-all gap-2"
+                            className="flex-1 h-12 rounded-xl gradient-bg font-black text-[9px] uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-105 transition-all gap-2"
                           >
                             {isProcessing === p.uid ? <Loader2 className="w-3 h-3 animate-spin" /> : "💫 Spark Chat"}
                           </Button>
@@ -246,7 +285,7 @@ function SearchContent() {
                  <h4 className="font-black text-xs uppercase tracking-widest">Privacy Protocol</h4>
               </div>
               <p className="text-[11px] text-white/70 font-medium italic leading-relaxed uppercase tracking-widest">
-                "Safety is Mandatory." Searching is restricted to Public Profiles only. Private identities are only revealed after mutual Spark Invitations are accepted.
+                "Safety is Mandatory." Searching is restricted to Public Profiles only. Private identities are only revealed after mutual Spark Invitations are accepted. Relationships can be blocked to ensure your sacred space remains respectful.
               </p>
            </div>
         </div>
