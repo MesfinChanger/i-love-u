@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect, Suspense } from 'react';
@@ -32,6 +31,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Image from 'next/image';
 import Link from 'next/link';
 
+/**
+ * @fileOverview Seller Management Console.
+ * Orchestrates subscription management and high-fidelity artisan storefronts.
+ */
 function SellerManageContent() {
   const { user } = useUser();
   const db = useFirestore();
