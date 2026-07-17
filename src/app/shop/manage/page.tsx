@@ -14,17 +14,13 @@ import {
   Sparkles, 
   Loader2, 
   Package, 
-  CreditCard, 
-  HeartHandshake,
   Percent,
   Save,
-  ShieldAlert,
   Clock,
   CheckCircle2,
   FileCheck,
   Plus,
   Trash2,
-  ImageIcon,
   Tags
 } from 'lucide-react';
 import { useUser, useFirestore, useDoc, useCollection } from '@/firebase';
@@ -36,7 +32,6 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { CURRENCIES } from '@/lib/world-data';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { cn } from '@/lib/utils';
 import Image from 'next/image';
 
 function SellerManageContent() {
@@ -263,7 +258,7 @@ function SellerManageContent() {
               <div className="bg-slate-900 p-8 rounded-[2.5rem] space-y-4 shadow-xl border border-primary/20">
                  <div className="flex items-center gap-3 text-primary justify-center">
                     <FileCheck className="w-6 h-6" />
-                    <h4 className="font-black text-xs uppercase tracking-widest">Admin Checklist</h4>
+                    <h4 className="font-black text-xs uppercase tracking-widest text-white">Admin Checklist</h4>
                  </div>
                  <ul className="text-[10px] text-white/70 font-bold uppercase tracking-widest space-y-2 text-left">
                     <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary" /> Tax ID & Identity Verification</li>
@@ -288,9 +283,9 @@ function SellerManageContent() {
             <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
               <Store className="w-12 h-12 text-primary" aria-hidden="true" />
             </div>
-            <h1 className="text-5xl font-black tracking-tighter">Become a Seller</h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto font-medium">
-              Start your business on I Love U. Our **Admin Approval Protocol** ensures a safe, premium marketplace for every heart.
+            <h1 className="text-5xl font-black tracking-tighter text-slate-900">Become a Seller</h1>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto font-medium italic">
+              "Start your business on I Love U. Our Admin Approval Protocol ensures a safe, premium marketplace for every heart."
             </p>
 
             <div className="grid md:grid-cols-3 gap-6 mt-12 items-stretch text-left">
@@ -347,7 +342,8 @@ function SellerManageContent() {
                     {isSubscribing ? <Loader2 className="w-4 h-4 animate-spin" /> : "Verify & Scale"}
                   </Button>
                 </CardFooter>
-              </div>
+              </Card>
+            </div>
           </div>
         ) : (
           <div className="space-y-8">
