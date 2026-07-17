@@ -28,12 +28,12 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-white">
         <Loader2 className="w-10 h-10 animate-spin text-primary opacity-20" />
-        <p className="text-[10px] font-black uppercase tracking-[0.3em] mt-6 text-muted-foreground">Checking Credentials...</p>
+        <p className="text-[10px] font-black uppercase tracking-[0.3em] mt-6 text-muted-foreground">Checking Admin Access...</p>
       </div>
     );
   }
 
-  // Admin Verification Logic
+  // Admin Verification Logic (Checks Firestore signature)
   const isAdmin = profile?.role === 'admin' || profile?.isAdmin === true;
 
   if (!user || !isAdmin) {
@@ -43,7 +43,7 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
            <Lock className="w-12 h-12 text-red-500" />
         </div>
         <div className="space-y-4 max-w-sm">
-           <h1 className="text-4xl font-black tracking-tighter uppercase leading-none">Frequency Restricted</h1>
+           <h1 className="text-4xl font-black tracking-tighter uppercase leading-none">Access Denied</h1>
            <p className="text-lg text-muted-foreground font-medium italic">
              "Only community guardians can access this mission control center." ❤️
            </p>

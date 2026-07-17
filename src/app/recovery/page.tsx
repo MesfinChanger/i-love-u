@@ -51,7 +51,7 @@ export default function RecoveryPage() {
         </Card>
 
         <div className="flex flex-col items-center gap-4">
-           <Link href="/login" className="flex items-center gap-2 text-slate-400 hover:text-primary transition-colors font-bold text-[10px] uppercase tracking-widest">
+           <Link href="/login" className="flex items-center justify-center gap-2 text-slate-400 hover:text-primary transition-colors font-bold text-[10px] uppercase tracking-widest">
               <ArrowLeft className="w-3.5 h-3.5" />
               Back to Identify
            </Link>

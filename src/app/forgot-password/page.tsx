@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 /**
  * @fileOverview Identity Recovery Protocol (Password Reset).
  * Securely dispatches access restoration links to confirmed heart email signatures.
+ * Includes high-fidelity debugging for reset ripples.
  */
 export default function ForgotPasswordPage() {
   const { toast } = useToast();
@@ -38,18 +39,12 @@ export default function ForgotPasswordPage() {
       await sendPasswordResetEmail(auth, cleanEmail);
       setMessage("Password reset link sent. Please check your email inbox and spam folder. ❤️");
       toast({ title: "Email Dispatched ✨", description: "Your recovery path is waiting in your inbox." });
-    } catch (err: any) {
-      console.error("Recovery ripple:", err);
-      let errorMsg = "Could not reach the identity registry. Please try again. ❤️";
+    } catch (error: any) {
+      // Debugging Protocol: Log reset ripples to the console
+      console.log("RESET ERROR CODE:", error.code);
+      console.log("RESET ERROR MESSAGE:", error.message);
 
-      if (err.code === "auth/user-not-found") {
-        errorMsg = "No account exists with this email signature.";
-      } else if (err.code === "auth/invalid-email") {
-        errorMsg = "Please enter a valid email address.";
-      } else {
-        errorMsg = err.message;
-      }
-
+      const errorMsg = error.code + " : " + error.message;
       setError(errorMsg);
       toast({ variant: "destructive", title: "Access Ripple", description: errorMsg });
     } finally {

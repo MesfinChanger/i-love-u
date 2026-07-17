@@ -12,9 +12,7 @@ import {
   BarChart3, 
   Zap, 
   Gavel,
-  ArrowRight,
-  TrendingUp,
-  Heart
+  ArrowRight
 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -42,13 +40,25 @@ export default function AdminDashboardPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <AdminMetricCard 
-              title="Heart Registry" 
-              desc="Manage members" 
-              icon={<Users className="w-6 h-6" />} 
-              href="/admin/users" 
-              color="text-blue-500" 
-            />
+            <Link href="/admin/users" className="block h-full">
+              <Card className="rounded-[2.5rem] border-none shadow-lg bg-white p-8 hover:shadow-2xl transition-all group overflow-hidden relative h-full">
+                 <div className="flex flex-col gap-4 relative z-10">
+                    <div className="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-500 transition-all group-hover:scale-110">
+                       <Users className="w-6 h-6" />
+                    </div>
+                    <div>
+                       <h3 className="text-2xl font-black uppercase tracking-tighter">Heart Registry</h3>
+                       <p className="text-sm text-muted-foreground font-medium italic mt-1">Manage every member signature.</p>
+                    </div>
+                    <div className="pt-4 mt-auto">
+                       <span className="inline-flex items-center gap-2 text-[9px] font-black uppercase tracking-widest text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+                          Manage Members <ArrowRight className="w-3 h-3" />
+                       </span>
+                    </div>
+                 </div>
+              </Card>
+            </Link>
+
             <AdminMetricCard 
               title="System Config" 
               desc="Calibrate prosperity parameters." 
@@ -80,11 +90,11 @@ export default function AdminDashboardPage() {
              </CardHeader>
              <CardContent className="p-10 space-y-6">
                 <div className="grid sm:grid-cols-2 gap-4">
-                   <div className="p-6 bg-muted/30 rounded-2xl border border-dashed">
+                   <div className="p-6 bg-muted/30 rounded-2xl border border-dashed text-center">
                       <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground mb-1">Active Blocks</p>
                       <p className="text-2xl font-black">0 Hearts</p>
                    </div>
-                   <div className="p-6 bg-muted/30 rounded-2xl border border-dashed">
+                   <div className="p-6 bg-muted/30 rounded-2xl border border-dashed text-center">
                       <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground mb-1">Reports Pending</p>
                       <p className="text-2xl font-black">0 Incidents</p>
                    </div>

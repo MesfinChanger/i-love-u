@@ -38,4 +38,5 @@ if (typeof window !== 'undefined') {
   storage = getStorage(app);
 }
 
+// Ensure all instances are exported for the bridge
 export { app, auth, db, storage };
