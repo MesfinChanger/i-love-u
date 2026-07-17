@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect, Suspense } from 'react';
@@ -353,10 +352,15 @@ function SellerManageContent() {
                 <h1 className="text-4xl font-black tracking-tighter">Seller Console</h1>
                 <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1">Verified Store Management</p>
               </div>
-              <Badge className="bg-green-100 text-green-700 border-none px-4 h-8 text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                Admin Approved
-              </Badge>
+              <div className="flex items-center gap-3">
+                 <Button asChild variant="outline" className="rounded-xl h-10 px-4 font-black uppercase text-[9px] border-2">
+                    <Link href="/shop/manage/create">Add Product</Link>
+                 </Button>
+                 <Badge className="bg-green-100 text-green-700 border-none px-4 h-10 text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    Admin Approved
+                 </Badge>
+              </div>
             </div>
 
             <Tabs defaultValue="inventory" className="w-full">
@@ -404,7 +408,7 @@ function SellerManageContent() {
                           <CardHeader className="bg-slate-900 text-white p-8">
                              <CardTitle className="text-xl font-black uppercase tracking-tighter flex items-center gap-3">
                                 <Plus className="w-6 h-6 text-primary" />
-                                Add Product
+                                Quick Add
                              </CardTitle>
                           </CardHeader>
                           <CardContent className="p-8 space-y-5">
@@ -422,21 +426,12 @@ function SellerManageContent() {
                                    <Input type="number" value={newProductInventory} onChange={e => setNewProductInventory(e.target.value)} placeholder="10" className="h-12 rounded-xl bg-muted/30 border-none font-bold" />
                                 </div>
                              </div>
-                             <div className="space-y-1.5">
-                                <Label className="text-[9px] font-black uppercase tracking-widest ml-1">Category</Label>
-                                <Input value={newProductCategory} onChange={e => setNewProductCategory(e.target.value)} placeholder="General" className="h-12 rounded-xl bg-muted/30 border-none font-bold" />
-                             </div>
-                             <div className="space-y-1.5">
-                                <Label className="text-[9px] font-black uppercase tracking-widest ml-1">Image URL</Label>
-                                <Input value={newProductImageUrl} onChange={e => setNewProductImageUrl(e.target.value)} placeholder="https://..." className="h-12 rounded-xl bg-muted/30 border-none font-bold text-xs" />
-                             </div>
-                             <div className="space-y-1.5">
-                                <Label className="text-[9px] font-black uppercase tracking-widest ml-1">Description</Label>
-                                <Textarea value={newProductDesc} onChange={e => setNewProductDesc(e.target.value)} placeholder="What makes this product special?" className="min-h-[100px] rounded-xl bg-muted/30 border-none font-medium italic text-xs" />
-                             </div>
                              <Button onClick={handleAddProduct} disabled={isAddingProduct || !newProductName || !newProductPrice} className="w-full h-14 rounded-2xl gradient-bg font-black uppercase text-[10px] tracking-widest shadow-xl">
                                 {isAddingProduct ? <Loader2 className="w-4 h-4 animate-spin" /> : "Sync Listing"}
                              </Button>
+                             <div className="text-center pt-2">
+                                <Link href="/shop/manage/create" className="text-[9px] font-bold text-primary uppercase underline tracking-widest">Advanced Creation Page</Link>
+                             </div>
                           </CardContent>
                        </Card>
                     </div>
@@ -455,11 +450,11 @@ function SellerManageContent() {
                                 <Card key={p.id} className="rounded-[2rem] border-none shadow-md bg-white overflow-hidden group hover:shadow-xl transition-all">
                                    <div className="flex items-center p-4 gap-4">
                                       <div className="relative w-20 h-20 rounded-2xl overflow-hidden bg-muted shrink-0">
-                                         <Image src={p.images?.[0] || 'https://picsum.photos/seed/product/200/200'} alt={p.name} fill className="object-cover" />
+                                         <Image src={p.images?.[0] || 'https://picsum.photos/seed/product/200/200'} alt={p.name || p.title} fill className="object-cover" />
                                       </div>
                                       <div className="flex-grow min-w-0">
                                          <div className="flex items-center justify-between mb-1">
-                                            <h3 className="font-black text-lg truncate tracking-tight">{p.name}</h3>
+                                            <h3 className="font-black text-lg truncate tracking-tight">{p.name || p.title}</h3>
                                             <Badge className="bg-primary/10 text-primary border-none text-[8px] font-black">{currencySymbol}{p.price}</Badge>
                                          </div>
                                          <p className="text-[10px] text-muted-foreground font-medium italic line-clamp-1 mb-2">"{p.description}"</p>
