@@ -20,6 +20,22 @@
       },
       "required": ["uid", "username", "displayName", "interests", "accountType"]
     },
+    "Product": {
+      "title": "Marketplace Product",
+      "description": "Artisan listing for prosperity exchange.",
+      "type": "object",
+      "properties": {
+        "sellerId": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "price": { "type": "number" },
+        "currency": { "type": "string" },
+        "inventory": { "type": "number" },
+        "status": { "type": "string", "enum": ["active", "inactive"] },
+        "images": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["sellerId", "name", "price", "status"]
+    },
     "SparkGreeting": {
       "title": "Community Greeting",
       "description": "Initial respectful outreach between hearts.",
@@ -32,29 +48,6 @@
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["fromUserId", "toUserId", "message", "status", "createdAt"]
-    },
-    "SparkConnection": {
-      "title": "Heart Connection",
-      "description": "An established bond between two community members.",
-      "type": "object",
-      "properties": {
-        "userIds": { "type": "array", "items": { "type": "string" } },
-        "status": { "type": "string", "enum": ["active", "ended"] },
-        "createdAt": { "type": "string", "format": "date-time" }
-      },
-      "required": ["userIds", "status", "createdAt"]
-    },
-    "Conversation": {
-      "title": "Secured Conversation",
-      "description": "A private interaction space for matched hearts.",
-      "type": "object",
-      "properties": {
-        "participants": { "type": "array", "items": { "type": "string" } },
-        "type": { "type": "string", "enum": ["spark", "friend", "group"] },
-        "connectionId": { "type": "string" },
-        "createdAt": { "type": "string", "format": "date-time" }
-      },
-      "required": ["participants", "type", "createdAt"]
     }
   },
   "auth": {
@@ -62,9 +55,9 @@
   },
   "firestore": {
     "/users/{userId}": { "schema": "UserProfile", "description": "Private heart identities" },
+    "/products/{productId}": { "schema": "Product", "description": "Marketplace artisan listings" },
     "/sparkProfiles/{userId}": { "schema": "UserProfile", "description": "Public discovery profiles" },
     "/sparkGreetings/{greetingId}": { "schema": "SparkGreeting", "description": "Community outreach interactions" },
-    "/sparkConnections/{connectionId}": { "schema": "SparkConnection", "description": "Active community bonds" },
     "/conversations/{conversationId}": { "schema": "Conversation", "description": "Secured private interaction spaces" }
   }
 }

@@ -11,10 +11,13 @@ import { db } from "@/lib/firebase";
  */
 
 export async function createProduct(data: any) {
+  if (!db) throw new Error("Firestore bridge not initialized.");
+  
   return await addDoc(
     collection(db, "products"),
     {
       ...data,
+      status: data.status || "active",
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     }

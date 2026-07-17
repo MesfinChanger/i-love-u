@@ -8,6 +8,8 @@ import { SignOutButton } from "@/components/SignOutButton";
 import { Header } from "@/components/Header";
 import { BottomNav } from "@/components/BottomNav";
 import { ShieldCheck, User, Heart, Lock, Loader2 } from "lucide-react";
+import AuthGuard from "@/components/AuthGuard";
+import { cn } from "@/lib/utils";
 
 /**
  * @fileOverview Identity Hub.
@@ -22,8 +24,6 @@ export default function IdentityPage() {
     let mounted = true;
 
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      console.log("Identity Hub Auth User:", currentUser?.uid);
-
       if (!mounted) return;
 
       if (!currentUser) {
@@ -82,62 +82,45 @@ export default function IdentityPage() {
     );
   }
 
-  if (!user) {
-    return (
-      <div className="flex flex-col min-h-screen bg-muted/30">
+  return (
+    <AuthGuard>
+      <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
         <Header />
-        <main className="container mx-auto px-6 py-20 max-w-lg text-center space-y-6">
-          <div className="w-20 h-20 bg-white rounded-[2.5rem] flex items-center justify-center mx-auto shadow-xl">
-             <User className="w-10 h-10 text-muted-foreground opacity-20" />
-          </div>
-          <h1 className="text-4xl font-black tracking-tighter uppercase">👤 Identity Hub</h1>
-          <p className="text-muted-foreground font-medium italic">"Every heart needs a signature. Please sign in to continue."</p>
-          <div className="pt-4">
+        
+        <main className="container mx-auto px-6 py-12 max-w-4xl space-y-10">
+          <div className="flex justify-between items-start">
+             <div className="space-y-1">
+                <h1 className="text-4xl font-black tracking-tighter uppercase">👤 Identity Hub</h1>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 ml-1">Unified Heart Registry</p>
+             </div>
              <SignOutButton />
           </div>
+
+          <div className="grid gap-8">
+             <section className="rounded-[2.5rem] border-none shadow-xl bg-white p-10 group hover:shadow-2xl transition-all">
+                <h2 className="text-2xl font-black uppercase tracking-tight flex items-center gap-4">
+                   <span className="w-12 h-12 rounded-2xl bg-primary/5 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">🪪</span>
+                   Personal Identity
+                </h2>
+                
+                <div className="mt-8 grid gap-4 sm:grid-cols-2">
+                   <IdentityField label="Heart Signature" value={identity?.email || "Guest Account"} />
+                   <IdentityField label="Account Type" value={identity?.accountType || (user?.isAnonymous ? "Guest" : "Member")} highlight />
+                   <IdentityField label="Name" value={identity?.name || user?.displayName || "Mystery Heart"} />
+                   <IdentityField label="Language" value={identity?.language || "English"} />
+                </div>
+             </section>
+
+             <div className="grid sm:grid-cols-2 gap-8">
+                <RegistrySection icon="❤️" title="Social" items={["Spark Preferences", "Circle Memberships", "Connections"]} />
+                <RegistrySection icon="🔐" title="Security Center" items={["Device Sessions", "Privacy Settings", "Account Protection"]} />
+             </div>
+          </div>
         </main>
+
         <BottomNav />
       </div>
-    );
-  }
-
-  return (
-    <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
-      <Header />
-      
-      <main className="container mx-auto px-6 py-12 max-w-4xl space-y-10">
-        <div className="flex justify-between items-start">
-           <div className="space-y-1">
-              <h1 className="text-4xl font-black tracking-tighter uppercase">👤 Identity Hub</h1>
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/60 ml-1">Unified Heart Registry</p>
-           </div>
-           <SignOutButton />
-        </div>
-
-        <div className="grid gap-8">
-           <section className="rounded-[2.5rem] border-none shadow-xl bg-white p-10 group hover:shadow-2xl transition-all">
-              <h2 className="text-2xl font-black uppercase tracking-tight flex items-center gap-4">
-                 <span className="w-12 h-12 rounded-2xl bg-primary/5 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">🪪</span>
-                 Personal Identity
-              </h2>
-              
-              <div className="mt-8 grid gap-4 sm:grid-cols-2">
-                 <IdentityField label="Heart Signature" value={identity?.email || "Guest Account"} />
-                 <IdentityField label="Account Type" value={identity?.accountType || (user.isAnonymous ? "Guest" : "Member")} highlight />
-                 <IdentityField label="Name" value={identity?.name || user.displayName || "Mystery Heart"} />
-                 <IdentityField label="Language" value={identity?.language || "English"} />
-              </div>
-           </section>
-
-           <div className="grid sm:grid-cols-2 gap-8">
-              <RegistrySection icon="❤️" title="Social" items={["Spark Preferences", "Circle Memberships", "Connections"]} />
-              <RegistrySection icon="🔐" title="Security Center" items={["Device Sessions", "Privacy Settings", "Account Protection"]} />
-           </div>
-        </div>
-      </main>
-
-      <BottomNav />
-    </div>
+    </AuthGuard>
   );
 }
 
