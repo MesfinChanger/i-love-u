@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -44,11 +43,13 @@ import {
 import { useDoc, useCollection } from '@/firebase';
 import Link from 'next/link';
 import { useTranslation } from '@/components/providers/LanguageProvider';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError, type SecurityRuleContext } from '@/firebase/errors';
 
 /**
  * @fileOverview Discovery Hub featuring the Presence Grid Protocol.
  * Profiles are 100% visible and vibrant in both Online and Offline sections.
- * Synchronized with the Match Invitation and Relationship/Block Protocols.
+ * Refactored to emit Contextual Firestore Errors for Permission ripples.
  */
 export default function DiscoverPage() {
   const { user } = useUser();
@@ -86,6 +87,12 @@ export default function DiscoverPage() {
         if (data.userB === user.uid) uids.add(data.userA);
       });
       setBlockedUids(uids);
+    }, async (serverError) => {
+      const permissionError = new FirestorePermissionError({
+        path: 'relationships',
+        operation: 'list',
+      } satisfies SecurityRuleContext);
+      errorEmitter.emit('permission-error', permissionError);
     });
     return () => unsub();
   }, [user?.uid]);
@@ -152,7 +159,7 @@ export default function DiscoverPage() {
     };
   }, [discoveryItems, user?.uid, mounted, presenceOverrides, blockedUids]);
 
-  const handleSparkAction = async (targetId: string, type: 'friend' | 'date') => {
+  const handleSparkAction = (targetId: string, type: 'friend' | 'date') => {
     if (!user) {
       window.dispatchEvent(new CustomEvent('open-auth-gate'));
       return;
@@ -166,37 +173,53 @@ export default function DiscoverPage() {
 
     const participants = [user.uid, targetId].sort();
     const connectionId = participants.join('_');
+    const docRef = doc(db, 'connections', connectionId);
+    const data = {
+      fromUserId: user.uid,
+      toUserId: targetId,
+      status: "pending",
+      type: type === 'date' ? 'spark' : 'friend',
+      createdAt: serverTimestamp(),
+    };
     
-    try {
-      await setDoc(doc(db, 'connections', connectionId), {
-        fromUserId: user.uid,
-        toUserId: targetId,
-        status: "pending",
-        type: type === 'date' ? 'spark' : 'friend',
-        createdAt: serverTimestamp(),
-      }, { merge: true });
-      
-      toast({ title: "Invitation Sent!", description: "Waiting for them to accept. ❤️" });
-    } catch (e) {
-      toast({ variant: "destructive", title: "Action Failed", description: "Respectful invitation could not be sent." });
-    }
+    setDoc(docRef, data, { merge: true })
+      .then(() => {
+        toast({ title: "Invitation Sent!", description: "Waiting for them to accept. ❤️" });
+      })
+      .catch(async (serverError) => {
+        const permissionError = new FirestorePermissionError({
+          path: docRef.path,
+          operation: 'write',
+          requestResourceData: data,
+        } satisfies SecurityRuleContext);
+        errorEmitter.emit('permission-error', permissionError);
+      });
   };
 
-  const handleBlockAction = async (targetId: string) => {
+  const handleBlockAction = (targetId: string) => {
     if (!user || !db) return;
     const participants = [user.uid, targetId].sort();
     const relationshipId = participants.join('_');
-    try {
-      await setDoc(doc(db, 'relationships', relationshipId), {
-        userA: participants[0],
-        userB: participants[1],
-        status: "blocked",
-        createdAt: serverTimestamp(),
+    const docRef = doc(db, 'relationships', relationshipId);
+    const data = {
+      userA: participants[0],
+      userB: participants[1],
+      status: "blocked",
+      createdAt: serverTimestamp(),
+    };
+
+    setDoc(docRef, data)
+      .then(() => {
+        toast({ title: "Heart Blocked", description: "This profile will no longer appear in your feed. ✨" });
+      })
+      .catch(async (serverError) => {
+        const permissionError = new FirestorePermissionError({
+          path: docRef.path,
+          operation: 'create',
+          requestResourceData: data,
+        } satisfies SecurityRuleContext);
+        errorEmitter.emit('permission-error', permissionError);
       });
-      toast({ title: "Heart Blocked", description: "This profile will no longer appear in your feed. ✨" });
-    } catch (e) {
-      toast({ variant: "destructive", title: "Error", description: "Could not complete block protocol." });
-    }
   };
 
   if (!mounted || (usersLoading && db)) return (

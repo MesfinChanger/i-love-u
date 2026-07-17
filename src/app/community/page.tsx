@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
@@ -20,10 +19,13 @@ import { moderateText } from '@/ai/flows/moderate-text-flow';
 import { useToast } from '@/hooks/use-toast';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { cn } from '@/lib/utils';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError, type SecurityRuleContext } from '@/firebase/errors';
 
 /**
  * @fileOverview Global Wall module synchronized with the Community Message Protocol.
  * Refactored to strictly use authorId, text, and createdAt fields.
+ * Refactored to emit Contextual Firestore Errors for Permission ripples.
  */
 export default function CommunityPage() {
   const { user } = useUser();
@@ -70,14 +72,29 @@ export default function CommunityPage() {
         return;
       }
 
-      // Strictly adhere to requested schema: authorId, text, createdAt
-      await addDoc(collection(db, 'communityMessages'), {
+      const collectionRef = collection(db, 'communityMessages');
+      const data = {
         authorId: user.uid,
         text: newMessage.trim(),
         createdAt: serverTimestamp(),
-      });
-      setNewMessage('');
-    } finally {
+      };
+
+      // Non-blocking write with Contextual Catch
+      addDoc(collectionRef, data)
+        .then(() => {
+          setNewMessage('');
+          setIsSending(false);
+        })
+        .catch(async (serverError) => {
+          const permissionError = new FirestorePermissionError({
+            path: collectionRef.path,
+            operation: 'create',
+            requestResourceData: data,
+          } satisfies SecurityRuleContext);
+          errorEmitter.emit('permission-error', permissionError);
+          setIsSending(false);
+        });
+    } catch (e) {
       setIsSending(false);
     }
   };

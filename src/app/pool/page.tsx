@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -29,10 +28,13 @@ import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { useTranslation } from '@/components/providers/LanguageProvider';
 import { cn } from '@/lib/utils';
 import { ideaCategories } from '@/constants/categories';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError, type SecurityRuleContext } from '@/firebase/errors';
 
 /**
  * @fileOverview Prosperity Pool with Topic Access Control Protocol.
  * Refactored to utilize the standardized Idea Category Registry.
+ * Refactored to emit Contextual Firestore Errors for Permission ripples.
  */
 
 export default function ProsperityPoolPage() {
@@ -121,7 +123,8 @@ export default function ProsperityPoolPage() {
         return;
       }
 
-      await addDoc(collection(db, 'ideaPool'), {
+      const collectionRef = collection(db, 'ideaPool');
+      const data = {
         authorId: user.uid,
         category: selectedTopic,
         title: title.trim(),
@@ -130,12 +133,26 @@ export default function ProsperityPoolPage() {
         likesCount: 0,
         commentsCount: 0,
         createdAt: serverTimestamp(),
-      });
+      };
 
-      setTitle('');
-      setNewThought('');
-      toast({ title: "Thought Launched", description: "Your spark is now swimming in the pool! ✨" });
-    } finally {
+      // Non-blocking write with Contextual Catch
+      addDoc(collectionRef, data)
+        .then(() => {
+          setTitle('');
+          setNewThought('');
+          setIsSending(false);
+          toast({ title: "Thought Launched", description: "Your spark is now swimming in the pool! ✨" });
+        })
+        .catch(async (serverError) => {
+          const permissionError = new FirestorePermissionError({
+            path: collectionRef.path,
+            operation: 'create',
+            requestResourceData: data,
+          } satisfies SecurityRuleContext);
+          errorEmitter.emit('permission-error', permissionError);
+          setIsSending(false);
+        });
+    } catch (e) {
       setIsSending(false);
     }
   };
