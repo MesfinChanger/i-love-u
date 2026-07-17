@@ -3,12 +3,12 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { auth, db } from '@/firebase';
+import { auth } from '@/firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
-import { Heart, Loader2, ArrowLeft, ShieldCheck, AtSign, Lock } from 'lucide-react';
+import { Heart, Loader2, AtSign, Lock } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@/firebase';
@@ -21,6 +21,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     if (user && !authLoading) {
@@ -33,10 +34,13 @@ export default function LoginPage() {
     if (!email || !password || !auth) return;
     
     setIsLoading(true);
+    setError('');
     try {
       await signInWithEmailAndPassword(auth, email.trim(), password);
       toast({ title: "Welcome Back", description: "Identity synchronized. ❤️" });
-    } catch (error: any) {
+      router.push('/dashboard');
+    } catch (err: any) {
+      setError(err.message);
       toast({ 
         variant: "destructive", 
         title: "Access Ripple", 
@@ -51,10 +55,10 @@ export default function LoginPage() {
 
   return (
     <main className="min-h-screen flex items-center justify-center p-6 bg-muted/30">
-      <div className="w-full max-w-md space-y-8">
+      <div className="w-full max-w-md space-y-8 animate-in fade-in zoom-in-95 duration-700">
         <div className="text-center space-y-4">
           <Heart className="w-12 h-12 text-primary fill-primary mx-auto animate-heartbeat" />
-          <h1 className="text-4xl font-bold tracking-tighter uppercase">🔐 Sign In</h1>
+          <h1 className="text-4xl font-black tracking-tighter uppercase">🔐 Sign In</h1>
           <p className="text-muted-foreground font-medium italic">Identify your heart and continue the mission.</p>
         </div>
 
@@ -83,6 +87,11 @@ export default function LoginPage() {
                   required
                 />
               </div>
+              
+              {error && (
+                <p className="text-[10px] text-red-500 font-bold uppercase tracking-tight ml-2">{error}</p>
+              )}
+
               <Button 
                 type="submit" 
                 disabled={isLoading} 

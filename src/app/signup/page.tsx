@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -12,10 +13,6 @@ import { Heart, Loader2, Sparkles, AtSign, Lock, ShieldCheck } from "lucide-reac
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 
-/**
- * @fileOverview High-Fidelity Signup Gateway.
- * Orchestrates the creation of permanent heart identities and cloud profile synchronization.
- */
 export default function SignupPage() {
   const router = useRouter();
   const { toast } = useToast();
