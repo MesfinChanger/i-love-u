@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "UserProfile": {
@@ -32,6 +33,29 @@
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["fromUserId", "toUserId", "message", "status", "createdAt"]
+    },
+    "SparkConnection": {
+      "title": "Heart Connection",
+      "description": "An established bond between two community members.",
+      "type": "object",
+      "properties": {
+        "userIds": { "type": "array", "items": { "type": "string" } },
+        "status": { "type": "string", "enum": ["active", "ended"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userIds", "status", "createdAt"]
+    },
+    "Conversation": {
+      "title": "Secured Conversation",
+      "description": "A private interaction space for matched hearts.",
+      "type": "object",
+      "properties": {
+        "participants": { "type": "array", "items": { "type": "string" } },
+        "type": { "type": "string", "enum": ["spark", "friend", "group"] },
+        "connectionId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["participants", "type", "createdAt"]
     }
   },
   "auth": {
@@ -40,6 +64,8 @@
   "firestore": {
     "/users/{userId}": { "schema": "UserProfile", "description": "Private heart identities" },
     "/sparkProfiles/{userId}": { "schema": "UserProfile", "description": "Public discovery profiles" },
-    "/sparkGreetings/{greetingId}": { "schema": "SparkGreeting", "description": "Community outreach interactions" }
+    "/sparkGreetings/{greetingId}": { "schema": "SparkGreeting", "description": "Community outreach interactions" },
+    "/sparkConnections/{connectionId}": { "schema": "SparkConnection", "description": "Active community bonds" },
+    "/conversations/{conversationId}": { "schema": "Conversation", "description": "Secured private interaction spaces" }
   }
 }
