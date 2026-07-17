@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from "next/link";
@@ -17,7 +16,7 @@ const menu = [
   { name: "🛒 Shopping", path: "/shopping" },
   { name: "💡 Ideas", path: "/ideas" },
   { name: "💬 Messages", path: "/messages" },
-  { name: "👤 Profile", path: "/profile" }
+  { name: "👤 Identity Hub", path: "/identity" }
 ];
 
 export default function MainNavigation() {

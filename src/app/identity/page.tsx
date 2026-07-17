@@ -237,7 +237,7 @@ export default function IdentityHubPage() {
 
   return (
 
-    <main className="p-6 space-y-6">
+    <main className="p-6 space-y-6 pb-24">
 
 
 
@@ -249,7 +249,7 @@ export default function IdentityHubPage() {
 
 
 
-      <p className="text-gray-600">
+      <p className="text-gray-600 font-medium italic">
 
         Your personal, social, learning,
         professional and impact identity.
@@ -261,7 +261,7 @@ export default function IdentityHubPage() {
 
       {/* Personal Identity */}
 
-      <section className="rounded-2xl border p-5">
+      <section className="rounded-2xl border p-5 bg-white shadow-sm">
 
 
         <h2 className="text-2xl font-semibold">
@@ -276,7 +276,7 @@ export default function IdentityHubPage() {
 
           <p>
 
-          Name:
+          <span className="font-bold uppercase text-[10px] text-slate-400">Name:</span>
           {" "}
           {identity?.name}
 
@@ -285,7 +285,7 @@ export default function IdentityHubPage() {
 
           <p>
 
-          Email:
+          <span className="font-bold uppercase text-[10px] text-slate-400">Email:</span>
           {" "}
           {identity?.email}
 
@@ -294,7 +294,7 @@ export default function IdentityHubPage() {
 
           <p>
 
-          Language:
+          <span className="font-bold uppercase text-[10px] text-slate-400">Language:</span>
           {" "}
           {identity?.language}
 
@@ -311,7 +311,7 @@ export default function IdentityHubPage() {
 
       {/* Social Identity */}
 
-      <section className="rounded-2xl border p-5">
+      <section className="rounded-2xl border p-5 bg-white shadow-sm">
 
 
         <h2 className="text-2xl font-semibold">
@@ -321,7 +321,7 @@ export default function IdentityHubPage() {
         </h2>
 
 
-        <ul className="mt-3 space-y-2">
+        <ul className="mt-3 space-y-2 font-medium">
 
           <li>
           ❤️ Spark Preferences
@@ -346,7 +346,7 @@ export default function IdentityHubPage() {
 
       {/* Learning Identity */}
 
-      <section className="rounded-2xl border p-5">
+      <section className="rounded-2xl border p-5 bg-white shadow-sm">
 
 
         <h2 className="text-2xl font-semibold">
@@ -356,7 +356,7 @@ export default function IdentityHubPage() {
         </h2>
 
 
-        <ul className="mt-3 space-y-2">
+        <ul className="mt-3 space-y-2 font-medium">
 
           <li>
           📚 Courses
@@ -381,7 +381,7 @@ export default function IdentityHubPage() {
 
       {/* Professional Identity */}
 
-      <section className="rounded-2xl border p-5">
+      <section className="rounded-2xl border p-5 bg-white shadow-sm">
 
 
         <h2 className="text-2xl font-semibold">
@@ -391,7 +391,7 @@ export default function IdentityHubPage() {
         </h2>
 
 
-        <ul className="mt-3 space-y-2">
+        <ul className="mt-3 space-y-2 font-medium">
 
           <li>
           🚀 Projects
@@ -417,7 +417,7 @@ export default function IdentityHubPage() {
 
       {/* Impact Identity */}
 
-      <section className="rounded-2xl border p-5">
+      <section className="rounded-2xl border p-5 bg-white shadow-sm">
 
 
         <h2 className="text-2xl font-semibold">
@@ -427,7 +427,7 @@ export default function IdentityHubPage() {
         </h2>
 
 
-        <ul className="mt-3 space-y-2">
+        <ul className="mt-3 space-y-2 font-medium">
 
           <li>
           🤲 Volunteer Activities
@@ -453,7 +453,7 @@ export default function IdentityHubPage() {
 
       {/* Security */}
 
-      <section className="rounded-2xl border p-5">
+      <section className="rounded-2xl border p-5 bg-white shadow-sm">
 
 
         <h2 className="text-2xl font-semibold">
@@ -463,7 +463,7 @@ export default function IdentityHubPage() {
         </h2>
 
 
-        <ul className="mt-3 space-y-2">
+        <ul className="mt-3 space-y-2 font-medium">
 
           <li>
           Device Sessions

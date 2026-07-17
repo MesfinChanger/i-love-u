@@ -129,7 +129,7 @@ export function Header() {
     { href: '/shopping', name: "🛒 Shopping" },
     { href: '/ideas', name: "💡 Idea Pool" },
     { href: '/messages', name: "💬 Messages" },
-    { href: '/profile', name: "👤 Profile" },
+    { href: '/identity', name: "👤 Identity Hub" },
   ];
 
   return (

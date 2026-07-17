@@ -13,7 +13,7 @@
     "pool": "Idea Pool",
     "matches": "Matches",
     "shop": "Shop",
-    "profile": "Profile"
+    "profile": "Identity Hub"
   },
   "login": {
     "title": "I LOVE U",
@@ -23,5 +23,42 @@
     "launch": "Launch",
     "ageVerify": "I am 18+ years old",
     "respectVerify": "Respect is Mandatory"
+  },
+  "matches": {
+    "title": "My Connections",
+    "subtitle": "Established Sparks",
+    "sparks": "Sparks",
+    "circle": "Circle",
+    "invites": "Invites",
+    "active": "Active",
+    "emptySparks": "No romantic sparks yet.",
+    "emptyCircle": "No cultural connections yet.",
+    "emptyInvites": "No pending invitations."
+  },
+  "search": {
+    "title": "Find Hearts",
+    "subtitle": "Global Search Protocol",
+    "placeholder": "Search by name, interest, or bio...",
+    "searching": "Scanning Frequencies...",
+    "noResults": "No hearts found matching this frequency."
+  },
+  "feedback": {
+    "title": "Mission Feedback",
+    "subtitle": "Confidential Heartbeat Protocol",
+    "placeholder": "How can we improve your prosperity journey? ❤️",
+    "category": "Feedback Type",
+    "mission": "Mission & Impact",
+    "story": "Success Stories",
+    "app": "Platform Experience",
+    "submit": "Send Heartbeat",
+    "successTitle": "Heartbeat Recorded",
+    "successDesc": "Your feedback fuels our global mission."
+  },
+  "shop": {
+    "title": "Gift Marketplace",
+    "subtitle": "Artisan Prosperity Protocol",
+    "searchPlaceholder": "Search gifts...",
+    "sellerPortal": "Seller Portal",
+    "buy": "Buy Now"
   }
 }

@@ -15,7 +15,7 @@ export function BottomNav() {
     { href: '/shopping', emoji: "🛒", label: "Shopping" },
     { href: '/ideas', emoji: "💡", label: "Ideas" },
     { href: '/messages', emoji: "💬", label: "Messages" },
-    { href: '/profile', emoji: "👤", label: "Profile" },
+    { href: '/identity', emoji: "👤", label: "Identity Hub" },
   ];
 
   return (
@@ -35,7 +35,7 @@ export function BottomNav() {
           >
             <Link href={item.href} aria-label={item.label}>
               <span className="text-lg leading-none">{item.emoji}</span>
-              <span className="text-[8px] font-black uppercase tracking-tighter">{item.label}</span>
+              <span className="text-[8px] font-black uppercase tracking-tighter text-center">{item.label}</span>
             </Link>
           </Button>
         );
