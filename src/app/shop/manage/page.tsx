@@ -106,7 +106,7 @@ function SellerManageContent() {
         title: "Verification Required",
         description: "Please complete your Business Address and SSN/TIN in Profile."
       });
-      router.push('/profile?tab=address');
+      router.push('/identity');
       return;
     }
     setIsSubscribing(true);

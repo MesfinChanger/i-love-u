@@ -57,7 +57,7 @@ export default function DashboardPage() {
         <main className="container mx-auto px-6 py-10 max-w-5xl space-y-10">
           <div className="space-y-2">
             <h1 className="text-3xl font-black tracking-tighter uppercase">
-              Hello, <span className="gradient-text">{profile?.name || profile?.displayName || 'Mystery Heart'}</span>
+              Hello, <span className="gradient-text">{profile?.displayName || 'Mystery Heart'}</span>
             </h1>
             <p className="text-muted-foreground font-medium italic">"Your daily heartbeat in the Prosperity Revolution."</p>
           </div>

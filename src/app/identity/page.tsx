@@ -50,7 +50,6 @@ export default function IdentityPage() {
             accountType: currentUser.isAnonymous ? "Guest" : "Member",
             language: "English",
             country: "",
-            skills: [],
             interests: [],
             createdAt: serverTimestamp(),
           };
@@ -106,7 +105,7 @@ export default function IdentityPage() {
                 <div className="mt-8 grid gap-4 sm:grid-cols-2">
                    <IdentityField label="Heart Signature" value={identity?.email || "Guest Account"} />
                    <IdentityField label="Account Type" value={identity?.accountType || (user?.isAnonymous ? "Guest" : "Member")} highlight />
-                   <IdentityField label="Name" value={identity?.name || user?.displayName || "Mystery Heart"} />
+                   <IdentityField label="Name" value={identity?.displayName || user?.displayName || "Mystery Heart"} />
                    <IdentityField label="Language" value={identity?.language || "English"} />
                 </div>
              </section>
