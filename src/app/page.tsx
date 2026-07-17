@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { signInAnonymously } from "firebase/auth";
 import { auth } from "@/lib/firebase";
@@ -17,8 +16,9 @@ import {
 import { Button } from "@/components/ui/button";
 
 /**
- * @fileOverview Welcome Gateway (Restored).
+ * @fileOverview Welcome Gateway.
  * A clean, light, and professional entry point for the Prosperity Revolution.
+ * Restored to original proportions with balanced typography.
  */
 export default function WelcomePage() {
   const router = useRouter();
@@ -44,8 +44,8 @@ export default function WelcomePage() {
       <div className="max-w-2xl w-full space-y-12 text-center animate-in fade-in zoom-in-95 duration-700">
         <div className="space-y-6">
           <div className="flex justify-center">
-            <div className="w-24 h-24 bg-white rounded-[2.5rem] flex items-center justify-center shadow-xl ring-4 ring-primary/5">
-              <Heart className="w-12 h-12 text-primary fill-primary animate-heartbeat" />
+            <div className="w-20 h-20 bg-white rounded-[2rem] flex items-center justify-center shadow-xl ring-4 ring-primary/5">
+              <Heart className="w-10 h-10 text-primary fill-primary animate-heartbeat" />
             </div>
           </div>
           
@@ -64,13 +64,13 @@ export default function WelcomePage() {
         </div>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button asChild className="h-18 px-10 rounded-2xl gradient-bg font-black uppercase text-xs shadow-xl shadow-primary/20 active:scale-95 transition-all gap-2 border-none">
+          <Button asChild className="h-16 px-10 rounded-2xl gradient-bg font-black uppercase text-xs shadow-xl shadow-primary/20 active:scale-95 transition-all gap-2 border-none">
             <Link href="/signup">
               <UserPlus className="w-4 h-4" />
               Join Mission
             </Link>
           </Button>
-          <Button asChild variant="outline" className="h-18 px-10 rounded-2xl bg-white border-2 border-slate-100 text-slate-900 hover:bg-slate-50 font-black uppercase text-xs shadow-sm active:scale-95 transition-all gap-2">
+          <Button asChild variant="outline" className="h-16 px-10 rounded-2xl bg-white border-2 border-slate-100 text-slate-900 hover:bg-slate-50 font-black uppercase text-xs shadow-sm active:scale-95 transition-all gap-2">
             <Link href="/login">
               <LogIn className="w-4 h-4 text-primary" />
               Sign In
