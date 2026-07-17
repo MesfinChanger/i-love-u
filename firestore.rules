@@ -27,6 +27,7 @@ service cloud.firestore {
     match /sparkGreetings/{greetingId} {
       allow create: if request.auth != null && request.auth.uid == request.resource.data.fromUserId;
       allow read: if request.auth != null && (request.auth.uid == resource.data.fromUserId || request.auth.uid == resource.data.toUserId);
+      allow update: if request.auth != null && request.auth.uid == resource.data.toUserId;
     }
 
     // Default catch-all rules for other collections
