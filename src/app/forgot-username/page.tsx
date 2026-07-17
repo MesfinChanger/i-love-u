@@ -3,8 +3,6 @@
 import { useState } from "react";
 import { collection, query, where, getDocs, limit } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { Header } from "@/components/Header";
-import { BottomNav } from "@/components/BottomNav";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -49,7 +47,9 @@ export default function ForgotUsernamePage() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-muted/30 pb-24 items-center justify-center p-6">
+    <div className="flex flex-col min-h-screen bg-muted/30 items-center justify-center p-6 relative overflow-hidden">
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-3xl -z-10" />
+
       <div className="w-full max-w-md space-y-8 animate-in fade-in zoom-in-95 duration-700">
         <div className="text-center space-y-4">
           <Heart className="w-16 h-16 fill-primary text-primary mx-auto animate-heartbeat" />

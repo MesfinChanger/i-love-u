@@ -34,7 +34,6 @@ import Link from 'next/link';
 /**
  * @fileOverview Seller Management Console.
  * Orchestrates subscription management and high-fidelity artisan storefronts.
- * Fixed JSX tag synchronization for build stability.
  */
 function SellerManageContent() {
   const { user } = useUser();
@@ -95,15 +94,6 @@ function SellerManageContent() {
       localStorage.setItem(`shop_draft_${user.uid}`, JSON.stringify(draft));
     }
   }, [shopName, shopDesc, user?.uid, mounted]);
-
-  useEffect(() => {
-    if (searchParams.get('success')) {
-      toast({
-        title: "Subscription Active",
-        description: "Welcome to the I Love U Seller community! ✨",
-      });
-    }
-  }, [searchParams, toast]);
 
   const isApprovedSeller = profile?.isSeller && profile?.sellerStatus === 'approved';
   const sellerStatus = profile?.sellerStatus || 'none';
