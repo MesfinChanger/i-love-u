@@ -30,11 +30,14 @@ service cloud.firestore {
 
     match /sparkProfiles/{userId} {
 
-      allow read, create, update:
+      allow read:
+        if request.auth != null && (resource.data.visibility == "public" || request.auth.uid == userId);
+
+      allow create:
         if request.auth != null && request.auth.uid == userId;
 
-      allow delete:
-        if request.auth.uid == userId;
+      allow update, delete:
+        if request.auth != null && request.auth.uid == userId;
 
     }
 
