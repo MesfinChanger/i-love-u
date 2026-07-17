@@ -1,21 +1,16 @@
-
-import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
-import { getStorage } from "firebase/storage";
-import { firebaseConfig } from "./config";
-
 /**
- * @fileOverview High-Fidelity Firebase Initialization.
- * Directly exports auth, db, and storage instances for platform-wide synchronization.
+ * @fileOverview High-Fidelity Firebase Initialization Proxy.
+ * Synchronized with the lib/firebase persistence protocol.
  */
 
-const app = initializeApp(firebaseConfig);
+import { app, auth, db, storage } from "@/lib/firebase";
 
-export const auth = getAuth(app);
-export const db = getFirestore(app);
-export const storage = getStorage(app);
+export { app, auth, db, storage };
 
+/**
+ * Universal Initialization Protocol.
+ * Returns the active instances for platform-wide synchronization.
+ */
 export function initializeFirebase() {
   return { app, auth, db, storage };
 }

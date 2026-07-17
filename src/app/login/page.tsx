@@ -137,14 +137,12 @@ function LoginContent() {
               role: 'member',
               policyAccepted: true,
               
-              // Personality Layer Default
               bio: "New heart joining the revolution.",
               languages: [language],
               interests: [],
               hobbies: [],
               values: [],
               
-              // Discovery Layer Default
               datingGoal: 'exploring',
               preferredAgeRange: '18-99',
               preferredCountries: country ? [country] : [],
@@ -193,14 +191,18 @@ function LoginContent() {
     if (!auth) return;
     setIsLoading(true);
     try {
-      const res = await signInAnonymously(auth);
+      const result = await signInAnonymously(auth);
+      
+      // Guest Verification Heartbeat
+      console.log("Guest Login Success:", result.user.uid);
+
       if (db) {
-         await setDoc(doc(db, 'users', res.user.uid), {
-           uid: res.user.uid,
-           userId: res.user.uid,
+         await setDoc(doc(db, 'users', result.user.uid), {
+           uid: result.user.uid,
+           userId: result.user.uid,
            accountType: 'guest',
            status: 'active',
-           username: `Guest_${res.user.uid.slice(0, 5)}`,
+           username: `Guest_${result.user.uid.slice(0, 5)}`,
            displayName: 'Guest Heart',
            createdAt: serverTimestamp(),
            lastLogin: serverTimestamp()
@@ -208,6 +210,7 @@ function LoginContent() {
       }
       toast({ title: "Guest Session Launched", description: "Welcome! ❤️" });
     } catch (error: any) {
+      console.error("Guest access error:", error);
       toast({ variant: "destructive", title: "Guest Access Ripple", description: "Could not launch guest session." });
     } finally {
       setIsLoading(false);
@@ -289,6 +292,14 @@ function LoginContent() {
                     </div>
                     <Button onClick={handleAuth} disabled={isLoading || !email || !password} className="w-full h-16 rounded-[1.8rem] font-black uppercase tracking-[0.2em] text-xs shadow-xl transition-all active:scale-95 gradient-bg shadow-primary/20">
                       {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Launch Spark'}
+                    </Button>
+                    <div className="relative flex items-center gap-4">
+                       <div className="flex-grow h-px bg-slate-100" />
+                       <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest">or</span>
+                       <div className="flex-grow h-px bg-slate-100" />
+                    </div>
+                    <Button variant="outline" onClick={handleGuestLogin} disabled={isLoading} className="w-full h-14 rounded-2xl border-2 font-black uppercase text-[9px] tracking-widest gap-2">
+                       <Ghost className="w-4 h-4" /> Explore as Guest
                     </Button>
                   </div>
                 )}
