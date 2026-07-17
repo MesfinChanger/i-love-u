@@ -40,7 +40,7 @@ export default function CreateProductPage() {
     category: "",
     price: "",
     currency: "USD",
-    inventory: "10"
+    inventory: ""
   });
 
   async function saveProduct() {

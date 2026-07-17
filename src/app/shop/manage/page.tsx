@@ -79,7 +79,7 @@ function SellerManageContent() {
   }, [db, user]);
   const { data: myProducts, loading: productsLoading } = useCollection(productsQuery);
 
-  // Hold Protocol: Load Draft
+  // Hold Protocol: Load Draft with JSON resilience
   useEffect(() => {
     setMounted(true);
     if (user?.uid) {
