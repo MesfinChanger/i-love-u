@@ -33,8 +33,7 @@ import { FirestorePermissionError, type SecurityRuleContext } from '@/firebase/e
 
 /**
  * @fileOverview Prosperity Pool with Topic Access Control Protocol.
- * Refactored to utilize the standardized Idea Category Registry.
- * Refactored to emit Contextual Firestore Errors for Permission ripples.
+ * Refactored to utilize visually balanced headings.
  */
 
 export default function ProsperityPoolPage() {
@@ -97,20 +96,12 @@ export default function ProsperityPoolPage() {
     if (!title.trim() || !newThought.trim() || !db || isSending) return;
     
     if (isInteractionRestricted) {
-      toast({ 
-        variant: "destructive", 
-        title: "Access Restricted", 
-        description: "Commercial users must commit to the Respect Protocol first. ❤️" 
-      });
+      toast({ variant: "destructive", title: "Access Restricted", description: "Agreement required. ❤️" });
       return;
     }
 
     if (!checkAccess(selectedTopic)) {
-      toast({ 
-        variant: "destructive", 
-        title: "Access Denied", 
-        description: `Your profile status is insufficient for the ${selectedTopic} pool. ✨` 
-      });
+      toast({ variant: "destructive", title: "Access Denied", description: "Status insufficient. ✨" });
       return;
     }
 
@@ -135,13 +126,12 @@ export default function ProsperityPoolPage() {
         createdAt: serverTimestamp(),
       };
 
-      // Non-blocking write with Contextual Catch
       addDoc(collectionRef, data)
         .then(() => {
           setTitle('');
           setNewThought('');
           setIsSending(false);
-          toast({ title: "Thought Launched", description: "Your spark is now swimming in the pool! ✨" });
+          toast({ title: "Thought Launched", description: "Spark synchronized! ✨" });
         })
         .catch(async (serverError) => {
           const permissionError = new FirestorePermissionError({
@@ -163,18 +153,18 @@ export default function ProsperityPoolPage() {
     <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
       <Header />
       
-      <section className="relative overflow-hidden bg-slate-900 py-20 px-6 text-white text-center">
+      <section className="relative overflow-hidden bg-slate-900 py-16 px-6 text-white text-center">
          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-blue-900/40 via-transparent to-transparent pointer-events-none" />
-         <div className="max-w-4xl mx-auto space-y-8 relative z-10">
-            <div className="w-48 h-48 bg-blue-500/10 backdrop-blur-3xl rounded-[4rem] flex items-center justify-center mx-auto border-4 border-blue-400/20 animate-pulse shadow-[0_0_80px_-10px_rgba(59,130,246,0.3)]">
-               <Waves className="w-24 h-24 text-blue-400 drop-shadow-[0_0_20px_rgba(59,130,246,0.5)]" />
+         <div className="max-w-4xl mx-auto space-y-6 relative z-10">
+            <div className="w-24 h-24 bg-blue-500/10 backdrop-blur-3xl rounded-[2rem] flex items-center justify-center mx-auto border-2 border-blue-400/20 animate-pulse">
+               <Waves className="w-10 h-10 text-blue-400" />
             </div>
-            <div className="space-y-4">
-              <h1 className="text-5xl md:text-8xl font-black tracking-tighter uppercase leading-none">
+            <div className="space-y-2">
+              <h1 className="text-3xl md:text-5xl font-black tracking-tighter uppercase leading-none">
                  Prosperity <span className="text-blue-400">Pool</span>
               </h1>
-              <p className="text-xl md:text-2xl text-white/60 font-medium italic leading-relaxed max-w-2xl mx-auto">
-                 "Dive into the global consciousness. Access to specific depths is granted based on your profile status."
+              <p className="text-lg text-white/60 font-medium italic max-w-lg mx-auto">
+                 "Dive into the global consciousness."
               </p>
             </div>
          </div>
@@ -203,7 +193,6 @@ export default function ProsperityPoolPage() {
                                 selectedTopic === topic.value ? "bg-slate-900 text-white border-slate-900 shadow-lg" : "hover:bg-slate-50 border-slate-100",
                                 !hasAccess && "opacity-40 grayscale cursor-not-allowed bg-slate-50"
                               )}
-                              title={topic.description}
                             >
                                {!hasAccess && <Lock className="absolute top-1 right-1 w-2.5 h-2.5 text-slate-400" />}
                                <span className="text-lg">{topic.icon}</span>
@@ -212,37 +201,17 @@ export default function ProsperityPoolPage() {
                           );
                        })}
                     </div>
-
                     <div className="space-y-2">
                       <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Title</Label>
-                      <Input 
-                        value={title}
-                        onChange={e => setTitle(e.target.value)}
-                        placeholder="Concise headline..."
-                        className="h-12 rounded-xl bg-muted/20 border-none font-bold"
-                        disabled={isInteractionRestricted || !checkAccess(selectedTopic)}
-                      />
+                      <Input value={title} onChange={e => setTitle(e.target.value)} placeholder="Concise headline..." className="h-12 rounded-xl bg-muted/20 border-none font-bold" />
                     </div>
-
                     <div className="space-y-2">
                       <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Content</Label>
-                      <Textarea 
-                        value={newThought}
-                        onChange={e => setNewThought(e.target.value)}
-                        placeholder={isInteractionRestricted ? "Commercial Approval Required" : "Deep dive into your thought..."}
-                        className="min-h-[140px] rounded-[1.5rem] border-none bg-muted/40 p-5 font-medium italic text-sm"
-                        disabled={isInteractionRestricted || !checkAccess(selectedTopic)}
-                      />
+                      <Textarea value={newThought} onChange={e => setNewThought(e.target.value)} placeholder="Deep dive into your thought..." className="min-h-[140px] rounded-[1.5rem] border-none bg-muted/40 p-5 font-medium italic text-sm" />
                     </div>
                  </div>
-                 
-                 <Button 
-                   onClick={handlePostThought}
-                   disabled={isSending || !title.trim() || !newThought.trim() || isInteractionRestricted || !checkAccess(selectedTopic)}
-                   className="w-full h-14 rounded-2xl gradient-bg font-black uppercase text-xs tracking-widest shadow-xl gap-3"
-                 >
-                   {isSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
-                   Launch Thought
+                 <Button onClick={handlePostThought} disabled={isSending || !title.trim() || !newThought.trim()} className="w-full h-14 rounded-2xl gradient-bg font-black uppercase text-xs tracking-widest shadow-xl">
+                   {isSending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Launch Thought"}
                  </Button>
               </CardContent>
            </Card>
@@ -250,44 +219,22 @@ export default function ProsperityPoolPage() {
 
         <div className="lg:col-span-8 space-y-8">
            <div className="flex items-center justify-between overflow-x-auto no-scrollbar gap-2 pb-2">
-              <Button 
-                variant={activeTopic === 'All' ? 'default' : 'ghost'} 
-                onClick={() => setActiveTopic('All')}
-                className="rounded-full font-black uppercase text-[10px] tracking-widest h-10 px-6 shrink-0"
-              >
-                The Whole Pool
-              </Button>
+              <Button variant={activeTopic === 'All' ? 'default' : 'ghost'} onClick={() => setActiveTopic('All')} className="rounded-full font-black uppercase text-[10px] tracking-widest h-10 px-6 shrink-0">The Whole Pool</Button>
               {ideaCategories.map(topic => (
-                 <Button 
-                   key={topic.value} 
-                   variant={activeTopic === topic.value ? 'default' : 'ghost'} 
-                   onClick={() => setActiveTopic(topic.value)}
-                   className="rounded-full font-black uppercase text-[10px] tracking-widest h-10 px-6 shrink-0 gap-2"
-                 >
-                   <span>{topic.icon}</span>
-                   {topic.name}
+                 <Button key={topic.value} variant={activeTopic === topic.value ? 'default' : 'ghost'} onClick={() => setActiveTopic(topic.value)} className="rounded-full font-black uppercase text-[10px] tracking-widest h-10 px-6 shrink-0 gap-2">
+                   <span>{topic.icon}</span> {topic.name}
                  </Button>
               ))}
            </div>
-
            <div className="space-y-6">
               {loading ? (
-                <div className="flex flex-col items-center justify-center py-24 opacity-20">
-                   <Loader2 className="w-12 h-12 animate-spin text-blue-500" />
-                </div>
+                <div className="flex flex-col items-center justify-center py-24 opacity-20"><Loader2 className="w-12 h-12 animate-spin text-blue-500" /></div>
               ) : thoughts?.map((thought: any) => (
                 <PoolPostCard key={thought.id} post={thought} />
               ))}
-              {!loading && thoughts?.length === 0 && (
-                <div className="flex flex-col items-center justify-center py-32 text-center opacity-20">
-                   <Waves className="w-16 h-16 mb-4" />
-                   <p className="text-sm font-black uppercase tracking-widest">Quiet waters. Be the first to launch a thought.</p>
-                </div>
-              )}
            </div>
         </div>
       </main>
-
       <BottomNav />
     </div>
   );
@@ -303,44 +250,21 @@ function PoolPostCard({ post }: { post: any }) {
        <div className="p-8 space-y-6">
           <div className="flex items-center justify-between">
              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-500 font-black">
-                   {author?.username?.[0] || author?.displayName?.[0] || 'H'}
+                <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-500 font-black">
+                   {author?.username?.[0] || 'H'}
                 </div>
                 <div className="text-left leading-none">
-                   <h4 className="font-black text-lg tracking-tight text-slate-900">{author?.username || author?.displayName || "Mystery Heart"}</h4>
-                   <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mt-1">
-                     {author?.profession || "Community Diver"}
-                   </p>
+                   <h4 className="font-black text-lg tracking-tight text-slate-900">{author?.username || "Mystery Heart"}</h4>
+                   <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mt-1">Community Diver</p>
                 </div>
              </div>
              <Badge className="border-none px-4 h-7 text-[9px] font-black uppercase tracking-widest gap-2 bg-blue-50 text-blue-600">
-                <span>{categoryInfo.icon}</span>
-                {categoryInfo.name}
+                <span>{categoryInfo.icon}</span> {categoryInfo.name}
              </Badge>
           </div>
-
-          <div className="space-y-3">
-            <h3 className="text-2xl font-black tracking-tighter text-slate-900">{post.title}</h3>
-            <p className="text-lg font-medium text-slate-600 leading-relaxed italic border-l-4 border-blue-500/10 pl-6">
-               "{post.content}"
-            </p>
-          </div>
-
-          <div className="flex items-center justify-between pt-6 border-t border-dashed">
-            <div className="flex items-center gap-6">
-              <div className="flex items-center gap-1.5 text-slate-400">
-                <ThumbsUp className="w-4 h-4" />
-                <span className="text-[10px] font-bold">{post.likesCount || 0}</span>
-              </div>
-              <div className="flex items-center gap-1.5 text-slate-400">
-                <MessageSquare className="w-4 h-4" />
-                <span className="text-[10px] font-bold">{post.commentsCount || 0}</span>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 text-muted-foreground/30">
-               <Clock className="w-3.5 h-3.5" />
-               <span className="text-[10px] font-bold uppercase tracking-widest">Synchronized in Pool</span>
-            </div>
+          <div className="space-y-2">
+            <h3 className="text-xl font-bold tracking-tighter text-slate-900">{post.title}</h3>
+            <p className="text-base font-medium text-slate-600 italic border-l-4 border-blue-500/10 pl-6">"{post.content}"</p>
           </div>
        </div>
     </Card>
