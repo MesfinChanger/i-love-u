@@ -1,97 +1,60 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "@/lib/firebase";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
 import { 
   Heart, 
-  Loader2, 
   KeyRound, 
-  Sparkles, 
   ShieldCheck, 
-  ArrowLeft,
-  AlertTriangle,
-  Clock,
-  CheckCircle2
+  ArrowLeft, 
+  Sparkles, 
+  Loader2,
+  AlertTriangle
 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 /**
- * @fileOverview Identity Recovery Protocol (Password Reset).
- * Securely dispatches access restoration links to confirmed heart email signatures.
- * Includes high-fidelity debugging to identify reset ripples.
+ * @fileOverview Secure Recovery Protocol.
+ * Dispatches reset links with high-fidelity debugging for identity restoration.
  */
 export default function ForgotPasswordPage() {
-  const { toast } = useToast();
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [currentYear, setCurrentYear] = useState("");
-
-  useEffect(() => {
-    setCurrentYear(new Date().getFullYear().toString());
-  }, []);
 
   async function handleReset(e: React.FormEvent) {
     e.preventDefault();
-    const cleanEmail = email.trim();
-
-    if (!cleanEmail) {
-      toast({ 
-        variant: "destructive", 
-        title: "Signature Required", 
-        description: "Please enter your registered heart email. ❤️" 
-      });
-      return;
-    }
-
     setMessage("");
     setError("");
     setLoading(true);
 
     try {
-      // Identity Protocol: Dispatch reset request to Firebase Cloud
-      await sendPasswordResetEmail(auth, cleanEmail);
-      
+      await sendPasswordResetEmail(auth, email);
       setMessage("Password reset link sent. Please check your email inbox and spam folder. ❤️");
-      toast({ 
-        title: "Email Dispatched ✨", 
-        description: "Your recovery path is waiting in your inbox." 
-      });
-    } catch (error: any) {
-      // RESET DEBUGGING PROTOCOL: Log ripples to the console for analysis
-      console.log("RESET ERROR CODE:", error.code);
-      console.log("RESET ERROR MESSAGE:", error.message);
+    } catch (err: any) {
+      // RESET DEBUGGING PROTOCOL: Surface ripples to the console for analysis
+      console.log("RESET ERROR CODE:", err.code);
+      console.log("RESET ERROR MESSAGE:", err.message);
 
-      setError(error.code + " : " + error.message);
-      
-      let friendlyTitle = "Access Ripple";
-      let friendlyDesc = "We encountered a ripple in the recovery protocol. ❤️";
-
-      if (error.code === 'auth/user-not-found') {
-        friendlyDesc = "No heart signature found with this email. ✨";
-      } else if (error.code === 'auth/too-many-requests') {
-        friendlyDesc = "Too many attempts. Please wait a heartbeat and try again. ⏳";
+      if (err.code === "auth/user-not-found") {
+        setError("No account exists with this email signature. ✨");
+      } else if (err.code === "auth/invalid-email") {
+        setError("Please enter a valid email address. ❤️");
+      } else {
+        setError(err.code + " : " + err.message);
       }
-
-      toast({ 
-        variant: "destructive", 
-        title: friendlyTitle, 
-        description: friendlyDesc 
-      });
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center p-6 bg-[#fcfcfc] relative overflow-hidden">
-      {/* Decorative Aura */}
+    <main className="min-h-screen flex items-center justify-center p-6 bg-muted/30 relative overflow-hidden">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-3xl -z-10" />
 
       <div className="w-full max-w-md space-y-8 animate-in fade-in zoom-in-95 duration-700">
@@ -103,30 +66,23 @@ export default function ForgotPasswordPage() {
           <p className="text-muted-foreground font-medium italic">"Restore your secure access path."</p>
         </div>
 
-        <Card className="border-none shadow-[0_30px_100px_-10px_rgba(0,0,0,0.08)] rounded-[3.5rem] overflow-hidden bg-white">
-          <div className="bg-primary/5 p-6 border-b border-primary/10 flex items-center justify-center gap-2">
+        <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
+          <div className="bg-primary/5 p-6 border-b flex items-center justify-center gap-2">
              <ShieldCheck className="w-4 h-4 text-primary" />
              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Secure Access Protocol</p>
           </div>
 
           <CardContent className="p-10 space-y-8">
             {message ? (
-              <div className="text-center space-y-6 animate-in zoom-in-95 duration-500">
-                <div className="w-16 h-16 bg-green-50 rounded-2xl flex items-center justify-center mx-auto border-2 border-dashed border-green-200">
-                   <CheckCircle2 className="w-8 h-8 text-green-500" />
-                </div>
-                <div className="space-y-3">
-                  <p className="text-sm text-green-600 font-bold italic leading-relaxed">
-                    {message}
+              <div className="text-center space-y-6">
+                <p className="text-sm text-green-600 font-bold italic leading-relaxed">{message}</p>
+                <div className="p-4 bg-amber-50 rounded-2xl border border-amber-100 flex items-start gap-3 text-left">
+                  <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                  <p className="text-[10px] text-amber-800 font-black uppercase tracking-tight">
+                    Note: Remember to check your Spam folder.
                   </p>
-                  <div className="p-4 bg-amber-50 rounded-2xl border border-amber-100 flex items-start gap-3 text-left">
-                    <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                    <p className="text-[10px] text-amber-800 font-black uppercase tracking-tight">
-                      Note: Remember to check your <span className="underline">Spam</span> folder and wait up to 60 seconds.
-                    </p>
-                  </div>
                 </div>
-                <Button asChild className="w-full h-16 rounded-2xl gradient-bg font-black uppercase tracking-widest text-[10px] shadow-xl shadow-primary/20">
+                <Button asChild className="w-full h-16 rounded-2xl gradient-bg font-black uppercase text-[10px] tracking-widest shadow-xl shadow-primary/20">
                   <Link href="/login">Return to Sign In</Link>
                 </Button>
               </div>
@@ -138,7 +94,7 @@ export default function ForgotPasswordPage() {
                     type="email" 
                     placeholder="heart@example.com"
                     value={email} 
-                    onChange={(e) => setEmail(e.target.value)} 
+                    onChange={e => setEmail(e.target.value)} 
                     className="h-14 rounded-2xl bg-muted/30 border-none font-bold" 
                     required
                   />
@@ -162,21 +118,16 @@ export default function ForgotPasswordPage() {
                     <p className="text-[9px] text-red-500 font-mono break-all">{error}</p>
                   </div>
                 )}
-
-                <div className="text-center pt-4">
-                  <Link href="/login" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors flex items-center justify-center gap-2">
-                    <ArrowLeft className="w-3 h-3" /> Back to Login
-                  </Link>
-                </div>
               </form>
             )}
+
+            <div className="text-center">
+              <Link href="/login" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors flex items-center justify-center gap-2">
+                <ArrowLeft className="w-3 h-3" /> Back to Login
+              </Link>
+            </div>
           </CardContent>
         </Card>
-
-        <div className="flex items-center justify-center gap-2 opacity-20">
-           <Clock className="w-3.5 h-3.5" />
-           <p className="text-[8px] font-black uppercase tracking-[0.3em]">Identity Hub • © {currentYear}</p>
-        </div>
       </div>
     </main>
   );

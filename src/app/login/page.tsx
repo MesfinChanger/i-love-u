@@ -145,10 +145,6 @@ export default function LoginPage() {
             </div>
           </CardContent>
         </Card>
-        
-        <p className="text-center text-[9px] font-black uppercase tracking-[0.4em] text-slate-300">
-          Respect & Love is Mandatory ❤️ Prosperity Revolution
-        </p>
       </div>
     </main>
   );
