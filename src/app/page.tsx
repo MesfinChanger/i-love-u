@@ -1,60 +1,196 @@
 "use client";
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Heart } from 'lucide-react';
-import { useUser, auth } from '@/firebase';
-import HeroMosaic from '@/components/HeroMosaic';
-import { Header } from '@/components/Header';
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { signInAnonymously } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+import { useState } from "react";
 
-/**
- * @fileOverview Landing Page for the Prosperity Revolution.
- * Refactored typography for Visual Harmony Protocol.
- */
-export default function Home() {
-  const { user } = useUser();
-  const [mounted, setMounted] = useState(false);
 
-  useEffect(() => { 
-    setMounted(true); 
-    if (auth) {
-      console.log("Firebase User Protocol Status:", auth.currentUser);
+export default function WelcomePage() {
+
+  const router = useRouter();
+
+  const [loading, setLoading] = useState(false);
+
+
+  async function handleGuestLogin() {
+
+    try {
+
+      setLoading(true);
+
+
+      const result =
+        await signInAnonymously(auth);
+
+
+      console.log(
+        "Guest Identity:",
+        result.user.uid
+      );
+
+
+      router.push("/dashboard");
+
+
+    } catch(error) {
+
+      console.error(
+        "Guest login error:",
+        error
+      );
+
+    } finally {
+
+      setLoading(false);
+
     }
-  }, []);
 
-  if (!mounted) return <div className="flex items-center justify-center min-h-screen"><Heart className="w-12 h-12 text-primary animate-heartbeat fill-primary" /></div>;
+  }
+
+
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#fcf9f5] overflow-x-hidden">
-      <Header />
-      <main className="flex-grow flex items-center">
-        <section className="container mx-auto px-6 py-10 lg:py-20 max-w-[1440px]">
-          <div className="grid lg:grid-cols-[4fr_6fr] gap-12 items-center min-h-[70vh]">
-            <div className="space-y-8 animate-in fade-in slide-in-from-left-4 duration-1000">
-              <h1 className="text-4xl md:text-5xl font-black leading-[1.2] tracking-tighter text-[#1a2530] uppercase">
-                Spark <span className="text-primary">Love.</span><br />
-                End <span className="text-secondary">Poverty.</span>
-              </h1>
-              <p className="text-lg text-slate-600 leading-relaxed font-medium max-w-md italic">
-                Connecting hearts across every city and village to create opportunities and positive change. Respect is Mandatory. ❤️
-              </p>
-              <div className="flex flex-wrap gap-4 pt-4">
-                <Button size="lg" className="h-16 px-10 rounded-full text-base font-black gradient-bg shadow-2xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all" asChild>
-                  <Link href={user ? "/discover" : "/login"}>Join the Movement</Link>
-                </Button>
-                <Button variant="outline" size="lg" className="h-16 px-10 rounded-full text-base font-bold border border-slate-200 bg-white" asChild>
-                  <Link href="/donate">Watch Our Story</Link>
-                </Button>
-              </div>
-            </div>
-            <div className="h-full w-full"><HeroMosaic /></div>
-          </div>
-        </section>
-      </main>
-      <footer className="py-12 border-t bg-white/50 text-center">
-        <p className="font-black text-[11px] tracking-[0.4em] uppercase text-slate-300">© 2026 • Respect is Mandatory</p>
-      </footer>
-    </div>
+
+    <main className="
+      min-h-screen
+      flex
+      flex-col
+      items-center
+      justify-center
+      p-8
+      text-center
+    ">
+
+
+      <h1 className="
+        text-5xl
+        font-bold
+      ">
+
+        ❤️ I LOVE U
+
+      </h1>
+
+
+
+      <p className="
+        text-xl
+        mt-4
+      ">
+
+        Prosperity Revolution
+
+      </p>
+
+
+
+      <h2 className="
+        text-3xl
+        mt-10
+        font-semibold
+      ">
+
+        Identify Your Heart
+
+      </h2>
+
+
+
+      <p className="
+        mt-4
+        max-w-xl
+        text-gray-600
+      ">
+
+        Every spark needs a signature.
+        Join the community, connect with people,
+        learn, create, and grow together.
+
+      </p>
+
+
+
+
+      <div className="
+        mt-8
+        flex
+        flex-col
+        sm:flex-row
+        gap-4
+      ">
+
+
+
+        <Link
+          href="/login"
+          className="
+            rounded-xl
+            border
+            px-6
+            py-3
+          "
+        >
+
+          🔐 Sign In
+
+        </Link>
+
+
+
+
+        <Link
+          href="/signup"
+          className="
+            rounded-xl
+            border
+            px-6
+            py-3
+          "
+        >
+
+          ✨ Join
+
+        </Link>
+
+
+
+
+
+        <button
+
+          onClick={handleGuestLogin}
+
+          disabled={loading}
+
+          className="
+            rounded-xl
+            border
+            px-6
+            py-3
+          "
+
+        >
+
+          {loading
+            ?
+            "Launching..."
+            :
+            "❤️ Explore as Guest"
+          }
+
+
+        </button>
+
+
+
+      </div>
+
+
+
+    </main>
+
   );
+
 }
