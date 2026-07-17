@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import SparkCard from "@/components/spark/SparkCard";
 import { discoverSparkProfiles } from "@/services/spark/spark.service";
+import { Loader2 } from "lucide-react";
 
 /**
  * @fileOverview Hearts Discovery Hub.
@@ -10,6 +11,7 @@ import { discoverSparkProfiles } from "@/services/spark/spark.service";
  */
 export default function DiscoverPage() {
   const [profiles, setProfiles] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadProfiles() {
@@ -18,6 +20,8 @@ export default function DiscoverPage() {
         setProfiles(data);
       } catch (error) {
         console.error("Discovery Sync Error:", error);
+      } finally {
+        setLoading(false);
       }
     }
     loadProfiles();
@@ -34,26 +38,34 @@ export default function DiscoverPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-        {profiles.length > 0 ? (
-          profiles.map((profile) => (
-            <SparkCard
-              key={profile.id}
-              name={profile.displayName || profile.username || "Mystery Heart"}
-              country={profile.country || "Global"}
-            />
-          ))
-        ) : (
-          <div className="col-span-full py-20 text-center opacity-20">
-             <p className="text-xl font-black uppercase tracking-widest italic">
-               "Scanning the horizon for new sparks..."
-             </p>
-          </div>
-        )}
-      </div>
+      {loading ? (
+        <div className="flex flex-col items-center justify-center py-40 gap-4 opacity-20">
+           <Loader2 className="w-12 h-12 animate-spin text-primary" />
+           <p className="text-sm font-black uppercase tracking-widest">Scanning Frequencies...</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          {profiles.length > 0 ? (
+            profiles.map((profile) => (
+              <SparkCard
+                key={profile.id}
+                id={profile.id}
+                name={profile.displayName || profile.username || "Mystery Heart"}
+                country={profile.country || "Global"}
+              />
+            ))
+          ) : (
+            <div className="col-span-full py-20 text-center opacity-20 border-2 border-dashed rounded-[3rem]">
+               <p className="text-xl font-black uppercase tracking-widest italic">
+                 "Scanning the horizon for new sparks..."
+               </p>
+            </div>
+          )}
+        </div>
+      )}
 
       <p className="text-center text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground/30 pt-12">
-        Happiness is Mandatory ❤️ Prosperity Revolution
+        Respect & Love is Mandatory ❤️ Prosperity Revolution
       </p>
     </main>
   );
