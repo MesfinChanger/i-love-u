@@ -31,6 +31,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Image from 'next/image';
 import Link from 'next/link';
 
+/**
+ * @fileOverview High-Fidelity Seller Management Console.
+ * Balanced JSX structure to ensure build stability and mission compliance.
+ */
 function SellerManageContent() {
   const { user } = useUser();
   const db = useFirestore();
@@ -235,7 +239,7 @@ function SellerManageContent() {
                     {isSubscribing ? <Loader2 className="w-4 h-4 animate-spin" /> : "Verify & Scale"}
                   </Button>
                 </CardFooter>
-              </Card>
+              </div>
             </div>
           </div>
         ) : (
