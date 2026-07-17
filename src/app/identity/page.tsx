@@ -78,7 +78,7 @@ export default function IdentityHubPage() {
     return (
       <main className="p-8 flex flex-col items-center justify-center min-h-[60vh] text-center">
         <div className="animate-pulse space-y-4">
-          <h1 className="text-3xl font-black uppercase tracking-tighter">👤 Identity Hub</h1>
+          <h1 className="text-3xl font-black uppercase tracking-tighter text-primary">👤 Identity Hub</h1>
           <p className="text-lg font-medium italic text-muted-foreground">Synchronizing heart data...</p>
         </div>
       </main>

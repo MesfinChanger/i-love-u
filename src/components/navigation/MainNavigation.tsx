@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 /**
  * @fileOverview Global Navigation Bridge.
  * Orchestrates platform-wide routing for every heart.
+ * Cleaned to remove redundancy with BottomNav.
  */
 
 const menu = [
@@ -15,8 +16,7 @@ const menu = [
   { name: "🤝 Circle", path: "/circle" },
   { name: "🛒 Shopping", path: "/shopping" },
   { name: "💡 Ideas", path: "/ideas" },
-  { name: "💬 Messages", path: "/messages" },
-  { name: "👤 Identity Hub", path: "/identity" }
+  { name: "💬 Messages", path: "/messages" }
 ];
 
 export default function MainNavigation() {
