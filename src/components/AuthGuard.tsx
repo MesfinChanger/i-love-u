@@ -1,38 +1,80 @@
-'use client';
+"use client";
 
-import { useUser } from '@/firebase';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { onAuthStateChanged } from "firebase/auth";
 
-/**
- * @fileOverview Identity Guard Protocol.
- * Ensures only synchronized hearts can access internal mission routes.
- */
-export default function AuthGuard({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useUser();
+import { auth } from "@/lib/firebase";
+
+
+export default function AuthGuard({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+
+
   const router = useRouter();
 
+  const [checking, setChecking] =
+    useState(true);
+
+
+
   useEffect(() => {
-    if (!loading && !user) {
-      router.push('/login');
-    }
-  }, [user, loading, router]);
 
-  if (loading) {
+
+    const unsubscribe =
+      onAuthStateChanged(
+        auth,
+        (user) => {
+
+
+          if (!user) {
+
+            router.replace("/login");
+
+            return;
+
+          }
+
+
+          setChecking(false);
+
+
+        }
+      );
+
+
+
+    return () => unsubscribe();
+
+
+  }, [router]);
+
+
+
+
+  if (checking) {
+
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen p-6 text-center bg-white">
-        <div className="animate-pulse space-y-4">
-           <div className="text-4xl">🔐</div>
-           <p className="text-xl font-bold uppercase tracking-widest text-primary">Verifying Identity...</p>
-           <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-300">Prosperity Revolution</p>
+
+      <main className="min-h-screen flex items-center justify-center">
+
+        <div className="text-xl">
+
+          🔐 Verifying Heart Identity...
+
         </div>
-      </div>
+
+      </main>
+
     );
+
   }
 
-  if (!user) {
-    return null;
-  }
+
 
   return <>{children}</>;
+
 }
