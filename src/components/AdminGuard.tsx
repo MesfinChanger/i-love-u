@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useUser, useFirestore, useDoc } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
-import { Loader2, Lock, ShieldAlert } from 'lucide-react';
+import { Loader2, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 /**
@@ -28,7 +28,7 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-white">
         <Loader2 className="w-10 h-10 animate-spin text-primary opacity-20" />
-        <p className="text-[10px] font-black uppercase tracking-[0.3em] mt-6 text-muted-foreground animate-pulse">Checking Credentials...</p>
+        <p className="text-[10px] font-black uppercase tracking-[0.3em] mt-6 text-muted-foreground">Checking Credentials...</p>
       </div>
     );
   }
@@ -50,13 +50,10 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
         </div>
         <Button 
           onClick={() => router.push('/dashboard')} 
-          className="mt-10 h-16 px-10 rounded-2xl gradient-bg font-black uppercase tracking-widest text-xs shadow-xl active:scale-95 transition-all"
+          className="mt-10 h-16 px-10 rounded-2xl gradient-bg font-black uppercase tracking-widest text-xs shadow-xl"
         >
           Return to Dashboard
         </Button>
-        <p className="mt-12 text-[9px] font-black uppercase tracking-[0.4em] text-slate-300">
-           Authorized Access Only • Protocol 403
-        </p>
       </div>
     );
   }

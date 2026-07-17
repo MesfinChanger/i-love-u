@@ -11,8 +11,8 @@ import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 
 /**
- * @fileOverview Forgot Username Page.
- * High-fidelity identity retrieval protocol using Firestore queries.
+ * @fileOverview Identity Retrieval Protocol (Forgot Username).
+ * Securely searches the Registry for identities matching a confirmed email signature.
  */
 export default function ForgotUsernamePage() {
   const [email, setEmail] = useState("");
@@ -122,9 +122,9 @@ export default function ForgotUsernamePage() {
           </CardContent>
         </Card>
 
-        <Link href="/recovery" className="flex items-center justify-center gap-2 text-slate-400 hover:text-primary transition-colors font-bold text-[10px] uppercase tracking-widest">
+        <Link href="/login" className="flex items-center justify-center gap-2 text-slate-400 hover:text-primary transition-colors font-bold text-[10px] uppercase tracking-widest">
           <ArrowLeft className="w-3.5 h-3.5" />
-          Back to Recovery Hub
+          Back to Login
         </Link>
       </div>
     </div>

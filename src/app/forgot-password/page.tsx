@@ -12,7 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 
 /**
  * @fileOverview Identity Recovery Protocol (Password Reset).
- * Orchestrates secure email-based credential restoration for community hearts.
+ * Securely dispatches access restoration links to confirmed heart email signatures.
  */
 export default function ForgotPasswordPage() {
   const { toast } = useToast();
@@ -26,11 +26,7 @@ export default function ForgotPasswordPage() {
     const cleanEmail = email.trim();
 
     if (!cleanEmail) {
-      toast({
-        variant: "destructive",
-        title: "Signature Required",
-        description: "Please enter your registered heart email. ❤️",
-      });
+      toast({ variant: "destructive", title: "Signature Required", description: "Please enter your registered heart email. ❤️" });
       return;
     }
 
@@ -41,10 +37,7 @@ export default function ForgotPasswordPage() {
     try {
       await sendPasswordResetEmail(auth, cleanEmail);
       setMessage("Password reset link sent. Please check your email inbox and spam folder. ❤️");
-      toast({
-        title: "Email Dispatched ✨",
-        description: "Your recovery path is waiting in your inbox.",
-      });
+      toast({ title: "Email Dispatched ✨", description: "Your recovery path is waiting in your inbox." });
     } catch (err: any) {
       console.error("Recovery ripple:", err);
       let errorMsg = "Could not reach the identity registry. Please try again. ❤️";
@@ -58,11 +51,7 @@ export default function ForgotPasswordPage() {
       }
 
       setError(errorMsg);
-      toast({
-        variant: "destructive",
-        title: "Access Ripple",
-        description: errorMsg,
-      });
+      toast({ variant: "destructive", title: "Access Ripple", description: errorMsg });
     } finally {
       setLoading(false);
     }
@@ -77,14 +66,14 @@ export default function ForgotPasswordPage() {
           <div className="w-20 h-20 bg-white rounded-[2.5rem] flex items-center justify-center mx-auto shadow-xl ring-4 ring-primary/5">
             <KeyRound className="w-10 h-10 text-primary animate-pulse" />
           </div>
-          <h1 className="text-4xl font-black tracking-tighter uppercase">Recover Heart</h1>
-          <p className="text-muted-foreground font-medium italic">"Identify your signature to restore connection."</p>
+          <h1 className="text-4xl font-black tracking-tighter uppercase">Recover Identity</h1>
+          <p className="text-muted-foreground font-medium italic">"Every heart has its way home. Restore yours securely."</p>
         </div>
 
         <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
           <div className="bg-primary/5 p-6 border-b flex items-center justify-center gap-2">
              <ShieldCheck className="w-4 h-4 text-primary" />
-             <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Identity Protocol</p>
+             <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Secure Access Protocol</p>
           </div>
 
           <CardContent className="p-10 space-y-8">
@@ -93,7 +82,7 @@ export default function ForgotPasswordPage() {
                 <p className="text-sm text-green-600 font-medium italic leading-relaxed">
                   {message}
                 </p>
-                <Button asChild className="w-full h-16 rounded-2xl gradient-bg font-black uppercase tracking-widest text-[10px] shadow-xl shadow-primary/20">
+                <Button asChild className="w-full h-16 rounded-2xl gradient-bg font-black uppercase tracking-widest text-[10px] shadow-xl">
                   <Link href="/login">Return to Sign In</Link>
                 </Button>
               </div>
@@ -128,7 +117,7 @@ export default function ForgotPasswordPage() {
 
                 <div className="text-center pt-4">
                   <Link href="/login" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors flex items-center justify-center gap-2">
-                    <ArrowLeft className="w-3 h-3" /> Back to Sign In
+                    <ArrowLeft className="w-3 h-3" /> Back to Login
                   </Link>
                 </div>
               </form>
