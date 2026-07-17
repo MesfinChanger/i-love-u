@@ -64,7 +64,7 @@ function LoginContent() {
 
   useEffect(() => {
     if (user && !authLoading) {
-      router.push('/discover');
+      router.push('/identity');
     }
   }, [user, authLoading, router]);
 
@@ -122,10 +122,8 @@ function LoginContent() {
               uid: res.user.uid,
               userId: res.user.uid, 
               email: cleanEmail, 
-              phone: null,
               username: nickname,
               displayName: nickname,
-              photoURL: '',
               accountType: 'free',
               status: 'active',
               createdAt: serverTimestamp(),
@@ -133,22 +131,9 @@ function LoginContent() {
               lastLogin: serverTimestamp(),
               country: country || 'Global',
               language: language,
-              timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
               role: 'member',
               policyAccepted: true,
-              
               bio: "New heart joining the revolution.",
-              languages: [language],
-              interests: [],
-              hobbies: [],
-              values: [],
-              
-              datingGoal: 'exploring',
-              preferredAgeRange: '18-99',
-              preferredCountries: country ? [country] : [],
-              personalityTags: [],
-              verified: false,
-              visibility: 'public'
             };
 
             await setDoc(doc(db, 'users', res.user.uid), userData, { merge: true });
@@ -164,8 +149,6 @@ function LoginContent() {
               photoURL: '',
               accountType: 'free',
               status: 'active',
-              datingGoal: 'exploring',
-              personalityTags: [],
               visibility: 'public'
             });
           }
@@ -180,8 +163,7 @@ function LoginContent() {
       }
     } catch (error: any) {
       console.error("Auth error:", error);
-      let message = "Please check your secure phrase and try again. ❤️";
-      toast({ variant: "destructive", title: "Access Ripple", description: message });
+      toast({ variant: "destructive", title: "Access Ripple", description: "Please check your secure phrase and try again. ❤️" });
     } finally {
       setIsLoading(false);
     }
@@ -193,24 +175,25 @@ function LoginContent() {
     try {
       const result = await signInAnonymously(auth);
       
-      // Guest Verification Heartbeat
-      console.log("Guest Login Success:", result.user.uid);
+      // Guest UID Heartbeat
+      console.log("Guest UID:", result.user.uid);
 
       if (db) {
+         // Create a basic identity record so the Hub can synchronize
          await setDoc(doc(db, 'users', result.user.uid), {
            uid: result.user.uid,
-           userId: result.user.uid,
-           accountType: 'guest',
-           status: 'active',
-           username: `Guest_${result.user.uid.slice(0, 5)}`,
-           displayName: 'Guest Heart',
+           name: "Guest Heart",
+           email: "Guest Account",
+           accountType: "guest",
            createdAt: serverTimestamp(),
            lastLogin: serverTimestamp()
          }, { merge: true });
       }
-      toast({ title: "Guest Session Launched", description: "Welcome! ❤️" });
+
+      toast({ title: "Guest Session Launched", description: "Welcome to the Revolution! ❤️" });
+      router.push("/identity");
     } catch (error: any) {
-      console.error("Guest access error:", error);
+      console.error("Guest Login Error:", error);
       toast({ variant: "destructive", title: "Guest Access Ripple", description: "Could not launch guest session." });
     } finally {
       setIsLoading(false);
