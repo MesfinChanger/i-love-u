@@ -133,10 +133,10 @@ export default function LoginPage() {
                 Need a heart signature? <span className="text-primary underline">Join the Mission</span>
               </Link>
               <Link 
-                href="/forgot-password" 
+                href="/recovery" 
                 className="text-[10px] font-black uppercase tracking-widest text-primary hover:underline"
               >
-                Forgot Password?
+                Trouble signing in? Recovery Hub
               </Link>
             </div>
           </CardContent>

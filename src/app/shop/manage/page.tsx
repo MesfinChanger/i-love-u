@@ -34,6 +34,7 @@ import Link from 'next/link';
 /**
  * @fileOverview Seller Management Console.
  * Orchestrates subscription management and high-fidelity artisan storefronts.
+ * Fixed JSX tag synchronization for build stability.
  */
 function SellerManageContent() {
   const { user } = useUser();

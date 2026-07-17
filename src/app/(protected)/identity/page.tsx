@@ -3,8 +3,8 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 /**
- * @fileOverview Deprecated Route Group component.
- * Redirects to the root /identity in accordance with project guidelines.
+ * @fileOverview Redundant Route Group component.
+ * Redirects to the root /identity to resolve Parallel Route Conflicts.
  */
 export default function DeprecatedIdentity() {
   const router = useRouter();
