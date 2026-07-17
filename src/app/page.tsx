@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { signInAnonymously } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useState } from "react";
-import { Heart, Sparkles, LogIn, UserPlus } from "lucide-react";
+import { Heart, Sparkles, LogIn, UserPlus, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 /**
@@ -20,10 +20,10 @@ export default function WelcomePage() {
     try {
       setLoading(true);
       const result = await signInAnonymously(auth);
-      console.log("Guest:", result.user.uid);
+      console.log("Guest Session Launched:", result.user.uid);
       router.push("/dashboard");
     } catch (error) {
-      console.error(error);
+      console.error("Guest Access Ripple:", error);
     } finally {
       setLoading(false);
     }

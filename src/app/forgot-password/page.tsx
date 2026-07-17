@@ -33,11 +33,9 @@ export default function ForgotPasswordPage() {
       console.log("RESET ERROR CODE:", error.code);
       console.log("RESET ERROR MESSAGE:", error.message);
 
-      if (error.code === "auth/user-not-found") {
-        setError("No account exists with this email signature.");
-      } else {
-        setError(error.code + " : " + error.message);
-      }
+      setError(
+        error.code + " : " + error.message
+      );
     } finally {
       setLoading(false);
     }

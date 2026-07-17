@@ -10,7 +10,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
-import { Heart, Loader2, AtSign, Lock, Sparkles, KeyRound, ArrowRight } from 'lucide-react';
+import { Heart, Loader2, AtSign, Lock, Sparkles, KeyRound } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@/firebase';

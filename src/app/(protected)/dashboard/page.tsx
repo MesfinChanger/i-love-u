@@ -1,9 +1,7 @@
 /**
  * @fileOverview Neutralized duplicate dashboard.
- * Redirects to the root level dashboard to resolve Parallel Route Conflict.
+ * Access is now exclusively managed via the root /dashboard to resolve path conflict.
  */
-import { redirect } from 'next/navigation';
-
-export default function ProtectedDashboardNeutralized() {
-  redirect('/dashboard');
+export default function NeutralizedPage() {
+  return null;
 }

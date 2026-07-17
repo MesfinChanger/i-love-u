@@ -1,9 +1,7 @@
 /**
  * @fileOverview Neutralized duplicate identity.
- * Redirects to the root level identity hub to resolve Parallel Route Conflict.
+ * Access is now exclusively managed via the root /identity to resolve path conflict.
  */
-import { redirect } from 'next/navigation';
-
-export default function ProtectedIdentityNeutralized() {
-  redirect('/identity');
+export default function NeutralizedPage() {
+  return null;
 }
