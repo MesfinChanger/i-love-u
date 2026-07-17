@@ -254,7 +254,7 @@ function SellerManageContent() {
                     <Input value={shopName} onChange={e => setShopName(e.target.value)} className="rounded-2xl h-14 bg-muted/20 border-none font-bold px-6" />
                   </div>
                   <div className="space-y-3">
-                    <Label className="text-[10px] font-black uppercase tracking-widest ml-1">Mission Description</Label>
+                    <Label className="text-[10px) font-black uppercase tracking-widest ml-1">Mission Description</Label>
                     <Textarea value={shopDesc} onChange={e => setShopDesc(e.target.value)} className="rounded-[1.5rem] min-h-[120px] bg-muted/20 border-none p-6" />
                   </div>
                   <Button className="w-full h-16 rounded-2xl gradient-bg font-black uppercase shadow-xl gap-2" onClick={handleSaveShop} disabled={isSaving}>

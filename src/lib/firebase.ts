@@ -1,10 +1,11 @@
-import { initializeApp, getApps, getApp } from "firebase/app";
+import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
 
 /**
  * @fileOverview High-Fidelity Firebase Bridge.
- * Synchronized with the platform's environment variables.
+ * Synchronized singleton protocol for cloud connectivity.
  */
 
 const firebaseConfig = {
@@ -16,8 +17,8 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Singleton initialization protocol
-export const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
-
+// Universal Initialization Protocol
+export const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+export const storage = getStorage(app);

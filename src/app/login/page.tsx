@@ -3,7 +3,10 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { auth } from '@/lib/firebase';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import {
+  signInWithEmailAndPassword,
+  signInAnonymously
+} from 'firebase/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -42,17 +45,55 @@ export default function LoginPage() {
       await signInWithEmailAndPassword(auth, email.trim(), password);
       toast({ title: "Welcome Back", description: "Identity synchronized. ❤️" });
       router.push('/dashboard');
-    } catch (err: any) {
-      setError(err.message);
-      toast({ 
-        variant: "destructive", 
-        title: "Access Ripple", 
-        description: "Please check your credentials or reset your phrase. ❤️" 
+    } catch (err:any) {
+
+      let message =
+        "Unable to synchronize identity.";
+    
+      switch(err.code){
+    
+        case "auth/user-not-found":
+          message =
+          "No account found with this email.";
+          break;
+    
+    
+        case "auth/wrong-password":
+          message =
+          "Incorrect password.";
+          break;
+    
+    
+        case "auth/invalid-credential":
+          message =
+          "Email or password is incorrect.";
+          break;
+    
+    
+        case "auth/too-many-requests":
+          message =
+          "Too many attempts. Try again later.";
+          break;
+    
+    
+        case "auth/network-request-failed":
+          message =
+          "Network problem. Check your connection.";
+          break;
+    
+      }
+    
+    
+      setError(message);
+    
+    
+      toast({
+        variant:"destructive",
+        title:"Access Ripple",
+        description:message
       });
-    } finally {
-      setIsLoading(false);
+    
     }
-  };
 
   if (authLoading) return (
     <div className="min-h-screen flex items-center justify-center bg-muted/30">
@@ -129,7 +170,20 @@ export default function LoginPage() {
               {error && <p className="text-xs text-red-500 text-center font-bold">{error}</p>}
             </form>
 
-            <div className="flex flex-col gap-4 text-center">
+            <Button
+  type="button"
+  onClick={handleGuestLogin}
+  variant="outline"
+  className="
+  w-full
+  h-14
+  rounded-2xl
+  font-black
+  uppercase
+  "
+>
+❤️ Explore as Guest
+</Button>
               <Link 
                 href="/forgot-password" 
                 className="text-[10px] font-black uppercase tracking-widest text-primary hover:underline"
@@ -144,7 +198,32 @@ export default function LoginPage() {
               </Link>
             </div>
           </CardContent>
-        </Card>
+        </Card>const handleGuestLogin = async()=>{
+
+try {
+
+  await signInAnonymously(auth);
+
+  toast({
+    title:"Welcome Guest Heart ❤️",
+    description:"Exploring the Prosperity Revolution."
+  });
+
+
+  router.push("/dashboard");
+
+
+} catch(err:any){
+
+  toast({
+    variant:"destructive",
+    title:"Guest Access Failed",
+    description:err.message
+  });
+
+}
+
+};
       </div>
     </main>
   );
