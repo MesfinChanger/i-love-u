@@ -8,6 +8,7 @@ import { useAuth } from '../provider';
 export function useUser() {
 
   const auth = useAuth();
+  console.log("I LOVE U Auth State:", auth);
 
   const [user, setUser] = useState<User | null>(null);
 
