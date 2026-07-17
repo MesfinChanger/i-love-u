@@ -8,9 +8,11 @@ import {
   DialogDescription
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/firebase';
+import { useAuth, db } from '@/firebase';
 import { signInAnonymously } from 'firebase/auth';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
 import { 
   Heart, 
   Ghost, 
@@ -30,6 +32,7 @@ export function AuthGateDialog() {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const auth = useAuth();
+  const router = useRouter();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -50,14 +53,30 @@ export function AuthGateDialog() {
 
     setIsLoading(true);
     try {
-      await signInAnonymously(auth);
+      const result = await signInAnonymously(auth);
+      
+      console.log("Guest identity:", result.user.uid);
+
+      if (db) {
+         await setDoc(doc(db, 'users', result.user.uid), {
+           uid: result.user.uid,
+           name: "Guest Heart",
+           email: "Guest Account",
+           accountType: "Guest",
+           createdAt: serverTimestamp(),
+           lastLogin: serverTimestamp()
+         }, { merge: true });
+      }
+
       setIsOpen(false);
       toast({ 
         title: "Guest Session Launched", 
         description: "Welcome! You are exploring as a guest heart. ❤️" 
       });
+
+      router.push("/");
     } catch (error: any) {
-      console.error("Guest Auth Error Ripple:", error);
+      console.error("Guest login failed:", error);
       
       let title = "Guest Access Ripple";
       let message = "Could not launch guest session. Please check your connection. ❤️";

@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect, Suspense } from 'react';
@@ -124,7 +123,7 @@ function LoginContent() {
               email: cleanEmail, 
               username: nickname,
               displayName: nickname,
-              accountType: 'free',
+              accountType: 'Member',
               status: 'active',
               createdAt: serverTimestamp(),
               updatedAt: serverTimestamp(),
@@ -147,7 +146,7 @@ function LoginContent() {
               verified: false,
               bio: "New heart joining the revolution.",
               photoURL: '',
-              accountType: 'free',
+              accountType: 'Member',
               status: 'active',
               visibility: 'public'
             });
@@ -176,7 +175,7 @@ function LoginContent() {
       const result = await signInAnonymously(auth);
       
       // Guest UID Heartbeat
-      console.log("Guest UID:", result.user.uid);
+      console.log("Guest identity:", result.user.uid);
 
       if (db) {
          // Create a basic identity record so the Hub can synchronize
@@ -184,16 +183,18 @@ function LoginContent() {
            uid: result.user.uid,
            name: "Guest Heart",
            email: "Guest Account",
-           accountType: "guest",
+           accountType: "Guest",
            createdAt: serverTimestamp(),
            lastLogin: serverTimestamp()
          }, { merge: true });
       }
 
       toast({ title: "Guest Session Launched", description: "Welcome to the Revolution! ❤️" });
-      router.push("/identity");
+      
+      // Redirect to main mission app
+      router.push("/");
     } catch (error: any) {
-      console.error("Guest Login Error:", error);
+      console.error("Guest login failed:", error);
       toast({ variant: "destructive", title: "Guest Access Ripple", description: "Could not launch guest session." });
     } finally {
       setIsLoading(false);

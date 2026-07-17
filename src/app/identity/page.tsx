@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -65,7 +64,7 @@ export default function IdentityHubPage() {
               name: currentUser.displayName || "Guest Heart",
               email: currentUser.email || "Guest Account",
               photoURL: currentUser.photoURL || "",
-              accountType: currentUser.isAnonymous ? "guest" : "free",
+              accountType: currentUser.isAnonymous ? "Guest" : "Member",
               language: "English",
               country: "",
               skills: [],
