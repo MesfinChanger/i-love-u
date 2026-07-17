@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { Header } from '@/components/Header';
 import { BottomNav } from '@/components/BottomNav';
 import AdminGuard from '@/components/AdminGuard';
@@ -12,16 +13,42 @@ import {
   BarChart3, 
   Zap, 
   Gavel,
-  ArrowRight
+  ArrowRight,
+  Trash2,
+  Loader2
 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import { purgeMissionData } from '@/lib/admin-actions';
+import { useToast } from '@/hooks/use-toast';
 
 /**
  * @fileOverview Admin Command Center.
  * Exclusively accessible to community guardians. 
  */
 export default function AdminDashboardPage() {
+  const { toast } = useToast();
+  const [isPurging, setIsPurging] = useState(false);
+
+  const handlePurge = async () => {
+    if (!confirm("CRITICAL PROTOCOL: This will permanently delete all community data including users, matches, and transactions. Proceed? ❤️")) return;
+    
+    setIsPurging(true);
+    try {
+      const result = await purgeMissionData();
+      if (result.success) {
+        toast({ title: "Mission Purged", description: result.message });
+        window.location.href = '/';
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (e: any) {
+      toast({ variant: "destructive", title: "Purge Failed", description: e.message });
+    } finally {
+      setIsPurging(false);
+    }
+  };
+
   return (
     <AdminGuard>
       <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
@@ -75,32 +102,55 @@ export default function AdminDashboardPage() {
             />
           </div>
 
-          <Card className="rounded-[3rem] border-none shadow-2xl bg-white overflow-hidden relative group">
-             <div className="absolute top-0 right-0 p-10 opacity-5 -rotate-12 group-hover:rotate-0 transition-transform duration-700">
-                <Gavel className="w-48 h-48 text-primary" />
-             </div>
-             <CardHeader className="p-10 pb-0">
-                <div className="flex items-center gap-4 text-primary">
-                   <ShieldCheck className="w-8 h-8" />
-                   <CardTitle className="text-3xl font-black uppercase tracking-tighter">Security Protocol</CardTitle>
-                </div>
-                <CardDescription className="text-lg font-medium italic mt-2">
-                   "Respect is Mandatory." Admins have final authority over community vibrations.
-                </CardDescription>
-             </CardHeader>
-             <CardContent className="p-10 space-y-6">
-                <div className="grid sm:grid-cols-2 gap-4">
-                   <div className="p-6 bg-muted/30 rounded-2xl border border-dashed text-center">
-                      <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground mb-1">Active Blocks</p>
-                      <p className="text-2xl font-black">0 Hearts</p>
-                   </div>
-                   <div className="p-6 bg-muted/30 rounded-2xl border border-dashed text-center">
-                      <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground mb-1">Reports Pending</p>
-                      <p className="text-2xl font-black">0 Incidents</p>
-                   </div>
-                </div>
-             </CardContent>
-          </Card>
+          <div className="grid lg:grid-cols-2 gap-8">
+            <Card className="rounded-[3rem] border-none shadow-2xl bg-white overflow-hidden relative group">
+               <div className="absolute top-0 right-0 p-10 opacity-5 -rotate-12 group-hover:rotate-0 transition-transform duration-700">
+                  <Gavel className="w-48 h-48 text-primary" />
+               </div>
+               <CardHeader className="p-10 pb-0">
+                  <div className="flex items-center gap-4 text-primary">
+                     <ShieldCheck className="w-8 h-8" />
+                     <CardTitle className="text-3xl font-black uppercase tracking-tighter">Security Protocol</CardTitle>
+                  </div>
+                  <CardDescription className="text-lg font-medium italic mt-2">
+                     "Respect is Mandatory." Guardians have final authority over community vibrations.
+                  </CardDescription>
+               </CardHeader>
+               <CardContent className="p-10 space-y-6">
+                  <div className="grid sm:grid-cols-2 gap-4">
+                     <div className="p-6 bg-muted/30 rounded-2xl border border-dashed text-center">
+                        <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground mb-1">Active Blocks</p>
+                        <p className="text-2xl font-black">0 Hearts</p>
+                     </div>
+                     <div className="p-6 bg-muted/30 rounded-2xl border border-dashed text-center">
+                        <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground mb-1">Reports Pending</p>
+                        <p className="text-2xl font-black">0 Incidents</p>
+                     </div>
+                  </div>
+               </CardContent>
+            </Card>
+
+            <Card className="rounded-[3rem] border-2 border-dashed border-red-200 bg-red-50/30 overflow-hidden p-10 flex flex-col justify-between">
+               <div className="space-y-4">
+                  <div className="flex items-center gap-3 text-red-600">
+                     <Trash2 className="w-8 h-8" />
+                     <h3 className="text-2xl font-black uppercase tracking-tighter leading-none">Mission Purge</h3>
+                  </div>
+                  <p className="text-sm text-red-700/70 font-medium italic leading-relaxed">
+                    "A fresh start for a new village." This protocol clears all community data to allow for maintenance or regional resets.
+                  </p>
+               </div>
+               <Button 
+                onClick={handlePurge}
+                disabled={isPurging}
+                variant="destructive" 
+                className="h-16 rounded-2xl font-black uppercase text-xs shadow-xl active:scale-95 transition-all mt-8"
+               >
+                 {isPurging ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Trash2 className="w-4 h-4 mr-2" />}
+                 Activate Purge Protocol
+               </Button>
+            </Card>
+          </div>
         </main>
 
         <BottomNav />
@@ -113,7 +163,7 @@ function AdminMetricCard({ title, desc, icon, href, color }: { title: string, de
   return (
     <Link href={href}>
       <Card className="rounded-[2.5rem] border-none shadow-lg bg-white p-8 hover:shadow-2xl transition-all group overflow-hidden relative h-full">
-         <div className="flex flex-col gap-4 relative z-10">
+         <div className="flex flex-col gap-4 relative z-10 h-full">
             <div className={cn("w-14 h-14 rounded-2xl bg-muted flex items-center justify-center transition-all group-hover:bg-primary/5 group-hover:scale-110", color)}>
                {icon}
             </div>
