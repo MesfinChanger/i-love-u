@@ -18,6 +18,8 @@ import {
   db
 } from "@/lib/firebase";
 
+import SignOutButton from "@/components/SignOutButton";
+
 /**
  * @fileOverview Identity Hub Page.
  * Synchronizes heart identity and provides a unified command center.
@@ -109,7 +111,11 @@ export default function IdentityHubPage() {
 
   return (
     <main className="p-6 space-y-6 pb-24">
-      <h1 className="text-4xl font-bold tracking-tighter uppercase">👤 Identity Hub</h1>
+      <div className="flex justify-between items-center">
+        <h1 className="text-4xl font-bold tracking-tighter uppercase">👤 Identity Hub</h1>
+        <SignOutButton />
+      </div>
+      
       <p className="text-gray-600 font-medium italic">
         Your personal, social, learning, professional and impact identity.
       </p>
