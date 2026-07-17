@@ -18,14 +18,12 @@ import { collection, addDoc, query, orderBy, serverTimestamp, limit, doc } from 
 import { moderateText } from '@/ai/flows/moderate-text-flow';
 import { useToast } from '@/hooks/use-toast';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
-import { cn } from '@/lib/utils';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError, type SecurityRuleContext } from '@/firebase/errors';
 
 /**
  * @fileOverview Global Wall module synchronized with the Community Message Protocol.
- * Refactored to strictly use authorId, text, and createdAt fields.
- * Refactored to emit Contextual Firestore Errors for Permission ripples.
+ * Harmonized typography scale.
  */
 export default function CommunityPage() {
   const { user } = useUser();
@@ -79,7 +77,6 @@ export default function CommunityPage() {
         createdAt: serverTimestamp(),
       };
 
-      // Non-blocking write with Contextual Catch
       addDoc(collectionRef, data)
         .then(() => {
           setNewMessage('');
@@ -111,10 +108,10 @@ export default function CommunityPage() {
             <div className="w-20 h-20 bg-primary/10 rounded-[2.5rem] flex items-center justify-center mx-auto shadow-xl ring-8 ring-white">
                <Globe className="w-10 h-10 text-primary" />
             </div>
-            <h1 className="text-5xl font-black tracking-tighter uppercase leading-[0.9]">
+            <h1 className="text-3xl font-black tracking-tighter uppercase leading-[1.2]">
                Global <br/><span className="gradient-text">Wall</span>
             </h1>
-            <p className="text-xl text-muted-foreground font-medium italic">
+            <p className="text-lg text-muted-foreground font-medium italic">
                "Share respectful moments with hearts across every city."
             </p>
          </div>
@@ -159,12 +156,6 @@ export default function CommunityPage() {
            ) : messages?.map((msg: any) => (
              <CommunityMessageCard key={msg.id} msg={msg} />
            ))}
-           {!loading && messages?.length === 0 && (
-              <div className="py-32 text-center opacity-20">
-                 <Globe className="w-20 h-20 mx-auto mb-4" />
-                 <p className="text-lg font-black uppercase tracking-widest">The Wall is quiet. Be the first spark.</p>
-              </div>
-           )}
         </div>
       </main>
 
@@ -187,7 +178,7 @@ function CommunityMessageCard({ msg }: { msg: any }) {
                   {author?.username?.[0] || author?.displayName?.[0] || 'H'}
                </div>
                <div className="text-left leading-none">
-                  <h4 className="font-black text-xl tracking-tight text-slate-900">
+                  <h4 className="font-black text-lg tracking-tight text-slate-900">
                     {author?.username || author?.displayName || "Mystery Heart"}
                   </h4>
                   <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mt-1">
@@ -200,7 +191,7 @@ function CommunityMessageCard({ msg }: { msg: any }) {
                <span className="text-[9px] font-black uppercase tracking-widest">Broadcast Active</span>
             </div>
          </div>
-         <p className="text-2xl font-medium text-slate-700 italic border-l-8 border-primary/5 pl-8 py-2 leading-relaxed">
+         <p className="text-lg font-medium text-slate-700 italic border-l-8 border-primary/5 pl-8 py-2 leading-relaxed">
             "{msg.text}"
          </p>
       </CardContent>

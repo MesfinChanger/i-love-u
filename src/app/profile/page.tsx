@@ -8,11 +8,11 @@ import { Header } from '@/components/Header';
 import { BottomNav } from '@/components/BottomNav';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Mail, Globe, ShieldCheck } from 'lucide-react';
+import { Mail, Globe, ShieldCheck, User } from 'lucide-react';
 
 /**
  * @fileOverview Identity Registry View.
- * Implements resilient authentication and profile synchronization.
+ * Implements the Resilient Profile Synchronization Protocol.
  */
 export default function ProfilePage() {
   const [user, setUser] = useState<any>(null);
@@ -28,20 +28,21 @@ export default function ProfilePage() {
         }
 
         setUser(currentUser);
+
         const profileRef = doc(db, "users", currentUser.uid);
         const snapshot = await getDoc(profileRef);
 
         if (snapshot.exists()) {
           setProfile(snapshot.data());
         } else {
-          // Protocol: Automatically establish identity in registry if missing
+          // Create profile automatically if it doesn't exist in registry
           const defaultData = {
             uid: currentUser.uid,
             email: currentUser.email,
             name: currentUser.displayName || "New Heart",
-            displayName: currentUser.displayName || "New Heart",
             photoURL: currentUser.photoURL || "",
             createdAt: serverTimestamp(),
+            // Mission context
             accountType: 'free',
             status: 'active',
             country: 'Global'
@@ -65,7 +66,7 @@ export default function ProfilePage() {
       <div className="flex flex-col min-h-screen bg-muted/30">
         <Header />
         <main className="flex-grow flex items-center justify-center p-8">
-           <div className="text-base font-bold animate-pulse text-primary tracking-widest uppercase text-center">
+           <div className="text-lg font-bold animate-pulse text-primary tracking-widest uppercase text-center">
               👤 Profile<br/>
               Synchronizing Identity...
            </div>
@@ -103,14 +104,23 @@ export default function ProfilePage() {
         
         <Card className="rounded-[3rem] border-none shadow-xl bg-white overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700">
            <div className="p-10 space-y-8">
-              <div className="space-y-2">
-                 <h2 className="text-3xl font-black tracking-tight text-slate-900 leading-none">
-                    {profile?.name || profile?.displayName || "Mystery Heart"}
-                 </h2>
-                 <p className="text-lg text-muted-foreground font-medium italic flex items-center gap-2">
-                    <Mail className="w-4 h-4" />
-                    {profile?.email}
-                 </p>
+              <div className="flex items-center gap-6">
+                <div className="w-20 h-20 rounded-[1.5rem] bg-primary/5 flex items-center justify-center text-primary relative overflow-hidden shrink-0 border-2 border-primary/5">
+                   {profile?.photoURL ? (
+                     <img src={profile.photoURL} alt={profile.name} className="w-full h-full object-cover" />
+                   ) : (
+                     <User className="w-10 h-10 opacity-20" />
+                   )}
+                </div>
+                <div className="space-y-1 min-w-0">
+                   <h2 className="text-2xl font-black tracking-tight text-slate-900 truncate">
+                      {profile?.name || "Mystery Heart"}
+                   </h2>
+                   <p className="text-base text-muted-foreground font-medium italic flex items-center gap-2 truncate">
+                      <Mail className="w-4 h-4 shrink-0" />
+                      {profile?.email}
+                   </p>
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4 pt-8 border-t border-dashed">
@@ -119,14 +129,14 @@ export default function ProfilePage() {
                        <Globe className="w-4 h-4" />
                        <span className="text-[10px] font-black uppercase tracking-widest">Region</span>
                     </div>
-                    <p className="text-base font-bold uppercase">{profile?.country || 'Global Community'}</p>
+                    <p className="text-lg font-bold uppercase">{profile?.country || 'Global'}</p>
                  </div>
                  <div className="bg-primary/5 p-6 rounded-2xl space-y-2">
                     <div className="flex items-center gap-2 text-primary">
                        <ShieldCheck className="w-4 h-4" />
                        <span className="text-[10px] font-black uppercase tracking-widest">Status</span>
                     </div>
-                    <p className="text-base font-bold uppercase">{profile?.status || 'Verified'}</p>
+                    <p className="text-lg font-bold uppercase">{profile?.status || 'Verified'}</p>
                  </div>
               </div>
            </div>

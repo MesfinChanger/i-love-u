@@ -10,7 +10,7 @@ import { Header } from '@/components/Header';
 
 /**
  * @fileOverview Landing Page for the Prosperity Revolution.
- * Refactored to include high-fidelity authentication diagnostics.
+ * Refactored typography for Visual Harmony Protocol.
  */
 export default function Home() {
   const { user } = useUser();
@@ -18,9 +18,6 @@ export default function Home() {
 
   useEffect(() => { 
     setMounted(true); 
-    
-    // Identity Sync Diagnostic
-    // Verifies if the heart is correctly identified in the global bridge.
     if (auth) {
       console.log("Firebase User Protocol Status:", auth.currentUser);
     }
@@ -35,11 +32,11 @@ export default function Home() {
         <section className="container mx-auto px-6 py-10 lg:py-20 max-w-[1440px]">
           <div className="grid lg:grid-cols-[4fr_6fr] gap-12 items-center min-h-[70vh]">
             <div className="space-y-8 animate-in fade-in slide-in-from-left-4 duration-1000">
-              <h1 className="text-6xl xl:text-[4.5rem] font-black leading-[1.1] tracking-tighter text-[#1a2530]">
+              <h1 className="text-4xl md:text-5xl font-black leading-[1.2] tracking-tighter text-[#1a2530] uppercase">
                 Spark <span className="text-primary">Love.</span><br />
                 End <span className="text-secondary">Poverty.</span>
               </h1>
-              <p className="text-xl text-slate-600 leading-relaxed font-medium max-w-md">
+              <p className="text-lg text-slate-600 leading-relaxed font-medium max-w-md italic">
                 Connecting hearts across every city and village to create opportunities and positive change. Respect is Mandatory. ❤️
               </p>
               <div className="flex flex-wrap gap-4 pt-4">
