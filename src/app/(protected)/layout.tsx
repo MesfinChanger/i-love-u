@@ -1,11 +1,6 @@
 /**
- * @fileOverview Deprecated Protected Layout.
- * Consolidating routes to the root app directory.
+ * @fileOverview Neutralized layout to resolve Parallel Route Conflicts.
  */
-export default function DeprecatedProtectedLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function NeutralizedLayout({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }

@@ -3,10 +3,10 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 /**
- * @fileOverview Redundant Route Group component.
- * Redirects to the root /dashboard to resolve Parallel Route Conflicts.
+ * @fileOverview Neutralized duplicate route to resolve Parallel Route Conflicts.
+ * All logic has been consolidated to the root /dashboard path.
  */
-export default function DeprecatedDashboard() {
+export default function NeutralizedDashboard() {
   const router = useRouter();
   useEffect(() => {
     router.replace("/dashboard");

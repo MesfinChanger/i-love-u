@@ -3,10 +3,10 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 /**
- * @fileOverview Redundant Route Group component.
- * Redirects to the root /identity to resolve Parallel Route Conflicts.
+ * @fileOverview Neutralized duplicate route to resolve Parallel Route Conflicts.
+ * All logic has been consolidated to the root /identity path.
  */
-export default function DeprecatedIdentity() {
+export default function NeutralizedIdentity() {
   const router = useRouter();
   useEffect(() => {
     router.replace("/identity");
