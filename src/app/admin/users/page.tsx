@@ -52,7 +52,7 @@ export default function AdminUsersPage() {
           <div className="space-y-2">
             <h1 className="text-4xl font-black tracking-tighter uppercase leading-none flex items-center gap-3">
               <Users className="w-10 h-10 text-primary" />
-              Heart Registry
+              👥 User Management
             </h1>
             <p className="text-muted-foreground font-medium italic">
               "Managing every heart in the Prosperity Revolution."
@@ -114,7 +114,7 @@ export default function AdminUsersPage() {
                    <h4 className="text-xl font-black uppercase tracking-tight text-white">Integrity Protocol Active</h4>
                 </div>
                 <p className="text-base text-white/70 font-medium italic leading-relaxed uppercase tracking-widest">
-                  "Respect is Mandatory." Admins ensure every heart contributes to prosperity and follows the community honor code. meanness is not tolerated in our global villages.
+                  "Respect is Mandatory." Admins ensure every heart contributes to prosperity and follows the community honor code.
                 </p>
              </div>
           </div>

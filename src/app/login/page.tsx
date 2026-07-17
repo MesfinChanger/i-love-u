@@ -135,7 +135,7 @@ export default function LoginPage() {
                 href="/recovery" 
                 className="text-[10px] font-black uppercase tracking-widest text-primary hover:underline"
               >
-                Trouble signing in? Recovery Hub
+                Forgot Password? Recovery Hub
               </Link>
             </div>
           </CardContent>

@@ -38,7 +38,7 @@ export default function RecoveryPage() {
             <RecoveryLink 
               href="/forgot-username" 
               icon={<User className="w-5 h-5" />} 
-              title="Forgot Nickname" 
+              title="Forgot Username" 
               desc="Retrieve your community signature."
             />
             <RecoveryLink 

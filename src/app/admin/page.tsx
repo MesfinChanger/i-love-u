@@ -17,6 +17,7 @@ import {
   Heart
 } from 'lucide-react';
 import Link from 'next/link';
+import { cn } from '@/lib/utils';
 
 /**
  * @fileOverview Sovereign Admin Command Center.
@@ -44,7 +45,7 @@ export default function AdminDashboardPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <AdminMetricCard 
               title="Heart Registry" 
-              desc="Manage every member signature." 
+              desc="Manage members" 
               icon={<Users className="w-6 h-6" />} 
               href="/admin/users" 
               color="text-blue-500" 

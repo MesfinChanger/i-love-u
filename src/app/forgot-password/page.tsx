@@ -55,9 +55,9 @@ export default function ForgotPasswordPage() {
     <div className="flex flex-col min-h-screen bg-muted/30 items-center justify-center p-6 relative overflow-hidden">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-3xl -z-10" />
       
-      <Link href="/login" className="absolute top-12 left-10 flex items-center gap-2 text-slate-400 hover:text-primary transition-colors font-bold text-[10px] uppercase tracking-widest">
+      <Link href="/recovery" className="absolute top-12 left-10 flex items-center gap-2 text-slate-400 hover:text-primary transition-colors font-bold text-[10px] uppercase tracking-widest">
         <ArrowLeft className="w-3.5 h-3.5" />
-        Back to Login
+        Back to Recovery
       </Link>
 
       <div className="w-full max-w-md space-y-10 z-10">
