@@ -14,16 +14,16 @@
     --primary-foreground: 0 0% 100%;
     --secondary: 40 100% 60%; /* Warm Prosperity Gold */
     --secondary-foreground: 0 0% 100%;
-    --muted: 35 30% 98%;
+    --muted: 35 30% 99%;
     --muted-foreground: 330 10% 45%;
-    --accent: 45 100% 95%; /* Soft Sun Glow */
+    --accent: 45 100% 96%; /* Soft Sun Glow */
     --accent-foreground: 330 80% 40%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 330 20% 94%;
-    --input: 330 20% 94%;
+    --border: 330 20% 96%;
+    --input: 330 20% 96%;
     --ring: 330 95% 65%;
-    --radius: 1.5rem;
+    --radius: 2rem;
   }
 }
 
@@ -33,6 +33,18 @@
     @apply bg-background text-foreground font-body antialiased; 
     font-size: 16px;
     scroll-behavior: smooth;
+  }
+}
+
+@layer utilities {
+  .bg-glow {
+    background: radial-gradient(circle at 50% 50%, rgba(255, 51, 102, 0.05) 0%, rgba(255, 255, 255, 0) 70%),
+                radial-gradient(circle at 10% 20%, rgba(255, 184, 0, 0.03) 0%, rgba(255, 255, 255, 0) 50%),
+                radial-gradient(circle at 90% 80%, rgba(64, 224, 208, 0.03) 0%, rgba(255, 255, 255, 0) 50%);
+  }
+
+  .glass-card {
+    @apply bg-white/70 backdrop-blur-xl border border-white/20 shadow-xl;
   }
 }
 
@@ -51,52 +63,8 @@
   100% { background-position: 200% center; }
 }
 
-.shiny-text {
-  background: linear-gradient(
-    to right,
-    hsl(var(--primary)) 0%,
-    hsl(var(--secondary)) 25%,
-    #ffffff 50%,
-    hsl(var(--secondary)) 75%,
-    hsl(var(--primary)) 100%
-  );
-  background-size: 200% auto;
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: shine 3s linear infinite;
-  display: inline-block;
-}
-
-.shiny-icon {
-  position: relative;
-  overflow: hidden;
-}
-
-.shiny-icon::after {
-  content: "";
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(
-    to bottom right,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.6) 50%,
-    rgba(255, 255, 255, 0) 100%
-  );
-  transform: rotate(45deg);
-  animation: shine-sweep 3s infinite;
-}
-
-@keyframes shine-sweep {
-  0% { transform: translateX(-100%) rotate(45deg); }
-  100% { transform: translateX(100%) rotate(45deg); }
-}
-
 .animate-spin-slow {
-  animation: spin 8s linear infinite;
+  animation: spin 12s linear infinite;
 }
 
 @keyframes spin {
@@ -106,28 +74,24 @@
 
 @keyframes heartbeat {
   0% { transform: scale(1); }
-  15% { transform: scale(1.1); }
+  15% { transform: scale(1.05); }
   30% { transform: scale(1); }
-  45% { transform: scale(1.15); }
+  45% { transform: scale(1.08); }
   60% { transform: scale(1); }
 }
 
 .animate-heartbeat {
-  animation: heartbeat 2s infinite ease-in-out;
+  animation: heartbeat 3s infinite ease-in-out;
 }
 
-/* Custom scrollbar for friendly feel */
-::-webkit-scrollbar {
-  width: 6px;
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
 }
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  @apply bg-muted-foreground/10 rounded-full;
-}
-::-webkit-scrollbar-thumb:hover {
-  @apply bg-muted-foreground/20;
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
 }
 
 .no-scrollbar::-webkit-scrollbar {
