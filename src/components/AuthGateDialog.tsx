@@ -55,7 +55,7 @@ export function AuthGateDialog() {
     try {
       const result = await signInAnonymously(auth);
       
-      console.log("Guest identity:", result.user.uid);
+      console.log("Guest:", result.user.uid);
 
       if (db) {
          await setDoc(doc(db, 'users', result.user.uid), {
@@ -76,7 +76,7 @@ export function AuthGateDialog() {
 
       router.push("/");
     } catch (error: any) {
-      console.error("Guest login failed:", error);
+      console.error(error);
       
       let title = "Guest Access Ripple";
       let message = "Could not launch guest session. Please check your connection. ❤️";

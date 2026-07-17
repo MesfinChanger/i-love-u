@@ -174,11 +174,9 @@ function LoginContent() {
     try {
       const result = await signInAnonymously(auth);
       
-      // Guest UID Heartbeat
-      console.log("Guest identity:", result.user.uid);
+      console.log("Guest:", result.user.uid);
 
       if (db) {
-         // Create a basic identity record so the Hub can synchronize
          await setDoc(doc(db, 'users', result.user.uid), {
            uid: result.user.uid,
            name: "Guest Heart",
@@ -190,11 +188,9 @@ function LoginContent() {
       }
 
       toast({ title: "Guest Session Launched", description: "Welcome to the Revolution! ❤️" });
-      
-      // Redirect to main mission app
       router.push("/");
     } catch (error: any) {
-      console.error("Guest login failed:", error);
+      console.error(error);
       toast({ variant: "destructive", title: "Guest Access Ripple", description: "Could not launch guest session." });
     } finally {
       setIsLoading(false);
