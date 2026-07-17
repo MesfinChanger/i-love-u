@@ -3,14 +3,14 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Heart, PlayCircle } from 'lucide-react';
+import { Heart } from 'lucide-react';
 import { useUser, auth } from '@/firebase';
 import HeroMosaic from '@/components/HeroMosaic';
 import { Header } from '@/components/Header';
 
 /**
  * @fileOverview Landing Page for the Prosperity Revolution.
- * Includes Step 3 diagnostic to verify authentication state during synchronization.
+ * Refactored to include high-fidelity authentication diagnostics.
  */
 export default function Home() {
   const { user } = useUser();
@@ -19,9 +19,11 @@ export default function Home() {
   useEffect(() => { 
     setMounted(true); 
     
-    // Step 3 — Check Authentication
-    // Diagnostics to verify if the heart is identified in the global bridge.
-    console.log("Current User Sync Status:", auth.currentUser);
+    // Identity Sync Diagnostic
+    // Verifies if the heart is correctly identified in the global bridge.
+    if (auth) {
+      console.log("Firebase User Protocol Status:", auth.currentUser);
+    }
   }, []);
 
   if (!mounted) return <div className="flex items-center justify-center min-h-screen"><Heart className="w-12 h-12 text-primary animate-heartbeat fill-primary" /></div>;

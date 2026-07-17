@@ -2,8 +2,29 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // DEVELOPMENT OVERRIDE: User authenticated access
-    // This allows full interaction with new protocols (Research, Learning, etc.) during testing.
+    // Communities: Authenticated discovery and owner-only management
+    match /communities/{communityId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null && request.auth.uid == resource.data.ownerId;
+    }
+
+    // Businesses: Public discovery and owner-only management
+    match /businesses/{businessId} {
+      allow read: if true;
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null && request.auth.uid == resource.data.ownerId;
+    }
+
+    // Events: Public discovery and creator-only management
+    match /events/{eventId} {
+      allow read: if true;
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null && request.auth.uid == resource.data.creatorId;
+    }
+
+    // DEVELOPMENT OVERRIDE: User authenticated access for all other paths
+    // Ensures existing modules (matches, users, etc.) remain functional during testing.
     match /{document=**} {
       allow read, write: if request.auth != null;
     }
