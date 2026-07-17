@@ -14,7 +14,6 @@ import { useUser } from '@/firebase';
 
 /**
  * @fileOverview Unified Login Gateway.
- * Phase 3 — Real Login Protocol.
  * Identify returning hearts via secure email and phrase validation.
  */
 export default function LoginPage() {

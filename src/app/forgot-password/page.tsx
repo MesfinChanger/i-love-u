@@ -4,19 +4,10 @@ import { useState } from "react";
 import Link from "next/link";
 import { sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "@/lib/firebase";
-import { 
-  Heart, 
-  Loader2, 
-  ArrowLeft, 
-  Mail, 
-  CheckCircle2, 
-  ShieldCheck,
-  KeyRound,
-  Sparkles
-} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
+import { Heart, Loader2, KeyRound, Sparkles, ShieldCheck, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 /**
@@ -99,15 +90,9 @@ export default function ForgotPasswordPage() {
           <CardContent className="p-10 space-y-8">
             {message ? (
               <div className="text-center space-y-6 animate-in zoom-in-95 duration-500">
-                <div className="w-20 h-20 bg-green-50 rounded-[2rem] flex items-center justify-center mx-auto border-2 border-dashed border-green-200">
-                  <CheckCircle2 className="w-10 h-10 text-green-500" />
-                </div>
-                <div className="space-y-3">
-                  <h2 className="text-xl font-black uppercase tracking-tight text-slate-900">Check Your Heart</h2>
-                  <p className="text-xs text-muted-foreground font-medium italic leading-relaxed">
-                    {message}
-                  </p>
-                </div>
+                <p className="text-sm text-green-600 font-medium italic leading-relaxed">
+                  {message}
+                </p>
                 <Button asChild className="w-full h-16 rounded-2xl gradient-bg font-black uppercase tracking-widest text-[10px] shadow-xl shadow-primary/20">
                   <Link href="/login">Return to Sign In</Link>
                 </Button>
@@ -116,17 +101,14 @@ export default function ForgotPasswordPage() {
               <form onSubmit={handleReset} className="space-y-6">
                 <div className="space-y-2">
                   <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-800 ml-1">REGISTERED EMAIL</p>
-                  <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                    <Input 
-                      type="email" 
-                      placeholder="Email address"
-                      value={email} 
-                      onChange={(e) => setEmail(e.target.value)} 
-                      className="h-14 pl-12 rounded-2xl bg-muted/30 border-none font-bold" 
-                      required
-                    />
-                  </div>
+                  <Input 
+                    type="email" 
+                    placeholder="Email address"
+                    value={email} 
+                    onChange={(e) => setEmail(e.target.value)} 
+                    className="h-14 rounded-2xl bg-muted/30 border-none font-bold" 
+                    required
+                  />
                 </div>
 
                 <Button 
@@ -153,10 +135,6 @@ export default function ForgotPasswordPage() {
             )}
           </CardContent>
         </Card>
-        
-        <p className="text-center text-[9px] font-black uppercase tracking-[0.4em] text-slate-300">
-          Respect & Love is Mandatory ❤️ Prosperity Revolution
-        </p>
       </div>
     </main>
   );
