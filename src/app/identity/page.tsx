@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -29,50 +28,65 @@ export default function IdentityHubPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Identity Auth Listener Protocol
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      console.log("Identity Auth:", currentUser);
+    let mounted = true;
 
-      if (!currentUser) {
-        setUser(null);
-        setIdentity(null);
-        setLoading(false);
-        return;
-      }
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      async (currentUser) => {
+        console.log(
+          "Identity Hub Auth User:",
+          currentUser?.uid
+        );
 
-      setUser(currentUser);
+        if (!mounted) return;
 
-      try {
-        const identityRef = doc(db, "users", currentUser.uid);
-        const snapshot = await getDoc(identityRef);
-
-        if (snapshot.exists()) {
-          setIdentity(snapshot.data());
-        } else {
-          // Automatic Identity Initialization
-          const newIdentity = {
-            uid: currentUser.uid,
-            name: currentUser.displayName || "New User",
-            email: currentUser.email || "",
-            photoURL: currentUser.photoURL || "",
-            language: "English",
-            country: "",
-            skills: [],
-            interests: [],
-            createdAt: serverTimestamp()
-          };
-
-          await setDoc(identityRef, newIdentity);
-          setIdentity(newIdentity);
+        if (!currentUser) {
+          setUser(null);
+          setIdentity(null);
+          setLoading(false);
+          return;
         }
-      } catch (error) {
-        console.error("Identity synchronization error:", error);
-      } finally {
-        setLoading(false);
-      }
-    });
 
-    return () => unsubscribe();
+        setUser(currentUser);
+
+        try {
+          const identityRef = doc(db, "users", currentUser.uid);
+          const snapshot = await getDoc(identityRef);
+
+          if (snapshot.exists()) {
+            setIdentity(snapshot.data());
+          } else {
+            // High-Fidelity Auto-Initialization Protocol
+            const newIdentity = {
+              uid: currentUser.uid,
+              name: currentUser.displayName || "Guest Heart",
+              email: currentUser.email || "Guest Account",
+              photoURL: currentUser.photoURL || "",
+              accountType: currentUser.isAnonymous ? "Guest" : "Member",
+              language: "English",
+              country: "",
+              skills: [],
+              interests: [],
+              createdAt: serverTimestamp()
+            };
+
+            await setDoc(identityRef, newIdentity);
+            setIdentity(newIdentity);
+          }
+        } catch (error) {
+          console.error("Identity Hub Error:", error);
+        } finally {
+          if (mounted) {
+            setLoading(false);
+          }
+        }
+      }
+    );
+
+    return () => {
+      mounted = false;
+      unsubscribe();
+    };
   }, []);
 
   if (loading) {
@@ -95,14 +109,14 @@ export default function IdentityHubPage() {
 
   return (
     <main className="p-6 space-y-6 pb-24">
-      <h1 className="text-4xl font-bold">👤 Identity Hub</h1>
+      <h1 className="text-4xl font-bold tracking-tighter uppercase">👤 Identity Hub</h1>
       <p className="text-gray-600 font-medium italic">
         Your personal, social, learning, professional and impact identity.
       </p>
 
       {/* Personal Identity */}
       <section className="rounded-2xl border p-5 bg-white shadow-sm">
-        <h2 className="text-2xl font-semibold">🪪 Personal Identity</h2>
+        <h2 className="text-2xl font-semibold tracking-tight">🪪 Personal Identity</h2>
         <div className="mt-3 space-y-2">
           <p>
             <span className="font-bold uppercase text-[10px] text-slate-400">Name:</span>
@@ -116,12 +130,16 @@ export default function IdentityHubPage() {
             <span className="font-bold uppercase text-[10px] text-slate-400">Language:</span>
             {" "} {identity?.language}
           </p>
+          <p>
+            <span className="font-bold uppercase text-[10px] text-slate-400">Account Type:</span>
+            {" "} {identity?.accountType}
+          </p>
         </div>
       </section>
 
       {/* Social Identity */}
       <section className="rounded-2xl border p-5 bg-white shadow-sm">
-        <h2 className="text-2xl font-semibold">❤️ Social Identity</h2>
+        <h2 className="text-2xl font-semibold tracking-tight">❤️ Social Identity</h2>
         <ul className="mt-3 space-y-2 font-medium">
           <li>❤️ Spark Preferences</li>
           <li>🤝 Circle Memberships</li>
@@ -131,7 +149,7 @@ export default function IdentityHubPage() {
 
       {/* Learning Identity */}
       <section className="rounded-2xl border p-5 bg-white shadow-sm">
-        <h2 className="text-2xl font-semibold">🎓 Learning Identity</h2>
+        <h2 className="text-2xl font-semibold tracking-tight">🎓 Learning Identity</h2>
         <ul className="mt-3 space-y-2 font-medium">
           <li>📚 Courses</li>
           <li>🏆 Certificates</li>
@@ -141,7 +159,7 @@ export default function IdentityHubPage() {
 
       {/* Professional Identity */}
       <section className="rounded-2xl border p-5 bg-white shadow-sm">
-        <h2 className="text-2xl font-semibold">💼 Professional Identity</h2>
+        <h2 className="text-2xl font-semibold tracking-tight">💼 Professional Identity</h2>
         <ul className="mt-3 space-y-2 font-medium">
           <li>🚀 Projects</li>
           <li>📁 Portfolio</li>
@@ -151,7 +169,7 @@ export default function IdentityHubPage() {
 
       {/* Impact Identity */}
       <section className="rounded-2xl border p-5 bg-white shadow-sm">
-        <h2 className="text-2xl font-semibold">🌱 Impact Identity</h2>
+        <h2 className="text-2xl font-semibold tracking-tight">🌱 Impact Identity</h2>
         <ul className="mt-3 space-y-2 font-medium">
           <li>🤲 Volunteer Activities</li>
           <li>🌍 Community Contributions</li>
@@ -161,7 +179,7 @@ export default function IdentityHubPage() {
 
       {/* Security */}
       <section className="rounded-2xl border p-5 bg-white shadow-sm">
-        <h2 className="text-2xl font-semibold">🔐 Security Center</h2>
+        <h2 className="text-2xl font-semibold tracking-tight">🔐 Security Center</h2>
         <ul className="mt-3 space-y-2 font-medium">
           <li>Device Sessions</li>
           <li>Privacy Settings</li>
