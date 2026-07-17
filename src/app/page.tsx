@@ -5,94 +5,422 @@ import { useRouter } from "next/navigation";
 import { signInAnonymously } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useState } from "react";
-import { 
-  Heart, 
-  Sparkles, 
-  LogIn, 
-  UserPlus, 
-  Loader2, 
-  ArrowRight
+
+import {
+  Heart,
+  Sparkles,
+  LogIn,
+  UserPlus,
+  Loader2,
+  Globe,
+  Lightbulb,
+  Users
 } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 
-/**
- * @fileOverview Welcome Gateway.
- * A clean, light, and professional entry point for the Prosperity Revolution.
- * Restored to original proportions with balanced typography.
- */
+
 export default function WelcomePage() {
+
   const router = useRouter();
+
   const [loading, setLoading] = useState(false);
 
+
+
   const handleGuestLogin = async () => {
+
     try {
+
       setLoading(true);
+
       await signInAnonymously(auth);
+
       router.push("/dashboard");
-    } catch (error) {
-      console.error("Guest Access Ripple:", error);
+
+
+    } catch(error){
+
+      console.error(error);
+
     } finally {
+
       setLoading(false);
+
     }
+
   };
 
+
+
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center bg-white p-6 relative overflow-hidden">
-      {/* Subtle Background Ambience */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-3xl -z-10" />
 
-      <div className="max-w-2xl w-full space-y-12 text-center animate-in fade-in zoom-in-95 duration-700">
-        <div className="space-y-6">
-          <div className="flex justify-center">
-            <div className="w-20 h-20 bg-white rounded-[2rem] flex items-center justify-center shadow-xl ring-4 ring-primary/5">
-              <Heart className="w-10 h-10 text-primary fill-primary animate-heartbeat" />
-            </div>
-          </div>
-          
-          <div className="space-y-3">
-            <h1 className="text-5xl font-black tracking-tighter text-slate-900 uppercase">
-              I LOVE U
-            </h1>
-            <p className="text-xl font-bold text-muted-foreground italic">
-              Identify Your <span className="text-primary not-italic">Heart Signature</span>
-            </p>
-          </div>
+    <main
+      className="
+      min-h-screen
+      relative
+      overflow-hidden
+      flex
+      items-center
+      justify-center
+      px-6
+      py-16
+      bg-gradient-to-br
+      from-white
+      via-pink-50
+      to-blue-50
+      "
+    >
 
-          <p className="max-w-md mx-auto text-base text-slate-500 font-medium leading-relaxed">
-            "Respect & Love is Mandatory. Join the community reaching every heart and ending world poverty through the power of connection."
-          </p>
-        </div>
 
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button asChild className="h-16 px-10 rounded-2xl gradient-bg font-black uppercase text-xs shadow-xl shadow-primary/20 active:scale-95 transition-all gap-2 border-none">
-            <Link href="/signup">
-              <UserPlus className="w-4 h-4" />
-              Join Mission
-            </Link>
-          </Button>
-          <Button asChild variant="outline" className="h-16 px-10 rounded-2xl bg-white border-2 border-slate-100 text-slate-900 hover:bg-slate-50 font-black uppercase text-xs shadow-sm active:scale-95 transition-all gap-2">
-            <Link href="/login">
-              <LogIn className="w-4 h-4 text-primary" />
-              Sign In
-            </Link>
-          </Button>
-        </div>
+      {/* Soft glowing circles */}
 
-        <div className="flex flex-col items-center gap-4 pt-4">
-          <button
-            onClick={handleGuestLogin}
-            disabled={loading}
-            className="group inline-flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em] text-primary/60 hover:text-primary transition-colors"
+      <div
+        className="
+        absolute
+        -top-40
+        -left-40
+        w-96
+        h-96
+        rounded-full
+        bg-pink-200/40
+        blur-3xl
+        "
+      />
+
+      <div
+        className="
+        absolute
+        -bottom-40
+        -right-40
+        w-96
+        h-96
+        rounded-full
+        bg-blue-200/40
+        blur-3xl
+        "
+      />
+
+
+
+      {/* Main Content */}
+
+      <div
+        className="
+        relative
+        z-10
+        max-w-4xl
+        w-full
+        text-center
+        space-y-12
+        "
+      >
+
+
+
+        {/* Logo */}
+
+        <div
+          className="
+          flex
+          flex-col
+          items-center
+          gap-5
+          "
+        >
+
+          <div
+            className="
+            w-28
+            h-28
+            rounded-[2rem]
+            bg-white
+            shadow-xl
+            flex
+            items-center
+            justify-center
+            ring-8
+            ring-pink-100
+            "
           >
-            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-            Explore as Guest <ArrowRight className="w-3 h-3" />
-          </button>
-          
-          <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-300 pt-8">
-            Respect is Mandatory ❤️ Prosperity Revolution
+
+            <Heart
+              className="
+              w-14
+              h-14
+              text-pink-500
+              fill-pink-500
+              "
+            />
+
+          </div>
+
+
+
+          <h1
+            className="
+            text-5xl
+            md:text-7xl
+            font-black
+            tracking-tight
+            "
+          >
+            ❤️ I LOVE U
+          </h1>
+
+
+          <p
+            className="
+            text-sm
+            md:text-base
+            font-bold
+            tracking-[0.45em]
+            text-pink-600
+            "
+          >
+            PROSPERITY REVOLUTION
           </p>
+
+
         </div>
+
+
+
+
+
+        {/* Message */}
+
+        <div className="space-y-5">
+
+
+          <h2
+            className="
+            text-3xl
+            md:text-4xl
+            font-black
+            "
+          >
+            Identify Your Heart
+          </h2>
+
+
+          <p
+            className="
+            max-w-xl
+            mx-auto
+            text-muted-foreground
+            text-lg
+            "
+          >
+            Every spark needs a signature.
+            Connect, share ideas, build circles,
+            and grow together worldwide.
+          </p>
+
+
+        </div>
+
+
+
+
+
+        {/* Buttons */}
+
+        <div
+          className="
+          max-w-xl
+          mx-auto
+          space-y-4
+          "
+        >
+
+
+          <div
+            className="
+            grid
+            md:grid-cols-2
+            gap-4
+            "
+          >
+
+
+            <Button
+              asChild
+              className="
+              h-16
+              rounded-2xl
+              font-black
+              shadow-lg
+              "
+            >
+
+              <Link href="/login">
+
+                <LogIn className="mr-2"/>
+
+                Sign In
+
+              </Link>
+
+
+            </Button>
+
+
+
+
+
+            <Button
+              asChild
+              className="
+              h-16
+              rounded-2xl
+              font-black
+              bg-pink-500
+              hover:bg-pink-600
+              "
+            >
+
+              <Link href="/signup">
+
+                <UserPlus className="mr-2"/>
+
+                Join
+
+              </Link>
+
+
+            </Button>
+
+
+          </div>
+
+
+
+
+
+          <Button
+
+            onClick={handleGuestLogin}
+
+            disabled={loading}
+
+            variant="outline"
+
+            className="
+            w-full
+            h-16
+            rounded-2xl
+            font-black
+            bg-white/70
+            "
+
+          >
+
+          {
+            loading
+            ?
+            <Loader2 className="animate-spin mr-2"/>
+            :
+            <Sparkles className="mr-2"/>
+          }
+
+          Explore as Guest
+
+
+          </Button>
+
+
+        </div>
+
+
+
+
+
+        {/* Mission Cards */}
+
+        <div
+          className="
+          grid
+          md:grid-cols-4
+          gap-4
+          "
+        >
+
+
+          {[
+            {
+              icon:<Users/>,
+              title:"Connect",
+              text:"Build circles"
+            },
+            {
+              icon:<Sparkles/>,
+              title:"Spark",
+              text:"Create ideas"
+            },
+            {
+              icon:<Lightbulb/>,
+              title:"Idea Pool",
+              text:"Share wisdom"
+            },
+            {
+              icon:<Globe/>,
+              title:"Global",
+              text:"Grow together"
+            }
+
+          ].map((item,index)=>(
+
+            <div
+              key={index}
+              className="
+              bg-white/70
+              backdrop-blur
+              rounded-3xl
+              p-5
+              shadow-sm
+              "
+            >
+
+              <div className="text-pink-500 flex justify-center mb-3">
+                {item.icon}
+              </div>
+
+              <h3 className="font-black">
+                {item.title}
+              </h3>
+
+              <p className="text-xs text-muted-foreground">
+                {item.text}
+              </p>
+
+
+            </div>
+
+
+          ))}
+
+
+        </div>
+
+
+
+        <p
+          className="
+          text-sm
+          text-muted-foreground
+          "
+        >
+          Respect & Love is Mandatory ❤️
+        </p>
+
+
+
       </div>
+
+
     </main>
+
   );
+
 }

@@ -16,6 +16,7 @@ import {
 import Link from 'next/link';
 import AuthGuard from '@/components/AuthGuard';
 import { cn } from '@/lib/utils';
+import { useUser } from '@/firebase';
 
 /**
  * @fileOverview High-Fidelity Mission Dashboard.
@@ -23,6 +24,8 @@ import { cn } from '@/lib/utils';
  * Moved to route group to resolve Parallel Route Conflict.
  */
 export default function DashboardPage() {
+  const { user } = useUser();
+
   return (
     <AuthGuard>
       <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
@@ -31,7 +34,9 @@ export default function DashboardPage() {
         <main className="container mx-auto px-6 py-12 max-w-5xl space-y-10">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             <div className="space-y-2">
-              <h1 className="text-5xl font-black tracking-tighter uppercase leading-none">Welcome Home</h1>
+              <h1 className="text-5xl font-black tracking-tighter uppercase leading-none">
+                Welcome Home{user?.displayName ? `, ${user.displayName}` : ''}
+              </h1>
               <p className="text-muted-foreground font-medium italic">"Your presence fuels the Prosperity Revolution."</p>
             </div>
             <div className="bg-slate-900 text-white px-6 py-3 rounded-full flex items-center gap-3 shadow-xl">
