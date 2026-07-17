@@ -78,19 +78,23 @@ function AdvertiserManageContent() {
   const advertiserStatus = profile?.advertiserStatus || 'none';
   const isApprovedAdvertiser = profile?.isAdvertiser && advertiserStatus === 'approved';
 
-  // Hold Protocol: Load Draft
+  // Hold Protocol: Load Draft with JSON resilience
   useEffect(() => {
     setMounted(true);
     if (user?.uid) {
       const draft = localStorage.getItem(`ad_draft_${user.uid}`);
-      if (draft) {
+      if (draft && draft.trim()) {
         try {
           const parsed = JSON.parse(draft);
-          setTitle(prev => parsed.title || prev);
-          setDescription(prev => parsed.description || prev);
-          setTargetUrl(prev => parsed.targetUrl || prev);
-          setBudget(prev => parsed.budget || prev);
-        } catch (e) {}
+          if (parsed && typeof parsed === 'object') {
+            setTitle(prev => parsed.title || prev);
+            setDescription(prev => parsed.description || prev);
+            setTargetUrl(prev => parsed.targetUrl || prev);
+            setBudget(prev => parsed.budget || prev);
+          }
+        } catch (e) {
+          console.warn("Draft Synchronization Ripple:", e);
+        }
       }
     }
   }, [user]);

@@ -6,13 +6,32 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     // ============================
-    // USER PROFILES
+    // USER PROFILES & PRIVATE DATA
     // ============================
 
     match /users/{userId} {
-      allow read: if request.auth != null;
+      // RULE: Private data only readable by owner
+      allow read: if request.auth != null && request.auth.uid == userId;
       allow create: if request.auth.uid == userId;
       allow update, delete: if request.auth.uid == userId;
+    }
+
+    match /wallets/{userId} {
+      // RULE: Financial registry restricted to owner
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow create, update: if request.auth != null && request.auth.uid == userId;
+    }
+
+    match /transactions/{txId} {
+      // RULE: Financial heartbeat only readable by owner
+      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+    }
+
+    match /orders/{orderId} {
+      // RULE: Commerce data readable by buyer or seller
+      allow read: if request.auth != null && (request.auth.uid == resource.data.buyerId || request.auth.uid == resource.data.sellerId);
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.buyerId;
     }
 
     // ============================
@@ -25,15 +44,25 @@ service cloud.firestore {
       allow update, delete: if request.auth != null && request.auth.uid == userId;
     }
 
+    match /publicProfiles/{userId} {
+      allow read: if request.auth != null;
+      allow create, update: if request.auth != null && request.auth.uid == userId;
+    }
+
     match /sparkGreetings/{greetingId} {
       allow create: if request.auth != null && request.auth.uid == request.resource.data.fromUserId;
       allow read: if request.auth != null && (request.auth.uid == resource.data.fromUserId || request.auth.uid == resource.data.toUserId);
       allow update: if request.auth != null && request.auth.uid == resource.data.toUserId;
     }
 
-    match /sparkConnections/{connectionId} {
-      allow read: if request.auth != null && request.auth.uid in resource.data.userIds;
-      allow create: if request.auth != null;
+    match /connections/{connectionId} {
+      allow read: if request.auth != null && (request.auth.uid == resource.data.fromUserId || request.auth.uid == resource.data.toUserId);
+      allow create, update: if request.auth != null;
+    }
+
+    match /relationships/{relId} {
+      allow read: if request.auth != null && (request.auth.uid == resource.data.userA || request.auth.uid == resource.data.userB);
+      allow create, update: if request.auth != null;
     }
 
     // ============================
@@ -45,17 +74,79 @@ service cloud.firestore {
       allow create: if request.auth != null;
       
       match /messages/{messageId} {
-        // Only the sender can create their own messages
         allow create: if request.auth != null && request.auth.uid == request.resource.data.senderId;
-        
-        // Only conversation members can read the message registry
         allow read: if request.auth != null && request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants;
       }
     }
 
-    // Default catch-all rules for other collections
+    // ============================
+    // COMMUNITIES & IDEAS
+    // ============================
+
+    match /communities/{communityId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null && request.auth.uid == resource.data.ownerId;
+      
+      match /members/{memberId} {
+        allow read: if request.auth != null;
+        allow create, update: if request.auth != null && request.auth.uid == memberId;
+      }
+    }
+
+    match /communityMessages/{msgId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.authorId;
+    }
+
+    match /ideaPool/{ideaId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.authorId;
+    }
+
+    // ============================
+    // COMMERCE & ADS
+    // ============================
+
+    match /shops/{shopId} {
+      allow read: if request.auth != null;
+      allow create, update: if request.auth != null && request.auth.uid == resource.data.ownerId;
+    }
+
+    match /products/{productId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null && request.auth.uid == resource.data.storeId;
+    }
+
+    match /ads/{adId} {
+      allow read: if request.auth != null && (resource.data.status == "approved" || request.auth.uid == resource.data.advertiserId);
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.advertiserId;
+      allow update, delete: if request.auth != null && request.auth.uid == resource.data.advertiserId;
+    }
+
+    // ============================
+    // SYSTEM & MAINTENANCE
+    // ============================
+
+    match /siteSettings/{settingId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
+    }
+
+    match /feedback/{feedbackId} {
+      allow create: if request.auth != null;
+      allow read: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
+    }
+
+    match /publicKeys/{userId} {
+      allow read: if request.auth != null;
+      allow create, update: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Default catch-all rules (Admin only for non-defined paths)
     match /{allPaths=**} {
-      allow read, write: if request.auth != null;
+      allow read, write: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
     }
   }
 }

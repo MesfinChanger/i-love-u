@@ -84,17 +84,21 @@ function SellerManageContent() {
   }, [db, user]);
   const { data: myProducts, loading: productsLoading } = useCollection(productsQuery);
 
-  // Hold Protocol: Load Draft
+  // Hold Protocol: Load Draft with JSON resilience
   useEffect(() => {
     setMounted(true);
     if (user?.uid) {
       const draft = localStorage.getItem(`shop_draft_${user.uid}`);
-      if (draft) {
+      if (draft && draft.trim()) {
         try {
           const parsed = JSON.parse(draft);
-          setShopName(prev => parsed.shopName || prev);
-          setShopDesc(prev => parsed.shopDesc || prev);
-        } catch (e) {}
+          if (parsed && typeof parsed === 'object') {
+            setShopName(prev => parsed.shopName || prev);
+            setShopDesc(prev => parsed.shopDesc || prev);
+          }
+        } catch (e) {
+          console.warn("Draft Synchronization Ripple:", e);
+        }
       }
     }
   }, [user]);
@@ -245,7 +249,7 @@ function SellerManageContent() {
     return (
       <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
         <Header />
-        <main className="container mx-auto px-4 py-12 max-w-lg">
+        <main className="container mx-auto px-4 py-12 max-lg text-center">
            <Card className="rounded-[3rem] border-none shadow-2xl overflow-hidden bg-white p-12 text-center space-y-8">
               <div className="w-24 h-24 bg-amber-50 rounded-full flex items-center justify-center mx-auto ring-4 ring-white shadow-xl">
                  <Clock className="w-12 h-12 text-amber-500 animate-pulse" />
@@ -343,8 +347,7 @@ function SellerManageContent() {
                     {isSubscribing ? <Loader2 className="w-4 h-4 animate-spin" /> : "Verify & Scale"}
                   </Button>
                 </CardFooter>
-              </Card>
-            </div>
+              </div>
           </div>
         ) : (
           <div className="space-y-8">
