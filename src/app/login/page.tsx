@@ -14,6 +14,7 @@ import { useUser } from '@/firebase';
 
 /**
  * @fileOverview Unified Login Gateway.
+ * Phase 3 — Real Login Protocol.
  * Identify returning hearts via secure email and phrase validation.
  */
 export default function LoginPage() {
@@ -24,6 +25,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (user && !authLoading) {
@@ -36,11 +38,13 @@ export default function LoginPage() {
     if (!email || !password || !auth) return;
     
     setIsLoading(true);
+    setError("");
     try {
       await signInWithEmailAndPassword(auth, email.trim(), password);
       toast({ title: "Welcome Back", description: "Identity synchronized. ❤️" });
       router.push('/dashboard');
     } catch (err: any) {
+      setError(err.message);
       toast({ 
         variant: "destructive", 
         title: "Access Ripple", 
@@ -122,9 +126,17 @@ export default function LoginPage() {
                   </>
                 )}
               </Button>
+
+              {error && <p className="text-xs text-red-500 text-center font-bold">{error}</p>}
             </form>
 
             <div className="flex flex-col gap-4 text-center">
+              <Link 
+                href="/forgot-password" 
+                className="text-[10px] font-black uppercase tracking-widest text-primary hover:underline"
+              >
+                Forgot Password?
+              </Link>
               <Link 
                 href="/signup" 
                 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors"
@@ -133,9 +145,9 @@ export default function LoginPage() {
               </Link>
               <Link 
                 href="/recovery" 
-                className="text-[10px] font-black uppercase tracking-widest text-primary hover:underline"
+                className="text-[10px] font-black uppercase tracking-widest text-primary/60 hover:underline"
               >
-                Forgot Password? Recovery Hub
+                Recovery Hub
               </Link>
             </div>
           </CardContent>

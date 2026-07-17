@@ -35,6 +35,7 @@ export default function ForgotUsernamePage() {
 
       if (querySnapshot.empty) {
         toast({ title: "Retrieval Complete", description: "If an identity matches this email, a reminder has been dispatched. ✨" });
+        setFoundUsernames([]);
       } else {
         const usernames = querySnapshot.docs.map(doc => doc.data().username || doc.data().displayName || "Mystery Heart");
         setFoundUsernames(usernames);
@@ -64,7 +65,7 @@ export default function ForgotUsernamePage() {
           </div>
 
           <CardContent className="p-10 space-y-8">
-            {foundUsernames ? (
+            {foundUsernames && foundUsernames.length > 0 ? (
               <div className="space-y-6 text-center">
                 <div className="w-16 h-16 bg-green-50 rounded-2xl flex items-center justify-center mx-auto border-2 border-dashed border-green-200">
                    <ShieldCheck className="w-8 h-8 text-green-500" />
@@ -83,6 +84,11 @@ export default function ForgotUsernamePage() {
                   <Link href="/login">Identify with Phrase</Link>
                 </Button>
               </div>
+            ) : foundUsernames && foundUsernames.length === 0 ? (
+                <div className="space-y-6 text-center">
+                  <p className="text-sm text-muted-foreground italic">No identities found for this email. ❤️</p>
+                  <Button variant="outline" onClick={() => setFoundUsernames(null)} className="w-full h-12 rounded-xl">Try Another</Button>
+                </div>
             ) : (
               <div className="space-y-6">
                 <div className="space-y-2">

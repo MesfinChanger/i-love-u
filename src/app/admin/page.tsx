@@ -20,9 +20,8 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 
 /**
- * @fileOverview Sovereign Admin Command Center.
+ * @fileOverview Admin Command Center.
  * Exclusively accessible to community guardians. 
- * Orchestrates global platform metrics and registry management.
  */
 export default function AdminDashboardPage() {
   return (
@@ -34,7 +33,7 @@ export default function AdminDashboardPage() {
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             <div className="space-y-2">
               <h1 className="text-5xl font-black tracking-tighter uppercase leading-none">Command Center</h1>
-              <p className="text-muted-foreground font-medium italic">"Guardian Protocol: Protecting the Prosperity Revolution."</p>
+              <p className="text-muted-foreground font-medium italic">"Guardian Protocol Active."</p>
             </div>
             <div className="bg-slate-900 text-white px-6 py-3 rounded-full flex items-center gap-3 shadow-xl">
                <ShieldCheck className="w-5 h-5 text-primary" />
@@ -90,9 +89,6 @@ export default function AdminDashboardPage() {
                       <p className="text-2xl font-black">0 Incidents</p>
                    </div>
                 </div>
-                <Button variant="outline" className="h-14 rounded-2xl px-8 border-2 font-black uppercase text-[10px] tracking-widest">
-                   Access Policy Console
-                </Button>
              </CardContent>
           </Card>
         </main>

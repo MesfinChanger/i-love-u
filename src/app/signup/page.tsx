@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 
 /**
  * @fileOverview Identity Registration Hub.
+ * Phase 2 — Real Signup Protocol.
  * Create a permanent heart signature to join the Prosperity Revolution.
  */
 export default function SignupPage() {
@@ -23,12 +24,14 @@ export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
   async function handleSignup(e: React.FormEvent) {
     e.preventDefault();
     if (!email || !password || !auth || !db) return;
 
     setIsLoading(true);
+    setError("");
     try {
       const result = await createUserWithEmailAndPassword(auth, email.trim(), password);
 
@@ -54,6 +57,7 @@ export default function SignupPage() {
       router.push("/policy/agree");
     } catch (e: any) {
       console.error(e);
+      setError(e.message);
       toast({
         variant: "destructive",
         title: "Access Ripple",
@@ -127,6 +131,8 @@ export default function SignupPage() {
                   </>
                 )}
               </Button>
+
+              {error && <p className="text-xs text-red-500 text-center font-bold">{error}</p>}
             </form>
 
             <div className="flex flex-col gap-4 text-center">
