@@ -16,11 +16,8 @@ import {
   Percent,
   Save,
   Clock,
-  CheckCircle2,
-  FileCheck,
   Plus,
-  Trash2,
-  Tags
+  Trash2
 } from 'lucide-react';
 import { useUser, useFirestore, useDoc, useCollection } from '@/firebase';
 import { doc, setDoc, updateDoc, collection, serverTimestamp, query, where, deleteDoc } from 'firebase/firestore';
@@ -32,7 +29,6 @@ import { CURRENCIES } from '@/lib/world-data';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Image from 'next/image';
-import { createProduct } from '@/services/shop/product.service';
 import Link from 'next/link';
 
 function SellerManageContent() {
@@ -197,7 +193,7 @@ function SellerManageContent() {
             <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
               <Store className="w-12 h-12 text-primary" />
             </div>
-            <h1 className="text-5xl font-black tracking-tighter">Become a Seller</h1>
+            <h1 className="text-5xl font-black tracking-tighter uppercase">Become a Seller</h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto font-medium italic">"Launch your prosperity journey on I Love U."</p>
 
             <div className="grid md:grid-cols-3 gap-6 mt-12 items-stretch text-left">
@@ -246,7 +242,7 @@ function SellerManageContent() {
           <div className="space-y-8">
             <div className="flex justify-between items-end">
               <div>
-                <h1 className="text-4xl font-black tracking-tighter">Seller Console</h1>
+                <h1 className="text-4xl font-black tracking-tighter uppercase">Seller Console</h1>
                 <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1">Verified Marketplace</p>
               </div>
               <Button asChild variant="outline" className="rounded-xl h-10 px-4 font-black uppercase text-[9px] border-2">
