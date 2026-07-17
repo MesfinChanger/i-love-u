@@ -33,9 +33,11 @@ export default function ForgotPasswordPage() {
       console.log("RESET ERROR CODE:", error.code);
       console.log("RESET ERROR MESSAGE:", error.message);
 
-      setError(
-        error.code + " : " + error.message
-      );
+      if (error.code === "auth/user-not-found") {
+        setError("No account exists with this email signature.");
+      } else {
+        setError(error.code + " : " + error.message);
+      }
     } finally {
       setLoading(false);
     }
@@ -65,7 +67,7 @@ export default function ForgotPasswordPage() {
           <CardContent className="p-10 space-y-8">
             {message ? (
                <div className="space-y-6 text-center animate-in fade-in duration-500">
-                  <div className="p-6 bg-green-50 rounded-3xl border-2 border-dashed border-green-200 text-green-700 font-bold italic">
+                  <div className="p-6 bg-green-50 rounded-3xl border-2 border-dashed border-green-200 text-green-700 font-bold italic text-sm">
                      {message}
                   </div>
                   <Button asChild className="w-full h-14 rounded-2xl gradient-bg font-black uppercase text-[10px] tracking-widest shadow-xl">

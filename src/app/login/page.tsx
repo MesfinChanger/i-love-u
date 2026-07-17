@@ -45,55 +45,28 @@ export default function LoginPage() {
       await signInWithEmailAndPassword(auth, email.trim(), password);
       toast({ title: "Welcome Back", description: "Identity synchronized. ❤️" });
       router.push('/dashboard');
-    } catch (err:any) {
-
-      let message =
-        "Unable to synchronize identity.";
-    
-      switch(err.code){
-    
-        case "auth/user-not-found":
-          message =
-          "No account found with this email.";
-          break;
-    
-    
-        case "auth/wrong-password":
-          message =
-          "Incorrect password.";
-          break;
-    
-    
-        case "auth/invalid-credential":
-          message =
-          "Email or password is incorrect.";
-          break;
-    
-    
-        case "auth/too-many-requests":
-          message =
-          "Too many attempts. Try again later.";
-          break;
-    
-    
-        case "auth/network-request-failed":
-          message =
-          "Network problem. Check your connection.";
-          break;
-    
-      }
-    
-    
+    } catch (err: any) {
+      let message = "Unable to synchronize identity.";
+      if (err.code === "auth/invalid-credential") message = "Email or phrase is incorrect.";
       setError(message);
-    
-    
-      toast({
-        variant:"destructive",
-        title:"Access Ripple",
-        description:message
-      });
-    
+      toast({ variant: "destructive", title: "Access Ripple", description: message });
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  const handleGuestLogin = async () => {
+    setIsLoading(true);
+    try {
+      await signInAnonymously(auth);
+      toast({ title: "Welcome Guest Heart ❤️", description: "Exploring the Prosperity Revolution." });
+      router.push("/dashboard");
+    } catch (err: any) {
+      toast({ variant: "destructive", title: "Guest Access Failed", description: err.message });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   if (authLoading) return (
     <div className="min-h-screen flex items-center justify-center bg-muted/30">
@@ -170,60 +143,33 @@ export default function LoginPage() {
               {error && <p className="text-xs text-red-500 text-center font-bold">{error}</p>}
             </form>
 
-            <Button
-  type="button"
-  onClick={handleGuestLogin}
-  variant="outline"
-  className="
-  w-full
-  h-14
-  rounded-2xl
-  font-black
-  uppercase
-  "
->
-❤️ Explore as Guest
-</Button>
-              <Link 
-                href="/forgot-password" 
-                className="text-[10px] font-black uppercase tracking-widest text-primary hover:underline"
+            <div className="flex flex-col gap-4 text-center">
+              <Button
+                type="button"
+                onClick={handleGuestLogin}
+                variant="outline"
+                className="w-full h-14 rounded-2xl font-black uppercase text-[10px] tracking-widest border-2"
               >
-                Forgot Password?
-              </Link>
-              <Link 
-                href="/signup" 
-                className="text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors"
-              >
-                Need a heart signature? <span className="text-primary underline">Join the Mission</span>
-              </Link>
+                ❤️ Explore as Guest
+              </Button>
+              
+              <div className="flex flex-col gap-2">
+                <Link 
+                  href="/forgot-password" 
+                  className="text-[10px] font-black uppercase tracking-widest text-primary hover:underline"
+                >
+                  Forgot Password?
+                </Link>
+                <Link 
+                  href="/signup" 
+                  className="text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors"
+                >
+                  Need a heart signature? <span className="text-primary underline">Join the Mission</span>
+                </Link>
+              </div>
             </div>
           </CardContent>
-        </Card>const handleGuestLogin = async()=>{
-
-try {
-
-  await signInAnonymously(auth);
-
-  toast({
-    title:"Welcome Guest Heart ❤️",
-    description:"Exploring the Prosperity Revolution."
-  });
-
-
-  router.push("/dashboard");
-
-
-} catch(err:any){
-
-  toast({
-    variant:"destructive",
-    title:"Guest Access Failed",
-    description:err.message
-  });
-
-}
-
-};
+        </Card>
       </div>
     </main>
   );
