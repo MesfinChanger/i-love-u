@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import SparkCard from "@/components/spark/SparkCard";
+import { discoverSparkProfiles } from "@/services/spark/spark.service";
 
 /**
  * @fileOverview Hearts Discovery Hub.
@@ -11,31 +12,15 @@ export default function DiscoverPage() {
   const [profiles, setProfiles] = useState<any[]>([]);
 
   useEffect(() => {
-    // Discovery Protocol: Synchronizing demo profiles
-    // This will later be replaced by the high-fidelity Firestore discovery query.
-    setProfiles([
-      {
-        id: "1",
-        name: "Amina",
-        country: "Ethiopia",
-        language: "Amharic",
-        interest: "Technology",
-      },
-      {
-        id: "2",
-        name: "Daniel",
-        country: "USA",
-        language: "English",
-        interest: "Entrepreneurship",
-      },
-      {
-        id: "3",
-        name: "Sofia",
-        country: "Spain",
-        language: "Spanish",
-        interest: "Community Building",
+    async function loadProfiles() {
+      try {
+        const data = await discoverSparkProfiles();
+        setProfiles(data);
+      } catch (error) {
+        console.error("Discovery Sync Error:", error);
       }
-    ]);
+    }
+    loadProfiles();
   }, []);
 
   return (
@@ -50,13 +35,21 @@ export default function DiscoverPage() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-        {profiles.map((profile) => (
-          <SparkCard
-            key={profile.id}
-            name={profile.name}
-            country={profile.country}
-          />
-        ))}
+        {profiles.length > 0 ? (
+          profiles.map((profile) => (
+            <SparkCard
+              key={profile.id}
+              name={profile.displayName || profile.username || "Mystery Heart"}
+              country={profile.country || "Global"}
+            />
+          ))
+        ) : (
+          <div className="col-span-full py-20 text-center opacity-20">
+             <p className="text-xl font-black uppercase tracking-widest italic">
+               "Scanning the horizon for new sparks..."
+             </p>
+          </div>
+        )}
       </div>
 
       <p className="text-center text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground/30 pt-12">
