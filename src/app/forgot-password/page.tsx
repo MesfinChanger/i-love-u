@@ -1,96 +1,119 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import { 
+  Heart, 
+  Loader2, 
+  ArrowLeft, 
+  Mail, 
+  CheckCircle2, 
+  ShieldCheck,
+  KeyRound,
+  Sparkles
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Heart, Loader2, ArrowLeft, Mail, CheckCircle2, ShieldCheck } from "lucide-react";
-import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 
 /**
- * @fileOverview Secure Recovery Protocol Page.
- * Implements high-fidelity password reset logic with mission-aligned diagnostics.
+ * @fileOverview Identity Recovery Protocol (Password Reset).
+ * Orchestrates secure email-based credential restoration for community hearts.
  */
 export default function ForgotPasswordPage() {
   const { toast } = useToast();
   const [email, setEmail] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSent, setIsSent] = useState(false);
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  async function resetPassword() {
+  async function handleReset(e: React.FormEvent) {
+    e.preventDefault();
     const cleanEmail = email.trim();
+
     if (!cleanEmail) {
       toast({
         variant: "destructive",
-        title: "Email Required",
-        description: "Please enter your registered email. ❤️",
+        title: "Signature Required",
+        description: "Please enter your registered heart email. ❤️",
       });
       return;
     }
 
-    setIsLoading(true);
+    setMessage("");
+    setError("");
+    setLoading(true);
+
     try {
       await sendPasswordResetEmail(auth, cleanEmail);
-      setIsSent(true);
+      setMessage("Password reset link sent. Please check your email inbox and spam folder. ❤️");
       toast({
-        title: "Email Dispatched",
-        description: "Check your inbox for a secure recovery link. ❤️",
+        title: "Email Dispatched ✨",
+        description: "Your recovery path is waiting in your inbox.",
       });
-    } catch (error: any) {
-      console.error("Reset Error Ripple:", error);
+    } catch (err: any) {
+      console.error("Recovery ripple:", err);
+      let errorMsg = "Could not reach the identity registry. Please try again. ❤️";
+
+      if (err.code === "auth/user-not-found") {
+        errorMsg = "No account exists with this email signature.";
+      } else if (err.code === "auth/invalid-email") {
+        errorMsg = "Please enter a valid email address.";
+      } else {
+        errorMsg = err.message;
+      }
+
+      setError(errorMsg);
       toast({
         variant: "destructive",
         title: "Access Ripple",
-        description: error.message,
+        description: errorMsg,
       });
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-muted/30 items-center justify-center p-6 relative overflow-hidden">
+    <main className="min-h-screen flex items-center justify-center p-6 bg-muted/30 relative overflow-hidden">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-3xl -z-10" />
-      
-      <Link href="/recovery" className="absolute top-12 left-10 flex items-center gap-2 text-slate-400 hover:text-primary transition-colors font-bold text-[10px] uppercase tracking-widest">
-        <ArrowLeft className="w-3.5 h-3.5" />
-        Back to Recovery
-      </Link>
 
-      <div className="w-full max-w-md space-y-10 z-10">
+      <div className="w-full max-w-md space-y-8 animate-in fade-in zoom-in-95 duration-700">
         <div className="text-center space-y-4">
-          <Heart className="w-16 h-16 fill-primary text-primary mx-auto animate-heartbeat" />
-          <h1 className="text-4xl font-black tracking-tighter uppercase">Recovery</h1>
-          <p className="text-muted-foreground font-medium italic">"Identify your heart to restore connection."</p>
+          <div className="w-20 h-20 bg-white rounded-[2.5rem] flex items-center justify-center mx-auto shadow-xl ring-4 ring-primary/5">
+            <KeyRound className="w-10 h-10 text-primary animate-pulse" />
+          </div>
+          <h1 className="text-4xl font-black tracking-tighter uppercase">Recover Heart</h1>
+          <p className="text-muted-foreground font-medium italic">"Identify your signature to restore connection."</p>
         </div>
 
-        <Card className="border-none shadow-2xl rounded-[3.5rem] overflow-hidden bg-white">
-          <div className="bg-primary/5 p-8 border-b flex items-center justify-center gap-2">
-            <ShieldCheck className="w-5 h-5 text-primary" />
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Forgot Password</p>
+        <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
+          <div className="bg-primary/5 p-6 border-b flex items-center justify-center gap-2">
+             <ShieldCheck className="w-4 h-4 text-primary" />
+             <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Identity Protocol</p>
           </div>
 
           <CardContent className="p-10 space-y-8">
-            {isSent ? (
-              <div className="text-center space-y-6 animate-in fade-in zoom-in-95 duration-500">
+            {message ? (
+              <div className="text-center space-y-6 animate-in zoom-in-95 duration-500">
                 <div className="w-20 h-20 bg-green-50 rounded-[2rem] flex items-center justify-center mx-auto border-2 border-dashed border-green-200">
                   <CheckCircle2 className="w-10 h-10 text-green-500" />
                 </div>
                 <div className="space-y-3">
                   <h2 className="text-xl font-black uppercase tracking-tight text-slate-900">Check Your Heart</h2>
                   <p className="text-xs text-muted-foreground font-medium italic leading-relaxed">
-                    A secure reset link has been dispatched to <strong>{email}</strong>. ❤️
+                    {message}
                   </p>
                 </div>
                 <Button asChild className="w-full h-16 rounded-2xl gradient-bg font-black uppercase tracking-widest text-[10px] shadow-xl shadow-primary/20">
-                  <Link href="/login">Return to Login</Link>
+                  <Link href="/login">Return to Sign In</Link>
                 </Button>
               </div>
             ) : (
-              <div className="space-y-6">
+              <form onSubmit={handleReset} className="space-y-6">
                 <div className="space-y-2">
                   <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-800 ml-1">REGISTERED EMAIL</p>
                   <div className="relative">
@@ -101,22 +124,40 @@ export default function ForgotPasswordPage() {
                       value={email} 
                       onChange={(e) => setEmail(e.target.value)} 
                       className="h-14 pl-12 rounded-2xl bg-muted/30 border-none font-bold" 
+                      required
                     />
                   </div>
                 </div>
 
                 <Button 
-                  onClick={resetPassword}
-                  disabled={isLoading || !email} 
-                  className="w-full h-16 rounded-2xl gradient-bg font-black uppercase text-xs shadow-xl active:scale-95 transition-all"
+                  type="submit"
+                  disabled={loading} 
+                  className="w-full h-16 rounded-2xl gradient-bg font-black uppercase text-xs shadow-xl active:scale-95 transition-all gap-3"
                 >
-                  {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Send Reset Link ❤️"}
+                  {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : (
+                    <>
+                      <Sparkles className="w-4 h-4" />
+                      Send Reset Link
+                    </>
+                  )}
                 </Button>
-              </div>
+
+                {error && <p className="text-[10px] text-red-500 text-center font-bold uppercase tracking-tight">{error}</p>}
+
+                <div className="text-center pt-4">
+                  <Link href="/login" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors flex items-center justify-center gap-2">
+                    <ArrowLeft className="w-3 h-3" /> Back to Sign In
+                  </Link>
+                </div>
+              </form>
             )}
           </CardContent>
         </Card>
+        
+        <p className="text-center text-[9px] font-black uppercase tracking-[0.4em] text-slate-300">
+          Respect & Love is Mandatory ❤️ Prosperity Revolution
+        </p>
       </div>
-    </div>
+    </main>
   );
 }
