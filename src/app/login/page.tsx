@@ -7,7 +7,7 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
-import { Heart, Loader2, AtSign, Lock, Sparkles, KeyRound } from 'lucide-react';
+import { Heart, Loader2, AtSign, Lock, Sparkles, KeyRound, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@/firebase';
@@ -96,7 +96,6 @@ export default function LoginPage() {
               <div className="space-y-2">
                 <div className="flex justify-between items-center ml-1">
                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-800">Secure Phrase</p>
-                   <Link href="/forgot-password" size="sm" className="text-[9px] font-black uppercase text-primary hover:underline">Forgot?</Link>
                 </div>
                 <div className="relative">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />

@@ -33,7 +33,7 @@ import Link from 'next/link';
 
 /**
  * @fileOverview Seller Management Console.
- * Orchestrates subscription management and high-fidelity artisan storefronts.
+ * Resolved mismatched tag syntax error in the pricing grid.
  */
 function SellerManageContent() {
   const { user } = useUser();

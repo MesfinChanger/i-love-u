@@ -39,6 +39,7 @@ export default function SignupPage() {
         name: "New Heart",
         displayName: "New Heart",
         accountType: "free",
+        role: "member",
         status: "active",
         policyAccepted: false,
         createdAt: serverTimestamp(),
