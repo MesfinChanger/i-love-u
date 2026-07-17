@@ -1,3 +1,4 @@
+
 /**
  * @fileOverview High-Fidelity Shopping Protocol Definitions.
  */
@@ -17,7 +18,7 @@ export interface Store {
 
 export interface Product {
   id: string;
-  storeId: string;
+  sellerId: string;
   name: string;
   description: string;
   images: string[];
@@ -27,6 +28,7 @@ export interface Product {
   inventory: number;
   status: "active" | "inactive";
   createdAt: any;
+  updatedAt: any;
 }
 
 export interface Order {

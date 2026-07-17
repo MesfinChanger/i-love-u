@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect, Suspense } from 'react';
@@ -32,6 +33,7 @@ import { CURRENCIES } from '@/lib/world-data';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Image from 'next/image';
+import { createProduct } from '@/services/shop/product.service';
 
 function SellerManageContent() {
   const { user } = useUser();
@@ -74,11 +76,11 @@ function SellerManageContent() {
 
   const productsQuery = useMemoFirebase(() => {
     if (!db || !user) return null;
-    return query(collection(db, 'products'), where('storeId', '==', user.uid));
+    return query(collection(db, 'products'), where('sellerId', '==', user.uid));
   }, [db, user]);
   const { data: myProducts, loading: productsLoading } = useCollection(productsQuery);
 
-  // Hold Protocol: Load Draft with JSON resilience
+  // Hold Protocol: Load Draft
   useEffect(() => {
     setMounted(true);
     if (user?.uid) {
@@ -205,16 +207,16 @@ function SellerManageContent() {
     if (!user || !db || !newProductName || !newProductPrice) return;
     setIsAddingProduct(true);
     try {
-      await addDoc(collection(db, 'products'), {
-        storeId: user.uid,
+      await createProduct({
+        sellerId: user.uid,
         name: newProductName.trim(),
         description: newProductDesc.trim(),
         price: parseFloat(newProductPrice),
         currency: userCurrency,
         category: newProductCategory,
         inventory: parseInt(newProductInventory),
+        status: "active",
         images: [newProductImageUrl || `https://picsum.photos/seed/${newProductName.length}/600/600`],
-        createdAt: serverTimestamp()
       });
 
       setNewProductName('');
@@ -341,7 +343,7 @@ function SellerManageContent() {
                     {isSubscribing ? <Loader2 className="w-4 h-4 animate-spin" /> : "Verify & Scale"}
                   </Button>
                 </CardFooter>
-              </Card>
+              </div>
             </div>
           </div>
         ) : (

@@ -10,26 +10,22 @@ service cloud.firestore {
     // ============================
 
     match /users/{userId} {
-      // RULE: Private data only readable by owner
       allow read: if request.auth != null && request.auth.uid == userId;
       allow create: if request.auth.uid == userId;
       allow update, delete: if request.auth.uid == userId;
     }
 
     match /wallets/{userId} {
-      // RULE: Financial registry restricted to owner
       allow read: if request.auth != null && request.auth.uid == userId;
       allow create, update: if request.auth != null && request.auth.uid == userId;
     }
 
     match /transactions/{txId} {
-      // RULE: Financial heartbeat only readable by owner
       allow read: if request.auth != null && request.auth.uid == resource.data.userId;
       allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
     }
 
     match /orders/{orderId} {
-      // RULE: Commerce data readable by buyer or seller
       allow read: if request.auth != null && (request.auth.uid == resource.data.buyerId || request.auth.uid == resource.data.sellerId);
       allow create: if request.auth != null && request.auth.uid == request.resource.data.buyerId;
     }
@@ -53,6 +49,11 @@ service cloud.firestore {
       allow create: if request.auth != null && request.auth.uid == request.resource.data.fromUserId;
       allow read: if request.auth != null && (request.auth.uid == resource.data.fromUserId || request.auth.uid == resource.data.toUserId);
       allow update: if request.auth != null && request.auth.uid == resource.data.toUserId;
+    }
+
+    match /sparkConnections/{connectionId} {
+      allow read: if request.auth != null && request.auth.uid in resource.data.userIds;
+      allow create: if request.auth != null;
     }
 
     match /connections/{connectionId} {
@@ -114,9 +115,9 @@ service cloud.firestore {
     }
 
     match /products/{productId} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null;
-      allow update, delete: if request.auth != null && request.auth.uid == resource.data.storeId;
+      allow create: if request.auth != null && request.resource.data.sellerId == request.auth.uid;
+      allow update, delete: if request.auth != null && resource.data.sellerId == request.auth.uid;
+      allow read: if resource.data.status == "active";
     }
 
     match /ads/{adId} {
@@ -144,7 +145,6 @@ service cloud.firestore {
       allow create, update: if request.auth != null && request.auth.uid == userId;
     }
 
-    // Default catch-all rules (Admin only for non-defined paths)
     match /{allPaths=**} {
       allow read, write: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
     }
