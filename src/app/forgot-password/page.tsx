@@ -34,19 +34,19 @@ export default function ForgotPasswordPage() {
     setLoading(true);
 
     try {
-      await sendPasswordResetEmail(auth, email);
+      await sendPasswordResetEmail(auth, email.trim());
       setMessage("Password reset link sent. Please check your email inbox and spam folder. ❤️");
-    } catch (err: any) {
+    } catch (error: any) {
       // RESET DEBUGGING PROTOCOL: Surface ripples to the console for analysis
-      console.log("RESET ERROR CODE:", err.code);
-      console.log("RESET ERROR MESSAGE:", err.message);
+      console.log("RESET ERROR CODE:", error.code);
+      console.log("RESET ERROR MESSAGE:", error.message);
 
-      if (err.code === "auth/user-not-found") {
+      if (error.code === "auth/user-not-found") {
         setError("No account exists with this email signature. ✨");
-      } else if (err.code === "auth/invalid-email") {
+      } else if (error.code === "auth/invalid-email") {
         setError("Please enter a valid email address. ❤️");
       } else {
-        setError(err.code + " : " + err.message);
+        setError(`${error.code} : ${error.message}`);
       }
     } finally {
       setLoading(false);
