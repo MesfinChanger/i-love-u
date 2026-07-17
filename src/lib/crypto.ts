@@ -1,9 +1,44 @@
 'use client';
 
 /**
- * @fileOverview Standard Modern End-to-End Encryption (E2EE) using ECDH and AES-GCM.
- * Optimized for high-performance key agreement and authenticated encryption.
+ * @fileOverview Encryption Utility Protocol.
+ * Implements high-fidelity AES-GCM encryption for message securing.
+ * Synchronized with the platform's E2EE mission.
  */
+
+/**
+ * Encrypt Message Protocol.
+ * Imports a raw string key and encrypts text using AES-GCM.
+ */
+export async function encryptMessage(text: string, key: string) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(text);
+
+  const cryptoKey = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(key),
+    { name: "AES-GCM" },
+    false,
+    ["encrypt"]
+  );
+
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+
+  const encrypted = await crypto.subtle.encrypt(
+    { name: "AES-GCM", iv },
+    cryptoKey,
+    data
+  );
+
+  return {
+    cipherText: Array.from(new Uint8Array(encrypted)),
+    iv: Array.from(iv)
+  };
+}
+
+// ==========================================
+// E2EE Key Agreement Protocol (ECDH-P256)
+// ==========================================
 
 export async function generateKeyPair() {
   return await window.crypto.subtle.generateKey(
