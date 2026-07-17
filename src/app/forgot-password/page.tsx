@@ -6,7 +6,7 @@ import { auth } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Heart, Loader2, ArrowLeft, Mail, CheckCircle2, ShieldCheck } from "lucide-react";
+import { Heart, Loader2, ArrowLeft, Mail, CheckCircle2, ShieldCheck, KeyRound } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 

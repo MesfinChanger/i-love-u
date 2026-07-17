@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { auth } from '@/firebase';
+import { auth } from '@/lib/firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -131,6 +131,12 @@ export default function LoginPage() {
                 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors"
               >
                 Need a heart signature? <span className="text-primary underline">Join the Mission</span>
+              </Link>
+              <Link 
+                href="/forgot-password" 
+                className="text-[10px] font-black uppercase tracking-widest text-primary hover:underline"
+              >
+                Forgot Password?
               </Link>
             </div>
           </CardContent>
