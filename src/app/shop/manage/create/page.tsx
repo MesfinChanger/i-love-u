@@ -35,7 +35,7 @@ export default function CreateProductPage() {
   const [isSaving, setIsSaving] = useState(false);
 
   const [product, setProduct] = useState({
-    name: "",
+    title: "",
     description: "",
     category: "",
     price: "",
@@ -50,7 +50,7 @@ export default function CreateProductPage() {
       return;
     }
 
-    if (!product.name || !product.price) {
+    if (!product.title || !product.price) {
       toast({ variant: "destructive", title: "Missing Data", description: "Name and Price are mandatory fields. ✨" });
       return;
     }
@@ -58,12 +58,14 @@ export default function CreateProductPage() {
     setIsSaving(true);
     try {
       await createProduct({
-        ...product,
+        name: product.title,
+        description: product.description,
+        category: product.category,
         price: Number(product.price),
         inventory: Number(product.inventory),
         sellerId: user.uid,
         status: "active",
-        images: [`https://picsum.photos/seed/${product.name.length}/600/600`]
+        images: [`https://picsum.photos/seed/${product.title.length}/600/600`]
       });
 
       toast({ title: "Product Published", description: "Your listing is now live in the marketplace! ❤️" });
@@ -109,8 +111,8 @@ export default function CreateProductPage() {
                 <Input 
                   placeholder="e.g. Handcrafted Rose Vase" 
                   className="pl-12 h-14 rounded-2xl bg-muted/30 border-none font-bold"
-                  value={product.name}
-                  onChange={e => setProduct({ ...product, name: e.target.value })}
+                  value={product.title}
+                  onChange={e => setProduct({ ...product, title: e.target.value })}
                 />
               </div>
             </div>

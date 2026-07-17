@@ -33,6 +33,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Image from 'next/image';
 import { createProduct } from '@/services/shop/product.service';
+import Link from 'next/link';
 
 function SellerManageContent() {
   const { user } = useUser();
@@ -66,7 +67,6 @@ function SellerManageContent() {
 
   // Product Management State
   const [newProductName, setNewProductName] = useState('');
-  const [newProductDesc, setNewProductDesc] = useState('');
   const [newProductPrice, setNewProductPrice] = useState('');
   const [newProductCategory, setNewProductCategory] = useState('General');
   const [newProductInventory, setNewProductInventory] = useState('10');
@@ -209,7 +209,7 @@ function SellerManageContent() {
       await createProduct({
         sellerId: user.uid,
         name: newProductName.trim(),
-        description: newProductDesc.trim(),
+        description: "",
         price: parseFloat(newProductPrice),
         currency: userCurrency,
         category: newProductCategory,
@@ -219,7 +219,6 @@ function SellerManageContent() {
       });
 
       setNewProductName('');
-      setNewProductDesc('');
       setNewProductPrice('');
       setNewProductImageUrl('');
       toast({ title: "Product Listed", description: "Your item is now live in the marketplace! ❤️" });
@@ -450,11 +449,11 @@ function SellerManageContent() {
                                 <Card key={p.id} className="rounded-[2rem] border-none shadow-md bg-white overflow-hidden group hover:shadow-xl transition-all">
                                    <div className="flex items-center p-4 gap-4">
                                       <div className="relative w-20 h-20 rounded-2xl overflow-hidden bg-muted shrink-0">
-                                         <Image src={p.images?.[0] || 'https://picsum.photos/seed/product/200/200'} alt={p.name || p.title} fill className="object-cover" />
+                                         <Image src={p.images?.[0] || 'https://picsum.photos/seed/product/200/200'} alt={p.name} fill className="object-cover" />
                                       </div>
                                       <div className="flex-grow min-w-0">
                                          <div className="flex items-center justify-between mb-1">
-                                            <h3 className="font-black text-lg truncate tracking-tight">{p.name || p.title}</h3>
+                                            <h3 className="font-black text-lg truncate tracking-tight">{p.name}</h3>
                                             <Badge className="bg-primary/10 text-primary border-none text-[8px] font-black">{currencySymbol}{p.price}</Badge>
                                          </div>
                                          <p className="text-[10px] text-muted-foreground font-medium italic line-clamp-1 mb-2">"{p.description}"</p>

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, Suspense, useMemo } from 'react';
@@ -28,7 +27,8 @@ import {
   ChevronRight,
   Sparkles,
   X,
-  Package
+  Package,
+  Plus
 } from 'lucide-react';
 import Image from 'next/image';
 import { useFirestore, useCollection, useUser, useDoc } from '@/firebase';
@@ -49,6 +49,7 @@ import {
   DialogDescription 
 } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
+import Link from 'next/link';
 
 const GIFT_CATEGORIES = ["All", "Flowers", "Jewelry", "Electronics", "Apparel", "Home", "Ornamental", "General"];
 
@@ -168,7 +169,7 @@ function ShopContent() {
       };
 
       const result = await createGiftPurchaseSession(
-        { id: product.id, name: product.name, price: product.price, sellerId: product.storeId },
+        { id: product.id, name: product.name, price: product.price, sellerId: product.sellerId },
         product.currency || userCurrency, 
         user.uid, 
         details
@@ -201,7 +202,7 @@ function ShopContent() {
     setShowGuestForm(false);
     try {
       const result = await createGiftPurchaseSession(
-        { id: pendingProduct.id, name: pendingProduct.name, price: pendingProduct.price, sellerId: pendingProduct.storeId },
+        { id: pendingProduct.id, name: pendingProduct.name, price: pendingProduct.price, sellerId: pendingProduct.sellerId },
         pendingProduct.currency || userCurrency, 
         'guest', 
         {
@@ -258,6 +259,11 @@ function ShopContent() {
                     onChange={e => setSearchQuery(e.target.value)}
                   />
                 </div>
+                <Button variant="outline" size="sm" className="rounded-full h-12 px-6 text-[10px] font-black uppercase tracking-widest border-2 hover:bg-white" asChild>
+                  <Link href="/shop/manage/create">
+                    <Plus className="w-3 h-3 mr-2" /> Add Product
+                  </Link>
+                </Button>
                 <Button variant="outline" size="sm" className="rounded-full h-12 px-6 text-[10px] font-black uppercase tracking-widest border-2 hover:bg-white" asChild>
                   <a href="/shop/manage">{t('shop.sellerPortal')}</a>
                 </Button>
