@@ -7,11 +7,12 @@ import { cn } from "@/lib/utils";
 /**
  * @fileOverview Global Navigation Bridge.
  * Orchestrates platform-wide routing for every heart.
- * Cleaned to remove redundancy with BottomNav.
+ * This component is hidden on public pages (/, /login, /signup).
+ * Removed Identity Hub to prevent redundancy with BottomNav.
  */
 
 const menu = [
-  { name: "🏠 Home", path: "/" },
+  { name: "🏠 Home", path: "/dashboard" },
   { name: "❤️ Spark", path: "/spark" },
   { name: "🤝 Circle", path: "/circle" },
   { name: "🛒 Shopping", path: "/shopping" },
@@ -21,6 +22,13 @@ const menu = [
 
 export default function MainNavigation() {
   const pathname = usePathname();
+  
+  // Public pages where the top navigation bridge should be deactivated
+  const publicPages = ["/", "/login", "/signup"];
+  
+  if (publicPages.includes(pathname)) {
+    return null;
+  }
 
   return (
     <nav className="flex gap-2 p-4 border-b bg-white overflow-x-auto no-scrollbar" role="navigation" aria-label="Primary Navigation">

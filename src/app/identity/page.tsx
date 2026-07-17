@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import { SignOutButton } from "@/components/SignOutButton";
 
 /**
  * @fileOverview Identity Hub - Unified Command Center.
@@ -51,9 +52,12 @@ export default function IdentityPage() {
 
   return (
     <main className="p-6 space-y-8 max-w-4xl mx-auto pb-24">
-      <h1 className="text-4xl font-black tracking-tighter uppercase leading-none">
-        👤 Identity Hub
-      </h1>
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-black tracking-tighter uppercase leading-none">
+          👤 Identity Hub
+        </h1>
+        <SignOutButton />
+      </div>
 
       <div className="grid gap-6">
         {/* Personal Identity */}
