@@ -1,11 +1,10 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
-import { getStorage } from "firebase/storage";
 
 /**
  * @fileOverview High-Fidelity Firebase Bridge.
- * Explicitly exports the 'app' instance for universal initialization synchronization.
+ * Synchronized with the platform's environment variables.
  */
 
 const firebaseConfig = {
@@ -22,5 +21,4 @@ const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 
 export const auth = getAuth(app);
 export const db = getFirestore(app);
-export const storage = getStorage(app);
 export { app };
