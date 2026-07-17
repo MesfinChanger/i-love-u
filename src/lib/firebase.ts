@@ -14,7 +14,7 @@ import { getStorage } from "firebase/storage";
 import { firebaseConfig } from "@/firebase/config";
 
 // Singleton initialization pattern to prevent redundant connections in Next.js
-const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+export const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 
 export const auth = getAuth(app);
 export const db = getFirestore(app);
