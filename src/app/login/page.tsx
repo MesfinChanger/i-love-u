@@ -142,12 +142,6 @@ export default function LoginPage() {
               >
                 Need a heart signature? <span className="text-primary underline">Join the Mission</span>
               </Link>
-              <Link 
-                href="/recovery" 
-                className="text-[10px] font-black uppercase tracking-widest text-primary/60 hover:underline"
-              >
-                Recovery Hub
-              </Link>
             </div>
           </CardContent>
         </Card>
