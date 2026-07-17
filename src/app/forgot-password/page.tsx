@@ -63,19 +63,19 @@ export default function ForgotPasswordPage() {
         title: "Email Dispatched ✨", 
         description: "Your recovery path is waiting in your inbox." 
       });
-    } catch (err: any) {
+    } catch (error: any) {
       // RESET DEBUGGING PROTOCOL: Log ripples to the console for analysis
-      console.log("RESET ERROR CODE:", err.code);
-      console.log("RESET ERROR MESSAGE:", err.message);
+      console.log("RESET ERROR CODE:", error.code);
+      console.log("RESET ERROR MESSAGE:", error.message);
 
-      setError(err.code + " : " + err.message);
+      setError(error.code + " : " + error.message);
       
       let friendlyTitle = "Access Ripple";
       let friendlyDesc = "We encountered a ripple in the recovery protocol. ❤️";
 
-      if (err.code === 'auth/user-not-found') {
+      if (error.code === 'auth/user-not-found') {
         friendlyDesc = "No heart signature found with this email. ✨";
-      } else if (err.code === 'auth/too-many-requests') {
+      } else if (error.code === 'auth/too-many-requests') {
         friendlyDesc = "Too many attempts. Please wait a heartbeat and try again. ⏳";
       }
 
@@ -126,7 +126,7 @@ export default function ForgotPasswordPage() {
                     </p>
                   </div>
                 </div>
-                <Button asChild className="w-full h-16 rounded-2xl gradient-bg font-black uppercase tracking-widest text-[10px] shadow-xl">
+                <Button asChild className="w-full h-16 rounded-2xl gradient-bg font-black uppercase tracking-widest text-[10px] shadow-xl shadow-primary/20">
                   <Link href="/login">Return to Sign In</Link>
                 </Button>
               </div>

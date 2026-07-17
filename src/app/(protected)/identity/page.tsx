@@ -1,9 +1,8 @@
 /**
- * @fileOverview Redundant Route Group File. 
- * Logic moved to src/app/identity/page.tsx to resolve parallel route conflicts.
+ * @fileOverview Neutralized Route Group File. 
+ * Logic consolidated to src/app/identity/page.tsx to resolve parallel route conflicts.
+ * This file is kept as a non-page placeholder to prevent Next.js build ripples.
  */
-import { redirect } from 'next/navigation';
-
-export default function ProtectedIdentityRedirect() {
-  redirect('/identity');
+export default function NeutralizedProtectedIdentity() {
+  return null;
 }
