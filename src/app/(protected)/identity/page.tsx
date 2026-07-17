@@ -9,6 +9,7 @@ import { SignOutButton } from "@/components/SignOutButton";
 /**
  * @fileOverview Identity Hub Protocol.
  * Unified command center for a heart's personal and mission-aligned data.
+ * Synchronized with the high-fidelity Unified Heart Identity schema.
  */
 export default function IdentityPage() {
   const [user, setUser] = useState<any>(null);
@@ -112,7 +113,7 @@ export default function IdentityPage() {
           </div>
         </section>
 
-        {/* Modular Sections */}
+        {/* Modular Registry Sections */}
         <div className="grid sm:grid-cols-2 gap-6">
            <RegistrySection icon="❤️" title="Social" items={["Spark Preferences", "Circle Memberships", "Connections"]} />
            <RegistrySection icon="🎓" title="Learning" items={["Courses", "Certificates", "Skills"]} />
