@@ -24,7 +24,7 @@ import {
   Tags
 } from 'lucide-react';
 import { useUser, useFirestore, useDoc, useCollection } from '@/firebase';
-import { doc, setDoc, updateDoc, collection, addDoc, serverTimestamp, query, where, deleteDoc } from 'firebase/firestore';
+import { doc, setDoc, updateDoc, collection, serverTimestamp, query, where, deleteDoc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { createSubscriptionSession } from '@/lib/stripe-actions';
@@ -245,7 +245,7 @@ function SellerManageContent() {
     return (
       <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
         <Header />
-        <main className="container mx-auto px-4 py-12 max-lg text-center">
+        <main className="container mx-auto px-4 py-12 max-w-lg text-center">
            <Card className="rounded-[3rem] border-none shadow-2xl overflow-hidden bg-white p-12 text-center space-y-8">
               <div className="w-24 h-24 bg-amber-50 rounded-full flex items-center justify-center mx-auto ring-4 ring-white shadow-xl">
                  <Clock className="w-12 h-12 text-amber-500 animate-pulse" />
@@ -343,7 +343,7 @@ function SellerManageContent() {
                     {isSubscribing ? <Loader2 className="w-4 h-4 animate-spin" /> : "Verify & Scale"}
                   </Button>
                 </CardFooter>
-              </div>
+              </Card>
             </div>
           </div>
         ) : (

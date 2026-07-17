@@ -123,7 +123,7 @@ service cloud.firestore {
     match /ads/{adId} {
       allow read: if request.auth != null && (resource.data.status == "approved" || request.auth.uid == resource.data.advertiserId);
       allow create: if request.auth != null && request.auth.uid == request.resource.data.advertiserId;
-      allow update, delete: if request.auth != null && request.auth.uid == resource.data.advertiserId;
+      allow update, delete: if request.auth != null && request.auth.uid == request.resource.data.advertiserId;
     }
 
     // ============================
