@@ -13,14 +13,16 @@ import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { firebaseConfig } from "@/firebase/config";
 
-// Singleton initialization pattern
+// Singleton initialization pattern to prevent redundant connections in Next.js
 const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
 
-// Session Resilience Protocol: Keeps the user logged in after page changes
-setPersistence(auth, browserLocalPersistence).catch((error) => {
-  console.error("Auth Persistence Ripple:", error);
-});
+// Session Resilience Protocol: Keeps the user logged in after page refreshes
+if (typeof window !== 'undefined') {
+  setPersistence(auth, browserLocalPersistence).catch((error) => {
+    console.error("Auth Persistence Ripple:", error);
+  });
+}
