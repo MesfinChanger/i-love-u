@@ -6,7 +6,7 @@ import Link from "next/link";
 import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 import { doc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
-import { recordSuccessfulLogin, recordFailedLogin } from "@/lib/security/login-security";
+import { recordSuccessfulLogin, recordFailedLogin, checkLoginLock } from "@/lib/security/login-security";
 import { Heart, Loader2, AtSign, Lock, Sparkles, UserPlus, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -47,10 +47,20 @@ export default function LoginPage() {
 
     try {
       setLoading(true);
+
+      // Security Protocol: Check for account lock
+      const lockStatus = await checkLoginLock(cleanEmail);
+      if (lockStatus.locked) {
+        setError(`Too many failed attempts. Try again in ${lockStatus.remaining} seconds. ❤️`);
+        setLoading(false);
+        return;
+      }
+
       const result = await signInWithEmailAndPassword(auth, cleanEmail, password);
 
       // Sovereign Signature Protocol: Elevate admin if email matches
-      if (cleanEmail === "thearmyoj@gmail.com") {
+      const SOVEREIGN_EMAIL = "thearmyoj@gmail.com";
+      if (cleanEmail === SOVEREIGN_EMAIL.toLowerCase()) {
         try {
           await updateDoc(doc(db, "users", result.user.uid), {
             role: "admin",
@@ -70,12 +80,8 @@ export default function LoginPage() {
       console.error("Identification Ripple:", err);
       await recordFailedLogin(cleanEmail);
 
-      if (err.code === "auth/user-not-found") {
-        setError("Account signature not found.");
-      } else if (err.code === "auth/wrong-password") {
-        setError("Incorrect phrase.");
-      } else if (err.code === "auth/invalid-credential") {
-        setError("Invalid identity credentials.");
+      if (err.code === "auth/user-not-found" || err.code === "auth/wrong-password" || err.code === "auth/invalid-credential") {
+        setError("Invalid email or secure phrase.");
       } else {
         setError(err.message);
       }

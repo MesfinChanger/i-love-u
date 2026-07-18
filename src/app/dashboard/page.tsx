@@ -13,7 +13,7 @@ import {
   Zap,
   Lightbulb,
   Globe,
-  MessageCircle,
+  MessageSquare,
   ShoppingBag,
   ArrowRight
 } from "lucide-react";
@@ -92,7 +92,7 @@ export default function DashboardPage() {
                   <Link href="/discover"><Sparkles className="mr-2"/> Discover</Link>
                 </Button>
                 <Button variant="outline" asChild className="rounded-2xl h-14 px-8 font-black uppercase text-xs tracking-widest border-2">
-                  <Link href="/messages"><MessageCircle className="mr-2"/> Messages</Link>
+                  <Link href="/messages"><MessageSquare className="mr-2"/> Messages</Link>
                 </Button>
                 <Button variant="outline" asChild className="rounded-2xl h-14 px-8 font-black uppercase text-xs tracking-widest border-2">
                   <Link href="/shopping"><ShoppingBag className="mr-2"/> Shop</Link>

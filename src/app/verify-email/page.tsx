@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 
 /**
  * @fileOverview Email Verification Protocol.
- * Awaiting high-fidelity synchronization of the user's heart signature.
+ * Finalizes the synchronization of a user's heart signature.
  */
 export default function VerifyEmailPage() {
   const router = useRouter();
@@ -17,7 +17,15 @@ export default function VerifyEmailPage() {
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+    // Redirect to login if user isn't found (they might have cleared session)
+    if (mounted && !auth.currentUser) {
+      // Small delay to allow Firebase to initialize
+      const timer = setTimeout(() => {
+        if (!auth.currentUser) router.push("/signup");
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [mounted, router]);
 
   if (!mounted) return (
     <div className="min-h-screen flex items-center justify-center">
