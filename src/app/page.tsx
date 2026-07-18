@@ -18,11 +18,9 @@ import { Button } from "@/components/ui/button";
 /**
  * @fileOverview High-Fidelity Welcome Gateway.
  * Orchestrates the initial heart identification protocol.
- * Optimized with the "Next Window" openable protocol.
+ * Restored to single-window navigation.
  */
 export default function WelcomePage() {
-  const [loading, setLoading] = useState(false);
-
   return (
     <main className="min-h-screen flex items-center justify-center px-6 py-16 relative overflow-hidden bg-gradient-to-br from-white via-pink-50 to-blue-50">
       {/* Background Glow */}
@@ -33,7 +31,7 @@ export default function WelcomePage() {
         {/* Logo */}
         <div className="flex flex-col items-center gap-5">
           <div className="w-28 h-28 rounded-[2rem] bg-white shadow-xl flex items-center justify-center ring-8 ring-pink-100">
-            <Heart className="w-14 h-14 text-pink-500 fill-pink-500" />
+            <Heart className="w-14 h-14 text-pink-500 fill-pink-500 animate-heartbeat" />
           </div>
           <h1 className="text-5xl md:text-7xl font-black">❤️ I LOVE U</h1>
           <p className="text-sm font-bold tracking-[0.45em] text-pink-600 uppercase">PROSPERITY REVOLUTION</p>
@@ -41,35 +39,32 @@ export default function WelcomePage() {
 
         {/* Message */}
         <div className="space-y-4">
-          <h2 className="text-3xl md:text-4xl font-black">Identify Your Heart</h2>
-          <p className="max-w-xl mx-auto text-muted-foreground text-lg">
-            Every spark needs a signature. Connect, share ideas, build circles, and grow together worldwide.
+          <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tighter">Identify Your Heart</h2>
+          <p className="max-w-xl mx-auto text-muted-foreground text-lg italic font-medium">
+            "Every spark needs a signature." Connect, share ideas, and build circles worldwide.
           </p>
         </div>
 
-        {/* Authentication Buttons (Next Window Protocol) */}
+        {/* Authentication Buttons */}
         <div className="max-w-xl mx-auto space-y-4">
           <div className="grid md:grid-cols-2 gap-4">
-            {/* SIGN IN */}
             <Button asChild className="h-16 rounded-2xl font-black bg-white text-slate-900 border hover:bg-pink-50 shadow-lg">
-              <Link href="/login" target="_blank" rel="noopener noreferrer">
+              <Link href="/login">
                 <LogIn className="mr-2 text-pink-500" />
                 Sign In
               </Link>
             </Button>
 
-            {/* JOIN */}
             <Button asChild className="h-16 rounded-2xl font-black bg-pink-500 hover:bg-pink-600 text-white shadow-lg">
-              <Link href="/signup" target="_blank" rel="noopener noreferrer">
+              <Link href="/signup">
                 <UserPlus className="mr-2" />
                 Join The Mission
               </Link>
             </Button>
           </div>
 
-          {/* Guest (Converted to Link for "Next Window" compatibility) */}
           <Button asChild variant="outline" className="w-full h-16 rounded-2xl font-black bg-white/80">
-            <Link href="/login/guest" target="_blank" rel="noopener noreferrer">
+            <Link href="/login/guest">
               <Sparkles className="mr-2 text-primary" />
               Explore As Guest
             </Link>
@@ -84,7 +79,7 @@ export default function WelcomePage() {
           <MissionCard icon={<Globe/>} title="Global" text="Grow together" />
         </div>
 
-        <p className="text-sm text-muted-foreground">Respect & Love is Mandatory ❤️</p>
+        <p className="text-sm text-muted-foreground font-bold italic opacity-40">Respect & Love is Mandatory ❤️</p>
       </div>
     </main>
   );
@@ -92,10 +87,10 @@ export default function WelcomePage() {
 
 function MissionCard({ icon, title, text }: { icon: React.ReactNode; title: string; text: string }) {
   return (
-    <div className="bg-white/80 backdrop-blur rounded-3xl p-5 shadow-sm">
+    <div className="bg-white/80 backdrop-blur rounded-3xl p-5 shadow-sm border border-white/20">
       <div className="flex justify-center text-pink-500 mb-3">{icon}</div>
-      <h3 className="font-black">{title}</h3>
-      <p className="text-xs text-muted-foreground">{text}</p>
+      <h3 className="font-black uppercase text-xs tracking-widest">{title}</h3>
+      <p className="text-[10px] text-muted-foreground font-medium italic">{text}</p>
     </div>
   );
 }

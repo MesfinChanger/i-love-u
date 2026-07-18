@@ -12,8 +12,6 @@ import { Button } from '@/components/ui/button';
 import {
   Heart,
   Sparkles,
-  TrendingUp,
-  Users,
   ShieldCheck,
   Zap,
   ArrowRight,
@@ -60,7 +58,7 @@ export default function DashboardPage() {
               <p className="mt-3 text-muted-foreground italic">Your presence fuels the Prosperity Revolution.</p>
             </div>
 
-            <div className="bg-white shadow-xl rounded-full px-6 py-4 flex items-center gap-3 self-start">
+            <div className="bg-white shadow-xl rounded-full px-6 py-4 flex items-center gap-3 self-start border-2 border-primary/5">
               <ShieldCheck className="text-green-500" />
               <span className="text-xs font-black uppercase tracking-widest">Verified Heart</span>
             </div>
@@ -80,7 +78,7 @@ export default function DashboardPage() {
                 <Zap className="w-8 h-8" />
                 <CardTitle className="text-3xl font-black uppercase tracking-tighter">Mission Control</CardTitle>
               </div>
-            </CardHeader>
+            </Header>
 
             <CardContent className="p-10 pt-0 space-y-6">
               <p className="text-lg text-slate-600 italic leading-relaxed">
@@ -88,7 +86,7 @@ export default function DashboardPage() {
               </p>
 
               <div className="flex flex-wrap gap-4">
-                <Button asChild className="h-14 px-8 rounded-2xl">
+                <Button asChild className="h-14 px-8 rounded-2xl gradient-bg shadow-xl shadow-primary/10">
                   <Link href="/discover"><Sparkles className="mr-2"/> Discover</Link>
                 </Button>
                 <Button variant="outline" asChild className="h-14 px-8 rounded-2xl border-2">
