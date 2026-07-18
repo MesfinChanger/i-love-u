@@ -1,80 +1,49 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { onAuthStateChanged } from "firebase/auth";
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { Loader2, Heart } from 'lucide-react';
+import { useUser } from '@/firebase';
 
-import { auth } from "@/lib/firebase";
-
-
-export default function AuthGuard({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-
-
+/**
+ * @fileOverview Secure Mission Guard.
+ * Protects high-fidelity routes by ensuring a verified heart signature is present.
+ */
+export default function AuthGuard({ children }: { children: React.ReactNode }) {
+  const { user, loading } = useUser();
   const router = useRouter();
 
-  const [checking, setChecking] =
-    useState(true);
-
-
-
   useEffect(() => {
+    if (!loading && !user) {
+      router.replace('/login');
+    }
+  }, [loading, user, router]);
 
-
-    const unsubscribe =
-      onAuthStateChanged(
-        auth,
-        (user) => {
-
-
-          if (!user) {
-
-            router.replace("/login");
-
-            return;
-
-          }
-
-
-          setChecking(false);
-
-
-        }
-      );
-
-
-
-    return () => unsubscribe();
-
-
-  }, [router]);
-
-
-
-
-  if (checking) {
-
+  if (loading) {
     return (
-
-      <main className="min-h-screen flex items-center justify-center">
-
-        <div className="text-xl">
-
-          🔐 Verifying Heart Identity...
-
+      <div className="min-h-screen flex flex-col items-center justify-center bg-white">
+        <div className="space-y-8 text-center animate-in fade-in duration-700">
+          <div className="relative">
+            <div className="w-24 h-24 bg-primary/5 rounded-[2.5rem] flex items-center justify-center mx-auto shadow-xl ring-8 ring-white relative z-10">
+              <Heart className="w-12 h-12 text-primary fill-primary animate-heartbeat" />
+            </div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-primary/10 rounded-full blur-2xl animate-pulse" />
+          </div>
+          
+          <div className="space-y-3">
+            <Loader2 className="w-6 h-6 animate-spin text-primary mx-auto opacity-20" />
+            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground animate-pulse">
+              Verifying Heart Identity
+            </p>
+          </div>
         </div>
-
-      </main>
-
+      </div>
     );
-
   }
 
-
+  if (!user) {
+    return null;
+  }
 
   return <>{children}</>;
-
 }

@@ -1,6 +1,7 @@
 /**
- * @fileOverview Neutralized Route.
- * This file is deactivated to resolve the Parallel Route Conflict with /src/app/dashboard/page.tsx.
- * No exports are provided to ensure Next.js ignores this file as a route.
+ * @fileOverview Redundant Dashboard Route (Deactivated).
+ * Logic consolidated into root-level src/app/dashboard/page.tsx to prevent Parallel Route Conflicts.
  */
-// Deactivated
+export default function DeactivatedDashboard() {
+  return null;
+}
