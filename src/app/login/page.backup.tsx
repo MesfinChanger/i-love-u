@@ -6,17 +6,10 @@ import Link from "next/link";
 
 import {
   signInWithEmailAndPassword,
-  onAuthStateChanged,
+  onAuthStateChanged
 } from "firebase/auth";
 
 import { auth } from "@/lib/firebase";
-
-import {
-  recordSuccessfulLogin,
-  increaseLoginAttempts,
-  checkLoginLock,
-  recordFailedLogin,
-} from "@/lib/security/login-security";
 
 import {
   Heart,
@@ -24,15 +17,16 @@ import {
   AtSign,
   Lock,
   Sparkles,
-  UserPlus,
-  ShieldAlert,
+  UserPlus
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 
+
 export default function LoginPage() {
+
 
   const router = useRouter();
 
@@ -47,14 +41,13 @@ export default function LoginPage() {
 
   const [error,setError] = useState("");
 
-  const [lockMessage,setLockMessage] = useState("");
-
 
 
 
   /*
-    Detect existing login
-  */
+   * If already logged in,
+   * go directly to dashboard.
+   */
 
   useEffect(()=>{
 
@@ -65,7 +58,7 @@ export default function LoginPage() {
         (user)=>{
 
 
-          if(user && !user.isAnonymous){
+          if(user){
 
             router.replace("/dashboard");
 
@@ -73,6 +66,7 @@ export default function LoginPage() {
 
 
           setChecking(false);
+
 
         }
       );
@@ -88,9 +82,8 @@ export default function LoginPage() {
 
 
 
-
   async function handleLogin(
-    e:React.FormEvent
+    e: React.FormEvent
   ){
 
     e.preventDefault();
@@ -98,12 +91,9 @@ export default function LoginPage() {
 
     setError("");
 
-    setLockMessage("");
 
 
-
-
-    if(!email.trim() || !password){
+    if(!email || !password){
 
       setError(
         "Please enter email and password."
@@ -116,7 +106,6 @@ export default function LoginPage() {
 
 
 
-
     try {
 
 
@@ -124,29 +113,10 @@ export default function LoginPage() {
 
 
 
-      /*
-        Firebase authentication
-      */
-
-
-      const result =
-        await signInWithEmailAndPassword(
-          auth,
-          email.trim(),
-          password
-        );
-
-
-
-
-      /*
-        Successful login logging
-      */
-
-
-      await recordSuccessfulLogin(
-        result.user.uid,
-        email.trim()
+      await signInWithEmailAndPassword(
+        auth,
+        email.trim(),
+        password
       );
 
 
@@ -155,84 +125,62 @@ export default function LoginPage() {
 
 
 
-
     }
 
-    catch(err:any){
+
+    catch(error:any){
 
 
-      console.error(
-        "Login error:",
-        err
-      );
-
-
-
-      /*
-        Log failed attempt
-      */
-
-
-      await recordFailedLogin(
-        email.trim()
-      );
+      console.error(error);
 
 
 
-
-      if(auth.currentUser){
-
-
-        await increaseLoginAttempts(
-          auth.currentUser.uid,
-          email.trim()
-        );
-
-
-      }
-
-
-
-
-
-      if(err.code === "auth/user-not-found"){
+      if(
+        error.code ===
+        "auth/user-not-found"
+      ){
 
         setError(
           "Account not found."
         );
 
-      }
 
+      }
       else if(
-        err.code === "auth/wrong-password"
+        error.code ===
+        "auth/wrong-password"
       ){
 
         setError(
           "Incorrect password."
         );
 
-      }
 
+      }
       else if(
-        err.code === "auth/invalid-credential"
+        error.code ===
+        "auth/invalid-credential"
       ){
 
         setError(
           "Invalid email or password."
         );
 
-      }
 
-      else{
+      }
+      else {
+
 
         setError(
-          err.message
+          error.message
         );
+
 
       }
 
 
     }
+
 
     finally{
 
@@ -248,18 +196,19 @@ export default function LoginPage() {
 
 
 
-
   if(checking){
 
 
     return (
 
-      <div className="
+      <div
+        className="
         min-h-screen
         flex
         items-center
         justify-center
-      ">
+        "
+      >
 
         <Loader2
           className="
@@ -281,10 +230,11 @@ export default function LoginPage() {
 
 
 
-
   return (
 
-    <main className="
+
+    <main
+      className="
       min-h-screen
       flex
       items-center
@@ -294,33 +244,40 @@ export default function LoginPage() {
       from-white
       via-pink-50
       to-blue-50
-    ">
+      "
+    >
 
 
-      <div className="
+      <div
+        className="
         w-full
         max-w-md
-      ">
+        "
+      >
 
 
 
-        <div className="
+        <div
+          className="
           text-center
           mb-8
-        ">
+          "
+        >
 
 
-          <div className="
+          <div
+            className="
             mx-auto
             w-20
             h-20
-            bg-white
             rounded-3xl
+            bg-white
             shadow-xl
             flex
             items-center
             justify-center
-          ">
+            "
+          >
 
             <Heart
               className="
@@ -335,25 +292,32 @@ export default function LoginPage() {
 
 
 
-          <h1 className="
+          <h1
+            className="
+            mt-5
             text-4xl
             font-black
-            mt-6
-          ">
+            "
+          >
 
             Identify Your Heart
 
           </h1>
 
 
-          <p className="
+
+          <p
+            className="
             text-muted-foreground
+            italic
             mt-2
-          ">
+            "
+          >
 
             Secure access to I LOVE U
 
           </p>
+
 
 
         </div>
@@ -362,54 +326,31 @@ export default function LoginPage() {
 
 
 
-
-
-
-        <div className="
+        <div
+          className="
           bg-white
           rounded-[2.5rem]
           shadow-2xl
           p-8
-        ">
-
-
-
-          {lockMessage && (
-
-            <div className="
-              bg-red-50
-              text-red-600
-              p-4
-              rounded-xl
-              mb-5
-              flex
-              gap-2
-              text-sm
-              font-bold
-            ">
-
-              <ShieldAlert/>
-
-              {lockMessage}
-
-            </div>
-
-          )}
-
-
-
-
+          "
+        >
 
 
 
           <form
             onSubmit={handleLogin}
-            className="space-y-6"
+            className="
+            space-y-6
+            "
           >
 
 
 
-            <div className="relative">
+            <div
+              className="
+              relative
+              "
+            >
 
               <AtSign
                 className="
@@ -417,9 +358,10 @@ export default function LoginPage() {
                 left-4
                 top-1/2
                 -translate-y-1/2
-                text-gray-400
+                text-slate-400
                 "
               />
+
 
               <Input
 
@@ -439,7 +381,10 @@ export default function LoginPage() {
                 rounded-2xl
                 "
 
+                required
+
               />
+
 
             </div>
 
@@ -448,7 +393,11 @@ export default function LoginPage() {
 
 
 
-            <div className="relative">
+            <div
+              className="
+              relative
+              "
+            >
 
 
               <Lock
@@ -457,21 +406,28 @@ export default function LoginPage() {
                 left-4
                 top-1/2
                 -translate-y-1/2
+                text-slate-400
                 "
               />
 
 
+
               <Input
+
 
                 type="password"
 
+
                 placeholder="Password"
 
+
                 value={password}
+
 
                 onChange={
                   e=>setPassword(e.target.value)
                 }
+
 
                 className="
                 h-14
@@ -479,7 +435,12 @@ export default function LoginPage() {
                 rounded-2xl
                 "
 
+
+                required
+
+
               />
+
 
 
             </div>
@@ -489,14 +450,17 @@ export default function LoginPage() {
 
 
 
+
             {error && (
 
-              <p className="
-                text-red-500
+              <p
+                className="
                 text-sm
-                font-bold
+                text-red-500
                 text-center
-              ">
+                font-bold
+                "
+              >
 
                 {error}
 
@@ -509,8 +473,9 @@ export default function LoginPage() {
 
 
 
-
             <Button
+
+              type="submit"
 
               disabled={loading}
 
@@ -520,27 +485,26 @@ export default function LoginPage() {
               rounded-2xl
               font-black
               uppercase
+              tracking-widest
               "
 
             >
 
 
               {
-                loading ?
-
+                loading
+                ?
                 <Loader2 className="animate-spin"/>
-
                 :
-
                 <>
                 <Sparkles className="mr-2"/>
                 Sign In
                 </>
-
               }
 
 
             </Button>
+
 
 
 
@@ -550,49 +514,66 @@ export default function LoginPage() {
 
 
 
-
-
-
-          <div className="
+          <div
+            className="
             mt-6
             text-center
-          ">
+            space-y-4
+            "
+          >
 
 
             <Link
-              href="/signup"
+              href="/forgot-password"
               className="
+              text-sm
               text-primary
               font-bold
               "
             >
 
-              <UserPlus
-                className="
-                inline
-                mr-2
-                "
-              />
+              Forgot Password?
+
+            </Link>
+
+
+
+            <br />
+
+
+
+            <Link
+              href="/signup"
+              className="
+              text-sm
+              font-bold
+              "
+            >
+
+              <UserPlus className="inline mr-2 w-4 h-4"/>
 
               Join The Mission
 
             </Link>
 
 
+
           </div>
-
-
 
 
 
         </div>
 
 
+
       </div>
+
 
 
     </main>
 
+
   );
+
 
 }
