@@ -1,54 +1,91 @@
 'use client';
 
-import React from 'react';
-import { FirebaseClientProvider } from '@/firebase';
+import React, { useEffect, useState } from 'react';
+import {
+  FirebaseClientProvider,
+  useUser
+} from '@/firebase';
 import { Toaster } from '@/components/ui/toaster';
 import { SparkAssistant } from '@/components/SparkAssistant';
 import { RegistrationReminder } from '@/components/RegistrationReminder';
 import { MissionNudge } from '@/components/MissionNudge';
-import { FeedbackBox } from '@/components/FeedbackBox';
-import { AuthGateDialog } from '@/components/AuthGateDialog';
 import { LanguageProvider } from './LanguageProvider';
+import { FeedbackBox } from '@/components/FeedbackBox';
 import { IdleLogoutProvider } from './IdleLogoutProvider';
+import { AuthGateDialog } from '@/components/AuthGateDialog';
 
 /**
- * Firebase authentication runs in the background.
- * Public pages should render immediately.
+ * @fileOverview Universal Client-Side Provider Registry.
+ * Orchestrates the synchronization of Firebase, Language, and Mission-Critical UI components.
  */
-function IdentitySynchronizer({
-  children
-}: {
-  children: React.ReactNode;
-}) {
+
+/**
+ * Non-blocking Firebase status monitor.
+ * It does NOT prevent pages from rendering but provides feedback during the initial handshake.
+ */
+function IdentityStatus() {
+  const { loading } = useUser();
+  const [showStatus, setShowStatus] = useState(false);
+
+  useEffect(() => {
+    if (loading) {
+      const timer = setTimeout(() => {
+        setShowStatus(true);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+    setShowStatus(false);
+  }, [loading]);
+
+  if (!showStatus) return null;
+
   return (
-    <>
-      {children}
-    </>
+    <div
+      className="
+      fixed
+      bottom-5
+      left-1/2
+      -translate-x-1/2
+      z-50
+      bg-white
+      shadow-xl
+      rounded-full
+      px-6
+      py-3
+      text-xs
+      font-bold
+      text-primary
+      border
+      animate-in fade-in slide-in-from-bottom-2
+      "
+    >
+      Synchronizing Heart Connection...
+    </div>
   );
 }
 
-/**
- * Main client-side providers
- */
 export function ClientProviders({
   children
-}: {
+}:{
   children: React.ReactNode;
 }) {
   return (
     <FirebaseClientProvider>
       <LanguageProvider>
-        <IdentitySynchronizer>
-          <IdleLogoutProvider>
-            {children}
-            <SparkAssistant />
-            <AuthGateDialog />
-            <FeedbackBox />
-            <RegistrationReminder />
-            <MissionNudge />
-            <Toaster />
-          </IdleLogoutProvider>
-        </IdentitySynchronizer>
+        <IdleLogoutProvider>
+          {children}
+
+          {/* Non-blocking Firebase identity status */}
+          <IdentityStatus />
+
+          {/* Global Mission Components */}
+          <SparkAssistant />
+          <AuthGateDialog />
+          <FeedbackBox />
+          <RegistrationReminder />
+          <MissionNudge />
+          <Toaster />
+        </IdleLogoutProvider>
       </LanguageProvider>
     </FirebaseClientProvider>
   );

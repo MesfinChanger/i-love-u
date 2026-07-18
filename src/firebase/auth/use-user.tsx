@@ -8,7 +8,6 @@ import { useAuth } from '../provider';
 export function useUser() {
 
   const auth = useAuth();
-  console.log("I LOVE U Auth State:", auth);
 
   const [user, setUser] = useState<User | null>(null);
 
@@ -21,7 +20,9 @@ export function useUser() {
 
     if (!auth) {
 
-      setUser(null);
+      console.warn(
+        "Firebase auth not initialized"
+      );
 
       setLoading(false);
 
@@ -33,10 +34,9 @@ export function useUser() {
 
     const unsubscribe =
       onAuthStateChanged(
-
         auth,
 
-        (firebaseUser) => {
+        (firebaseUser)=>{
 
           setUser(firebaseUser);
 
@@ -45,14 +45,12 @@ export function useUser() {
         },
 
 
-        (error) => {
+        (error)=>{
 
-          console.warn(
-            "I Love U Auth Observer:",
+          console.error(
+            "Auth error:",
             error
           );
-
-          setUser(null);
 
           setLoading(false);
 
@@ -62,10 +60,25 @@ export function useUser() {
 
 
 
-    return () => unsubscribe();
+    // Safety timer
+    const timer = setTimeout(()=>{
+
+      setLoading(false);
+
+    },5000);
 
 
-  }, [auth]);
+
+    return ()=>{
+
+      unsubscribe();
+
+      clearTimeout(timer);
+
+    };
+
+
+  },[auth]);
 
 
 
