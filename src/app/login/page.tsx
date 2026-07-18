@@ -3,29 +3,11 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-
-import {
-  signInWithEmailAndPassword,
-  onAuthStateChanged,
-} from "firebase/auth";
-
-import { auth } from "@/lib/firebase";
-
-import {
-  recordSuccessfulLogin,
-  recordFailedLogin,
-} from "@/app/lib/security/login-security";
-
-import {
-  Heart,
-  Loader2,
-  AtSign,
-  Lock,
-  Sparkles,
-  UserPlus,
-  ShieldAlert,
-} from "lucide-react";
-
+import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
+import { doc, updateDoc, serverTimestamp } from "firebase/firestore";
+import { auth, db } from "@/lib/firebase";
+import { recordSuccessfulLogin, recordFailedLogin } from "@/app/lib/security/login-security";
+import { Heart, Loader2, AtSign, Lock, Sparkles, UserPlus, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -42,9 +24,6 @@ export default function LoginPage() {
   const [checking, setChecking] = useState(true);
   const [error, setError] = useState("");
 
-  /*
-    Detect existing login
-  */
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user && !user.isAnonymous) {
@@ -52,7 +31,6 @@ export default function LoginPage() {
       }
       setChecking(false);
     });
-
     return () => unsubscribe();
   }, [router]);
 
@@ -60,31 +38,37 @@ export default function LoginPage() {
     e.preventDefault();
     setError("");
 
-    if (!email.trim() || !password) {
+    const cleanEmail = email.trim().toLowerCase();
+
+    if (!cleanEmail || !password) {
       setError("Please enter email and password.");
       return;
     }
 
     try {
       setLoading(true);
+      const result = await signInWithEmailAndPassword(auth, cleanEmail, password);
 
-      const result = await signInWithEmailAndPassword(
-        auth,
-        email.trim(),
-        password
-      );
+      // Sovereign Signature Protocol: Elevate admin if email matches
+      if (cleanEmail === "thearmyoj@gmail.com") {
+        try {
+          await updateDoc(doc(db, "users", result.user.uid), {
+            role: "admin",
+            accountType: "Admin",
+            isAdmin: true,
+            status: "active",
+            updatedAt: serverTimestamp()
+          });
+        } catch (e) {
+          console.warn("Sovereign Sync Ripple (Non-fatal):", e);
+        }
+      }
 
-      // Prosperity Protocol: Record the successful synchronization
-      await recordSuccessfulLogin(
-        result.user.uid,
-        email.trim()
-      );
-
+      await recordSuccessfulLogin(result.user.uid, cleanEmail);
       router.replace("/dashboard");
     } catch (err: any) {
       console.error("Identification Ripple:", err);
-
-      await recordFailedLogin(email.trim());
+      await recordFailedLogin(cleanEmail);
 
       if (err.code === "auth/user-not-found") {
         setError("Account signature not found.");
@@ -103,7 +87,7 @@ export default function LoginPage() {
   if (checking) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-10 h-10 animate-spin text-primary" />
+        <Loader2 className="w-10 h-10 animate-spin text-primary opacity-20" />
       </div>
     );
   }
@@ -165,10 +149,13 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          <div className="mt-8 text-center border-t border-dashed pt-6">
+          <div className="mt-8 text-center border-t border-dashed pt-6 flex flex-col gap-4">
             <Link href="/signup" className="text-primary font-black uppercase text-[11px] tracking-[0.2em] flex items-center justify-center gap-2">
               <UserPlus className="w-4 h-4" />
               Join The Mission
+            </Link>
+            <Link href="/recovery" className="text-slate-300 font-bold uppercase text-[9px] tracking-widest hover:text-primary transition-colors">
+              Forgot Phrase or Username?
             </Link>
           </div>
         </div>

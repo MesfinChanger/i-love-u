@@ -1,62 +1,131 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useUser, useFirestore, useDoc } from '@/firebase';
-import { doc } from 'firebase/firestore';
-import { useMemoFirebase } from '@/firebase/use-memo-firebase';
-import { Loader2, Lock } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 
-/**
- * @fileOverview Guardian Authorization Protocol.
- * Exclusively permits platform administrators to access high-impact command centers.
- */
-export default function AdminGuard({ children }: { children: React.ReactNode }) {
-  const { user, loading: authLoading } = useUser();
-  const db = useFirestore();
-  const router = useRouter();
+import {
+useEffect,
+useState
+}
+from "react";
 
-  const userRef = useMemoFirebase(() => {
-    if (!db || !user?.uid) return null;
-    return doc(db, 'users', user.uid);
-  }, [db, user?.uid]);
 
-  const { data: profile, loading: profileLoading } = useDoc(userRef);
+import {
+onAuthStateChanged
+}
+from "firebase/auth";
 
-  if (authLoading || profileLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-white">
-        <Loader2 className="w-10 h-10 animate-spin text-primary opacity-20" />
-        <p className="text-[10px] font-black uppercase tracking-[0.3em] mt-6 text-muted-foreground">Checking Admin Access...</p>
-      </div>
-    );
-  }
 
-  // Admin Verification Logic (Checks Firestore signature)
-  const isAdmin = profile?.role === 'admin' || profile?.isAdmin === true;
+import {
+auth
+}
+from "@/lib/firebase";
 
-  if (!user || !isAdmin) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen p-8 text-center bg-white">
-        <div className="w-24 h-24 bg-red-50 rounded-[2.5rem] flex items-center justify-center mb-8 border-2 border-dashed border-red-200">
-           <Lock className="w-12 h-12 text-red-500" />
-        </div>
-        <div className="space-y-4 max-w-sm">
-           <h1 className="text-4xl font-black tracking-tighter uppercase leading-none">Access Denied</h1>
-           <p className="text-lg text-muted-foreground font-medium italic">
-             "Only community guardians can access this mission control center." ❤️
-           </p>
-        </div>
-        <Button 
-          onClick={() => router.push('/dashboard')} 
-          className="mt-10 h-16 px-10 rounded-2xl gradient-bg font-black uppercase tracking-widest text-xs shadow-xl"
-        >
-          Return to Dashboard
-        </Button>
-      </div>
-    );
-  }
 
-  return <>{children}</>;
+import {
+checkAdmin
+}
+from "@/lib/admin";
+
+
+import {
+useRouter
+}
+from "next/navigation";
+
+
+export default function AdminGuard({
+
+children
+
+}:{
+
+children:React.ReactNode
+
+}){
+
+
+const router =
+useRouter();
+
+
+const [loading,setLoading]
+=
+useState(true);
+
+
+
+useEffect(()=>{
+
+
+const unsub =
+onAuthStateChanged(
+
+auth,
+
+async(user)=>{
+
+
+if(!user){
+
+router.push("/login");
+
+return;
+
+}
+
+
+
+const allowed =
+await checkAdmin(
+user.uid
+);
+
+
+
+if(!allowed){
+
+router.push("/");
+
+return;
+
+}
+
+
+setLoading(false);
+
+
+}
+
+
+);
+
+
+
+return ()=>unsub();
+
+
+},[router]);
+
+
+
+if(loading){
+
+return (
+
+<div className="
+p-10 text-center
+">
+
+Checking Admin Permission...
+
+</div>
+
+)
+
+}
+
+
+
+return children;
+
+
 }

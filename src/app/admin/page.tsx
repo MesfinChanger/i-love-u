@@ -181,3 +181,27 @@ function AdminMetricCard({ title, desc, icon, href, color }: { title: string, de
     </Link>
   );
 }
+<Link
+
+href="/admin/users"
+
+className="
+border
+rounded-2xl
+p-6
+block
+"
+
+>
+
+👥
+
+<h2 className="text-2xl">
+
+Users
+
+</h2>
+
+Manage members
+
+</Link>

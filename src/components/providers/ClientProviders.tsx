@@ -1,10 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import {
-  FirebaseClientProvider,
-  useUser
-} from '@/firebase';
+import { FirebaseClientProvider, useUser } from '@/firebase';
 import { Toaster } from '@/components/ui/toaster';
 import { SparkAssistant } from '@/components/SparkAssistant';
 import { RegistrationReminder } from '@/components/RegistrationReminder';
@@ -19,9 +16,6 @@ import { AuthGateDialog } from '@/components/AuthGateDialog';
  * Orchestrates the synchronization of Firebase, Language, and Mission-Critical UI components.
  */
 
-/**
- * Non-blocking Firebase status monitor.
- */
 function IdentityStatus() {
   const { loading } = useUser();
   const [showStatus, setShowStatus] = useState(false);
@@ -40,26 +34,7 @@ function IdentityStatus() {
 
   return (
     <div
-      className="
-      fixed
-      bottom-5
-      left-1/2
-      -translate-x-1/2
-      z-[100]
-      bg-white/80
-      backdrop-blur-md
-      shadow-2xl
-      rounded-full
-      px-6
-      py-3
-      text-[10px]
-      font-black
-      uppercase
-      tracking-widest
-      text-primary
-      border
-      animate-in fade-in slide-in-from-bottom-2
-      "
+      className="fixed bottom-5 left-1/2 -translate-x-1/2 z-[100] bg-white/80 backdrop-blur-md shadow-2xl rounded-full px-6 py-3 text-[10px] font-black uppercase tracking-widest text-primary border animate-in fade-in slide-in-from-bottom-2"
     >
       Synchronizing Heart Connection...
     </div>
