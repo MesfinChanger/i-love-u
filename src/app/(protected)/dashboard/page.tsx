@@ -1,7 +1,10 @@
 /**
- * @fileOverview Deactivated to resolve Parallel Route Conflict.
- * Functional logic is now served exclusively from src/app/dashboard/page.tsx.
+ * @fileOverview Redundant Protected Dashboard.
+ * This file is deactivated to resolve the Parallel Route Conflict with /src/app/dashboard/page.tsx.
+ * The high-fidelity dashboard logic has been consolidated at the root level.
  * 
- * NOTE: Next.js App Router does not allow parallel pages that resolve to the same path.
- * This file is intentionally left without exports to force route resolution to the root path.
+ * Note: We have removed the 'export default' to prevent Next.js from treating this as a route.
  */
+
+// Deactivated to resolve build conflict. Logic moved to root app/dashboard/page.tsx
+const DeactivatedDashboard = () => null;
