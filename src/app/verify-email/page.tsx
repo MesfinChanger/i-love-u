@@ -17,18 +17,17 @@ export default function VerifyEmailPage() {
 
   useEffect(() => {
     setMounted(true);
-    // Redirect to login if user isn't found (they might have cleared session)
-    if (mounted && !auth.currentUser) {
-      // Small delay to allow Firebase to initialize
-      const timer = setTimeout(() => {
-        if (!auth.currentUser) router.push("/signup");
-      }, 2000);
-      return () => clearTimeout(timer);
-    }
+    // Safety check: redirect to signup if no user context is found after a grace period
+    const timer = setTimeout(() => {
+      if (mounted && !auth.currentUser) {
+        router.push("/signup");
+      }
+    }, 3000);
+    return () => clearTimeout(timer);
   }, [mounted, router]);
 
   if (!mounted) return (
-    <div className="min-h-screen flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center bg-muted/30">
        <Loader2 className="w-10 h-10 animate-spin text-primary opacity-20" />
     </div>
   );

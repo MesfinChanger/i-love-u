@@ -8,14 +8,19 @@ import {
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
+/**
+ * @fileOverview Identity Security Protocol.
+ * Tracks login attempts and enforces temporary account locks (5 attempts -> 10 minutes).
+ */
+
 const MAX_ATTEMPTS = 5;
-const LOCK_TIME = 10 * 60 * 1000; // 10 minutes
+const LOCK_TIME = 10 * 60 * 1000; // 10 minutes in milliseconds
 
 export async function checkLoginLock(email: string) {
-  // Note: Since we don't have the UID yet, we use a hash of the email or a dedicated lock registry
-  // For this prototype, we check the user document if it exists
-  const q = doc(db, "users_security", email.replace(/\./g, '_'));
-  const snap = await getDoc(q);
+  // Use email-safe ID for the security document
+  const securityId = email.toLowerCase().replace(/\./g, '_');
+  const securityRef = doc(db, "users_security", securityId);
+  const snap = await getDoc(securityRef);
 
   if (!snap.exists()) {
     return { locked: false };
@@ -35,7 +40,8 @@ export async function checkLoginLock(email: string) {
 }
 
 export async function recordFailedLogin(email: string) {
-  const securityRef = doc(db, "users_security", email.replace(/\./g, '_'));
+  const securityId = email.toLowerCase().replace(/\./g, '_');
+  const securityRef = doc(db, "users_security", securityId);
   const snap = await getDoc(securityRef);
   
   let attempts = 1;
@@ -46,7 +52,7 @@ export async function recordFailedLogin(email: string) {
   const update: any = {
     loginAttempts: attempts,
     lastAttempt: serverTimestamp(),
-    email: email
+    email: email.toLowerCase()
   };
 
   if (attempts >= MAX_ATTEMPTS) {
@@ -55,8 +61,9 @@ export async function recordFailedLogin(email: string) {
 
   await setDoc(securityRef, update, { merge: true });
 
+  // Dispatched to immutable log for Guardian review
   await addDoc(collection(db, "securityLogs"), {
-    email,
+    email: email.toLowerCase(),
     action: "LOGIN_FAILED",
     success: false,
     timestamp: serverTimestamp(),
@@ -64,8 +71,10 @@ export async function recordFailedLogin(email: string) {
 }
 
 export async function recordSuccessfulLogin(uid: string, email: string) {
-  const securityRef = doc(db, "users_security", email.replace(/\./g, '_'));
+  const securityId = email.toLowerCase().replace(/\./g, '_');
+  const securityRef = doc(db, "users_security", securityId);
   
+  // Clear failures upon successful identification
   await setDoc(securityRef, {
     loginAttempts: 0,
     lockedUntil: null,
@@ -75,12 +84,13 @@ export async function recordSuccessfulLogin(uid: string, email: string) {
 
   await addDoc(collection(db, "securityLogs"), {
     uid,
-    email,
+    email: email.toLowerCase(),
     action: "LOGIN_SUCCESS",
     success: true,
     timestamp: serverTimestamp(),
   });
 
+  // Synchronize last login on user profile
   await setDoc(
     doc(db, "users", uid),
     {

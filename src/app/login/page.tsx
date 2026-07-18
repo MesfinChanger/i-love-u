@@ -10,6 +10,7 @@ import { recordSuccessfulLogin, recordFailedLogin, checkLoginLock } from "@/lib/
 import { Heart, Loader2, AtSign, Lock, Sparkles, UserPlus, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
 
 /**
  * @fileOverview Identity Identification Protocol.
@@ -17,6 +18,7 @@ import { Input } from "@/components/ui/input";
  */
 export default function LoginPage() {
   const router = useRouter();
+  const { toast } = useToast();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -75,6 +77,7 @@ export default function LoginPage() {
       }
 
       await recordSuccessfulLogin(result.user.uid, cleanEmail);
+      toast({ title: "Identity Identified", description: "Welcome back to the Revolution! ❤️" });
       router.replace("/dashboard");
     } catch (err: any) {
       console.error("Identification Ripple:", err);
@@ -83,7 +86,7 @@ export default function LoginPage() {
       if (err.code === "auth/user-not-found" || err.code === "auth/wrong-password" || err.code === "auth/invalid-credential") {
         setError("Invalid email or secure phrase.");
       } else {
-        setError(err.message);
+        setError(err.message || "An unexpected error occurred.");
       }
     } finally {
       setLoading(false);
