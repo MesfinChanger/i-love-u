@@ -65,9 +65,12 @@ export default function VerifyEmailPage() {
           </CardContent>
         </Card>
 
-        <p className="text-center text-[9px] font-black uppercase tracking-[0.4em] text-slate-300">
-          Respect & Love is Mandatory ❤️ Prosperity Revolution
-        </p>
+        <div className="text-center opacity-40">
+          <Heart className="w-6 h-6 text-primary mx-auto animate-heartbeat" />
+          <p className="mt-2 text-[9px] font-black uppercase tracking-[0.4em] text-slate-400">
+            Respect & Love is Mandatory ❤️ Prosperity Revolution
+          </p>
+        </div>
       </div>
     </div>
   );

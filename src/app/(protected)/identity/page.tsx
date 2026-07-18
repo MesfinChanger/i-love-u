@@ -1,6 +1,6 @@
 /**
  * @fileOverview DEACTIVATED - Route consolidated to root-level /app/identity/page.tsx
- * This file is neutralized to prevent parallel route conflicts.
+ * This file is neutralized to prevent parallel route conflicts with high-fidelity modules.
  */
-// The default export is removed to prevent Next.js from treating this as a page.
+export default function InertIdentity() { return null; }
 export const dynamic = 'force-dynamic';

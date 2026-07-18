@@ -6,7 +6,7 @@ import Link from "next/link";
 import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 import { doc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
-import { recordSuccessfulLogin, recordFailedLogin } from "@/app/lib/security/login-security";
+import { recordSuccessfulLogin, recordFailedLogin } from "@/lib/security/login-security";
 import { Heart, Loader2, AtSign, Lock, Sparkles, UserPlus, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
