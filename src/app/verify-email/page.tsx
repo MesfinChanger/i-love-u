@@ -17,11 +17,7 @@ export default function VerifyEmailPage() {
 
   useEffect(() => {
     setMounted(true);
-    // If no user is logged in, redirect to signup protocol
-    if (mounted && !auth.currentUser) {
-      router.push("/signup");
-    }
-  }, [router, mounted]);
+  }, []);
 
   if (!mounted) return (
     <div className="min-h-screen flex items-center justify-center">

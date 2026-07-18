@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useUser } from "@/firebase";
 import AuthGuard from "@/components/AuthGuard";
@@ -31,19 +32,19 @@ import { cn } from "@/lib/utils";
  */
 export default function DashboardPage() {
   const { user } = useUser();
+  const [greeting, setGreeting] = useState("Welcome");
+
+  useEffect(() => {
+    const hour = new Date().getHours();
+    if (hour < 12) setGreeting("Good Morning");
+    else if (hour < 18) setGreeting("Good Afternoon");
+    else setGreeting("Good Evening");
+  }, []);
 
   const name =
     user?.displayName ||
     user?.email?.split("@")[0] ||
     "Heart";
-
-  const hour = new Date().getHours();
-  const greeting =
-    hour < 12
-      ? "Good Morning"
-      : hour < 18
-      ? "Good Afternoon"
-      : "Good Evening";
 
   return (
     <AuthGuard>
