@@ -78,7 +78,7 @@ export default function DashboardPage() {
                 <Zap className="w-8 h-8" />
                 <CardTitle className="text-3xl font-black uppercase tracking-tighter">Mission Control</CardTitle>
               </div>
-            </Header>
+            </CardHeader>
 
             <CardContent className="p-10 pt-0 space-y-6">
               <p className="text-lg text-slate-600 italic leading-relaxed">
