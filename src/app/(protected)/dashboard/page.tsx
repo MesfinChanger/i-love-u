@@ -2,124 +2,576 @@
 
 import { Header } from '@/components/Header';
 import { BottomNav } from '@/components/BottomNav';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card';
+
 import { Button } from '@/components/ui/button';
-import { 
-  Heart, 
-  Sparkles, 
-  TrendingUp, 
-  Users, 
+
+import {
+  Heart,
+  Sparkles,
+  TrendingUp,
+  Users,
   ShieldCheck,
   Zap,
-  ArrowRight
+  ArrowRight,
+  Lightbulb,
+  Globe,
+  MessageCircle,
+  ShoppingBag
 } from 'lucide-react';
+
 import Link from 'next/link';
+
 import AuthGuard from '@/components/AuthGuard';
+
 import { cn } from '@/lib/utils';
+
 import { useUser } from '@/firebase';
 
-/**
- * @fileOverview High-Fidelity Mission Dashboard.
- * Primary command center for authenticated hearts.
- * Moved to route group to resolve Parallel Route Conflict.
- */
+
+
 export default function DashboardPage() {
+
+
   const { user } = useUser();
 
+
+  const name =
+    user?.displayName ||
+    user?.email?.split("@")[0] ||
+    "Heart";
+
+
+
+  const hour = new Date().getHours();
+
+  const greeting =
+    hour < 12
+      ? "Good Morning"
+      :
+    hour < 18
+      ? "Good Afternoon"
+      :
+      "Good Evening";
+
+
+
+
   return (
+
     <AuthGuard>
-      <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
+
+      <div
+        className="
+        flex
+        flex-col
+        min-h-screen
+        pb-24
+        relative
+        overflow-hidden
+        bg-gradient-to-br
+        from-white
+        via-pink-50
+        to-blue-50
+        "
+      >
+
+
+        {/* Glow background */}
+
+        <div
+          className="
+          absolute
+          -top-40
+          -left-40
+          w-96
+          h-96
+          bg-pink-200/40
+          blur-3xl
+          rounded-full
+          "
+        />
+
+
+        <div
+          className="
+          absolute
+          bottom-0
+          right-0
+          w-96
+          h-96
+          bg-blue-200/40
+          blur-3xl
+          rounded-full
+          "
+        />
+
+
+
         <Header />
-        
-        <main className="container mx-auto px-6 py-12 max-w-5xl space-y-10">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-            <div className="space-y-2">
-              <h1 className="text-5xl font-black tracking-tighter uppercase leading-none">
-                Welcome Home{user?.displayName ? `, ${user.displayName}` : ''}
+
+
+
+        <main
+          className="
+          relative
+          z-10
+          container
+          mx-auto
+          px-6
+          py-10
+          max-w-5xl
+          space-y-10
+          "
+        >
+
+
+
+          {/* Welcome */}
+
+          <section
+            className="
+            flex
+            flex-col
+            md:flex-row
+            justify-between
+            gap-6
+            "
+          >
+
+
+            <div>
+
+              <p
+                className="
+                text-sm
+                font-bold
+                text-primary
+                uppercase
+                tracking-widest
+                "
+              >
+                {greeting}
+              </p>
+
+
+              <h1
+                className="
+                text-5xl
+                font-black
+                tracking-tight
+                "
+              >
+                {name} ❤️
               </h1>
-              <p className="text-muted-foreground font-medium italic">"Your presence fuels the Prosperity Revolution."</p>
+
+
+              <p
+                className="
+                mt-3
+                text-muted-foreground
+                italic
+                "
+              >
+                Your presence fuels the Prosperity Revolution.
+              </p>
+
+
             </div>
-            <div className="bg-slate-900 text-white px-6 py-3 rounded-full flex items-center gap-3 shadow-xl">
-               <ShieldCheck className="w-5 h-5 text-primary" />
-               <span className="text-[10px] font-black uppercase tracking-[0.2em]">Verified Heart</span>
+
+
+
+
+            <div
+              className="
+              bg-white
+              shadow-xl
+              rounded-full
+              px-6
+              py-4
+              flex
+              items-center
+              gap-3
+              "
+            >
+
+              <ShieldCheck
+                className="
+                text-green-500
+                "
+              />
+
+              <span
+                className="
+                text-xs
+                font-black
+                uppercase
+                tracking-widest
+                "
+              >
+                Verified Heart
+              </span>
+
+
             </div>
+
+
+
+          </section>
+
+
+
+
+
+          {/* Main Cards */}
+
+          <div
+            className="
+            grid
+            md:grid-cols-3
+            gap-6
+            "
+          >
+
+
+            <MetricCard
+
+              title="Daily Sparks"
+
+              value="12"
+
+              icon={<Heart/>}
+
+              href="/spark"
+
+              color="text-pink-500"
+
+            />
+
+
+            <MetricCard
+
+              title="Idea Pool"
+
+              value="Active"
+
+              icon={<Lightbulb/>}
+
+              href="/ideas"
+
+              color="text-yellow-500"
+
+            />
+
+
+
+            <MetricCard
+
+              title="Global Circle"
+
+              value="Connected"
+
+              icon={<Globe/>}
+
+              href="/circle"
+
+              color="text-blue-500"
+
+            />
+
+
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <MetricCard 
-              title="Daily Sparks" 
-              value="12" 
-              icon={<Heart className="w-6 h-6" />} 
-              href="/spark" 
-              color="text-primary" 
-            />
-            <MetricCard 
-              title="Global Impact" 
-              value="$0.25" 
-              icon={<TrendingUp className="w-6 h-6" />} 
-              href="/donate" 
-              color="text-green-500" 
-            />
-            <MetricCard 
-              title="Circle Activity" 
-              value="Active" 
-              icon={<Users className="w-6 h-6" />} 
-              href="/circle" 
-              color="text-blue-500" 
-            />
-          </div>
 
-          <Card className="rounded-[3rem] border-none shadow-2xl bg-white overflow-hidden relative group">
-             <div className="absolute top-0 right-0 p-10 opacity-5 -rotate-12 group-hover:rotate-0 transition-transform duration-700">
-                <Sparkles className="w-48 h-48 text-primary" />
-             </div>
-             <CardHeader className="p-10 pb-0">
-                <div className="flex items-center gap-4 text-primary">
-                   <Zap className="w-8 h-8" />
-                   <CardTitle className="text-3xl font-black uppercase tracking-tighter">Mission Control</CardTitle>
-                </div>
-             </CardHeader>
-             <CardContent className="p-10 space-y-8">
-                <p className="text-lg text-slate-600 font-medium italic leading-relaxed max-w-2xl">
-                  "Respect & Love is Mandatory." Every match you make and every gift you send helps us reach another village and create a job.
-                </p>
-                <div className="flex flex-wrap gap-4">
-                   <Button asChild className="h-16 px-10 rounded-2xl gradient-bg font-black uppercase text-xs shadow-xl active:scale-95 transition-all">
-                      <Link href="/discover">Start Discovering</Link>
-                   </Button>
-                   <Button asChild variant="outline" className="h-16 px-10 rounded-2xl border-2 font-black uppercase text-xs hover:bg-slate-50">
-                      <Link href="/shopping">Artisan Shop</Link>
-                   </Button>
-                </div>
-             </CardContent>
+
+
+
+          {/* Mission */}
+
+          <Card
+            className="
+            border-none
+            rounded-[3rem]
+            shadow-xl
+            bg-white/90
+            backdrop-blur
+            overflow-hidden
+            "
+          >
+
+
+            <CardHeader className="p-10">
+
+
+              <div
+                className="
+                flex
+                items-center
+                gap-4
+                text-primary
+                "
+              >
+
+                <Zap
+                  className="
+                  w-8
+                  h-8
+                  "
+                />
+
+
+                <CardTitle
+                  className="
+                  text-3xl
+                  font-black
+                  "
+                >
+                  Mission Control
+                </CardTitle>
+
+
+              </div>
+
+
+            </CardHeader>
+
+
+
+            <CardContent
+              className="
+              p-10
+              pt-0
+              space-y-6
+              "
+            >
+
+
+              <p
+                className="
+                text-lg
+                text-slate-600
+                italic
+                "
+              >
+
+                Respect & Love is Mandatory.
+                Every connection, idea, and action helps build a stronger world.
+
+              </p>
+
+
+
+
+              <div
+                className="
+                flex
+                flex-wrap
+                gap-4
+                "
+              >
+
+
+                <Button asChild>
+
+                  <Link href="/discover">
+
+                    <Sparkles className="mr-2"/>
+
+                    Discover
+
+                  </Link>
+
+                </Button>
+
+
+
+
+                <Button
+                  variant="outline"
+                  asChild
+                >
+
+                  <Link href="/messages">
+
+                    <MessageCircle className="mr-2"/>
+
+                    Messages
+
+                  </Link>
+
+
+                </Button>
+
+
+
+
+                <Button
+                  variant="outline"
+                  asChild
+                >
+
+                  <Link href="/shopping">
+
+                    <ShoppingBag className="mr-2"/>
+
+                    Shop
+
+                  </Link>
+
+
+                </Button>
+
+
+              </div>
+
+
+            </CardContent>
+
+
           </Card>
+
+
+
         </main>
 
+
+
         <BottomNav />
+
+
       </div>
+
+
     </AuthGuard>
+
   );
+
 }
 
-function MetricCard({ title, value, icon, href, color }: { title: string, value: string, icon: React.ReactNode, href: string, color: string }) {
-  return (
-    <Link href={href}>
-      <Card className="rounded-[2.5rem] border-none shadow-lg bg-white p-8 hover:shadow-2xl transition-all group overflow-hidden relative h-full">
-         <div className="flex flex-col gap-4 relative z-10 h-full">
-            <div className={cn("w-12 h-12 rounded-2xl bg-muted flex items-center justify-center transition-all group-hover:bg-white group-hover:shadow-md", color)}>
-               {icon}
-            </div>
-            <div>
-               <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">{title}</p>
-               <p className="text-3xl font-black tracking-tighter">{value}</p>
-            </div>
-            <div className="pt-4 mt-auto">
-               <span className="inline-flex items-center gap-2 text-[9px] font-black uppercase tracking-widest text-primary opacity-0 group-hover:opacity-100 transition-opacity">
-                  Open Module <ArrowRight className="w-3 h-3" />
-               </span>
-            </div>
-         </div>
-      </Card>
-    </Link>
-  );
+
+
+
+function MetricCard({
+  title,
+  value,
+  icon,
+  href,
+  color
+}:{
+  title:string;
+  value:string;
+  icon:React.ReactNode;
+  href:string;
+  color:string;
+}){
+
+
+return (
+
+<Link href={href}>
+
+
+<Card
+className="
+rounded-[2.5rem]
+border-none
+shadow-lg
+bg-white/90
+hover:shadow-2xl
+transition-all
+"
+>
+
+
+<CardContent
+className="
+p-8
+space-y-5
+"
+>
+
+
+<div
+className={cn(
+"w-14 h-14 rounded-2xl bg-muted flex items-center justify-center",
+color
+)}
+>
+
+{icon}
+
+</div>
+
+
+
+<div>
+
+<p
+className="
+text-xs
+font-black
+uppercase
+tracking-widest
+text-muted-foreground
+"
+>
+
+{title}
+
+</p>
+
+
+<p
+className="
+text-3xl
+font-black
+"
+>
+
+{value}
+
+</p>
+
+
+</div>
+
+
+
+<div
+className="
+text-primary
+flex
+items-center
+gap-2
+text-xs
+font-bold
+"
+>
+
+Open
+
+<ArrowRight size={14}/>
+
+
+</div>
+
+
+
+</CardContent>
+
+
+</Card>
+
+
+</Link>
+
+);
+
+
 }
