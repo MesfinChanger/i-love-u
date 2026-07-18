@@ -1,9 +1,9 @@
 /**
- * @fileOverview Redundant Protected Dashboard.
+ * @fileOverview Deactivated Protected Dashboard.
  * This file is deactivated to resolve the Parallel Route Conflict with /src/app/dashboard/page.tsx.
- * The high-fidelity mission control logic has been consolidated at the root level.
+ * All mission logic is served from the root-level path.
  */
 
-// Deactivated to resolve build conflict.
-const DeactivatedDashboard = () => null;
-export default DeactivatedDashboard;
+export default function DeactivatedPage() {
+  return null;
+}
