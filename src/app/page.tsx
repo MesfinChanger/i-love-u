@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -18,7 +19,7 @@ import { Button } from "@/components/ui/button";
 /**
  * @fileOverview High-Fidelity Welcome Gateway.
  * Orchestrates the initial heart identification protocol.
- * Restored to single-window navigation.
+ * Synchronized with standard single-window navigation.
  */
 export default function WelcomePage() {
   return (
@@ -73,10 +74,10 @@ export default function WelcomePage() {
 
         {/* Mission Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <MissionCard icon={<Users/>} title="Connect" text="Build circles" />
-          <MissionCard icon={<Sparkles/>} title="Spark" text="Create ideas" />
-          <MissionCard icon={<Lightbulb/>} title="Idea Pool" text="Share wisdom" />
-          <MissionCard icon={<Globe/>} title="Global" text="Grow together" />
+          <MissionCard icon={<Users className="w-5 h-5"/>} title="Connect" text="Build circles" />
+          <MissionCard icon={<Sparkles className="w-5 h-5"/>} title="Spark" text="Create ideas" />
+          <MissionCard icon={<Lightbulb className="w-5 h-5"/>} title="Idea Pool" text="Share wisdom" />
+          <MissionCard icon={<Globe className="w-5 h-5"/>} title="Global" text="Grow together" />
         </div>
 
         <p className="text-sm text-muted-foreground font-bold italic opacity-40">Respect & Love is Mandatory ❤️</p>

@@ -1,3 +1,4 @@
+
 /**
  * @fileOverview Neutralized file to resolve Parallel Route Conflict.
  * Redirects to the high-fidelity root dashboard.

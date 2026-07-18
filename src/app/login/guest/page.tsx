@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState } from 'react';
@@ -10,7 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 
 /**
  * @fileOverview Guest Authentication Gateway.
- * Handles the anonymous sign-in logic for the "Next Window" protocol.
+ * Handles the anonymous sign-in logic for the frictionless discovery protocol.
  */
 export default function GuestLoginPage() {
   const router = useRouter();
@@ -18,14 +19,15 @@ export default function GuestLoginPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    let mounted = true;
+
     async function launchGuestSession() {
       try {
         if (!auth) throw new Error("Authentication bridge not initialized.");
         
         const result = await signInAnonymously(auth);
         
-        // Register heartbeat in the registry
-        if (db) {
+        if (mounted && db) {
           await setDoc(doc(db, 'users', result.user.uid), {
             uid: result.user.uid,
             name: "Guest Heart",
@@ -37,16 +39,21 @@ export default function GuestLoginPage() {
           }, { merge: true });
         }
 
-        toast({ title: "Welcome Guest Heart ❤️", description: "Identity synchronized with the mission." });
-        router.replace('/dashboard');
+        if (mounted) {
+          toast({ title: "Welcome Guest Heart ❤️", description: "Identity synchronized with the mission." });
+          router.replace('/dashboard');
+        }
       } catch (err: any) {
-        console.error("Guest login error:", err);
-        setError(err.message || "Unable to enter as guest");
-        toast({ variant: "destructive", title: "Access Ripple", description: err.message });
+        if (mounted) {
+          console.error("Guest login error:", err);
+          setError(err.message || "Unable to enter as guest");
+          toast({ variant: "destructive", title: "Access Ripple", description: err.message });
+        }
       }
     }
 
     launchGuestSession();
+    return () => { mounted = false; };
   }, [router, toast]);
 
   if (error) {
@@ -57,8 +64,8 @@ export default function GuestLoginPage() {
         </div>
         <h1 className="text-2xl font-black uppercase tracking-tight text-red-600">Access Ripple</h1>
         <p className="mt-2 text-muted-foreground italic font-medium max-w-xs">{error}</p>
-        <button onClick={() => window.close()} className="mt-8 px-8 py-3 bg-slate-900 text-white rounded-xl font-bold uppercase text-[10px] tracking-widest">
-          Close Window
+        <button onClick={() => router.push('/')} className="mt-8 px-8 py-3 bg-slate-900 text-white rounded-xl font-bold uppercase text-[10px] tracking-widest">
+          Return Home
         </button>
       </main>
     );
