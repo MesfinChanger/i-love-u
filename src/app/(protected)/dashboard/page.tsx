@@ -1,8 +1,10 @@
 /**
  * @fileOverview Deactivated to resolve Parallel Route Conflict.
- * Functional logic is now in src/app/dashboard/page.tsx.
+ * Functional logic is now served exclusively from src/app/dashboard/page.tsx.
  * 
- * NOTE: Next.js App Router does not allow parallel pages. 
- * We have consolidated to root-level paths to adhere to MVP guidelines.
+ * NOTE: Next.js App Router does not allow parallel pages that resolve to the same path.
+ * We have consolidated to root-level paths to adhere to MVP guidelines and stability protocols.
  */
-// export default function ProtectedDashboard() { return null; }
+
+// This file contains no default export to prevent Next.js from identifying it as a conflicting route.
+export const dynamic = 'force-dynamic';

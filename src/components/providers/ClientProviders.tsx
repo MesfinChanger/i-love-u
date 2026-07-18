@@ -21,7 +21,6 @@ import { AuthGateDialog } from '@/components/AuthGateDialog';
 
 /**
  * Non-blocking Firebase status monitor.
- * It does NOT prevent pages from rendering but provides feedback during the initial handshake.
  */
 function IdentityStatus() {
   const { loading } = useUser();
