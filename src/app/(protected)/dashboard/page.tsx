@@ -1,10 +1,8 @@
-
 /**
- * @fileOverview Neutralized file to resolve Parallel Route Conflict.
- * Redirects to the high-fidelity root dashboard.
+ * @fileOverview Deactivated to resolve Parallel Route Conflict.
+ * Functional logic is now in src/app/dashboard/page.tsx.
+ * 
+ * NOTE: Next.js App Router does not allow parallel pages. 
+ * We have consolidated to root-level paths to adhere to MVP guidelines.
  */
-import { redirect } from 'next/navigation';
-
-export default function ProtectedDashboardRedirect() {
-  redirect('/dashboard');
-}
+// export default function ProtectedDashboard() { return null; }

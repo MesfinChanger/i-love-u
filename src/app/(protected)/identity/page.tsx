@@ -1,10 +1,8 @@
-
 /**
- * @fileOverview Neutralized file to resolve Parallel Route Conflict.
- * Redirects to the high-fidelity root identity hub.
+ * @fileOverview Deactivated to resolve Parallel Route Conflict.
+ * Functional logic is now in src/app/identity/page.tsx.
+ * 
+ * NOTE: Next.js App Router does not allow parallel pages. 
+ * We have consolidated to root-level paths to adhere to MVP guidelines.
  */
-import { redirect } from 'next/navigation';
-
-export default function ProtectedIdentityRedirect() {
-  redirect('/identity');
-}
+// export default function ProtectedIdentity() { return null; }
