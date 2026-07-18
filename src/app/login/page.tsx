@@ -13,10 +13,8 @@ import { auth } from "@/lib/firebase";
 
 import {
   recordSuccessfulLogin,
-  increaseLoginAttempts,
-  checkLoginLock,
   recordFailedLogin,
-} from "@/lib/security/login-security";
+} from "@/app/lib/security/login-security";
 
 import {
   Heart,
@@ -31,568 +29,150 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-
+/**
+ * @fileOverview Identity Identification Protocol.
+ * High-fidelity gateway for members to enter the Prosperity Revolution.
+ */
 export default function LoginPage() {
-
   const router = useRouter();
 
-
-  const [email,setEmail] = useState("");
-
-  const [password,setPassword] = useState("");
-
-  const [loading,setLoading] = useState(false);
-
-  const [checking,setChecking] = useState(true);
-
-  const [error,setError] = useState("");
-
-  const [lockMessage,setLockMessage] = useState("");
-
-
-
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [checking, setChecking] = useState(true);
+  const [error, setError] = useState("");
 
   /*
     Detect existing login
   */
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user && !user.isAnonymous) {
+        router.replace("/dashboard");
+      }
+      setChecking(false);
+    });
 
-  useEffect(()=>{
+    return () => unsubscribe();
+  }, [router]);
 
-
-    const unsubscribe =
-      onAuthStateChanged(
-        auth,
-        (user)=>{
-
-
-          if(user && !user.isAnonymous){
-
-            router.replace("/dashboard");
-
-          }
-
-
-          setChecking(false);
-
-        }
-      );
-
-
-    return ()=>unsubscribe();
-
-
-  },[router]);
-
-
-
-
-
-
-
-  async function handleLogin(
-    e:React.FormEvent
-  ){
-
+  async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
-
-
     setError("");
 
-    setLockMessage("");
-
-
-
-
-    if(!email.trim() || !password){
-
-      setError(
-        "Please enter email and password."
-      );
-
+    if (!email.trim() || !password) {
+      setError("Please enter email and password.");
       return;
-
     }
 
-
-
-
-
     try {
-
-
       setLoading(true);
 
+      const result = await signInWithEmailAndPassword(
+        auth,
+        email.trim(),
+        password
+      );
 
-
-      /*
-        Firebase authentication
-      */
-
-
-      const result =
-        await signInWithEmailAndPassword(
-          auth,
-          email.trim(),
-          password
-        );
-
-
-
-
-      /*
-        Successful login logging
-      */
-
-
+      // Prosperity Protocol: Record the successful synchronization
       await recordSuccessfulLogin(
         result.user.uid,
         email.trim()
       );
 
-
-
       router.replace("/dashboard");
+    } catch (err: any) {
+      console.error("Identification Ripple:", err);
 
+      await recordFailedLogin(email.trim());
 
-
-
-    }
-
-    catch(err:any){
-
-
-      console.error(
-        "Login error:",
-        err
-      );
-
-
-
-      /*
-        Log failed attempt
-      */
-
-
-      await recordFailedLogin(
-        email.trim()
-      );
-
-
-
-
-      if(auth.currentUser){
-
-
-        await increaseLoginAttempts(
-          auth.currentUser.uid,
-          email.trim()
-        );
-
-
+      if (err.code === "auth/user-not-found") {
+        setError("Account signature not found.");
+      } else if (err.code === "auth/wrong-password") {
+        setError("Incorrect phrase.");
+      } else if (err.code === "auth/invalid-credential") {
+        setError("Invalid identity credentials.");
+      } else {
+        setError(err.message);
       }
-
-
-
-
-
-      if(err.code === "auth/user-not-found"){
-
-        setError(
-          "Account not found."
-        );
-
-      }
-
-      else if(
-        err.code === "auth/wrong-password"
-      ){
-
-        setError(
-          "Incorrect password."
-        );
-
-      }
-
-      else if(
-        err.code === "auth/invalid-credential"
-      ){
-
-        setError(
-          "Invalid email or password."
-        );
-
-      }
-
-      else{
-
-        setError(
-          err.message
-        );
-
-      }
-
-
-    }
-
-    finally{
-
+    } finally {
       setLoading(false);
-
     }
-
-
   }
 
-
-
-
-
-
-
-  if(checking){
-
-
+  if (checking) {
     return (
-
-      <div className="
-        min-h-screen
-        flex
-        items-center
-        justify-center
-      ">
-
-        <Loader2
-          className="
-          w-10
-          h-10
-          animate-spin
-          text-primary
-          "
-        />
-
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-10 h-10 animate-spin text-primary" />
       </div>
-
     );
-
   }
-
-
-
-
-
-
 
   return (
-
-    <main className="
-      min-h-screen
-      flex
-      items-center
-      justify-center
-      p-6
-      bg-gradient-to-br
-      from-white
-      via-pink-50
-      to-blue-50
-    ">
-
-
-      <div className="
-        w-full
-        max-w-md
-      ">
-
-
-
-        <div className="
-          text-center
-          mb-8
-        ">
-
-
-          <div className="
-            mx-auto
-            w-20
-            h-20
-            bg-white
-            rounded-3xl
-            shadow-xl
-            flex
-            items-center
-            justify-center
-          ">
-
-            <Heart
-              className="
-              w-10
-              h-10
-              text-primary
-              fill-primary
-              "
-            />
-
+    <main className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-white via-pink-50 to-blue-50">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-8">
+          <div className="mx-auto w-20 h-20 bg-white rounded-3xl shadow-xl flex items-center justify-center">
+            <Heart className="w-10 h-10 text-primary fill-primary animate-heartbeat" />
           </div>
-
-
-
-          <h1 className="
-            text-4xl
-            font-black
-            mt-6
-          ">
-
-            Identify Your Heart
-
-          </h1>
-
-
-          <p className="
-            text-muted-foreground
-            mt-2
-          ">
-
-            Secure access to I LOVE U
-
-          </p>
-
-
+          <h1 className="text-4xl font-black mt-6 tracking-tighter uppercase">Identify Your Heart</h1>
+          <p className="text-muted-foreground mt-2 italic font-medium">Secure access to I LOVE U</p>
         </div>
 
-
-
-
-
-
-
-
-        <div className="
-          bg-white
-          rounded-[2.5rem]
-          shadow-2xl
-          p-8
-        ">
-
-
-
-          {lockMessage && (
-
-            <div className="
-              bg-red-50
-              text-red-600
-              p-4
-              rounded-xl
-              mb-5
-              flex
-              gap-2
-              text-sm
-              font-bold
-            ">
-
-              <ShieldAlert/>
-
-              {lockMessage}
-
-            </div>
-
-          )}
-
-
-
-
-
-
-
-          <form
-            onSubmit={handleLogin}
-            className="space-y-6"
-          >
-
-
-
+        <div className="bg-white rounded-[2.5rem] shadow-2xl p-8 border border-white">
+          <form onSubmit={handleLogin} className="space-y-6">
             <div className="relative">
-
-              <AtSign
-                className="
-                absolute
-                left-4
-                top-1/2
-                -translate-y-1/2
-                text-gray-400
-                "
-              />
-
+              <AtSign className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
               <Input
-
                 type="email"
-
                 placeholder="Email address"
-
                 value={email}
-
-                onChange={
-                  e=>setEmail(e.target.value)
-                }
-
-                className="
-                h-14
-                pl-12
-                rounded-2xl
-                "
-
+                onChange={e => setEmail(e.target.value)}
+                className="h-14 pl-12 rounded-2xl bg-muted/30 border-none font-bold"
+                required
               />
-
             </div>
-
-
-
-
-
 
             <div className="relative">
-
-
-              <Lock
-                className="
-                absolute
-                left-4
-                top-1/2
-                -translate-y-1/2
-                "
-              />
-
-
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
               <Input
-
                 type="password"
-
-                placeholder="Password"
-
+                placeholder="Secure Phrase"
                 value={password}
-
-                onChange={
-                  e=>setPassword(e.target.value)
-                }
-
-                className="
-                h-14
-                pl-12
-                rounded-2xl
-                "
-
+                onChange={e => setPassword(e.target.value)}
+                className="h-14 pl-12 rounded-2xl bg-muted/30 border-none font-bold"
+                required
               />
-
-
             </div>
-
-
-
-
-
 
             {error && (
-
-              <p className="
-                text-red-500
-                text-sm
-                font-bold
-                text-center
-              ">
-
+              <div className="bg-red-50 text-red-600 p-4 rounded-xl flex gap-2 text-xs font-bold items-center border border-red-100">
+                <ShieldAlert className="w-4 h-4 shrink-0" />
                 {error}
-
-              </p>
-
+              </div>
             )}
 
-
-
-
-
-
-
             <Button
-
               disabled={loading}
-
-              className="
-              w-full
-              h-14
-              rounded-2xl
-              font-black
-              uppercase
-              "
-
+              className="w-full h-16 rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl active:scale-95 transition-all gradient-bg"
             >
-
-
-              {
-                loading ?
-
-                <Loader2 className="animate-spin"/>
-
-                :
-
+              {loading ? <Loader2 className="animate-spin" /> : (
                 <>
-                <Sparkles className="mr-2"/>
-                Sign In
+                  <Sparkles className="mr-2 w-4 h-4" />
+                  Sign In
                 </>
-
-              }
-
-
+              )}
             </Button>
-
-
-
           </form>
 
-
-
-
-
-
-
-
-          <div className="
-            mt-6
-            text-center
-          ">
-
-
-            <Link
-              href="/signup"
-              className="
-              text-primary
-              font-bold
-              "
-            >
-
-              <UserPlus
-                className="
-                inline
-                mr-2
-                "
-              />
-
+          <div className="mt-8 text-center border-t border-dashed pt-6">
+            <Link href="/signup" className="text-primary font-black uppercase text-[11px] tracking-[0.2em] flex items-center justify-center gap-2">
+              <UserPlus className="w-4 h-4" />
               Join The Mission
-
             </Link>
-
-
           </div>
-
-
-
-
-
         </div>
-
-
       </div>
-
-
     </main>
-
   );
-
 }

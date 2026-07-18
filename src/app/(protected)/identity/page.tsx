@@ -1,6 +1,6 @@
 /**
- * @fileOverview DEACTIVATED - Route consolidated to root-level /identity/page.tsx
- * This file is kept as a marker but contains no routing logic to prevent parallel route conflicts.
+ * @fileOverview DEACTIVATED - Route consolidated to root-level /app/identity/page.tsx
+ * This file is neutralized to prevent parallel route conflicts with the root-level identity hub.
  */
 export default function DeactivatedIdentity() {
   return null;

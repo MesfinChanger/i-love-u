@@ -30,7 +30,7 @@ function IdentityStatus() {
     if (loading) {
       const timer = setTimeout(() => {
         setShowStatus(true);
-      }, 1500);
+      }, 2000);
       return () => clearTimeout(timer);
     }
     setShowStatus(false);
@@ -45,14 +45,17 @@ function IdentityStatus() {
       bottom-5
       left-1/2
       -translate-x-1/2
-      z-50
-      bg-white
-      shadow-xl
+      z-[100]
+      bg-white/80
+      backdrop-blur-md
+      shadow-2xl
       rounded-full
       px-6
       py-3
-      text-xs
-      font-bold
+      text-[10px]
+      font-black
+      uppercase
+      tracking-widest
       text-primary
       border
       animate-in fade-in slide-in-from-bottom-2
@@ -73,11 +76,7 @@ export function ClientProviders({
       <LanguageProvider>
         <IdleLogoutProvider>
           {children}
-
-          {/* Non-blocking Firebase identity status */}
           <IdentityStatus />
-
-          {/* Global Mission Components */}
           <SparkAssistant />
           <AuthGateDialog />
           <FeedbackBox />
