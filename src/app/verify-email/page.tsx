@@ -17,12 +17,12 @@ export default function VerifyEmailPage() {
 
   useEffect(() => {
     setMounted(true);
-    // Safety check: redirect to signup if no user context is found after a grace period
+    // Redirect to signup if no user context is found
     const timer = setTimeout(() => {
       if (mounted && !auth.currentUser) {
         router.push("/signup");
       }
-    }, 3000);
+    }, 5000);
     return () => clearTimeout(timer);
   }, [mounted, router]);
 
@@ -41,7 +41,7 @@ export default function VerifyEmailPage() {
           <div className="w-20 h-20 bg-white rounded-[2.5rem] flex items-center justify-center mx-auto shadow-xl ring-4 ring-primary/5">
             <Mail className="w-10 h-10 text-primary animate-bounce" />
           </div>
-          <h1 className="text-4xl font-black tracking-tighter uppercase">Verify Heart</h1>
+          <h1 className="text-4xl font-black tracking-tighter uppercase leading-none">Verify Your Heart</h1>
           <p className="text-muted-foreground font-medium italic">"A confirmation signature has been dispatched."</p>
         </div>
 

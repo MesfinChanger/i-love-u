@@ -14,12 +14,11 @@ import { db } from "@/lib/firebase";
  */
 
 const MAX_ATTEMPTS = 5;
-const LOCK_TIME = 10 * 60 * 1000; // 10 minutes in milliseconds
+const LOCK_TIME = 10 * 60 * 1000; // 10 minutes
 
 export async function checkLoginLock(email: string) {
   if (!email) return { locked: false };
   
-  // Use email-safe ID for the security document
   const securityId = email.toLowerCase().replace(/\./g, '_');
   const securityRef = doc(db, "users_security", securityId);
   const snap = await getDoc(securityRef);
@@ -65,7 +64,6 @@ export async function recordFailedLogin(email: string) {
 
   await setDoc(securityRef, update, { merge: true });
 
-  // Dispatched to immutable log for Guardian review
   await addDoc(collection(db, "securityLogs"), {
     email: email.toLowerCase(),
     action: "LOGIN_FAILED",
@@ -80,7 +78,6 @@ export async function recordSuccessfulLogin(uid: string, email: string) {
   const securityId = email.toLowerCase().replace(/\./g, '_');
   const securityRef = doc(db, "users_security", securityId);
   
-  // Clear failures upon successful identification
   await setDoc(securityRef, {
     loginAttempts: 0,
     lockedUntil: null,
@@ -96,12 +93,5 @@ export async function recordSuccessfulLogin(uid: string, email: string) {
     timestamp: serverTimestamp(),
   });
 
-  // Synchronize last login on user profile
-  await setDoc(
-    doc(db, "users", uid),
-    {
-      lastLogin: serverTimestamp(),
-    },
-    { merge: true }
-  );
+  await setDoc(doc(db, "users", uid), { lastLogin: serverTimestamp() }, { merge: true });
 }

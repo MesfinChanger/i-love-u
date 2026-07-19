@@ -72,7 +72,7 @@ export default function LoginPage() {
             updatedAt: serverTimestamp()
           });
         } catch (e) {
-          console.warn("Sovereign Sync Ripple (Non-fatal):", e);
+          console.warn("Sovereign Sync Ripple:", e);
         }
       }
 
