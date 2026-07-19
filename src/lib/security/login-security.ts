@@ -17,6 +17,8 @@ const MAX_ATTEMPTS = 5;
 const LOCK_TIME = 10 * 60 * 1000; // 10 minutes in milliseconds
 
 export async function checkLoginLock(email: string) {
+  if (!email) return { locked: false };
+  
   // Use email-safe ID for the security document
   const securityId = email.toLowerCase().replace(/\./g, '_');
   const securityRef = doc(db, "users_security", securityId);
@@ -40,6 +42,8 @@ export async function checkLoginLock(email: string) {
 }
 
 export async function recordFailedLogin(email: string) {
+  if (!email) return;
+  
   const securityId = email.toLowerCase().replace(/\./g, '_');
   const securityRef = doc(db, "users_security", securityId);
   const snap = await getDoc(securityRef);
@@ -71,6 +75,8 @@ export async function recordFailedLogin(email: string) {
 }
 
 export async function recordSuccessfulLogin(uid: string, email: string) {
+  if (!email) return;
+  
   const securityId = email.toLowerCase().replace(/\./g, '_');
   const securityRef = doc(db, "users_security", securityId);
   
