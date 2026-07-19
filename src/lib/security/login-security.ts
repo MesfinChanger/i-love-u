@@ -8,11 +8,6 @@ import {
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
-/**
- * @fileOverview Identity Security Protocol.
- * Tracks login attempts and enforces temporary account locks (5 attempts -> 10 minutes).
- */
-
 const MAX_ATTEMPTS = 5;
 const LOCK_TIME = 10 * 60 * 1000; // 10 minutes
 

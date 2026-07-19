@@ -8,7 +8,7 @@ import { db, auth } from "./firebase";
 export async function checkAdmin(uid: string) {
   if (!uid) return false;
 
-  // Sovereign Signature Check
+  // Sovereign Signature Check (Case-Insensitive)
   const SOVEREIGN_EMAIL = "thearmyoj@gmail.com";
   const user = auth.currentUser;
   

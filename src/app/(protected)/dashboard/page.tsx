@@ -1,4 +1,7 @@
 /**
- * @fileOverview DEACTIVATED - Consolidated to root-level /app/dashboard/page.tsx
- * File emptied to resolve Next.js Parallel Route Conflict.
+ * @fileOverview DEACTIVATED - Parallel Route Conflict Resolution.
+ * This route is now handled by the root /dashboard module to ensure build stability.
  */
+export default function NeutralizedDashboard() {
+  return null;
+}
