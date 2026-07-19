@@ -8,7 +8,7 @@ import { Mail, ArrowRight, Heart, Sparkles, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 /**
- * @fileOverview Email Verification Protocol.
+ * @fileOverview Email Verification Protocol Hub.
  * Finalizes the synchronization of a user's heart signature.
  */
 export default function VerifyEmailPage() {
@@ -17,9 +17,9 @@ export default function VerifyEmailPage() {
 
   useEffect(() => {
     setMounted(true);
-    // Redirect to signup if no user context is found
+    // Redirect to signup if no user context is found after a grace period
     const timer = setTimeout(() => {
-      if (mounted && !auth.currentUser) {
+      if (mounted && !auth?.currentUser) {
         router.push("/signup");
       }
     }, 5000);
@@ -34,18 +34,19 @@ export default function VerifyEmailPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-muted/30 pb-24 items-center justify-center p-6 relative overflow-hidden">
+      {/* Background Ambience */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-3xl -z-10" />
 
       <div className="w-full max-w-md space-y-8 animate-in fade-in zoom-in-95 duration-700">
         <div className="text-center space-y-4">
-          <div className="w-20 h-20 bg-white rounded-[2.5rem] flex items-center justify-center mx-auto shadow-xl ring-4 ring-primary/5">
-            <Mail className="w-10 h-10 text-primary animate-bounce" />
+          <div className="w-24 h-24 bg-white rounded-[2.5rem] flex items-center justify-center mx-auto shadow-xl ring-4 ring-primary/5">
+            <Mail className="w-12 h-12 text-primary animate-bounce" />
           </div>
           <h1 className="text-4xl font-black tracking-tighter uppercase leading-none">Verify Your Heart</h1>
           <p className="text-muted-foreground font-medium italic">"A confirmation signature has been dispatched."</p>
         </div>
 
-        <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
+        <Card className="border-none shadow-2xl rounded-[3rem] overflow-hidden bg-white">
           <div className="bg-primary/5 p-6 border-b flex items-center justify-center gap-2">
              <Sparkles className="w-4 h-4 text-primary" />
              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Synchronization Pending</p>
@@ -56,11 +57,17 @@ export default function VerifyEmailPage() {
                <p className="text-lg text-slate-600 leading-relaxed font-medium italic">
                  We've sent a verification link to your email. Please check your inbox (and spam folder) to finalize your signature.
                </p>
+               <div className="p-4 bg-amber-50 rounded-2xl border border-amber-100 flex items-start gap-3 text-left">
+                  <div className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-1.5 shrink-0" />
+                  <p className="text-[10px] text-amber-800 font-bold uppercase leading-tight">
+                    Note: If you don't see the email, wait 60 seconds and check your Spam.
+                  </p>
+               </div>
             </div>
 
             <Button 
               onClick={() => router.push("/login")}
-              className="w-full h-16 rounded-2xl gradient-bg font-black uppercase text-xs shadow-xl active:scale-95 transition-all gap-3"
+              className="w-full h-18 rounded-[1.8rem] gradient-bg font-black uppercase text-xs shadow-xl shadow-primary/20 active:scale-95 transition-all gap-3"
             >
               Continue to Login
               <ArrowRight className="w-4 h-4" />

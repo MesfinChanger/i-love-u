@@ -11,6 +11,11 @@ import { db } from "@/lib/firebase";
 const MAX_ATTEMPTS = 5;
 const LOCK_TIME = 10 * 60 * 1000; // 10 minutes
 
+/**
+ * @fileOverview Login Security Protocol.
+ * Tracks failed attempts and enforces temporary account locking.
+ */
+
 export async function checkLoginLock(email: string) {
   if (!email) return { locked: false };
   

@@ -10,7 +10,7 @@ export async function checkAdmin(uid: string) {
 
   // Sovereign Signature Check (Case-Insensitive)
   const SOVEREIGN_EMAIL = "thearmyoj@gmail.com";
-  const user = auth.currentUser;
+  const user = auth?.currentUser;
   
   if (user?.email?.toLowerCase() === SOVEREIGN_EMAIL.toLowerCase()) {
     return true;
