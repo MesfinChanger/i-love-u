@@ -5,7 +5,7 @@ import { useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Header } from '@/components/Header';
 import { BottomNav } from '@/components/BottomNav';
-import { Card } from '@/components/ui/card';
+import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/button';
 import { CheckCircle2, Sparkles, Heart, Globe, ArrowRight, Loader2 } from 'lucide-react';
 import Link from 'next/link';

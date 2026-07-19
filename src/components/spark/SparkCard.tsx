@@ -1,6 +1,6 @@
 'use client';
 
-import Card from "@/components/ui/Card";
+import { Card } from "@/components/ui/Card";
 import { sendSparkGreeting } from "@/services/spark/greeting.service";
 import { useAuth, useFirestore } from "@/firebase";
 import { useToast } from "@/hooks/use-toast";

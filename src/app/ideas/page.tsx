@@ -4,7 +4,7 @@
 import { Header } from '@/components/Header';
 import { BottomNav } from '@/components/BottomNav';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/Card';
 import { ideaCategories } from '@/constants/categories';
 import { Brain, ArrowRight, Sparkles } from 'lucide-react';
 import Link from 'next/link';

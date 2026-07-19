@@ -12,7 +12,7 @@ import {
   ArrowRight,
   Heart
 } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/badge';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import Link from 'next/link';

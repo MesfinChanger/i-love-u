@@ -6,7 +6,7 @@ import { projectBasedTemplateEnhancement, ProjectBasedTemplateEnhancementOutput 
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Sparkles, Loader2, Code, Box, Zap, BookOpen, AlertCircle } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/Card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 export function AIRecommender({ templateName }: { templateName: string }) {

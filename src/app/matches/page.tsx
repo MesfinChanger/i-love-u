@@ -8,7 +8,7 @@ import { useCollection, useUser, useFirestore, useDoc } from '@/firebase';
 import { collection, query, where, orderBy, doc, updateDoc, serverTimestamp, or } from 'firebase/firestore';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Link from 'next/link';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/Card';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { Badge } from '@/components/ui/badge';
 import { 

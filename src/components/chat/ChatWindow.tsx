@@ -5,7 +5,7 @@ import { sendMessage } from "@/services/chat.service";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Send, MessageSquare, Sparkles, ShieldCheck } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 
 /**
  * @fileOverview Chat Window Module.

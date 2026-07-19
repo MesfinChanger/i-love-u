@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { auth, db } from "@/lib/firebase";
 import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
-import { SignOutButton } from "@/components/SignOutButton";
+import SignOutButton from "@/components/SignOutButton";
 import { Header } from "@/components/Header";
 import { BottomNav } from "@/components/BottomNav";
 import { Loader2, ShieldCheck, UserCircle, Mail, Globe, Heart } from "lucide-react";

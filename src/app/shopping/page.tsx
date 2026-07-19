@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { getStores } from "@/services/shopping.service";
 import { Header } from '@/components/Header';
 import { BottomNav } from '@/components/BottomNav';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/Card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 

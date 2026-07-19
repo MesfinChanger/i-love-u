@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { FlutterTemplate } from '@/lib/templates';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/button';
 import { Eye, ArrowRight } from 'lucide-react';
 

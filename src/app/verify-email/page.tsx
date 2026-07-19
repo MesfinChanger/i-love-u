@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { auth } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/Card";
 import { Mail, ArrowRight, Heart, Sparkles, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 

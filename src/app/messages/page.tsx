@@ -3,7 +3,7 @@
 import { Header } from '@/components/Header';
 import { BottomNav } from '@/components/BottomNav';
 import ChatBox from "@/components/messages/ChatBox";
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/Card';
 import { MessageSquare, Sparkles } from 'lucide-react';
 
 /**

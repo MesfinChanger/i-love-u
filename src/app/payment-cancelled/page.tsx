@@ -3,7 +3,7 @@
 
 import { Header } from '@/components/Header';
 import { BottomNav } from '@/components/BottomNav';
-import { Card } from '@/components/ui/card';
+import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/button';
 import { XCircle, Heart, Globe, ArrowLeft, ShieldAlert } from 'lucide-react';
 import Link from 'next/link';

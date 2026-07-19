@@ -9,7 +9,7 @@ import { createProduct } from "@/services/shop/product.service";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Sparkles, Package, Tag, DollarSign, Hash, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
