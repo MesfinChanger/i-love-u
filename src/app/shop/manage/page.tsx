@@ -30,6 +30,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Image from 'next/image';
 import Link from 'next/link';
+import GuestAccessGuard from "@/components/GuestAccessGuard";
 
 function SellerManageContent() {
   const { user } = useUser();
@@ -176,128 +177,130 @@ function SellerManageContent() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
-      <Header />
-      <main className="container mx-auto px-4 py-8 max-w-5xl">
-        {!isApprovedSeller ? (
-          <div className="space-y-8 text-center py-12">
-            <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-              <Store className="w-12 h-12 text-primary" />
-            </div>
-            <h1 className="text-5xl font-black tracking-tighter uppercase">Become a Seller</h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto font-medium italic">"Launch your prosperity journey on I Love U."</p>
-
-            <div className="grid md:grid-cols-3 gap-6 mt-12 items-stretch text-left">
-              <Card className="border-2 border-dashed border-green-300 bg-green-50/30 flex flex-col justify-between rounded-[2.5rem]">
-                <CardHeader>
-                  <CardTitle className="text-green-700 uppercase tracking-tighter flex items-center gap-2">
-                    <Percent className="w-5 h-5" /> Growth
-                  </CardTitle>
-                  <CardDescription>Free for local artisans</CardDescription>
-                </CardHeader>
-                <CardFooter>
-                  <Button onClick={handleRequestCommissionPlan} disabled={negotiationRequested} className="w-full rounded-2xl bg-green-600 hover:bg-green-700 text-white font-bold h-12">
-                    {negotiationRequested ? "Awaiting Review" : "Request Approval"}
-                  </Button>
-                </CardFooter>
-              </Card>
-
-              <Card className="border border-neutral-200 bg-white flex flex-col justify-between rounded-[2.5rem] shadow-sm">
-                <CardHeader>
-                  <CardTitle className="uppercase tracking-tighter">Basic Seller</CardTitle>
-                  <CardDescription>{currencySymbol}{basicPrice}/mo</CardDescription>
-                </CardHeader>
-                <CardFooter>
-                  <Button className="w-full rounded-2xl h-12 gradient-bg font-bold" onClick={() => handleSubscribe('basic_seller')} disabled={isSubscribing}>
-                    {isSubscribing ? <Loader2 className="w-4 h-4 animate-spin" /> : "Start Mission"}
-                  </Button>
-                </CardFooter>
-              </Card>
-
-              <Card className="border-2 border-primary bg-primary/5 flex flex-col justify-between rounded-[2.5rem] shadow-xl">
-                <CardHeader>
-                  <CardTitle className="text-primary flex items-center gap-2 uppercase tracking-tighter">
-                    <Sparkles className="w-4 h-4" /> Pro Seller
-                  </CardTitle>
-                  <CardDescription>{currencySymbol}{proPrice}/mo</CardDescription>
-                </CardHeader>
-                <CardFooter>
-                  <Button className="w-full rounded-2xl h-12 gradient-bg font-bold shadow-xl shadow-primary/20" onClick={() => handleSubscribe('pro_seller')} disabled={isSubscribing}>
-                    {isSubscribing ? <Loader2 className="w-4 h-4 animate-spin" /> : "Verify & Scale"}
-                  </Button>
-                </CardFooter>
-              </Card>
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-8">
-            <div className="flex justify-between items-end">
-              <div>
-                <h1 className="text-4xl font-black tracking-tighter uppercase">Seller Console</h1>
-                <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1">Verified Marketplace</p>
+    <GuestAccessGuard feature="shopping">
+      <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
+        <Header />
+        <main className="container mx-auto px-4 py-8 max-w-5xl">
+          {!isApprovedSeller ? (
+            <div className="space-y-8 text-center py-12">
+              <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                <Store className="w-12 h-12 text-primary" />
               </div>
-              <Button asChild variant="outline" className="rounded-xl h-10 px-4 font-black uppercase text-[9px] border-2">
-                 <Link href="/shop/manage/create">Add Product</Link>
-              </Button>
-            </div>
+              <h1 className="text-5xl font-black tracking-tighter uppercase">Become a Seller</h1>
+              <p className="text-xl text-muted-foreground max-w-2xl mx-auto font-medium italic">"Launch your prosperity journey on I Love U."</p>
 
-            <Tabs defaultValue="inventory" className="w-full">
-              <TabsList className="grid grid-cols-2 h-14 bg-white/50 backdrop-blur-md rounded-2xl p-1 mb-8 border">
-                <TabsTrigger value="inventory" className="rounded-xl text-[10px] font-black uppercase gap-2"><Package className="w-4 h-4" /> Inventory</TabsTrigger>
-                <TabsTrigger value="storefront" className="rounded-xl text-[10px] font-black uppercase gap-2"><Store className="w-4 h-4" /> Storefront</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="storefront" className="animate-in fade-in">
-                <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-8 space-y-6">
-                  <div className="space-y-3">
-                    <Label className="text-[10px] font-black uppercase tracking-widest ml-1">Shop Name</Label>
-                    <Input value={shopName} onChange={e => setShopName(e.target.value)} className="rounded-2xl h-14 bg-muted/20 border-none font-bold px-6" />
-                  </div>
-                  <div className="space-y-3">
-                    <Label className="text-[10px) font-black uppercase tracking-widest ml-1">Mission Description</Label>
-                    <Textarea value={shopDesc} onChange={e => setShopDesc(e.target.value)} className="rounded-[1.5rem] min-h-[120px] bg-muted/20 border-none p-6" />
-                  </div>
-                  <Button className="w-full h-16 rounded-2xl gradient-bg font-black uppercase shadow-xl gap-2" onClick={handleSaveShop} disabled={isSaving}>
-                    {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                    Sync Storefront
-                  </Button>
+              <div className="grid md:grid-cols-3 gap-6 mt-12 items-stretch text-left">
+                <Card className="border-2 border-dashed border-green-300 bg-green-50/30 flex flex-col justify-between rounded-[2.5rem]">
+                  <CardHeader>
+                    <CardTitle className="text-green-700 uppercase tracking-tighter flex items-center gap-2">
+                      <Percent className="w-5 h-5" /> Growth
+                    </CardTitle>
+                    <CardDescription>Free for local artisans</CardDescription>
+                  </CardHeader>
+                  <CardFooter>
+                    <Button onClick={handleRequestCommissionPlan} disabled={negotiationRequested} className="w-full rounded-2xl bg-green-600 hover:bg-green-700 text-white font-bold h-12">
+                      {negotiationRequested ? "Awaiting Review" : "Request Approval"}
+                    </Button>
+                  </CardFooter>
                 </Card>
-              </TabsContent>
 
-              <TabsContent value="inventory" className="space-y-6 animate-in fade-in">
-                 <div className="grid gap-4">
-                    {productsLoading ? (
-                       <div className="flex justify-center py-20 opacity-20"><Loader2 className="w-10 h-10 animate-spin text-primary" /></div>
-                    ) : myProducts && myProducts.length > 0 ? (
-                       myProducts.map((p: any) => (
-                          <Card key={p.id} className="rounded-[2rem] border-none shadow-md bg-white overflow-hidden p-4 flex items-center gap-4">
-                             <div className="relative w-20 h-20 rounded-2xl overflow-hidden bg-muted shrink-0">
-                                <Image src={p.images?.[0] || 'https://picsum.photos/seed/product/200/200'} alt={p.name} fill className="object-cover" />
-                             </div>
-                             <div className="flex-grow min-w-0">
-                                <h3 className="font-black text-lg truncate">{p.name}</h3>
-                                <p className="text-[10px] font-bold text-primary">{currencySymbol}{p.price} • {p.inventory} Stock</p>
-                                <Badge variant="outline" className="text-[7px] font-black uppercase mt-2">{p.category}</Badge>
-                             </div>
-                             <Button variant="ghost" size="icon" onClick={() => handleDeleteProduct(p.id)} className="rounded-xl text-muted-foreground/20 hover:text-red-500">
-                                <Trash2 className="w-4 h-4" />
-                             </Button>
-                          </Card>
-                       ))
-                    ) : (
-                       <div className="text-center py-24 bg-white/40 rounded-[3rem] border-2 border-dashed border-muted">
-                          <Package className="w-12 h-12 text-muted-foreground/20 mx-auto mb-4" />
-                          <p className="text-sm font-black uppercase text-muted-foreground tracking-widest">No products listed.</p>
-                       </div>
-                    )}
-                 </div>
-              </TabsContent>
-            </Tabs>
-          </div>
-        )}
-      </main>
-      <BottomNav />
-    </div>
+                <Card className="border border-neutral-200 bg-white flex flex-col justify-between rounded-[2.5rem] shadow-sm">
+                  <CardHeader>
+                    <CardTitle className="uppercase tracking-tighter">Basic Seller</CardTitle>
+                    <CardDescription>{currencySymbol}{basicPrice}/mo</CardDescription>
+                  </CardHeader>
+                  <CardFooter>
+                    <Button className="w-full rounded-2xl h-12 gradient-bg font-bold" onClick={() => handleSubscribe('basic_seller')} disabled={isSubscribing}>
+                      {isSubscribing ? <Loader2 className="w-4 h-4 animate-spin" /> : "Start Mission"}
+                    </Button>
+                  </CardFooter>
+                </Card>
+
+                <Card className="border-2 border-primary bg-primary/5 flex flex-col justify-between rounded-[2.5rem] shadow-xl">
+                  <CardHeader>
+                    <CardTitle className="text-primary flex items-center gap-2 uppercase tracking-tighter">
+                      <Sparkles className="w-4 h-4" /> Pro Seller
+                    </CardTitle>
+                    <CardDescription>{currencySymbol}{proPrice}/mo</CardDescription>
+                  </CardHeader>
+                  <CardFooter>
+                    <Button className="w-full rounded-2xl h-12 gradient-bg font-bold shadow-xl shadow-primary/20" onClick={() => handleSubscribe('pro_seller')} disabled={isSubscribing}>
+                      {isSubscribing ? <Loader2 className="w-4 h-4 animate-spin" /> : "Verify & Scale"}
+                    </Button>
+                  </CardFooter>
+                </Card>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-8">
+              <div className="flex justify-between items-end">
+                <div>
+                  <h1 className="text-4xl font-black tracking-tighter uppercase">Seller Console</h1>
+                  <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1">Verified Marketplace</p>
+                </div>
+                <Button asChild variant="outline" className="rounded-xl h-10 px-4 font-black uppercase text-[9px] border-2">
+                   <Link href="/shop/manage/create">Add Product</Link>
+                </Button>
+              </div>
+
+              <Tabs defaultValue="inventory" className="w-full">
+                <TabsList className="grid grid-cols-2 h-14 bg-white/50 backdrop-blur-md rounded-2xl p-1 mb-8 border">
+                  <TabsTrigger value="inventory" className="rounded-xl text-[10px] font-black uppercase gap-2"><Package className="w-4 h-4" /> Inventory</TabsTrigger>
+                  <TabsTrigger value="storefront" className="rounded-xl text-[10px] font-black uppercase gap-2"><Store className="w-4 h-4" /> Storefront</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="storefront" className="animate-in fade-in">
+                  <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-8 space-y-6">
+                    <div className="space-y-3">
+                      <Label className="text-[10px] font-black uppercase tracking-widest ml-1">Shop Name</Label>
+                      <Input value={shopName} onChange={e => setShopName(e.target.value)} className="rounded-2xl h-14 bg-muted/20 border-none font-bold px-6" />
+                    </div>
+                    <div className="space-y-3">
+                      <Label className="text-[10px) font-black uppercase tracking-widest ml-1">Mission Description</Label>
+                      <Textarea value={shopDesc} onChange={e => setShopDesc(e.target.value)} className="rounded-[1.5rem] min-h-[120px] bg-muted/20 border-none p-6" />
+                    </div>
+                    <Button className="w-full h-16 rounded-2xl gradient-bg font-black uppercase shadow-xl gap-2" onClick={handleSaveShop} disabled={isSaving}>
+                      {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                      Sync Storefront
+                    </Button>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="inventory" className="space-y-6 animate-in fade-in">
+                   <div className="grid gap-4">
+                      {productsLoading ? (
+                         <div className="flex justify-center py-20 opacity-20"><Loader2 className="w-10 h-10 animate-spin text-primary" /></div>
+                      ) : myProducts && myProducts.length > 0 ? (
+                         myProducts.map((p: any) => (
+                            <Card key={p.id} className="rounded-[2rem] border-none shadow-md bg-white overflow-hidden p-4 flex items-center gap-4">
+                               <div className="relative w-20 h-20 rounded-2xl overflow-hidden bg-muted shrink-0">
+                                  <Image src={p.images?.[0] || 'https://picsum.photos/seed/product/200/200'} alt={p.name} fill className="object-cover" />
+                               </div>
+                               <div className="flex-grow min-w-0">
+                                  <h3 className="font-black text-lg truncate">{p.name}</h3>
+                                  <p className="text-[10px] font-bold text-primary">{currencySymbol}{p.price} • {p.inventory} Stock</p>
+                                  <Badge variant="outline" className="text-[7px] font-black uppercase mt-2">{p.category}</Badge>
+                               </div>
+                               <Button variant="ghost" size="icon" onClick={() => handleDeleteProduct(p.id)} className="rounded-xl text-muted-foreground/20 hover:text-red-500">
+                                  <Trash2 className="w-4 h-4" />
+                               </Button>
+                            </Card>
+                         ))
+                      ) : (
+                         <div className="text-center py-24 bg-white/40 rounded-[3rem] border-2 border-dashed border-muted">
+                            <Package className="w-12 h-12 text-muted-foreground/20 mx-auto mb-4" />
+                            <p className="text-sm font-black uppercase text-muted-foreground tracking-widest">No products listed.</p>
+                         </div>
+                      )}
+                   </div>
+                </TabsContent>
+              </Tabs>
+            </div>
+          )}
+        </main>
+        <BottomNav />
+      </div>
+    </GuestAccessGuard>
   );
 }
 
@@ -308,8 +311,3 @@ export default function SellerManagePage() {
     </Suspense>
   );
 }
-<GuestAccessGuard feature="shopping">
-
-YOUR PAGE CONTENT
-
-</GuestAccessGuard>

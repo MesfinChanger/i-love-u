@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import MainNavigation from "@/components/navigation/MainNavigation";
 import { ClientProviders } from '@/components/providers/ClientProviders';
+import GuestNotice from '@/components/GuestNotice';
 
 export const viewport: Viewport = {
   themeColor: '#FF3366',
@@ -33,6 +34,7 @@ export default function RootLayout({
           <main className="flex-grow">
             {children}
           </main>
+          <GuestNotice />
         </ClientProviders>
       </body>
     </html>
