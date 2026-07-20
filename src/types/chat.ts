@@ -1,35 +1,49 @@
-/**
- * @fileOverview High-Fidelity Chat Protocol Definitions.
- */
+export type MessageType =
+  | "text"
+  | "image"
+  | "video"
+  | "voice"
+  | "file";
 
-export interface Conversation {
-  id: string;
-  type:
-    | "spark"
-    | "circle-private"
-    | "circle-group"
-    | "shopping"
-    | "idea";
-  participants: string[];
-  title?: string;
-  imageURL?: string;
-  encryptionVersion: string;
-  createdAt: any;
-}
 
 export interface Message {
-  id: string;
-  senderId: string;
-  encryptedText: string;
-  iv: string;
-  type:
-    | "text"
-    | "image"
-    | "voice"
-    | "file";
-  createdAt: any;
+
+  id:string;
+
+  senderId:string;
+
+  type:MessageType;
+
+  text?:string;
+
+
+  media?:{
+
+    path:string;
+
+    mime:string;
+
+    size:number;
+
+    encrypted:boolean;
+
+  };
+
+
+  createdAt:any;
+
+
   status:
     | "sent"
     | "delivered"
     | "read";
+
+
+  deletedFor:string[];
+
+  deletedForEveryone:boolean;
+
+
+  encryptionVersion:string;
+
 }

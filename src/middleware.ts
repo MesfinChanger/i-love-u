@@ -1,4 +1,9 @@
-import { NextRequest, NextResponse } from "next/request";
+import { NextRequest, NextResponse } from "next/server";
+
+/**
+ * @fileOverview Global Security Middleware.
+ * Synchronized to redirect unauthorized hearts to the login pathway.
+ */
 
 const protectedRoutes = [
   "/dashboard",
@@ -19,9 +24,8 @@ const authRoutes = [
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Note: Standard Firebase Client SDK doesn't set HTTP-only cookies by default.
-  // This middleware assumes a custom session cookie or token is managed.
-  // For prototype continuity, we check for a standard session cookie name.
+  // For high-fidelity prototype, we check for a standard session marker
+  // Note: Firebase Client SDK doesn't set HTTP-only cookies by default without a custom backend.
   const session = request.cookies.get("firebase-auth-token");
 
   const isProtected = protectedRoutes.some((route) => pathname.startsWith(route));

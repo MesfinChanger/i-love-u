@@ -21,7 +21,7 @@ export default function WelcomePage() {
   return (
     <main className="min-h-screen flex items-center justify-center px-6 py-16 relative overflow-hidden bg-gradient-to-br from-white via-pink-50 to-blue-50">
       <div className="relative z-10 max-w-4xl w-full text-center space-y-8">
-        {/* Logo */}
+        {/* Logo Section - Optimized Spacing */}
         <div className="flex flex-col items-center gap-5">
           <div className="w-20 h-20 rounded-[1.5rem] bg-white shadow-xl flex items-center justify-center ring-8 ring-pink-100">
             <Heart className="w-10 h-10 text-pink-500 fill-pink-500 animate-heartbeat" />
