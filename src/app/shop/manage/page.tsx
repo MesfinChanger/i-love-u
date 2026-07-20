@@ -308,3 +308,8 @@ export default function SellerManagePage() {
     </Suspense>
   );
 }
+<GuestAccessGuard feature="shopping">
+
+YOUR PAGE CONTENT
+
+</GuestAccessGuard>

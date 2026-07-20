@@ -256,3 +256,8 @@ function TransactionItem({ tx, currencySymbol }: { tx: any, currencySymbol: stri
     </Card>
   );
 }
+<GuestAccessGuard feature="wallet">
+
+YOUR EXISTING CONTENT
+
+</GuestAccessGuard>

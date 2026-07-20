@@ -28,7 +28,32 @@ export default function GuestLoginPage() {
         const result = await signInAnonymously(auth);
         
         if (mounted && db) {
-          await setDoc(doc(db, 'users', result.user.uid), {
+          await setDoc(
+            doc(db, "guestSessions", result.user.uid),
+            {
+              uid: result.user.uid,
+          
+              role: "guest",
+          
+              createdAt: serverTimestamp(),
+          
+              expiresAt:
+                new Date(Date.now() + 30 * 60 * 1000),
+          
+              permissions: {
+                spark: true,
+                circle: true,
+                ideas: true,
+                community: true,
+          
+                messages: false,
+                shopping: false,
+                wallet: false,
+                ads: false,
+                admin: false,
+              },
+            }
+          );
             uid: result.user.uid,
             name: "Guest Heart",
             email: "Guest Account",
