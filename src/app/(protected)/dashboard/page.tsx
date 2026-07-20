@@ -1,8 +1,7 @@
 /**
- * @fileOverview DEACTIVATED - Conflict resolved to src/app/dashboard/page.tsx.
- * This file is neutralized to prevent Next.js Parallel Route errors.
+ * @fileOverview NEUTRALIZED - Conflict resolution for duplicate path /dashboard.
+ * Path is correctly defined in src/app/dashboard/page.tsx
  */
-export const dynamic = 'force-static';
 export default function NeutralizedDashboard() {
   return null;
 }

@@ -1,8 +1,7 @@
 /**
- * @fileOverview DEACTIVATED - Conflict resolved to src/app/identity/page.tsx.
- * This file is neutralized to prevent Next.js Parallel Route errors.
+ * @fileOverview NEUTRALIZED - Conflict resolution for duplicate path /identity.
+ * Path is correctly defined in src/app/identity/page.tsx
  */
-export const dynamic = 'force-static';
 export default function NeutralizedIdentity() {
   return null;
 }
