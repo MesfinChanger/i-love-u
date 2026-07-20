@@ -22,20 +22,17 @@ export default function ChatWindow({
 
   /**
    * Broadcast Protocol.
-   * Dispatches a message to the high-fidelity subcollection path.
+   * Dispatches a message to the high-fidelity subcollection path using the unified object signature.
    */
   async function send() {
     if (!text.trim()) return;
 
-    await sendMessage(
+    await sendMessage({
       conversationId,
-      {
-        senderId: userId,
-        encryptedText: text, // Note: Encryption wrapper would occur before this call in E2EE flow
-        iv: "",
-        type: "text"
-      }
-    );
+      senderId: userId,
+      text: text.trim(),
+      type: "text"
+    });
 
     setText("");
   }

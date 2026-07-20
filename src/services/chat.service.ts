@@ -34,19 +34,45 @@ export async function createConversation(
   return ref.id;
 }
 
-// Send Message Protocol with Field Protection
-export async function sendMessage(
-  conversationId: string,
-  message: any
-) {
+/**
+ * Send Message Protocol with Field Protection.
+ * Dispatches a message using the unified object parameter signature.
+ */
+export async function sendMessage({
+  conversationId,
+  senderId,
+  text,
+  encryptedText,
+  iv,
+  type = "text",
+  storagePath = "",
+  downloadAllowed = false
+}: {
+  conversationId: string;
+  senderId: string;
+  text?: string;
+  encryptedText?: string;
+  iv?: string;
+  type?: "text" | "image" | "voice" | "file";
+  storagePath?: string;
+  downloadAllowed?: boolean;
+}) {
+  if (!db || !conversationId) return;
+
   // Mission Integrity: Ensure mandatory fields and defaults
   const messageData = {
-    ...message,
+    senderId,
+    type,
+    encryptedText: encryptedText || "",
+    iv: iv || "",
+    storagePath: storagePath || "",
+    downloadAllowed: downloadAllowed ?? false,
     status: "sent",
     deleted: false,
-    downloadAllowed: message.downloadAllowed ?? false,
     createdAt: serverTimestamp()
-  };
+  } as any;
+
+  if (text) messageData.text = text;
 
   // 1. Broadcast to message subcollection
   await addDoc(
@@ -59,7 +85,7 @@ export async function sendMessage(
     doc(db, "conversations", conversationId),
     {
       lastUpdatedAt: serverTimestamp(),
-      lastMessage: message.text || (message.type === 'image' ? '[Image]' : '[Secured Message]')
+      lastMessage: text || (type === 'image' ? '[Image]' : '[Secured Message]')
     },
     { merge: true }
   );

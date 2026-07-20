@@ -120,28 +120,28 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
         return;
       }
 
-      const messagePayload: any = {
+      const payload: any = {
+        conversationId: matchId,
         senderId: user.uid,
-        type: "text",
+        type: "text" as const,
       };
 
       if (sharedKey) {
         const encrypted = await encryptText(newMessage, sharedKey);
         if (encrypted) {
-          messagePayload.encryptedText = encrypted.cipherText;
-          messagePayload.iv = encrypted.iv;
+          payload.encryptedText = encrypted.cipherText;
+          payload.iv = encrypted.iv;
+        } else {
+          payload.text = newMessage;
         }
       } else {
-        messagePayload.text = newMessage;
+        payload.text = newMessage;
       }
 
-      await sendMessage(matchId, messagePayload);
-      
-      await updateDoc(doc(db, 'conversations', matchId), {
-        lastMessage: sharedKey ? "[Secured Message]" : newMessage.slice(0, 50),
-        lastUpdatedAt: serverTimestamp()
-      });
+      await sendMessage(payload);
       setNewMessage('');
+    } catch (e) {
+      console.error("Chat error:", e);
     } finally {
       setIsSending(false);
     }

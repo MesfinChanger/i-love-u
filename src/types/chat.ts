@@ -135,3 +135,9 @@ export interface Message {
 
   deletedByReceiver?: boolean;
 }
+media?: {
+  type: "image" | "voice" | "file";
+  storagePath: string;
+  previewUrl?: string;
+  downloadAllowed: boolean;
+};
