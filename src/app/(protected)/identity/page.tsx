@@ -3,5 +3,5 @@
  * The high-fidelity identity hub is served from src/app/identity/page.tsx.
  */
 export default function NeutralizedIdentity() {
-  return null;
+  return <div />;
 }

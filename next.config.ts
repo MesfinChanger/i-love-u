@@ -1,6 +1,7 @@
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
+  // Prosperity Build Protocol: Triggering clean cycle
   typescript: {
     ignoreBuildErrors: true,
   },
