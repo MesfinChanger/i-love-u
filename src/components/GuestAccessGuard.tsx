@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -18,12 +18,17 @@ interface GuestAccessGuardProps {
   children: React.ReactNode;
 }
 
+/**
+ * @fileOverview Guest Access Guard Protocol.
+ * Manages session expiration and feature-based permissions for anonymous hearts.
+ */
 export default function GuestAccessGuard({
   feature,
   children,
 }: GuestAccessGuardProps) {
   const router = useRouter();
-  const { user } = useAuth() || {};
+  const auth = useAuth();
+  const user = auth?.currentUser;
 
   const [allowed, setAllowed] = useState(false);
   const [checking, setChecking] = useState(true);
@@ -31,48 +36,53 @@ export default function GuestAccessGuard({
   useEffect(() => {
     async function checkAccess() {
       if (!user) {
-        // Only redirect if we are certain the user is not logged in
-        // In a real app, you might wait for auth loading state
+        // If auth context is ready but no user, redirect to login
+        if (auth) router.push("/login");
         return;
       }
 
       if (!db) return;
 
-      const guestRef = doc(db, "guestSessions", user.uid);
-      const snap = await getDoc(guestRef);
+      try {
+        const guestRef = doc(db, "guestSessions", user.uid);
+        const snap = await getDoc(guestRef);
 
-      // Normal registered users (no guest session record) have full access
-      if (!snap.exists()) {
-        setAllowed(true);
+        // Normal registered users (no guest session record) have full access
+        if (!snap.exists()) {
+          setAllowed(true);
+          setChecking(false);
+          return;
+        }
+
+        const guest = snap.data();
+        const expiresAt = guest.expiresAt?.toDate();
+        const now = new Date();
+        const expired = !expiresAt || expiresAt < now;
+
+        // Guest permissions: Only allowed to see Spark and Circle
+        const guestAllowedFeatures = ["spark", "circle"];
+
+        if (!expired && guestAllowedFeatures.includes(feature)) {
+          setAllowed(true);
+        } else {
+          // If expired or unauthorized feature, guide to signup for permanent status
+          router.push("/signup?reason=" + (expired ? "guest-expired" : "unauthorized"));
+        }
+      } catch (e) {
+        console.error("Access Protocol Ripple:", e);
+      } finally {
         setChecking(false);
-        return;
       }
-
-      const guest = snap.data();
-      const expiresAt = guest.expiresAt?.toDate();
-      const now = new Date();
-      const expired = !expiresAt || expiresAt < now;
-
-      // Guest permissions: Only allowed to see Spark and Circle
-      const guestAllowedFeatures = ["spark", "circle"];
-
-      if (!expired && guestAllowedFeatures.includes(feature)) {
-        setAllowed(true);
-      } else {
-        router.push("/signup?reason=guest-expired");
-      }
-
-      setChecking(false);
     }
 
     checkAccess();
-  }, [user, feature, router]);
+  }, [user, feature, router, auth]);
 
   if (checking) {
     return (
-      <div className="p-20 text-center flex flex-col items-center justify-center gap-4">
+      <div className="flex flex-col items-center justify-center py-40 gap-4 opacity-20">
         <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Checking access...</p>
+        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Checking Access...</p>
       </div>
     );
   }

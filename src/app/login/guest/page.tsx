@@ -1,17 +1,16 @@
-
 "use client";
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { auth, db } from '@/lib/firebase';
 import { signInAnonymously } from 'firebase/auth';
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { Loader2, Heart, Sparkles } from 'lucide-react';
+import { doc, setDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
+import { Loader2, Heart } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 /**
  * @fileOverview Guest Authentication Gateway.
- * Handles the anonymous sign-in logic for the frictionless discovery protocol.
+ * Handles the anonymous sign-in logic and launches the 30-minute high-fidelity session.
  */
 export default function GuestLoginPage() {
   const router = useRouter();
@@ -28,32 +27,29 @@ export default function GuestLoginPage() {
         const result = await signInAnonymously(auth);
         
         if (mounted && db) {
-          await setDoc(
-            doc(db, "guestSessions", result.user.uid),
-            {
-              uid: result.user.uid,
-          
-              role: "guest",
-          
-              createdAt: serverTimestamp(),
-          
-              expiresAt:
-                new Date(Date.now() + 30 * 60 * 1000),
-          
-              permissions: {
-                spark: true,
-                circle: true,
-                ideas: true,
-                community: true,
-          
-                messages: false,
-                shopping: false,
-                wallet: false,
-                ads: false,
-                admin: false,
-              },
-            }
-          );
+          const now = new Date();
+          const expiresAt = new Date(now.getTime() + 30 * 60 * 1000); // 30 minutes duration
+
+          // Prosperity Protocol: Register session with expiration
+          await setDoc(doc(db, "guestSessions", result.user.uid), {
+            uid: result.user.uid,
+            role: "guest",
+            createdAt: serverTimestamp(),
+            expiresAt: Timestamp.fromDate(expiresAt),
+            permissions: {
+              spark: true,
+              circle: true,
+              messages: false,
+              shopping: false,
+              wallet: false,
+              ads: false,
+              admin: false,
+            },
+            status: "active"
+          });
+
+          // Registry Sync: Update primary user doc
+          await setDoc(doc(db, "users", result.user.uid), {
             uid: result.user.uid,
             name: "Guest Heart",
             email: "Guest Account",
