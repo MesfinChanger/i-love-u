@@ -10,7 +10,7 @@ import GuestAccessGuard from "@/components/GuestAccessGuard";
 
 /**
  * @fileOverview Hearts Discovery Hub.
- * Primary matching engine for finding compatible hearts connected by mission and values.
+ * Wrapped in the Guest Access Guard Protocol to enforce 30-minute mission limits.
  */
 export default function DiscoverPage() {
   const [profiles, setProfiles] = useState<any[]>([]);

@@ -44,6 +44,10 @@ import Image from 'next/image';
 import { circleCategories } from '@/types/circle';
 import GuestAccessGuard from "@/components/GuestAccessGuard";
 
+/**
+ * @fileOverview Circles Hub.
+ * Wrapped in the Guest Access Guard Protocol to enforce session permissions.
+ */
 export default function CirclesPage() {
   const { user } = useUser();
   const { toast } = useToast();
@@ -95,12 +99,12 @@ export default function CirclesPage() {
         createdAt: serverTimestamp(),
       });
 
-      toast({ title: "Circle Established", description: "Your community has been registered in the cloud! ✨" });
+      toast({ title: "Circle Established", description: "Your community has been registered! ✨" });
       setIsOpen(false);
       setName('');
       setDescription('');
     } catch (e) {
-      toast({ variant: "destructive", title: "Registration Ripple", description: "Could not establish circle." });
+      toast({ variant: "destructive", title: "Action Failed", description: "Could not establish circle." });
     } finally {
       setIsCreating(false);
     }
@@ -112,9 +116,6 @@ export default function CirclesPage() {
         <Header />
         
         <section className="bg-white border-b py-16 px-6 text-center overflow-hidden relative">
-           <div className="absolute top-0 right-0 p-10 opacity-5 -rotate-12 translate-x-20">
-              <Users className="w-96 h-96 text-primary" />
-           </div>
            <div className="max-w-2xl mx-auto space-y-6 relative z-10">
               <div className="w-20 h-20 bg-primary/10 rounded-[2.5rem] flex items-center justify-center mx-auto shadow-xl ring-8 ring-white">
                  <Users className="w-10 h-10 text-primary" />
@@ -187,7 +188,7 @@ export default function CirclesPage() {
                             </div>
                             <div className="space-y-1.5">
                                <Label className="text-[10px] font-black uppercase tracking-widest ml-1">Description</Label>
-                               <Textarea required value={description} onChange={e => setDescription(e.target.value)} placeholder="What is the vibration of this circle?" className="min-h-[100px] rounded-xl bg-muted/20 border-none p-4 font-medium italic text-sm" />
+                               <Textarea required value={description} onChange={e => setDescription(e.target.value)} placeholder="What is the vibration?" className="min-h-[100px] rounded-xl bg-muted/20 border-none p-4 font-medium italic text-sm" />
                             </div>
                          </div>
                          <Button type="submit" disabled={isCreating || !name || !description} className="w-full h-16 rounded-2xl gradient-bg font-black uppercase tracking-widest text-xs shadow-xl">
@@ -197,30 +198,13 @@ export default function CirclesPage() {
                    </DialogContent>
                 </Dialog>
              </div>
-
-             <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar w-full lg:w-auto">
-                {['All', ...circleCategories].map(cat => (
-                   <Button 
-                     key={cat} 
-                     variant={activeCategory === cat ? 'default' : 'ghost'}
-                     onClick={() => setActiveCategory(cat)}
-                     className={cn(
-                       "rounded-full h-11 px-6 font-black uppercase text-[9px] tracking-widest shrink-0 shadow-sm",
-                       activeCategory === cat ? "bg-slate-900 text-white" : "bg-white hover:bg-slate-50"
-                     )}
-                   >
-                      {cat}
-                   </Button>
-                ))}
-             </div>
           </div>
 
           {loading ? (
             <div className="flex flex-col items-center justify-center py-32 opacity-20">
                <Loader2 className="w-12 h-12 animate-spin text-primary" />
-               <p className="text-[10px] font-black uppercase tracking-widest mt-4">Scanning Circles...</p>
             </div>
-          ) : filteredCircles.length > 0 ? (
+          ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
                {filteredCircles.map((circle: any) => (
                  <Card key={circle.id} className="rounded-[2.5rem] border-none shadow-lg overflow-hidden bg-white hover:shadow-2xl transition-all group flex flex-col">
@@ -230,41 +214,25 @@ export default function CirclesPage() {
                          alt={circle.name} 
                          fill 
                          className="object-cover transition-transform duration-700 group-hover:scale-110" 
-                         data-ai-hint="community gathering"
                        />
                        <div className="absolute top-4 left-4">
                           <Badge className="bg-black/40 backdrop-blur-md text-white border-none text-[8px] font-black uppercase tracking-widest px-3 h-6">
                              {circle.category}
                           </Badge>
                        </div>
-                       <div className="absolute top-4 right-4">
-                          {circle.privacy === 'private' ? (
-                            <div className="w-8 h-8 rounded-full bg-black/20 backdrop-blur-md flex items-center justify-center text-white"><Lock className="w-3.5 h-3.5" /></div>
-                          ) : (
-                            <div className="w-8 h-8 rounded-full bg-green-500/20 backdrop-blur-md flex items-center justify-center text-green-400"><Globe className="w-3.5 h-3.5" /></div>
-                          )}
-                       </div>
-                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60" />
-                       <div className="absolute bottom-4 left-6 right-6">
-                          <h3 className="text-white text-2xl font-black tracking-tighter truncate">{circle.name}</h3>
-                       </div>
                     </div>
                     <CardContent className="p-8 flex-grow flex flex-col justify-between">
                        <p className="text-sm text-muted-foreground font-medium italic line-clamp-3 mb-6 leading-relaxed">
                           "{circle.description}"
                        </p>
-                       
                        <div className="flex items-center justify-between pt-6 border-t border-dashed">
                           <div className="flex items-center gap-2">
                              <div className="w-8 h-8 rounded-xl bg-primary/5 flex items-center justify-center text-primary">
                                 <Users className="w-4 h-4" />
                              </div>
-                             <div>
-                                <p className="text-[10px] font-black leading-none">{circle.memberCount}</p>
-                                <p className="text-[7px] font-bold text-muted-foreground uppercase">Hearts</p>
-                             </div>
+                             <span className="text-[10px] font-black">{circle.memberCount} Hearts</span>
                           </div>
-                          <Button variant="ghost" size="sm" className="rounded-xl h-10 px-4 text-[9px] font-black uppercase tracking-widest gap-2 hover:bg-primary/5 hover:text-primary group-hover:translate-x-1 transition-all">
+                          <Button variant="ghost" size="sm" className="rounded-xl h-10 px-4 text-[9px] font-black uppercase tracking-widest gap-2">
                              Enter Circle <ArrowRight className="w-3 h-3" />
                           </Button>
                        </div>
@@ -272,20 +240,8 @@ export default function CirclesPage() {
                  </Card>
                ))}
             </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center py-32 text-center space-y-6 opacity-20">
-               <div className="relative">
-                  <Compass className="w-24 h-24 text-slate-400 animate-spin-slow" />
-                  <Sparkles className="absolute -top-2 -right-2 w-8 h-8 text-primary animate-pulse" />
-               </div>
-               <div className="space-y-2">
-                  <h3 className="text-2xl font-black tracking-tighter uppercase">Quiet vibration</h3>
-                  <p className="text-sm font-bold uppercase tracking-widest max-w-[240px]">Be the spark and establish the first circle in this category.</p>
-               </div>
-            </div>
           )}
         </main>
-
         <BottomNav />
       </div>
     </GuestAccessGuard>

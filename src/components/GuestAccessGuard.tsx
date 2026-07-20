@@ -11,7 +11,7 @@ interface GuestAccessGuardProps {
     | "spark"
     | "circle"
     | "messages"
-    | "shop"
+    | "shopping"
     | "wallet"
     | "profile";
 
@@ -19,8 +19,9 @@ interface GuestAccessGuardProps {
 }
 
 /**
- * @fileOverview Guest Access Guard Protocol.
+ * @fileOverview Hardened Guest Access Guard Protocol.
  * Manages session expiration and feature-based permissions for anonymous hearts.
+ * Prevents unauthorized access if the session record is missing or expired.
  */
 export default function GuestAccessGuard({
   feature,
@@ -47,8 +48,14 @@ export default function GuestAccessGuard({
         const guestRef = doc(db, "guestSessions", user.uid);
         const snap = await getDoc(guestRef);
 
-        // Normal registered users (no guest session record) have full access
+        // Security Protocol: Hardened Session Verification
         if (!snap.exists()) {
+          if (user.isAnonymous) {
+            // Anonymous hearts without a session record are blocked
+            router.push("/signup?reason=guest-required");
+            return;
+          }
+          // Registered hearts (non-anonymous) are granted full entry
           setAllowed(true);
           setChecking(false);
           return;
@@ -59,14 +66,17 @@ export default function GuestAccessGuard({
         const now = new Date();
         const expired = !expiresAt || expiresAt < now;
 
-        // Guest permissions: Only allowed to see Spark and Circle
-        const guestAllowedFeatures = ["spark", "circle"];
+        // Guest Permissions Registry: Restricted to Discovery Hubs only
+        const guestAllowedFeatures = [
+          "spark",
+          "circle",
+        ];
 
         if (!expired && guestAllowedFeatures.includes(feature)) {
           setAllowed(true);
         } else {
-          // If expired or unauthorized feature, guide to signup for permanent status
-          router.push("/signup?reason=" + (expired ? "guest-expired" : "unauthorized"));
+          // Redirect if mission expired or feature restricted
+          router.push(expired ? "/signup?reason=guest-expired" : "/signup?reason=unauthorized");
         }
       } catch (e) {
         console.error("Access Protocol Ripple:", e);
@@ -82,7 +92,7 @@ export default function GuestAccessGuard({
     return (
       <div className="flex flex-col items-center justify-center py-40 gap-4 opacity-20">
         <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Checking Access...</p>
+        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Verifying Protocol...</p>
       </div>
     );
   }
