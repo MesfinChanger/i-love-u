@@ -23,7 +23,6 @@ interface GuestAccessGuardProps {
 /**
  * @fileOverview Hardened Guest Access Guard Protocol.
  * Manages session expiration and feature-based permissions for anonymous hearts.
- * Ensures anonymous users without a valid guest session record are blocked.
  */
 export default function GuestAccessGuard({
   feature,
@@ -51,13 +50,13 @@ export default function GuestAccessGuard({
         const snap = await getDoc(guestRef);
 
         if (!snap.exists()) {
-          // Hardened Security: Anonymous users MUST have a guest session record
+          // Anonymous users must have a guest session record to proceed as temporary explorers
           if (user.isAnonymous) {
             router.push("/signup?reason=guest-required");
             return;
           }
 
-          // Registered users get full access to all mission modules
+          // Registered (permanent) users get full access to all mission modules
           setAllowed(true);
           setChecking(false);
           return;

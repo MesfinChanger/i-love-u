@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 /**
  * @fileOverview High-Fidelity Welcome Gateway.
  * Orchestrates the initial heart identification protocol.
- * Synchronized with reduced spacing and optimized logo dimensions.
+ * Refined with tighter spacing and optimized logo dimensions.
  */
 export default function WelcomePage() {
   return (
