@@ -74,6 +74,7 @@ export default function GuestAccessGuard({
         const guestAllowedFeatures = [
           "spark",
           "circle",
+          "ideas",
         ];
 
         if (!expired && guestAllowedFeatures.includes(feature)) {

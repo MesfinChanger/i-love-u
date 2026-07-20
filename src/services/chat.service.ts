@@ -35,9 +35,50 @@ export async function createConversation(
 
 // Send Message
 export async function sendMessage(
-  conversationId: string,
-  message: any
-) {
+  conversationId:string,
+  message:any
+ ){
+ 
+  await addDoc(
+   collection(
+    db,
+    "conversations",
+    conversationId,
+    "messages"
+   ),
+   {
+ 
+    ...message,
+ 
+    status:"sent",
+ 
+    deleted:false,
+ 
+    downloadPolicy:{
+      allowDownload:false
+    },
+ 
+    createdAt:serverTimestamp()
+ 
+   }
+  );
+ 
+ 
+  await setDoc(
+   doc(
+    db,
+    "conversations",
+    conversationId
+   ),
+   {
+     lastMessageAt:serverTimestamp()
+   },
+   {
+     merge:true
+   }
+  );
+ 
+ }
   await addDoc(
     collection(db, "conversations", conversationId, "messages"),
     {
