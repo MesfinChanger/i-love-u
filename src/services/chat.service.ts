@@ -27,65 +27,41 @@ export async function createConversation(
       type,
       participants,
       encryptionVersion: "v1",
-      createdAt: serverTimestamp()
+      createdAt: serverTimestamp(),
+      lastUpdatedAt: serverTimestamp()
     }
   );
   return ref.id;
 }
 
-// Send Message
+// Send Message Protocol with Field Protection
 export async function sendMessage(
-  conversationId:string,
-  message:any
- ){
- 
-  await addDoc(
-   collection(
-    db,
-    "conversations",
-    conversationId,
-    "messages"
-   ),
-   {
- 
+  conversationId: string,
+  message: any
+) {
+  // Mission Integrity: Ensure mandatory fields and defaults
+  const messageData = {
     ...message,
- 
-    status:"sent",
- 
-    deleted:false,
- 
-    downloadPolicy:{
-      allowDownload:false
-    },
- 
-    createdAt:serverTimestamp()
- 
-   }
-  );
- 
- 
-  await setDoc(
-   doc(
-    db,
-    "conversations",
-    conversationId
-   ),
-   {
-     lastMessageAt:serverTimestamp()
-   },
-   {
-     merge:true
-   }
-  );
- 
- }
+    status: "sent",
+    deleted: false,
+    downloadAllowed: message.downloadAllowed ?? false,
+    createdAt: serverTimestamp()
+  };
+
+  // 1. Broadcast to message subcollection
   await addDoc(
     collection(db, "conversations", conversationId, "messages"),
+    messageData
+  );
+
+  // 2. Synchronize conversation heartbeat
+  await setDoc(
+    doc(db, "conversations", conversationId),
     {
-      ...message,
-      createdAt: serverTimestamp(),
-      status: "sent"
-    }
+      lastUpdatedAt: serverTimestamp(),
+      lastMessage: message.text || (message.type === 'image' ? '[Image]' : '[Secured Message]')
+    },
+    { merge: true }
   );
 }
 

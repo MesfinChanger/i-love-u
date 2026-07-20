@@ -17,23 +17,44 @@ import { FirestorePermissionError, type SecurityRuleContext } from '@/firebase/e
  * Send Message Protocol.
  * Dispatches a high-fidelity message record to the conversation subcollection.
  * Hardened with the non-blocking write protocol and contextual error recovery.
+ * Support for multi-modal payloads (text, images, E2EE) with field protection.
  */
 export function sendMessage({
   conversationId,
   senderId,
-  text
+  text,
+  encryptedText,
+  type = "text",
+  storagePath = "",
+  downloadAllowed = false
 }: {
   conversationId: string;
   senderId: string;
-  text: string;
+  text?: string;
+  encryptedText?: string;
+  type?: "text" | "image" | "voice" | "file";
+  storagePath?: string;
+  downloadAllowed?: boolean;
 }) {
   const collectionRef = collection(db, "conversations", conversationId, "messages");
-  const data = {
+  
+  // Mission Integrity: Defined fields with safe defaults
+  const data: any = {
     senderId,
-    text,
+    type,
     status: "sent",
     createdAt: serverTimestamp()
   };
+
+  // Content Protection Logic
+  if (text) data.text = text;
+  if (encryptedText) data.encryptedText = encryptedText;
+  
+  // Media Protocol Fields
+  if (type !== "text") {
+    data.storagePath = storagePath;
+    data.downloadAllowed = downloadAllowed;
+  }
 
   // Prosperity Protocol: Initiate write without blocking UI heartbeat
   addDoc(collectionRef, data)
