@@ -1,7 +1,6 @@
 /**
- * @fileOverview NEUTRALIZED - Conflict resolution for duplicate path /dashboard.
- * Path is correctly defined in src/app/dashboard/page.tsx
+ * @fileOverview DEPRECATED - Route conflict resolution.
+ * The high-fidelity dashboard has been migrated to src/app/dashboard/page.tsx.
+ * Exporting no component to prevent Next.js from identifying this as a duplicate route.
  */
-export default function NeutralizedDashboard() {
-  return null;
-}
+export const dynamic = 'force-static';
