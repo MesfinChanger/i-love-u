@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { useAuth } from "@/firebase";
+import { useUser } from "@/firebase";
 
 interface GuestAccessGuardProps {
   feature: 
@@ -27,17 +27,17 @@ export default function GuestAccessGuard({
   children,
 }: GuestAccessGuardProps) {
   const router = useRouter();
-  const auth = useAuth();
-  const user = auth?.currentUser;
+  const { user, loading: authLoading } = useUser();
 
   const [allowed, setAllowed] = useState(false);
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
     async function checkAccess() {
+      if (authLoading) return;
+
       if (!user) {
-        // If auth context is ready but no user, redirect to login
-        if (auth) router.push("/login");
+        router.push("/login");
         return;
       }
 
@@ -76,9 +76,9 @@ export default function GuestAccessGuard({
     }
 
     checkAccess();
-  }, [user, feature, router, auth]);
+  }, [user, feature, router, authLoading]);
 
-  if (checking) {
+  if (checking || authLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-40 gap-4 opacity-20">
         <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
