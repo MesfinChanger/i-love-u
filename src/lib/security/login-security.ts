@@ -17,7 +17,7 @@ const LOCK_TIME = 10 * 60 * 1000; // 10 minutes
  */
 
 export async function checkLoginLock(email: string) {
-  if (!email) return { locked: false };
+  if (!email || !db) return { locked: false };
   
   const securityId = email.toLowerCase().replace(/\./g, '_');
   const securityRef = doc(db, "users_security", securityId);
@@ -41,7 +41,7 @@ export async function checkLoginLock(email: string) {
 }
 
 export async function recordFailedLogin(email: string) {
-  if (!email) return;
+  if (!email || !db) return;
   
   const securityId = email.toLowerCase().replace(/\./g, '_');
   const securityRef = doc(db, "users_security", securityId);
@@ -73,7 +73,7 @@ export async function recordFailedLogin(email: string) {
 }
 
 export async function recordSuccessfulLogin(uid: string, email: string) {
-  if (!email) return;
+  if (!email || !db) return;
   
   const securityId = email.toLowerCase().replace(/\./g, '_');
   const securityRef = doc(db, "users_security", securityId);
