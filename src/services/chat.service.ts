@@ -69,6 +69,7 @@ export async function sendMessage({
     downloadAllowed: downloadAllowed ?? false,
     status: "sent",
     deleted: false,
+    deletedFor: [],
     createdAt: serverTimestamp()
   } as any;
 

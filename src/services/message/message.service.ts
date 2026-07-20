@@ -53,6 +53,8 @@ export function sendMessage({
     storagePath: storagePath || "",
     downloadAllowed: downloadAllowed ?? false,
     status: "sent",
+    deleted: false,
+    deletedFor: [],
     createdAt: serverTimestamp()
   };
 
