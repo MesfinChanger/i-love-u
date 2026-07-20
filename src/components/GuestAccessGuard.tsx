@@ -13,7 +13,9 @@ interface GuestAccessGuardProps {
     | "messages"
     | "shopping"
     | "wallet"
-    | "profile";
+    | "profile"
+    | "ideas"
+    | "community";
 
   children: React.ReactNode;
 }
@@ -49,13 +51,13 @@ export default function GuestAccessGuard({
         const snap = await getDoc(guestRef);
 
         if (!snap.exists()) {
-          // Anonymous users must have a guest session record
+          // Anonymous users must have a guest session record to be authorized
           if (user.isAnonymous) {
             router.push("/signup?reason=guest-required");
             return;
           }
 
-          // Registered users get full access
+          // Registered users get full access to all mission modules
           setAllowed(true);
           setChecking(false);
           return;
@@ -78,7 +80,7 @@ export default function GuestAccessGuard({
         if (!expired && guestAllowedFeatures.includes(feature)) {
           setAllowed(true);
         } else {
-          // Redirect if mission expired or feature restricted
+          // Redirect if mission expired or feature is restricted to permanent hearts
           router.push(expired ? "/signup?reason=guest-expired" : "/signup?reason=unauthorized");
         }
       } catch (e) {

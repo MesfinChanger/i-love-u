@@ -20,10 +20,11 @@ import { useToast } from '@/hooks/use-toast';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError, type SecurityRuleContext } from '@/firebase/errors';
+import GuestAccessGuard from "@/components/GuestAccessGuard";
 
 /**
  * @fileOverview Global Wall module synchronized with the Community Message Protocol.
- * Harmonized typography scale.
+ * Wrapped in the Guest Access Guard to enforce mission-aligned permissions.
  */
 export default function CommunityPage() {
   const { user } = useUser();
@@ -97,70 +98,72 @@ export default function CommunityPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
-      <Header />
-      
-      <section className="bg-white border-b py-16 px-6 text-center overflow-hidden relative">
-         <div className="absolute top-0 right-0 p-10 opacity-5 -rotate-12 translate-x-20">
-            <Globe className="w-96 h-96 text-primary" />
-         </div>
-         <div className="max-w-2xl mx-auto space-y-6 relative z-10">
-            <div className="w-20 h-20 bg-primary/10 rounded-[2.5rem] flex items-center justify-center mx-auto shadow-xl ring-8 ring-white">
-               <Globe className="w-10 h-10 text-primary" />
+    <GuestAccessGuard feature="community">
+      <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
+        <Header />
+        
+        <section className="bg-white border-b py-16 px-6 text-center overflow-hidden relative">
+           <div className="absolute top-0 right-0 p-10 opacity-5 -rotate-12 translate-x-20">
+              <Globe className="w-96 h-96 text-primary" />
+           </div>
+           <div className="max-w-2xl mx-auto space-y-6 relative z-10">
+              <div className="w-20 h-20 bg-primary/10 rounded-[2.5rem] flex items-center justify-center mx-auto shadow-xl ring-8 ring-white">
+                 <Globe className="w-10 h-10 text-primary" />
+              </div>
+              <h1 className="text-3xl font-black tracking-tighter uppercase leading-[1.2]">
+                 Global <br/><span className="gradient-text">Wall</span>
+              </h1>
+              <p className="text-lg text-muted-foreground font-medium italic">
+                 "Share respectful moments with hearts across every city."
+              </p>
+           </div>
+        </section>
+
+        <main className="max-w-4xl mx-auto w-full flex-grow px-6 py-10 space-y-8">
+          {isInteractionRestricted && (
+            <div className="bg-amber-100 border border-amber-200 p-4 rounded-2xl flex items-center justify-between">
+               <div className="flex items-center gap-3 text-amber-800">
+                  <ShieldAlert className="w-5 h-5" />
+                  <p className="text-xs font-bold uppercase tracking-tight">View Only Mode: Protocol Agreement Required</p>
+               </div>
+               <Button variant="ghost" size="sm" className="h-8 text-[9px] font-black uppercase text-amber-900" asChild>
+                  <a href="/policy/agree">Agree Now</a>
+               </Button>
             </div>
-            <h1 className="text-3xl font-black tracking-tighter uppercase leading-[1.2]">
-               Global <br/><span className="gradient-text">Wall</span>
-            </h1>
-            <p className="text-lg text-muted-foreground font-medium italic">
-               "Share respectful moments with hearts across every city."
-            </p>
-         </div>
-      </section>
+          )}
 
-      <main className="max-w-4xl mx-auto w-full flex-grow px-6 py-10 space-y-8">
-        {isInteractionRestricted && (
-          <div className="bg-amber-100 border border-amber-200 p-4 rounded-2xl flex items-center justify-between">
-             <div className="flex items-center gap-3 text-amber-800">
-                <ShieldAlert className="w-5 h-5" />
-                <p className="text-xs font-bold uppercase tracking-tight">View Only Mode: Protocol Agreement Required</p>
-             </div>
-             <Button variant="ghost" size="sm" className="h-8 text-[9px] font-black uppercase text-amber-900" asChild>
-                <a href="/policy/agree">Agree Now</a>
-             </Button>
+          <Card className="rounded-[3rem] border-none shadow-xl bg-white overflow-hidden">
+             <CardContent className="p-8">
+                <form onSubmit={handleSendMessage} className="flex gap-4">
+                   <Input 
+                     value={newMessage}
+                     onChange={e => setNewMessage(e.target.value)}
+                     placeholder={isInteractionRestricted ? "Protocol required to post..." : "What's on your heart?"} 
+                     className="flex-grow rounded-2xl bg-muted/40 border-none h-16 px-8 text-lg font-medium italic"
+                     disabled={isInteractionRestricted}
+                   />
+                   <Button type="submit" size="icon" className="w-16 h-16 rounded-[1.8rem] gradient-bg shrink-0 shadow-xl shadow-primary/20 active:scale-95 transition-all" disabled={isSending || isInteractionRestricted || !newMessage.trim()}>
+                      {isSending ? <Loader2 className="w-6 h-6 animate-spin" /> : <Rocket className="w-6 h-6" />}
+                   </Button>
+                </form>
+             </CardContent>
+          </Card>
+
+          <div className="space-y-6">
+             {loading ? (
+               <div className="flex flex-col items-center justify-center py-20 opacity-20">
+                  <Loader2 className="w-12 h-12 animate-spin text-primary" />
+                  <p className="text-[10px] font-black uppercase tracking-widest mt-4">Tuning Frequencies...</p>
+               </div>
+             ) : messages?.map((msg: any) => (
+               <CommunityMessageCard key={msg.id} msg={msg} />
+             ))}
           </div>
-        )}
+        </main>
 
-        <Card className="rounded-[3rem] border-none shadow-xl bg-white overflow-hidden">
-           <CardContent className="p-8">
-              <form onSubmit={handleSendMessage} className="flex gap-4">
-                 <Input 
-                   value={newMessage}
-                   onChange={e => setNewMessage(e.target.value)}
-                   placeholder={isInteractionRestricted ? "Protocol required to post..." : "What's on your heart?"} 
-                   className="flex-grow rounded-2xl bg-muted/40 border-none h-16 px-8 text-lg font-medium italic"
-                   disabled={isInteractionRestricted}
-                 />
-                 <Button type="submit" size="icon" className="w-16 h-16 rounded-[1.8rem] gradient-bg shrink-0 shadow-xl shadow-primary/20 active:scale-95 transition-all" disabled={isSending || isInteractionRestricted || !newMessage.trim()}>
-                    {isSending ? <Loader2 className="w-6 h-6 animate-spin" /> : <Rocket className="w-6 h-6" />}
-                 </Button>
-              </form>
-           </CardContent>
-        </Card>
-
-        <div className="space-y-6">
-           {loading ? (
-             <div className="flex flex-col items-center justify-center py-20 opacity-20">
-                <Loader2 className="w-12 h-12 animate-spin text-primary" />
-                <p className="text-[10px] font-black uppercase tracking-widest mt-4">Tuning Frequencies...</p>
-             </div>
-           ) : messages?.map((msg: any) => (
-             <CommunityMessageCard key={msg.id} msg={msg} />
-           ))}
-        </div>
-      </main>
-
-      <BottomNav />
-    </div>
+        <BottomNav />
+      </div>
+    </GuestAccessGuard>
   );
 }
 
