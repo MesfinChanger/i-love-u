@@ -1,8 +1,7 @@
 /**
- * @fileOverview DEPRECATED - Route conflict resolution.
- * The high-fidelity dashboard has been migrated to src/app/dashboard/page.tsx.
- * Neutralized to prevent Next.js parallel route conflicts.
+ * @fileOverview DEACTIVATED - Route conflict resolution.
+ * The high-fidelity dashboard is served from src/app/dashboard/page.tsx.
  */
-export default function DeprecatedDashboard() {
+export default function NeutralizedDashboard() {
   return null;
 }

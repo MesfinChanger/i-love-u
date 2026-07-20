@@ -1,8 +1,7 @@
 /**
- * @fileOverview DEPRECATED - Route conflict resolution.
- * The high-fidelity identity hub has been migrated to src/app/identity/page.tsx.
- * Neutralized to prevent Next.js parallel route conflicts.
+ * @fileOverview DEACTIVATED - Route conflict resolution.
+ * The high-fidelity identity hub is served from src/app/identity/page.tsx.
  */
-export default function DeprecatedIdentity() {
+export default function NeutralizedIdentity() {
   return null;
 }
