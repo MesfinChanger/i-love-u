@@ -64,12 +64,22 @@ If guest sign-in fails with a "Mission Configuration Required" or `auth/admin-re
 5. Select **Anonymous**.
 6. Switch the toggle to **Enable** and click **Save**.
 
-### Troubleshooting `auth/admin-restricted-operation`
-If enabling Anonymous sign-in doesn't fix it, ensure your project's Identity Platform settings allow anonymous users:
-1. Go to **Settings** → **Identity Platform** (or Users and Permissions).
-2. Look for **Security** or **Settings**.
-3. Ensure "Anonymous users" is permitted.
-4. In some Google Cloud projects, you may also need to enable the "Identity Toolkit API" in the [API Console](https://console.cloud.google.com/).
+## 4. Fix: "403 Unregistered Callers" (Terminal Error)
+If you see this error when running `firebase deploy`:
+1. Run this command in the terminal:
+   ```bash
+   firebase login --no-localhost
+   ```
+2. Click the link provided, log in to your Google Account, and copy the **Authorization Code**.
+3. Paste the code back into your terminal.
+4. Set the project as active:
+   ```bash
+   firebase use studio-9260674464-8df20
+   ```
+5. Retry your deployment:
+   ```bash
+   firebase deploy --only firestore:rules
+   ```
 
-## 4. Mandatory Respect
+## 5. Mandatory Respect
 Remember: Every technical configuration supports our mission to eliminate poverty through job creation. Respect is Mandatory. ❤️
