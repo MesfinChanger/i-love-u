@@ -128,11 +128,15 @@ service cloud.firestore {
             /databases/$(database)/documents/conversations/$(conversationId)
           ).data.participants;
 
-        // Send only as yourself
+        // Send only as yourself AND if you are a participant
         allow create:
           if signedIn()
           &&
-          request.auth.uid == request.resource.data.senderId;
+          request.auth.uid == request.resource.data.senderId
+          &&
+          request.auth.uid in get(
+            /databases/$(database)/documents/conversations/$(conversationId)
+          ).data.participants;
 
         // Sender can edit own message
         allow update:
