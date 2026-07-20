@@ -21,6 +21,7 @@ interface GuestAccessGuardProps {
 /**
  * @fileOverview Hardened Guest Access Guard Protocol.
  * Manages session expiration and feature-based permissions for anonymous hearts.
+ * Ensures anonymous users cannot bypass permissions without a valid guest session record.
  */
 export default function GuestAccessGuard({
   feature,
@@ -54,7 +55,7 @@ export default function GuestAccessGuard({
             return;
           }
 
-          // Registered users have full access
+          // Registered users get full access
           setAllowed(true);
           setChecking(false);
           return;
@@ -65,7 +66,10 @@ export default function GuestAccessGuard({
         const now = new Date();
         const expired = !expiresAt || expiresAt < now;
 
-        // Guest Permissions Registry: Restricted to Discovery Hubs only
+        /**
+         * Guest Permissions Registry.
+         * Only Discovery Hubs are authorized for 30-minute explorers.
+         */
         const guestAllowedFeatures = [
           "spark",
           "circle",
