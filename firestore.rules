@@ -87,28 +87,88 @@ service cloud.firestore {
       allow create, update: if request.auth != null;
     }
 
-    // ============================
-    // MESSAGING 💬
-    // ============================
+    /*
+     CONVERSATIONS / PRIVATE MESSAGES
+    */
 
     match /conversations/{conversationId} {
-      allow read: if request.auth != null && (request.auth.uid in resource.data.participants || isAdmin());
-      allow create: if request.auth != null;
-      
+
+      // Users can only open conversations they belong to
+      allow read:
+        if signedIn()
+        &&
+        request.auth.uid in resource.data.participants;
+
+      // Create conversation only if creator is a participant
+      allow create:
+        if signedIn()
+        &&
+        request.auth.uid in request.resource.data.participants;
+
+      // Conversation changes only by participants
+      allow update:
+        if signedIn()
+        &&
+        request.auth.uid in resource.data.participants;
+
+      // Never delete conversations directly
+      allow delete:
+        if false;
+
+      /*
+       PRIVATE CHAT MESSAGES
+      */
+
       match /messages/{messageId} {
-        allow create: if request.auth != null && request.auth.uid == request.resource.data.senderId;
-        allow read: if request.auth != null && (request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants || isAdmin());
+
+        // Read only by conversation members
+        allow read:
+          if signedIn()
+          &&
+          request.auth.uid in get(
+            /databases/$(database)/documents/conversations/$(conversationId)
+          ).data.participants;
+
+        // Send only as yourself
+        allow create:
+          if signedIn()
+          &&
+          request.auth.uid == request.resource.data.senderId;
+
+        // Sender can edit own message
+        allow update:
+          if signedIn()
+          &&
+          request.auth.uid == resource.data.senderId;
+
+        // Block direct deletion
+        allow delete:
+          if false;
       }
     }
 
-    // ============================
-    // PRODUCTS / MARKETPLACE
-    // ============================
+    /*
+     PRODUCTS / MARKETPLACE
+    */
 
     match /products/{productId} {
-      allow read: if true;
-      allow create: if signedIn() && (userRole() == "verified" || userRole() == "merchant" || isAdmin());
-      allow delete: if isModerator();
+
+      allow read:
+        if true;
+
+      allow create:
+        if signedIn()
+        &&
+        (
+          userRole()=="verified"
+          ||
+          userRole()=="merchant"
+          ||
+          isAdmin()
+        );
+
+      allow delete:
+        if isModerator();
     }
 
     // ============================
