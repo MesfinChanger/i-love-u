@@ -257,90 +257,90 @@ service cloud.firestore {
         if isMember()
         &&
         request.auth.uid == request.resource.data.authorId;
-    }
+}
 
 
-    match /communityMedia/{mediaId} {
+match /communityMedia/{mediaId} {
 
-      // Guest can view approved media
-      allow read:
-        if signedIn();
+  // Guest can view approved media
+  allow read:
+    if signedIn();
 
-      // Upload requires membership
-      allow create:
-        if isMember()
-        &&
-        request.auth.uid == request.resource.data.authorId;
-    }
-
-
-    match /ideaPool/{ideaId} {
-
-      // Discovery allowed
-      allow read:
-        if signedIn();
-
-      // Publishing ideas requires membership
-      allow create:
-        if isMember()
-        &&
-        request.auth.uid == request.resource.data.authorId;
-    }
+  // Upload requires membership
+  allow create:
+    if isMember()
+    &&
+    request.auth.uid == request.resource.data.authorId;
+}
 
 
-    // ============================
-    // COMMERCE & ADS
-    // ============================
+match /ideaPool/{ideaId} {
 
-    match /shops/{shopId} {
+  // Discovery allowed
+  allow read:
+    if signedIn();
 
-      // Guests may browse shops
-      allow read:
-        if signedIn();
-
-      // Only members can create/update shops
-      allow create, update:
-        if isMember()
-        &&
-        (
-          request.auth.uid == resource.data.ownerId
-          ||
-          isAdmin()
-        );
-    }
+  // Publishing ideas requires membership
+  allow create:
+    if isMember()
+    &&
+    request.auth.uid == request.resource.data.authorId;
+}
 
 
-    match /ads/{adId} {
+// ============================
+// COMMERCE & ADS
+// ============================
 
-      // Approved ads are visible
-      allow read:
-        if signedIn()
-        &&
-        (
-          resource.data.status == "approved"
-          ||
-          request.auth.uid == resource.data.advertiserId
-          ||
-          isAdmin()
-        );
+match /shops/{shopId} {
+
+  // Guests may browse shops
+  allow read:
+    if signedIn();
+
+  // Only members can create/update shops
+  allow create, update:
+    if isMember()
+    &&
+    (
+      request.auth.uid == resource.data.ownerId
+      ||
+      isAdmin()
+    );
+}
 
 
-      // Only members advertise
-      allow create:
-        if isMember()
-        &&
-        request.auth.uid == request.resource.data.advertiserId;
+match /ads/{adId} {
+
+  // Approved ads are visible
+  allow read:
+    if signedIn()
+    &&
+    (
+      resource.data.status == "approved"
+      ||
+      request.auth.uid == resource.data.advertiserId
+      ||
+      isAdmin()
+    );
 
 
-      allow update, delete:
-        if signedIn()
-        &&
-        (
-          request.auth.uid == resource.data.advertiserId
-          ||
-          isAdmin()
-        );
-    }
+  // Only members advertise
+  allow create:
+    if isMember()
+    &&
+    request.auth.uid == request.resource.data.advertiserId;
+
+
+  allow update, delete:
+    if signedIn()
+    &&
+    (
+      request.auth.uid == resource.data.advertiserId
+      ||
+      isAdmin()
+    );
+}
 
     // ============================
     // SYSTEM & MAINTENANCE
