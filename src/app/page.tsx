@@ -36,7 +36,7 @@ export default function WelcomePage() {
             </div>
 
             <div className="space-y-4">
-              <h1 className="text-6xl md:text-8xl font-black tracking-tighter uppercase leading-[0.8] text-slate-900">
+              <h1 className="text-7xl md:text-9xl font-black tracking-tighter uppercase leading-[0.9] text-slate-900">
                 I LOVE <br /><span className="gradient-text">U.</span>
               </h1>
               <p className="text-xl md:text-2xl font-bold uppercase tracking-[0.4em] text-slate-600/60">
@@ -85,7 +85,7 @@ export default function WelcomePage() {
             <div className="space-y-10">
               <div className="space-y-4">
                 <Badge label="Mandatory Protocol" />
-                <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter leading-none">
+                <h2 className="text-5xl md:text-7xl font-black uppercase tracking-tighter leading-[0.95]">
                   Respect & Love <br />Is <span className="text-primary">Mandatory.</span>
                 </h2>
               </div>
