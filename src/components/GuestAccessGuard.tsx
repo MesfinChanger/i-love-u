@@ -23,6 +23,7 @@ interface GuestAccessGuardProps {
 /**
  * @fileOverview Hardened Guest Access Guard Protocol.
  * Manages session expiration and feature-based permissions for anonymous hearts.
+ * Refactored to use dynamic Firestore-driven permission checks.
  */
 export default function GuestAccessGuard({
   feature,
@@ -68,16 +69,10 @@ export default function GuestAccessGuard({
         const expired = !expiresAt || expiresAt < now;
 
         /**
-         * Guest Permissions Registry.
-         * Only Discovery Hubs are authorized for 30-minute explorers.
+         * Dynamic Permission Protocol.
+         * Access is granted based on the permissions registry stored in the Firestore session record.
          */
-        const guestAllowedFeatures = [
-          "spark",
-          "circle",
-          "ideas",
-        ];
-
-        if (!expired && guestAllowedFeatures.includes(feature)) {
+        if (!expired && guest.permissions?.[feature] === true) {
           setAllowed(true);
         } else {
           // Redirect if mission expired or feature is restricted to permanent hearts

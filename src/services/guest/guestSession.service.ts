@@ -45,6 +45,8 @@ export async function createGuestSession(uid: string) {
       wallet: false,
       ads: false,
       admin: false,
+      profile: true,
+      community: true
     }
   });
 
