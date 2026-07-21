@@ -4,13 +4,14 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { auth, db } from '@/lib/firebase';
 import { signInAnonymously } from 'firebase/auth';
-import { doc, setDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { Loader2, Heart } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { createGuestSession } from "@/services/guest/guestSession.service";
 
 /**
  * @fileOverview Guest Authentication Gateway.
- * Handles the anonymous sign-in logic and launches the 30-minute high-fidelity session.
+ * Handles the anonymous sign-in logic and launches the 30-minute high-fidelity session via the centralized service.
  */
 export default function GuestLoginPage() {
   const router = useRouter();
@@ -27,28 +28,10 @@ export default function GuestLoginPage() {
         const result = await signInAnonymously(auth);
         
         if (mounted && db) {
-          const now = new Date();
-          const expiresAt = new Date(now.getTime() + 30 * 60 * 1000); // 30 minutes duration
+          // Prosperity Protocol: Register session via centralized service
+          await createGuestSession(result.user.uid);
 
-          // Prosperity Protocol: Register session with expiration
-          await setDoc(doc(db, "guestSessions", result.user.uid), {
-            uid: result.user.uid,
-            role: "guest",
-            createdAt: serverTimestamp(),
-            expiresAt: Timestamp.fromDate(expiresAt),
-            permissions: {
-              spark: true,
-              circle: true,
-              messages: false,
-              shopping: false,
-              wallet: false,
-              ads: false,
-              admin: false,
-            },
-            status: "active"
-          });
-
-          // Registry Sync: Update primary user doc
+          // Registry Sync: Update primary user doc for community awareness
           await setDoc(doc(db, "users", result.user.uid), {
             uid: result.user.uid,
             name: "Guest Heart",
