@@ -52,7 +52,20 @@ service cloud.firestore {
     match /users/{userId} {
       allow read: if request.auth != null && (request.auth.uid == userId || isAdmin());
       allow create: if request.auth.uid == userId;
-      allow update, delete: if request.auth.uid == userId || isAdmin();
+      
+      allow update:
+        if request.auth.uid == userId
+        &&
+        request.resource.data.role == resource.data.role
+        &&
+        request.resource.data.accountType == resource.data.accountType
+        &&
+        request.resource.data.status == resource.data.status
+        ||
+        isAdmin();
+
+      allow delete:
+        if request.auth.uid == userId || isAdmin();
     }
 
     match /wallets/{userId} {
