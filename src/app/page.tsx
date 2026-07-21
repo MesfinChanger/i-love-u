@@ -17,8 +17,8 @@ import { Button } from "@/components/ui/button";
 import HeroImage from "@/components/HeroImage";
 
 /**
- * @fileOverview High-Fidelity Welcome Gateway.
- * Orchestrates the initial heart identification protocol for the I Love U mission.
+ * @fileOverview Refined Welcome Gateway.
+ * Minimizes typography scale and removes redundant decorative icons for a cleaner mission entry.
  */
 export default function WelcomePage() {
   return (
@@ -29,29 +29,25 @@ export default function WelcomePage() {
         
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-center px-6 text-center">
           <div className="max-w-4xl space-y-8 animate-in fade-in zoom-in-95 duration-1000">
-            <div className="flex justify-center">
-              <div className="w-24 h-24 bg-white/90 backdrop-blur-md rounded-[2.5rem] flex items-center justify-center shadow-2xl ring-8 ring-white/20 animate-heartbeat">
-                <Heart className="w-12 h-12 text-primary fill-primary" />
-              </div>
-            </div>
+            {/* Redundant heart icon removed to minimize visual clutter */}
 
             <div className="space-y-4">
-              <h1 className="text-7xl md:text-9xl font-black tracking-tighter uppercase leading-[0.9] text-slate-900">
+              <h1 className="text-5xl md:text-7xl font-black tracking-tighter uppercase leading-none text-slate-900">
                 I LOVE <br /><span className="gradient-text">U.</span>
               </h1>
-              <p className="text-xl md:text-2xl font-bold uppercase tracking-[0.4em] text-slate-600/60">
+              <p className="text-lg md:text-xl font-bold uppercase tracking-[0.3em] text-slate-600/60">
                 The Prosperity Revolution
               </p>
             </div>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8">
-              <Button asChild className="h-18 px-10 rounded-2xl gradient-bg font-black uppercase text-xs tracking-widest shadow-2xl shadow-primary/30 active:scale-95 transition-all group">
+              <Button asChild className="h-16 px-10 rounded-2xl gradient-bg font-black uppercase text-xs tracking-widest shadow-xl shadow-primary/30 active:scale-95 transition-all group">
                 <Link href="/signup">
                   <UserPlus className="w-4 h-4 mr-2" />
                   Join the Mission
                 </Link>
               </Button>
-              <Button variant="outline" asChild className="h-18 px-10 rounded-2xl border-2 bg-white/50 backdrop-blur-md font-black uppercase text-xs tracking-widest shadow-xl active:scale-95 transition-all">
+              <Button variant="outline" asChild className="h-16 px-10 rounded-2xl border-2 bg-white/50 backdrop-blur-md font-black uppercase text-xs tracking-widest shadow-xl active:scale-95 transition-all">
                 <Link href="/login">
                   <LogIn className="w-4 h-4 mr-2" />
                   Identify Heart
@@ -85,12 +81,12 @@ export default function WelcomePage() {
             <div className="space-y-10">
               <div className="space-y-4">
                 <Badge label="Mandatory Protocol" />
-                <h2 className="text-5xl md:text-7xl font-black uppercase tracking-tighter leading-[0.95]">
+                <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter leading-tight">
                   Respect & Love <br />Is <span className="text-primary">Mandatory.</span>
                 </h2>
               </div>
               
-              <p className="text-xl text-muted-foreground font-medium italic leading-relaxed">
+              <p className="text-lg text-muted-foreground font-medium italic leading-relaxed">
                 "We are building a global community where every heartbeat fuels a miracle. Every match, every conversation, and every gift contributes to local job creation."
               </p>
 
@@ -114,7 +110,7 @@ export default function WelcomePage() {
                   <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center">
                     <Globe className="w-8 h-8 text-primary" />
                   </div>
-                  <h3 className="text-3xl font-black uppercase tracking-tighter">Reach Every Village</h3>
+                  <h3 className="text-2xl font-black uppercase tracking-tighter">Reach Every Village</h3>
                   <p className="text-white/60 leading-relaxed font-medium">
                     Our mission is to extend prosperity to the furthest corners of the globe. By identifying your heart today, you become a partner in this revolution.
                   </p>
