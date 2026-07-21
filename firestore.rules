@@ -194,44 +194,133 @@ service cloud.firestore {
     // ============================
 
     match /communities/{communityId} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null;
-      allow update, delete: if request.auth != null && (request.auth.uid == resource.data.ownerId || isAdmin());
-      
+
+      // Guests and members may discover communities
+      allow read:
+        if signedIn();
+
+      // Creating communities requires a real member
+      allow create:
+        if isMember();
+
+      allow update, delete:
+        if signedIn()
+        &&
+        (
+          request.auth.uid == resource.data.ownerId
+          ||
+          isAdmin()
+        );
+
+
       match /members/{memberId} {
-        allow read: if request.auth != null;
-        allow create, update: if request.auth != null && request.auth.uid == memberId;
+
+        allow read:
+          if signedIn();
+
+        // Guest cannot join communities
+        allow create, update:
+          if isMember()
+          &&
+          request.auth.uid == memberId;
       }
     }
 
+
     match /communityMessages/{msgId} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null && request.auth.uid == request.resource.data.authorId;
+
+      // Guest can read community discussions
+      allow read:
+        if signedIn();
+
+      // Only members can post
+      allow create:
+        if isMember()
+        &&
+        request.auth.uid == request.resource.data.authorId;
     }
+
 
     match /communityMedia/{mediaId} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null && request.auth.uid == request.resource.data.authorId;
+
+      // Guest can view approved media
+      allow read:
+        if signedIn();
+
+      // Upload requires membership
+      allow create:
+        if isMember()
+        &&
+        request.auth.uid == request.resource.data.authorId;
     }
 
+
     match /ideaPool/{ideaId} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null && request.auth.uid == request.resource.data.authorId;
+
+      // Discovery allowed
+      allow read:
+        if signedIn();
+
+      // Publishing ideas requires membership
+      allow create:
+        if isMember()
+        &&
+        request.auth.uid == request.resource.data.authorId;
     }
+
 
     // ============================
     // COMMERCE & ADS
     // ============================
 
     match /shops/{shopId} {
-      allow read: if request.auth != null;
-      allow create, update: if request.auth != null && (request.auth.uid == resource.data.ownerId || isAdmin());
+
+      // Guests may browse shops
+      allow read:
+        if signedIn();
+
+      // Only members can create/update shops
+      allow create, update:
+        if isMember()
+        &&
+        (
+          request.auth.uid == request.resource.data.ownerId
+          ||
+          isAdmin()
+        );
     }
 
+
     match /ads/{adId} {
-      allow read: if request.auth != null && (resource.data.status == "approved" || request.auth.uid == resource.data.advertiserId || isAdmin());
-      allow create: if request.auth != null && request.auth.uid == request.resource.data.advertiserId;
-      allow update, delete: if request.auth != null && (request.auth.uid == resource.data.advertiserId || isAdmin());
+
+      // Approved ads are visible
+      allow read:
+        if signedIn()
+        &&
+        (
+          resource.data.status == "approved"
+          ||
+          request.auth.uid == resource.data.advertiserId
+          ||
+          isAdmin()
+        );
+
+
+      // Only members advertise
+      allow create:
+        if isMember()
+        &&
+        request.auth.uid == request.resource.data.advertiserId;
+
+
+      allow update, delete:
+        if signedIn()
+        &&
+        (
+          request.auth.uid == resource.data.advertiserId
+          ||
+          isAdmin()
+        );
     }
 
     // ============================
