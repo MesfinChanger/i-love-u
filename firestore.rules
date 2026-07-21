@@ -54,15 +54,18 @@ service cloud.firestore {
       allow create: if request.auth.uid == userId;
       
       allow update:
-        if request.auth.uid == userId
-        &&
-        request.resource.data.role == resource.data.role
-        &&
-        request.resource.data.accountType == resource.data.accountType
-        &&
-        request.resource.data.status == resource.data.status
-        ||
-        isAdmin();
+        if
+          (
+            request.auth.uid == userId
+            &&
+            request.resource.data.role == resource.data.role
+            &&
+            request.resource.data.accountType == resource.data.accountType
+            &&
+            request.resource.data.status == resource.data.status
+          )
+          ||
+          isAdmin();
 
       allow delete:
         if request.auth.uid == userId || isAdmin();
@@ -297,7 +300,7 @@ service cloud.firestore {
         if isMember()
         &&
         (
-          request.auth.uid == request.resource.data.ownerId
+          request.auth.uid == resource.data.ownerId
           ||
           isAdmin()
         );
