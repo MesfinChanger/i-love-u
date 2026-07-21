@@ -27,13 +27,13 @@ export default function HeroImage() {
     setMounted(true);
     const timer = setInterval(() => {
       setIndex((prev) => (prev + 1) % heroFlowerIds.length);
-    }, 6000);
+    }, 8000); // 8 seconds per bloom for a calmer vibration
 
     return () => clearInterval(timer);
   }, []);
 
   if (!mounted) return (
-    <div className="absolute inset-0 w-full h-full bg-slate-100 animate-pulse" />
+    <div className="absolute inset-0 w-full h-full bg-slate-50 animate-pulse" />
   );
 
   const currentImage = PlaceHolderImages.find(img => img.id === heroFlowerIds[index]);
@@ -43,10 +43,10 @@ export default function HeroImage() {
       <AnimatePresence mode="wait">
         <motion.div
           key={heroFlowerIds[index]}
-          initial={{ opacity: 0, scale: 1.1 }}
+          initial={{ opacity: 0, scale: 1.05 }}
           animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.95 }}
-          transition={{ duration: 1.8, ease: "easeInOut" }}
+          exit={{ opacity: 0, scale: 0.98 }}
+          transition={{ duration: 2.5, ease: "easeInOut" }}
           className="absolute inset-0 w-full h-full"
         >
           {currentImage && (
@@ -62,9 +62,12 @@ export default function HeroImage() {
         </motion.div>
       </AnimatePresence>
 
-      {/* Cinematic Overlays */}
-      <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] pointer-events-none" />
-      <div className="absolute inset-0 bg-gradient-to-b from-white/40 via-transparent to-white/80 pointer-events-none" />
+      {/* Cinematic Overlays for Readability & Depth */}
+      <div className="absolute inset-0 bg-white/40 backdrop-blur-[1px] pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-white/20 via-transparent to-white/90 pointer-events-none" />
+      
+      {/* Light vignetting for centering mission content */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_0%,_rgba(255,255,255,0.4)_100%)] pointer-events-none" />
     </div>
   );
 }

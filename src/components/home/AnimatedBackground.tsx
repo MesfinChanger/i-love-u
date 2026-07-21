@@ -6,23 +6,28 @@ import FloatingHearts from "./FloatingHearts";
 import Sparkles from "./Sparkles";
 
 /**
- * @fileOverview Sacred Bloom Background Registry.
- * Implements the image-based floral background while maintaining subtle particle overlays.
+ * @fileOverview High-Fidelity Animated Background Registry.
+ * Synchronized with the Sacred Bloom Protocol to ensure the background is 
+ * exclusively composed of high-vibration flower frequencies.
  */
 export default function AnimatedBackground() {
   return (
-    <div className="fixed inset-0 -z-10 overflow-hidden">
-      
-      {/* High-Fidelity Floral Slider */}
+    <div
+      className="
+        fixed
+        inset-0
+        z-0
+        overflow-hidden
+        pointer-events-none
+      "
+    >
+      {/* Sacred Bloom Layer: The primary visual frequency using rotating floral imagery */}
       <HeroImage />
 
-      {/* Subtle particle layer */}
-      <div className="absolute inset-0 opacity-40 pointer-events-none">
-        <FloatingFlowers />
-        <FloatingHearts />
-        <Sparkles />
-      </div>
-
+      {/* Particle & Decorative Layers for depth and mission atmosphere */}
+      <FloatingFlowers />
+      <FloatingHearts />
+      <Sparkles />
     </div>
   );
 }
