@@ -19,15 +19,30 @@ service cloud.firestore {
       );
     }
     
+    function userRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+
     function isModerator() {
-      return signedIn() && (
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "moderator" || 
+      return signedIn()
+      &&
+      (
+        userRole() == "moderator"
+        ||
         isAdmin()
       );
     }
-    
-    function userRole() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+
+    function isGuest() {
+      return signedIn()
+      &&
+      userRole() == "guest";
+    }
+
+    function isMember() {
+      return signedIn()
+      &&
+      userRole() != "guest";
     }
 
     // ============================
@@ -211,7 +226,7 @@ service cloud.firestore {
     match /ads/{adId} {
       allow read: if request.auth != null && (resource.data.status == "approved" || request.auth.uid == resource.data.advertiserId || isAdmin());
       allow create: if request.auth != null && request.auth.uid == request.resource.data.advertiserId;
-      allow update, delete: if request.auth != null && (request.auth.uid == request.resource.data.advertiserId || isAdmin());
+      allow update, delete: if request.auth != null && (request.auth.uid == resource.data.advertiserId || isAdmin());
     }
 
     // ============================
