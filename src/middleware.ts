@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 /**
  * @fileOverview Global Security Middleware.
  * Synchronized to redirect unauthorized hearts to the login pathway.
+ * Hardened to protect the high-fidelity Identity Hub.
  */
 
 const protectedRoutes = [
