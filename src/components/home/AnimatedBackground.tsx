@@ -5,25 +5,16 @@ import Sparkles from "./Sparkles";
 
 /**
  * @fileOverview High-Fidelity Animated Background Registry.
- * Synchronized with the Sacred Bloom Protocol to ensure the background is 
- * exclusively composed of high-vibration flower frequencies.
- * This component has been stabilized to remove redundant layers and scenes.
+ * Synchronized to provide a cinematic floral experience for the Prosperity Revolution.
+ * Implements the Sacred Bloom Protocol with floral frequencies and stable particle layers.
  */
 export default function AnimatedBackground() {
   return (
-    <div
-      className="
-        fixed
-        inset-0
-        z-0
-        overflow-hidden
-        pointer-events-none
-      "
-    >
-      {/* Sacred Bloom Layer: The primary visual frequency using rotating floral imagery */}
+    <div className="fixed inset-0 -z-10 overflow-hidden bg-white">
+      {/* Primary Visual Frequency: Rotating Global Flowers */}
       <HeroImage />
-
-      {/* Particle Layer for depth and mission atmosphere */}
+      
+      {/* Secondary Atmosphere: Hydration-Safe Sparkles */}
       <Sparkles />
     </div>
   );

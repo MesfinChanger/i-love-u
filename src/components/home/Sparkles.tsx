@@ -1,38 +1,41 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 /**
- * @fileOverview Hydration-Safe Sparkles Component.
- * Orchestrates a delicate layer of shimmering particles to represent high-vibration energy.
- * Uses useEffect to pre-calculate random positions, sizes, and delays on the client only.
- * Resolves Next.js hydration mismatches by ensuring server and client HTML match initially.
+ * @fileOverview High-Fidelity Sparkles Component.
+ * Implements the Hydration Stabilization Protocol to avoid Math.random() mismatches.
+ * Pre-calculates positions on the client side only to ensure build integrity.
  */
 export default function Sparkles() {
-  const [dots, setDots] = useState<{ left: string; top: string; size: string; delay: string }[]>([]);
+  const [sparkles, setSparkles] = useState<any[]>([]);
 
   useEffect(() => {
-    // Generate particle parameters only on the client after hydration
-    const newDots = Array.from({ length: 60 }).map(() => ({
+    // Pre-calculate positions on the client to avoid hydration mismatch
+    const count = 40;
+    const items = Array.from({ length: count }).map((_, i) => ({
+      id: i,
       left: `${Math.random() * 100}%`,
       top: `${Math.random() * 100}%`,
-      size: `${Math.random() * 12 + 8}px`,
+      size: `${Math.random() * 10 + 5}px`,
       delay: `${Math.random() * 5}s`,
+      duration: `${Math.random() * 4 + 3}s`,
     }));
-    setDots(newDots);
+    setSparkles(items);
   }, []);
 
   return (
-    <div className="absolute inset-0 z-10 pointer-events-none overflow-hidden">
-      {dots.map((dot, i) => (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+      {sparkles.map((s) => (
         <div
-          key={i}
-          className="absolute text-yellow-200 animate-pulse opacity-40"
+          key={s.id}
+          className="absolute text-primary/20 animate-pulse"
           style={{
-            left: dot.left,
-            top: dot.top,
-            fontSize: dot.size,
-            animationDelay: dot.delay,
+            left: s.left,
+            top: s.top,
+            fontSize: s.size,
+            animationDelay: s.delay,
+            animationDuration: s.duration,
           }}
         >
           ✨
