@@ -72,7 +72,11 @@ export default function GuestAccessGuard({
          * Dynamic Permission Protocol.
          * Access is granted based on the permissions registry stored in the Firestore session record.
          */
-        if (!expired && guest.permissions?.[feature] === true) {
+        if (
+          !expired &&
+          guest.permissions &&
+          guest.permissions[feature] === true
+        ) {
           setAllowed(true);
         } else {
           // Redirect if mission expired or feature is restricted to permanent hearts
