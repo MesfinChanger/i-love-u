@@ -10,14 +10,15 @@ import {
   Ghost,
   ShieldCheck,
   Zap,
-  ArrowRight
+  ArrowRight,
+  TrendingDown
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import HeroImage from "@/components/HeroImage";
 
 /**
  * @fileOverview Refined Welcome Gateway.
- * Synchronized with the Clean Build Protocol to resolve text overlap and refine hierarchy.
+ * Centralizes the "I LOVE U" mission signature with minimized typography and centered hierarchy.
  */
 export default function WelcomePage() {
   return (
@@ -34,15 +35,15 @@ export default function WelcomePage() {
             </div>
 
             <div className="space-y-4">
-              <h1 className="text-3xl md:text-5xl font-black tracking-tighter uppercase leading-tight text-slate-900">
-                I LOVE <br /><span className="gradient-text">U.</span>
+              <h1 className="text-4xl md:text-6xl font-black tracking-tighter uppercase leading-none text-slate-900">
+                I LOVE <span className="gradient-text">U.</span>
               </h1>
-              <p className="text-sm md:text-base font-bold uppercase tracking-[0.4em] text-slate-600/60">
+              <p className="text-[10px] md:text-xs font-black uppercase tracking-[0.5em] text-slate-500">
                 The Prosperity Revolution
               </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-6">
               <Button asChild className="h-16 px-10 rounded-2xl gradient-bg font-black uppercase text-[10px] tracking-widest shadow-xl shadow-primary/30 active:scale-95 transition-all group">
                 <Link href="/signup">
                   <UserPlus className="w-4 h-4 mr-2" />
@@ -64,7 +65,7 @@ export default function WelcomePage() {
                       <Ghost className="w-5 h-5 text-primary" />
                       <span className="text-[10px] font-black uppercase tracking-[0.4em] text-primary">Guest Explorer</span>
                    </div>
-                   <p className="text-xs text-muted-foreground font-medium italic">
+                   <p className="text-[10px] text-muted-foreground font-medium italic">
                      "Explore the vibration for 30 minutes without an identity."
                    </p>
                 </div>
@@ -89,7 +90,9 @@ export default function WelcomePage() {
           <div className="grid lg:grid-cols-2 gap-20 items-center">
             <div className="space-y-10">
               <div className="space-y-4">
-                <Badge label="Mandatory Protocol" />
+                <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-primary/10 text-primary border border-primary/20 font-black uppercase text-[10px] tracking-[0.2em]">
+                  Mandatory Protocol
+                </div>
                 <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tighter leading-tight">
                   Respect & Love <br />Is <span className="text-primary">Mandatory.</span>
                 </h2>
@@ -143,14 +146,6 @@ export default function WelcomePage() {
           Eliminating World Poverty Together ❤️ Reaching Every Heart
         </p>
       </footer>
-    </div>
-  );
-}
-
-function Badge({ label }: { label: string }) {
-  return (
-    <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-primary/10 text-primary border border-primary/20 font-black uppercase text-[10px] tracking-[0.2em]">
-      {label}
     </div>
   );
 }
