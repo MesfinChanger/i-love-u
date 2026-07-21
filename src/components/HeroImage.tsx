@@ -34,7 +34,7 @@ export default function HeroImage() {
   }, []);
 
   if (!mounted) return (
-    <div className="absolute inset-0 w-full h-full bg-slate-100 animate-pulse rounded-[40px]" />
+    <div className="absolute inset-0 w-full h-full bg-slate-100 animate-pulse" />
   );
 
   const currentImage = PlaceHolderImages.find(img => img.id === heroFlowerIds[index]);

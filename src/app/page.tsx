@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -18,7 +19,7 @@ import HeroImage from "@/components/HeroImage";
 
 /**
  * @fileOverview Refined Welcome Gateway.
- * Centralizes the "I LOVE U" mission signature with floating heart and sparkles to the side.
+ * Centralizes the "I LOVE U" mission signature with floral background frequencies.
  */
 export default function WelcomePage() {
   return (
@@ -29,7 +30,7 @@ export default function WelcomePage() {
         
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-center px-6 text-center">
           <div className="max-w-4xl space-y-8 animate-in fade-in zoom-in-95 duration-1000">
-            {/* Sacred Heart Icon Container */}
+            {/* Sacred Heart Icon Container (Above branding) */}
             <div className="mx-auto w-20 h-20 bg-white/10 backdrop-blur-md rounded-[2rem] flex items-center justify-center shadow-2xl border border-white/20">
                <Heart className="w-10 h-10 text-primary fill-primary animate-heartbeat" />
             </div>

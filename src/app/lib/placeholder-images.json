@@ -2,60 +2,6 @@
 {
   "placeholderImages": [
     {
-      "id": "place-tropical",
-      "description": "Crystal clear tropical beach in the Maldives",
-      "imageUrl": "https://picsum.photos/seed/maldives/1200/800",
-      "imageHint": "tropical beach"
-    },
-    {
-      "id": "place-europe",
-      "description": "Sunset over Santorini Greece white buildings",
-      "imageUrl": "https://picsum.photos/seed/santorini/1200/800",
-      "imageHint": "santorini greece"
-    },
-    {
-      "id": "place-asia",
-      "description": "Lush green rice terraces in Bali",
-      "imageUrl": "https://picsum.photos/seed/bali/1200/800",
-      "imageHint": "bali landscape"
-    },
-    {
-      "id": "place-modern",
-      "description": "Eiffel Tower in Paris at twilight",
-      "imageUrl": "https://picsum.photos/seed/paris/1200/800",
-      "imageHint": "paris city"
-    },
-    {
-      "id": "place-safari",
-      "description": "Golden savanna landscape in Africa",
-      "imageUrl": "https://picsum.photos/seed/savanna/1200/800",
-      "imageHint": "african savanna"
-    },
-    {
-      "id": "place-landscape",
-      "description": "Snow-capped Swiss Alps overlook",
-      "imageUrl": "https://picsum.photos/seed/alps/1200/800",
-      "imageHint": "mountain landscape"
-    },
-    {
-      "id": "place-cliff",
-      "description": "Dramatic ocean cliffs in Amalfi Coast",
-      "imageUrl": "https://picsum.photos/seed/amalfi/800/800",
-      "imageHint": "ocean cliff"
-    },
-    {
-      "id": "place-city",
-      "description": "Vibrant neon streets of Tokyo",
-      "imageUrl": "https://picsum.photos/seed/tokyo/800/800",
-      "imageHint": "tokyo city"
-    },
-    {
-      "id": "place-resort",
-      "description": "Luxury overwater bungalow resort",
-      "imageUrl": "https://picsum.photos/seed/resort/800/800",
-      "imageHint": "beach resort"
-    },
-    {
       "id": "flower-roses",
       "description": "A bouquet of vibrant red roses",
       "imageUrl": "https://picsum.photos/seed/roses/1200/800",
