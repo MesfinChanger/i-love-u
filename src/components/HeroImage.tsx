@@ -8,7 +8,7 @@ import { PlaceHolderImages } from "@/lib/placeholder-images";
 /**
  * @fileOverview Cinematic Dynamic Hero Component featuring Attractive Places.
  * Features a rotating global story of iconic locations across the world.
- * Implements the "Alive" UI layer with floating hearts and sparkles.
+ * Implements the "Alive" UI layer.
  */
 const heroPlaceIds = [
   "place-tropical",
@@ -64,11 +64,6 @@ export default function HeroImage() {
 
       {/* Cinematic Overlays */}
       <div className="absolute inset-0 bg-gradient-to-r from-white/90 via-white/30 to-transparent pointer-events-none" />
-
-      {/* "Alive" Decorative UI Elements */}
-      <div className="absolute top-10 left-10 animate-bounce text-pink-500 text-3xl z-20" aria-hidden="true">❤️</div>
-      <div className="absolute bottom-20 right-10 animate-pulse text-yellow-400 text-4xl z-20" aria-hidden="true">✨</div>
-      <div className="absolute top-32 right-20 animate-ping text-pink-400 z-20" aria-hidden="true">💖</div>
     </div>
   );
 }

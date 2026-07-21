@@ -18,7 +18,7 @@ import HeroImage from "@/components/HeroImage";
 
 /**
  * @fileOverview Refined Welcome Gateway.
- * Centralizes the "I LOVE U" mission signature with minimized typography and centered hierarchy.
+ * Centralizes the "I LOVE U" mission signature with floating heart and sparkles to the side.
  */
 export default function WelcomePage() {
   return (
@@ -29,14 +29,19 @@ export default function WelcomePage() {
         
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-center px-6 text-center">
           <div className="max-w-4xl space-y-8 animate-in fade-in zoom-in-95 duration-1000">
-            {/* Sacred Heart Icon */}
+            {/* Sacred Heart Icon Container */}
             <div className="mx-auto w-20 h-20 bg-white/10 backdrop-blur-md rounded-[2rem] flex items-center justify-center shadow-2xl border border-white/20">
                <Heart className="w-10 h-10 text-primary fill-primary animate-heartbeat" />
             </div>
 
             <div className="space-y-4">
-              <h1 className="text-4xl md:text-6xl font-black tracking-tighter uppercase leading-none text-slate-900">
-                I LOVE <span className="gradient-text">U.</span>
+              <h1 className="text-4xl md:text-6xl font-black tracking-tighter uppercase leading-none text-slate-900 flex items-center justify-center gap-3">
+                <span className="animate-float opacity-80 text-2xl md:text-4xl">❤️</span>
+                <span>I LOVE <span className="gradient-text">U.</span></span>
+                <div className="flex flex-col text-sm md:text-xl animate-pulse">
+                  <span>✨</span>
+                  <span className="ml-2">💖</span>
+                </div>
               </h1>
               <p className="text-[10px] md:text-xs font-black uppercase tracking-[0.5em] text-slate-500">
                 The Prosperity Revolution
