@@ -1,0 +1,122 @@
+[1mdiff --git a/storage.rules b/storage.rules[m
+[1mindex 22b2397..4a2d9b4 100644[m
+[1m--- a/storage.rules[m
+[1m+++ b/storage.rules[m
+[36m@@ -1,16 +1,108 @@[m
+ rules_version = '2';[m
+ [m
+ service firebase.storage {[m
+[32m+[m
+   match /b/{bucket}/o {[m
+[31m-    match /{allPaths=**} {[m
+[31m-      // Testing Protocol: Full permissive access for initial verification.[m
+[31m-      // Final production rule: allow read; allow write: if request.auth != null;[m
+[31m-      allow read, write: if true;[m
+[32m+[m
+[32m+[m
+[32m+[m[32m    /*[m
+[32m+[m[32m    ==========================[m
+[32m+[m[32m    PUBLIC HERO / PLATFORM IMAGES[m
+[32m+[m[32m    ==========================[m
+[32m+[m[32m    */[m
+[32m+[m
+[32m+[m[32m    match /hero-images/{fileName} {[m
+[32m+[m
+[32m+[m[32m      allow read:[m
+[32m+[m[32m        if true;[m
+[32m+[m
+[32m+[m[32m      allow write:[m
+[32m+[m[32m        if request.auth != null;[m
+[32m+[m
+     }[m
+ [m
+[31m-    match /hero-images/{allPaths=**} {[m
+[31m-      allow read: if true;[m
+[31m-      allow write: if request.auth != null;[m
+[32m+[m
+[32m+[m
+[32m+[m[32m    /*[m
+[32m+[m[32m    ==========================[m
+[32m+[m[32m    USER PROFILE IMAGES[m
+[32m+[m[32m    ==========================[m
+[32m+[m[32m    */[m
+[32m+[m
+[32m+[m[32m    match /profiles/{userId}/{fileName} {[m
+[32m+[m
+[32m+[m[32m      allow read:[m
+[32m+[m[32m        if true;[m
+[32m+[m
+[32m+[m
+[32m+[m[32m      allow write:[m
+[32m+[m[32m        if request.auth != null[m
+[32m+[m[32m        &&[m
+[32m+[m[32m        request.auth.uid == userId;[m
+[32m+[m
+     }[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m[32m    /*[m
+[32m+[m[32m    ==========================[m
+[32m+[m[32m    PRIVATE CHAT MEDIA[m
+[32m+[m[32m    ==========================[m
+[32m+[m[32m    */[m
+[32m+[m
+[32m+[m[32m    match /chat/{conversationId}/{fileName} {[m
+[32m+[m
+[32m+[m
+[32m+[m[32m      allow read:[m
+[32m+[m[32m        if request.auth != null;[m
+[32m+[m
+[32m+[m
+[32m+[m[32m      allow write:[m
+[32m+[m[32m        if request.auth != null;[m
+[32m+[m
+[32m+[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m[32m    /*[m
+[32m+[m[32m    ==========================[m
+[32m+[m[32m    COMMUNITY MEDIA[m
+[32m+[m[32m    ==========================[m
+[32m+[m[32m    */[m
+[32m+[m
+[32m+[m[32m    match /community/{communityId}/{fileName} {[m
+[32m+[m
+[32m+[m
+[32m+[m[32m      allow read:[m
+[32m+[m[32m        if true;[m
+[32m+[m
+[32m+[m
+[32m+[m[32m      allow write:[m
+[32m+[m[32m        if request.auth != null;[m
+[32m+[m
+[32m+[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m[32m    /*[m
+[32m+[m[32m    ==========================[m
+[32m+[m[32m    DEFAULT BLOCK[m
+[32m+[m[32m    ==========================[m
+[32m+[m[32m    */[m
+[32m+[m
+[32m+[m[32m    match /{allPaths=**} {[m
+[32m+[m
+[32m+[m[32m      allow read, write:[m
+[32m+[m[32m        if false;[m
+[32m+[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m
+   }[m
+[31m-}[m
+\ No newline at end of file[m
+[32m+[m
+[32m+[m[32m}[m
