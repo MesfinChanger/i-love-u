@@ -6,10 +6,7 @@ service firebase.storage {
 
 
     /*
-    PUBLIC IMAGES
-    Example:
-    - hero images
-    - approved public content
+    PUBLIC HERO CONTENT
     */
 
     match /hero-images/{fileName} {
@@ -26,7 +23,7 @@ service firebase.storage {
 
 
     /*
-    USER PROFILE MEDIA
+    USER MEDIA
     */
 
     match /users/{userId}/{allPaths=**} {
@@ -43,20 +40,21 @@ service firebase.storage {
 
 
     /*
-    CHAT ATTACHMENTS
-    PRIVATE MEDIA
+    PRIVATE CHAT MEDIA
     */
 
-    match /conversations/{conversationId}/{allPaths=**} {
+    match /conversations/{conversationId}/{userId}/{allPaths=**} {
 
       allow read, write:
-        if request.auth != null;
+        if request.auth != null
+        &&
+        request.auth.uid == userId;
     }
 
 
 
     /*
-    DEFAULT DENY
+    EVERYTHING ELSE DENIED
     */
 
     match /{allPaths=**} {
