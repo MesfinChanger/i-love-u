@@ -51,13 +51,13 @@ export function ClientProviders({
       <LanguageProvider>
         <IdleLogoutProvider>
           {children}
-          <IdentityStatus />
+          <Toaster />
           <SparkAssistant />
-          <AuthGateDialog />
-          <FeedbackBox />
           <RegistrationReminder />
           <MissionNudge />
-          <Toaster />
+          <FeedbackBox />
+          <AuthGateDialog />
+          <IdentityStatus />
         </IdleLogoutProvider>
       </LanguageProvider>
     </FirebaseClientProvider>
