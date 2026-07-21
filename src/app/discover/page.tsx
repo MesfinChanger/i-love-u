@@ -13,7 +13,7 @@ import {
   Clock
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { Card } from '@/components/ui/card';
+import { Card } from '@/components/ui/Card';
 import { BottomNav } from '@/components/BottomNav';
 import { useUser, db, useDoc, useCollection } from '@/firebase';
 import { doc, setDoc, collection, serverTimestamp, query, where, onSnapshot } from 'firebase/firestore';

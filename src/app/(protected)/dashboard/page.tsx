@@ -2,7 +2,7 @@
 
 import { Header } from "@/components/Header";
 import { BottomNav } from "@/components/BottomNav";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { useUser, useFirestore, useDoc } from "@/firebase";
 import { doc } from "firebase/firestore";
 import { useMemoFirebase } from "@/firebase/use-memo-firebase";
