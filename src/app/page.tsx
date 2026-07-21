@@ -19,6 +19,7 @@ import HeroImage from "@/components/HeroImage";
 /**
  * @fileOverview Refined Welcome Gateway.
  * Restores the central heart icon while maintaining a balanced typography hierarchy.
+ * Integrated Guest Explorer entrance card.
  */
 export default function WelcomePage() {
   return (
@@ -35,7 +36,7 @@ export default function WelcomePage() {
             </div>
 
             <div className="space-y-4">
-              <h1 className="text-5xl md:text-7xl font-black tracking-tighter uppercase leading-none text-slate-900">
+              <h1 className="text-4xl md:text-6xl font-black tracking-tighter uppercase leading-none text-slate-900">
                 I LOVE <br /><span className="gradient-text">U.</span>
               </h1>
               <p className="text-lg md:text-xl font-bold uppercase tracking-[0.3em] text-slate-600/60">
@@ -58,10 +59,17 @@ export default function WelcomePage() {
               </Button>
             </div>
             
-            <div className="pt-6">
-              <Link href="/login/guest" className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 hover:text-primary transition-colors flex items-center justify-center gap-2">
-                <Ghost className="w-3 h-3" />
-                Explore as Guest
+            <div className="pt-8 max-w-sm mx-auto">
+              <Link href="/login/guest" className="group block">
+                <div className="bg-white/40 backdrop-blur-xl border border-primary/10 rounded-[2rem] p-6 hover:bg-white/60 transition-all shadow-lg hover:shadow-2xl active:scale-95 text-center">
+                   <div className="flex items-center justify-center gap-3 mb-2">
+                      <Ghost className="w-5 h-5 text-primary" />
+                      <span className="text-[10px] font-black uppercase tracking-[0.4em] text-primary">Guest Explorer</span>
+                   </div>
+                   <p className="text-xs text-muted-foreground font-medium italic">
+                     "Explore the vibration for 30 minutes without an identity."
+                   </p>
+                </div>
               </Link>
             </div>
           </div>

@@ -10,6 +10,7 @@ import { LanguageProvider } from './LanguageProvider';
 import { FeedbackBox } from '@/components/FeedbackBox';
 import { IdleLogoutProvider } from './IdleLogoutProvider';
 import { AuthGateDialog } from '@/components/AuthGateDialog';
+import GuestNotice from '@/components/GuestNotice';
 
 /**
  * @fileOverview Universal Client-Side Provider Registry.
@@ -57,6 +58,7 @@ export function ClientProviders({
           <MissionNudge />
           <FeedbackBox />
           <AuthGateDialog />
+          <GuestNotice />
           <IdentityStatus />
         </IdleLogoutProvider>
       </LanguageProvider>
