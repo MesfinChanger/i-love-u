@@ -54,6 +54,42 @@
       "description": "Luxury overwater bungalow resort",
       "imageUrl": "https://picsum.photos/seed/resort/800/800",
       "imageHint": "beach resort"
+    },
+    {
+      "id": "flower-roses",
+      "description": "A bouquet of vibrant red roses",
+      "imageUrl": "https://picsum.photos/seed/roses/1200/800",
+      "imageHint": "red roses"
+    },
+    {
+      "id": "flower-lilies",
+      "description": "Elegant white lilies in bloom",
+      "imageUrl": "https://picsum.photos/seed/lilies/1200/800",
+      "imageHint": "white lilies"
+    },
+    {
+      "id": "flower-sunflowers",
+      "description": "Bright yellow sunflowers in a field",
+      "imageUrl": "https://picsum.photos/seed/sunflowers/1200/800",
+      "imageHint": "sunflowers"
+    },
+    {
+      "id": "flower-tulips",
+      "description": "Colorful tulips stretching across a garden",
+      "imageUrl": "https://picsum.photos/seed/tulips/1200/800",
+      "imageHint": "colorful tulips"
+    },
+    {
+      "id": "flower-orchids",
+      "description": "Exotic purple orchids in soft light",
+      "imageUrl": "https://picsum.photos/seed/orchids/1200/800",
+      "imageHint": "purple orchids"
+    },
+    {
+      "id": "flower-lotus",
+      "description": "Sacred lotus flower on a pond",
+      "imageUrl": "https://picsum.photos/seed/lotus/1200/800",
+      "imageHint": "lotus flower"
     }
   ]
 }

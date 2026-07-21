@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from "react";
@@ -6,17 +7,17 @@ import Image from "next/image";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 
 /**
- * @fileOverview Cinematic Dynamic Hero Component featuring Attractive Places.
- * Features a rotating global story of iconic locations across the world.
+ * @fileOverview Cinematic Dynamic Hero Component featuring Floral Frequencies.
+ * Features a rotating global story of vibrant flowers to represent the beauty of love.
  * Implements the "Alive" UI layer.
  */
-const heroPlaceIds = [
-  "place-tropical",
-  "place-europe",
-  "place-asia",
-  "place-modern",
-  "place-safari",
-  "place-landscape",
+const heroFlowerIds = [
+  "flower-roses",
+  "flower-lilies",
+  "flower-sunflowers",
+  "flower-tulips",
+  "flower-orchids",
+  "flower-lotus",
 ];
 
 export default function HeroImage() {
@@ -26,7 +27,7 @@ export default function HeroImage() {
   useEffect(() => {
     setMounted(true);
     const timer = setInterval(() => {
-      setIndex((prev) => (prev + 1) % heroPlaceIds.length);
+      setIndex((prev) => (prev + 1) % heroFlowerIds.length);
     }, 6000);
 
     return () => clearInterval(timer);
@@ -36,13 +37,13 @@ export default function HeroImage() {
     <div className="absolute inset-0 w-full h-full bg-slate-100 animate-pulse rounded-[40px]" />
   );
 
-  const currentImage = PlaceHolderImages.find(img => img.id === heroPlaceIds[index]);
+  const currentImage = PlaceHolderImages.find(img => img.id === heroFlowerIds[index]);
 
   return (
     <div className="absolute inset-0 w-full h-full">
       <AnimatePresence mode="wait">
         <motion.div
-          key={heroPlaceIds[index]}
+          key={heroFlowerIds[index]}
           initial={{ opacity: 0, scale: 1.1 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
