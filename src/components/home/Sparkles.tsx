@@ -3,53 +3,39 @@
 import { useEffect, useState } from 'react';
 
 /**
- * @fileOverview High-Fidelity Particle Layer.
- * Hardened with the Hydration Stabilization Protocol.
- * Ensures random visual attributes are only generated on the client to prevent SSR mismatches.
+ * @fileOverview Hydration-Safe Sparkles Component.
+ * Pre-calculates random positions on the client to avoid server/client mismatches (Hydration Error Fix).
  */
-
-interface Sparkle {
-  left: string;
-  top: string;
-  fontSize: string;
-  animationDelay: string;
-}
-
 export default function Sparkles() {
-  const [sparkles, setSparkles] = useState<Sparkle[]>([]);
-  const [mounted, setMounted] = useState(false);
+  const [items, setItems] = useState<{ left: string; top: string; size: string; delay: string }[]>([]);
 
   useEffect(() => {
-    setMounted(true);
-    // Prosperity Protocol: Generate stable random positions once on the client
-    const generated = Array.from({ length: 60 }).map(() => ({
+    // Generate sparkle parameters only on the client after hydration
+    const newItems = Array.from({ length: 40 }).map(() => ({
       left: `${Math.random() * 100}%`,
       top: `${Math.random() * 100}%`,
-      fontSize: `${5 + Math.random() * 12}px`,
-      animationDelay: `${Math.random() * 5}s`,
+      size: `${Math.random() * 15 + 5}px`,
+      delay: `${Math.random() * 5}s`,
     }));
-    setSparkles(generated);
+    setItems(newItems);
   }, []);
 
-  // Registry Guard: Defer rendering until hydrated to prevent mismatch
-  if (!mounted) return null;
-
   return (
-    <>
-      {sparkles.map((s, i) => (
+    <div className="absolute inset-0 z-10 pointer-events-none">
+      {items.map((style, i) => (
         <div
           key={i}
-          className="absolute text-yellow-200 animate-pulse pointer-events-none"
+          className="absolute text-yellow-200 animate-pulse"
           style={{
-            left: s.left,
-            top: s.top,
-            fontSize: s.fontSize,
-            animationDelay: s.animationDelay
+            left: style.left,
+            top: style.top,
+            fontSize: style.size,
+            animationDelay: style.delay,
           }}
         >
           ✨
         </div>
       ))}
-    </>
+    </div>
   );
 }

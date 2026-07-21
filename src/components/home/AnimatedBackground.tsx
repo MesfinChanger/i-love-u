@@ -1,7 +1,6 @@
 "use client";
 
 import HeroImage from "./HeroImage";
-import FloatingFlowers from "./FloatingFlowers";
 import FloatingHearts from "./FloatingHearts";
 import Sparkles from "./Sparkles";
 
@@ -9,6 +8,7 @@ import Sparkles from "./Sparkles";
  * @fileOverview High-Fidelity Animated Background Registry.
  * Synchronized with the Sacred Bloom Protocol to ensure the background is 
  * exclusively composed of high-vibration flower frequencies.
+ * This component has been stabilized to remove redundant layers and scenes.
  */
 export default function AnimatedBackground() {
   return (
@@ -25,7 +25,6 @@ export default function AnimatedBackground() {
       <HeroImage />
 
       {/* Particle & Decorative Layers for depth and mission atmosphere */}
-      <FloatingFlowers />
       <FloatingHearts />
       <Sparkles />
     </div>

@@ -1,30 +1,41 @@
 "use client";
 
-const hearts = [
-  {left:"8%", top:"25%", size:"28px", delay:"0s"},
-  {left:"80%", top:"20%", size:"36px", delay:"2s"},
-  {left:"35%", top:"75%", size:"22px", delay:"4s"},
-  {left:"65%", top:"55%", size:"32px", delay:"1s"},
-  {left:"90%", top:"80%", size:"25px", delay:"3s"},
-];
+import { useEffect, useState } from 'react';
+import { Heart } from 'lucide-react';
 
-export default function FloatingHearts(){
+/**
+ * @fileOverview Hydration-Safe Floating Hearts Component.
+ * Orchestrates a gentle ascent of heart icons to represent the platform's vibration.
+ */
+export default function FloatingHearts() {
+  const [hearts, setHearts] = useState<{ left: string; size: number; duration: number; delay: number }[]>([]);
+
+  useEffect(() => {
+    // Generate heart parameters only on the client after hydration
+    const newHearts = Array.from({ length: 15 }).map(() => ({
+      left: `${Math.random() * 100}%`,
+      size: Math.random() * 20 + 10,
+      duration: Math.random() * 10 + 10,
+      delay: Math.random() * 10,
+    }));
+    setHearts(newHearts);
+  }, []);
+
   return (
-    <>
-      {hearts.map((heart,index)=>(
+    <div className="absolute inset-0 z-10 pointer-events-none overflow-hidden">
+      {hearts.map((style, i) => (
         <div
-          key={index}
-          className="absolute text-pink-400 opacity-40 animate-heartbeat pointer-events-none"
+          key={i}
+          className="absolute bottom-[-50px] text-primary/20 animate-float"
           style={{
-            left:heart.left,
-            top:heart.top,
-            fontSize:heart.size,
-            animationDelay:heart.delay
+            left: style.left,
+            animationDuration: `${style.duration}s`,
+            animationDelay: `${style.delay}s`,
           }}
         >
-          ❤️
+          <Heart size={style.size} fill="currentColor" />
         </div>
       ))}
-    </>
+    </div>
   );
 }
