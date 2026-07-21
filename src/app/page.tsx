@@ -3,19 +3,24 @@
 import AnimatedBackground from "@/components/home/AnimatedBackground";
 import {
   Heart,
-  Sparkles,
+  Sparkles as SparklesIcon,
   Users,
   Lightbulb,
   Globe,
   LogIn,
-  UserPlus
+  UserPlus,
+  Ghost
 } from "lucide-react";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
+/**
+ * @fileOverview High-Fidelity Welcome Gateway.
+ * Features the Sacred Bloom Protocol and perfectly positioned mission branding.
+ */
 export default function HomePage() {
   return (
-<main className="relative min-h-screen overflow-hidden">   
-
+    <main className="relative min-h-screen overflow-hidden bg-white">   
       <AnimatedBackground />
 
       <section className="
@@ -28,212 +33,178 @@ export default function HomePage() {
         px-6
         text-center
       ">
-
-        {/* Logo */}
+        {/* Sacred Heart Centered Above Branding */}
         <div className="
           w-24 h-24
-          rounded-3xl
-          bg-white/80
-          backdrop-blur
-          shadow-xl
+          rounded-[2.5rem]
+          bg-white/40
+          backdrop-blur-md
+          shadow-2xl
           flex
           items-center
           justify-center
-          mb-6
+          mb-8
           animate-heartbeat
+          ring-8 ring-white/20
         ">
           <Heart className="
-            w-14 h-14
-            text-pink-500
-            fill-pink-500
+            w-12 h-12
+            text-primary
+            fill-primary
           "/>
         </div>
 
+        {/* High-Fidelity Mission Signature */}
+        <div className="space-y-2 mb-12">
+          <h1 className="
+            text-5xl
+            md:text-7xl
+            font-black
+            tracking-tighter
+            uppercase
+            flex items-center justify-center gap-3
+            text-slate-900
+          ">
+            ❤️ I LOVE U <span className="inline-flex items-center gap-1.5 text-4xl md:text-5xl">✨💖</span>
+          </h1>
+          <p className="
+            text-xs
+            md:text-sm
+            font-black
+            tracking-[0.5em]
+            uppercase
+            text-primary/60
+          ">
+            The Prosperity Revolution
+          </p>
+        </div>
 
-        {/* Title */}
-        <h1 className="
-          text-5xl
-          md:text-7xl
-          font-black
-          bg-gradient-to-r
-          from-pink-600
-          via-rose-500
-          to-blue-600
-          bg-clip-text
-          text-transparent
-        ">
-          ❤️ I LOVE U
-        </h1>
-
-
-        <p className="
-          mt-3
-          text-sm
-          md:text-lg
-          font-black
-          tracking-[0.35em]
-          uppercase
-          text-pink-600
-        ">
-          The Prosperity Revolution
-        </p>
-
-
-        {/* Message */}
+        {/* Message Registry */}
         <div className="
-          mt-8
           max-w-2xl
-          bg-white/70
+          bg-white/40
           backdrop-blur-xl
-          rounded-3xl
-          shadow-xl
-          p-8
+          rounded-[3rem]
+          shadow-2xl
+          p-10
           border
-          border-white
+          border-white/50
+          mb-10
         ">
-
           <h2 className="
             text-3xl
             font-black
             text-slate-900
+            uppercase
+            tracking-tight
           ">
             Identify Your Heart
           </h2>
-
-
           <p className="
             mt-4
             text-slate-600
             text-lg
             italic
+            font-medium
+            leading-relaxed
           ">
             "Every spark needs a signature."
             <br/>
-            Connect, share ideas, and build circles worldwide.
+            Connect, share moments, and build prosperity worldwide.
           </p>
-
         </div>
 
-
-        {/* Buttons */}
+        {/* Strategic Action Pathways */}
         <div className="
-          mt-8
           flex
           flex-col
           md:flex-row
           gap-4
+          w-full
+          max-w-md
+          justify-center
         ">
-
-          <Link
-            href="/login"
+          <Button
+            asChild
             className="
-              px-8
-              py-4
+              h-16
+              px-10
               rounded-2xl
-              bg-white
-              text-slate-900
+              gradient-bg
               font-black
-              shadow-lg
-              hover:scale-105
-              transition
-              flex
-              items-center
-              gap-2
+              uppercase
+              text-[11px]
+              tracking-widest
+              shadow-xl
+              active:scale-95
+              transition-all
+              flex-1
             "
           >
-            <LogIn/>
-            Sign In
-          </Link>
+            <Link href="/signup">
+              <UserPlus className="w-4 h-4 mr-2" />
+              Join Mission
+            </Link>
+          </Button>
 
-
-          <Link
-            href="/signup"
+          <Button
+            asChild
+            variant="outline"
             className="
-              px-8
-              py-4
+              h-16
+              px-10
               rounded-2xl
-              bg-pink-500
-              text-white
+              bg-white/50
+              backdrop-blur-sm
+              border-2
               font-black
-              shadow-lg
-              hover:scale-105
-              transition
-              flex
-              items-center
-              gap-2
+              uppercase
+              text-[11px]
+              tracking-widest
+              hover:bg-white
+              transition-all
+              flex-1
             "
           >
-            <UserPlus/>
-            Join The Mission
-          </Link>
-
+            <Link href="/login">
+              <LogIn className="w-4 h-4 mr-2" />
+              Sign In
+            </Link>
+          </Button>
         </div>
 
-
-        {/* Mission cards */}
-        <div className="
-          mt-12
-          grid
-          grid-cols-2
-          md:grid-cols-4
-          gap-4
-          max-w-4xl
-        ">
-
-          <Card icon={<Users/>} title="Connect"/>
-          <Card icon={<Sparkles/>} title="Spark"/>
-          <Card icon={<Lightbulb/>} title="Ideas"/>
-          <Card icon={<Globe/>} title="Global"/>
-
+        {/* Guest Explorer Pathway */}
+        <div className="mt-8 w-full max-w-sm">
+           <Link href="/login/guest" className="group">
+             <div className="p-6 rounded-[2rem] bg-slate-900 text-white flex items-center justify-between hover:bg-slate-800 transition-all shadow-lg overflow-hidden relative">
+                <SparklesIcon className="absolute -right-2 -top-2 w-12 h-12 text-primary opacity-10 group-hover:rotate-12 transition-transform" />
+                <div className="flex items-center gap-4 text-left">
+                   <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
+                      <Ghost className="w-5 h-5 text-primary" />
+                   </div>
+                   <div>
+                      <h4 className="font-black uppercase text-[10px] tracking-widest leading-none">Guest Explorer</h4>
+                      <p className="text-[9px] text-white/50 font-medium italic mt-1.5">30-Minute Mystery Discovery</p>
+                   </div>
+                </div>
+                <div className="text-[8px] font-black uppercase tracking-widest bg-primary/20 text-primary px-3 py-1.5 rounded-lg border border-primary/20">Launch →</div>
+             </div>
+           </Link>
         </div>
 
-
+        {/* Respect Protocol Footer */}
         <p className="
-          mt-10
+          mt-12
           text-slate-500
-          font-bold
+          font-black
+          uppercase
+          text-[10px]
+          tracking-[0.4em]
+          opacity-50
         ">
           Respect & Love is Mandatory ❤️
         </p>
-
-
       </section>
-
     </main>
-  );
-}
-
-
-function Card({
-  icon,
-  title
-}:{
-  icon: React.ReactNode;
-  title:string;
-}){
-
-  return (
-    <div className="
-      bg-white/70
-      backdrop-blur-xl
-      rounded-3xl
-      p-5
-      shadow-lg
-      border
-      border-white
-    ">
-      <div className="text-pink-500 flex justify-center mb-2">
-        {icon}
-      </div>
-
-      <div className="
-        font-black
-        text-sm
-        text-slate-800
-      ">
-        {title}
-      </div>
-
-    </div>
   );
 }

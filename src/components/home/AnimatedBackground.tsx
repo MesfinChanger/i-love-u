@@ -1,7 +1,6 @@
 "use client";
 
 import HeroImage from "./HeroImage";
-import FloatingHearts from "./FloatingHearts";
 import Sparkles from "./Sparkles";
 
 /**
@@ -24,8 +23,7 @@ export default function AnimatedBackground() {
       {/* Sacred Bloom Layer: The primary visual frequency using rotating floral imagery */}
       <HeroImage />
 
-      {/* Particle & Decorative Layers for depth and mission atmosphere */}
-      <FloatingHearts />
+      {/* Particle Layer for depth and mission atmosphere */}
       <Sparkles />
     </div>
   );

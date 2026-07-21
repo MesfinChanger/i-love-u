@@ -4,33 +4,35 @@ import { useEffect, useState } from 'react';
 
 /**
  * @fileOverview Hydration-Safe Sparkles Component.
- * Pre-calculates random positions on the client to avoid server/client mismatches (Hydration Error Fix).
+ * Orchestrates a delicate layer of shimmering particles to represent high-vibration energy.
+ * Uses useEffect to pre-calculate random positions, sizes, and delays on the client only.
+ * Resolves Next.js hydration mismatches by ensuring server and client HTML match initially.
  */
 export default function Sparkles() {
-  const [items, setItems] = useState<{ left: string; top: string; size: string; delay: string }[]>([]);
+  const [dots, setDots] = useState<{ left: string; top: string; size: string; delay: string }[]>([]);
 
   useEffect(() => {
-    // Generate sparkle parameters only on the client after hydration
-    const newItems = Array.from({ length: 40 }).map(() => ({
+    // Generate particle parameters only on the client after hydration
+    const newDots = Array.from({ length: 60 }).map(() => ({
       left: `${Math.random() * 100}%`,
       top: `${Math.random() * 100}%`,
-      size: `${Math.random() * 15 + 5}px`,
+      size: `${Math.random() * 12 + 8}px`,
       delay: `${Math.random() * 5}s`,
     }));
-    setItems(newItems);
+    setDots(newDots);
   }, []);
 
   return (
-    <div className="absolute inset-0 z-10 pointer-events-none">
-      {items.map((style, i) => (
+    <div className="absolute inset-0 z-10 pointer-events-none overflow-hidden">
+      {dots.map((dot, i) => (
         <div
           key={i}
-          className="absolute text-yellow-200 animate-pulse"
+          className="absolute text-yellow-200 animate-pulse opacity-40"
           style={{
-            left: style.left,
-            top: style.top,
-            fontSize: style.size,
-            animationDelay: style.delay,
+            left: dot.left,
+            top: dot.top,
+            fontSize: dot.size,
+            animationDelay: dot.delay,
           }}
         >
           ✨
