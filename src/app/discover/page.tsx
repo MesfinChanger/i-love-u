@@ -6,59 +6,37 @@ import { Button } from '@/components/ui/button';
 import { 
   Heart, 
   Sparkles, 
-  MapPin, 
   Loader2, 
-  Send, 
   ChevronDown, 
   ChevronUp, 
   Wifi, 
-  WifiOff, 
-  ShieldAlert, 
-  Clock,
-  ShieldX
+  Clock
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { Card } from '@/components/ui/Card';
+import { Card } from '@/components/ui/card';
 import { BottomNav } from '@/components/BottomNav';
-import { useUser, db } from '@/firebase';
+import { useUser, db, useDoc, useCollection } from '@/firebase';
 import { doc, setDoc, collection, serverTimestamp, query, where, onSnapshot } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
-import { cn } from '@/lib/utils';
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-} from "@/components/ui/carousel";
-import {
-  Dialog,
-  DialogContent,
-  DialogTrigger
-} from "@/components/ui/dialog";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { useDoc, useCollection } from '@/firebase';
-import Link from 'next/link';
-import { useTranslation } from '@/components/providers/LanguageProvider';
 import { errorEmitter } from '@/firebase/error-emitter';
-import { FirestorePermissionError, type SecurityRuleContext } from '@/firebase/errors';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 /**
  * @fileOverview Discovery Hub featuring the Presence Grid Protocol.
- * Balanced heading sizes for professional interaction.
  */
 export default function DiscoverPage() {
   const { user } = useUser();
   const { toast } = useToast();
-  const { t } = useTranslation();
 
   const [mounted, setMounted] = useState(false);
   const [isLiveExpanded, setIsLiveExpanded] = useState(true);
   const [isOfflineExpanded, setIsOfflineExpanded] = useState(true);
-  const [presenceOverrides, setPresenceShimmer] = useState<Record<string, { isOnline: boolean, lastActive: string }>>({});
   const [blockedUids, setBlockedUids] = useState<Set<string>>(new Set());
 
   useEffect(() => {
@@ -82,15 +60,11 @@ export default function DiscoverPage() {
         if (data.userB === user.uid) uids.add(data.userA);
       });
       setBlockedUids(uids);
-    }, async (err) => {
+    }, async () => {
       errorEmitter.emit('permission-error', new FirestorePermissionError({ path: 'relationships', operation: 'list' }));
     });
     return () => unsub();
   }, [user?.uid]);
-
-  const isCommercial = myProfile?.accountType === 'business';
-  const hasAcceptedPolicy = myProfile?.policyAccepted === true;
-  const isInteractionRestricted = isCommercial && !hasAcceptedPolicy;
 
   const discoveryQuery = useMemoFirebase(() => {
     if (!db) return null;
@@ -106,20 +80,13 @@ export default function DiscoverPage() {
           const id = u.uid || u.id;
           return id !== user?.uid && !blockedUids.has(id);
         })
-        .map((u: any) => {
-          const id = u.uid || u.id;
-          return {
-            id, uid: id,
-            name: u.username || u.displayName || "Mystery Heart", 
-            age: u.age,
-            photoURL: u.photoURL || null,
-            videoURL: u.videoURL || null,
-            bio: u.bio || "Respect Mandatory. ❤️",
-            country: u.country || "Global",
-            isOnline: u.isOnline ?? false,
-            lastActive: u.lastActive || "Recently"
-          };
-        })
+        .map((u: any) => ({
+          id: u.uid || u.id,
+          name: u.username || u.displayName || "Mystery Heart", 
+          photoURL: u.photoURL || null,
+          country: u.country || "Global",
+          isOnline: u.isOnline ?? false,
+        }))
       : [];
 
     return {
@@ -130,7 +97,6 @@ export default function DiscoverPage() {
 
   const handleSparkAction = (targetId: string, type: 'friend' | 'date') => {
     if (!user) { window.dispatchEvent(new CustomEvent('open-auth-gate')); return; }
-    if (isInteractionRestricted) { toast({ variant: "destructive", title: "Access Restricted", description: "Agreement required. ❤️" }); return; }
     
     const participants = [user.uid, targetId].sort();
     const docRef = doc(db, 'connections', participants.join('_'));
@@ -162,9 +128,7 @@ export default function DiscoverPage() {
                     <Wifi className="w-4 h-4 text-green-600 animate-pulse" />
                     <h2 className="text-lg font-bold tracking-tight uppercase">Live Now</h2>
                  </div>
-                 <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                    {isLiveExpanded ? <ChevronUp /> : <ChevronDown />}
-                 </Button>
+                 {isLiveExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
               </div>
            </CollapsibleTrigger>
            <CollapsibleContent className="animate-in fade-in slide-in-from-top-2">
@@ -181,9 +145,7 @@ export default function DiscoverPage() {
                     <Clock className="w-4 h-4" />
                     <h2 className="text-lg font-bold tracking-tight uppercase">Resting Hearts</h2>
                  </div>
-                 <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                    {isOfflineExpanded ? <ChevronUp /> : <ChevronDown />}
-                 </Button>
+                 {isOfflineExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
               </div>
            </CollapsibleTrigger>
            <CollapsibleContent className="animate-in fade-in slide-in-from-top-2">

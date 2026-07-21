@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils"
 
 /**
  * @fileOverview High-Fidelity Layout Card.
- * Synchronized with ShadCN naming conventions for build stability.
+ * Standardized component for the I Love U mission modules.
  */
 
 const Card = React.forwardRef<

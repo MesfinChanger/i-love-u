@@ -7,9 +7,7 @@ import { useUser, useFirestore, useDoc } from "@/firebase";
 import { doc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { useMemoFirebase } from "@/firebase/use-memo-firebase";
 import { 
-  User, 
   ShieldCheck, 
-  Mail, 
   Globe, 
   IdCard, 
   Loader2, 
@@ -38,7 +36,7 @@ export default function IdentityPage() {
     return doc(db, "users", user.uid);
   }, [db, user?.uid]);
 
-  const { data: profile, loading } = useDoc(userRef);
+  const { data: profile } = useDoc(userRef);
 
   const [displayName, setDisplayName] = useState("");
   const [isSaving, setIsSaving] = useState(false);

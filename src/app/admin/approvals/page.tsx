@@ -23,14 +23,10 @@ import {
   Users, 
   Store, 
   Megaphone,
-  Gavel,
-  ShieldCheck,
-  Star,
-  UserCheck,
-  Edit3
+  Gavel
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/Card';
+import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
@@ -41,7 +37,6 @@ import { cn } from '@/lib/utils';
 /**
  * @fileOverview Sovereign Command Center.
  * Exclusively accessible to the one true owner. Manages all global permissions.
- * Enforces role === 'admin' string check for assigned users.
  */
 export default function AdminApprovalsPage() {
   const { user } = useUser();
@@ -53,7 +48,6 @@ export default function AdminApprovalsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isProcessing, setIsProcessing] = useState<string | null>(null);
 
-  // Sovereign Authority Listener (Real-time)
   useEffect(() => {
     if (!db) return;
     const unsub = onSnapshot(doc(db, 'siteSettings', 'sovereignty'), (snap) => {
@@ -66,7 +60,6 @@ export default function AdminApprovalsPage() {
   const isUserSovereign = user?.uid === sovereignId;
   const isVacant = sovereignId === null;
 
-  // Registry Queries
   const pendingSellersQuery = useMemoFirebase(() => {
     if (!db) return null;
     return query(collection(db, 'users'), where('sellerStatus', '==', 'pending'));
@@ -92,8 +85,7 @@ export default function AdminApprovalsPage() {
     return allUsers.filter((u: any) => 
       u.displayName?.toLowerCase().includes(q) || 
       u.email?.toLowerCase().includes(q) ||
-      u.uid === searchQuery ||
-      u.role?.toLowerCase().includes(q)
+      u.uid === searchQuery
     );
   }, [allUsers, searchQuery]);
 
@@ -105,14 +97,13 @@ export default function AdminApprovalsPage() {
         ownerId: user.uid,
         claimedAt: serverTimestamp(),
       });
-      // The Sovereign always holds the admin role string
       await updateDoc(doc(db, 'users', user.uid), {
         role: 'admin',
         isAdmin: true
       });
       toast({ title: "Authority Claimed", description: "You are now the Sovereign Guardian. ✨" });
     } catch (e) {
-      toast({ variant: "destructive", title: "Claim Denied", description: "The Sovereign Seat is already filled." });
+      toast({ variant: "destructive", title: "Claim Denied", description: "Sovereign Seat occupied." });
     } finally {
       setIsClaiming(false);
     }
@@ -123,16 +114,13 @@ export default function AdminApprovalsPage() {
     setIsProcessing(uid);
     try {
       const updates: any = { [roleKey]: val };
-      
-      // Enforce role: admin string logic
       if (roleKey === 'isAdmin') {
         updates.role = val ? 'admin' : 'member';
       }
-
       await updateDoc(doc(db, 'users', uid), updates);
-      toast({ title: "Permissions Updated", description: "The decree has been synchronized. ❤️" });
+      toast({ title: "Permissions Updated", description: "Decree synchronized. ❤️" });
     } catch (e) {
-      toast({ variant: "destructive", title: "Access Denied", description: "Only the Sovereign can assign roles." });
+      toast({ variant: "destructive", title: "Access Denied", description: "Guardian authority required." });
     } finally {
       setIsProcessing(null);
     }
@@ -141,20 +129,10 @@ export default function AdminApprovalsPage() {
   if (isVacant) {
     return (
       <div className="flex flex-col min-h-screen bg-slate-950 items-center justify-center p-6 text-center text-white">
-        <div className="w-32 h-32 bg-primary/20 rounded-[3rem] flex items-center justify-center mb-8 animate-pulse border-4 border-dashed border-primary/40 shadow-[0_0_50px_rgba(255,51,102,0.3)]">
-          <Gavel className="w-16 h-16 text-primary" />
-        </div>
-        <h1 className="text-5xl font-black tracking-tighter uppercase mb-4">Authority Vacant</h1>
-        <p className="text-xl text-white/60 italic max-w-md mb-10 leading-relaxed">
-          "A revolution requires a Guardian." Claim the Sovereign Seat to manage permissions and protect the community.
-        </p>
-        <Button 
-          onClick={handleClaimSovereignty} 
-          disabled={isClaiming}
-          className="h-20 px-12 rounded-[2.5rem] gradient-bg text-2xl font-black shadow-2xl shadow-primary/40 hover:scale-105 transition-all"
-        >
-          {isClaiming ? <Loader2 className="animate-spin mr-3" /> : <Zap className="w-6 h-6 mr-3" />}
-          Claim Sovereignty
+        <Gavel className="w-16 h-16 text-primary mb-8" />
+        <h1 className="text-4xl font-black uppercase mb-4">Authority Vacant</h1>
+        <Button onClick={handleClaimSovereignty} disabled={isClaiming} className="h-16 px-10 rounded-2xl gradient-bg font-black">
+          {isClaiming ? <Loader2 className="animate-spin" /> : "Claim Sovereignty"}
         </Button>
       </div>
     );
@@ -162,13 +140,10 @@ export default function AdminApprovalsPage() {
 
   if (!isUserSovereign) {
     return (
-      <div className="flex flex-col min-h-screen bg-muted/30 items-center justify-center p-8 text-center">
-        <div className="w-24 h-24 bg-slate-900 rounded-full flex items-center justify-center mb-6 shadow-2xl">
-           <Lock className="w-10 h-10 text-primary" />
-        </div>
-        <h2 className="text-3xl font-black tracking-tighter uppercase">Restricted Access</h2>
-        <p className="text-muted-foreground mt-2 max-w-xs font-medium">Only the Sovereign Guardian can assign permissions. ❤️</p>
-        <Button variant="outline" className="mt-8 rounded-2xl h-14 px-8 border-2 font-bold" onClick={() => window.location.href = '/discover'}>Return to Discovery</Button>
+      <div className="flex flex-col min-h-screen items-center justify-center p-8 text-center">
+        <Lock className="w-12 h-12 text-primary mb-6" />
+        <h2 className="text-2xl font-black uppercase">Restricted Access</h2>
+        <Button variant="outline" className="mt-8 rounded-xl" onClick={() => window.location.href = '/discover'}>Return Home</Button>
       </div>
     );
   }
@@ -177,155 +152,71 @@ export default function AdminApprovalsPage() {
     <div className="flex flex-col min-h-screen bg-muted/30 pb-24">
       <Header />
       <main className="container mx-auto px-4 py-10 max-w-5xl space-y-12">
+        <h1 className="text-4xl font-black uppercase">Sovereign Command</h1>
         
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-4">
-           <div className="flex items-center gap-6">
-              <div className="w-20 h-20 bg-slate-900 rounded-[2rem] flex items-center justify-center text-primary shadow-2xl ring-4 ring-white relative overflow-hidden group">
-                 <Zap className="w-10 h-10 group-hover:rotate-12 transition-transform" />
-                 <div className="absolute inset-0 bg-primary/10 animate-pulse" />
-              </div>
-              <div className="text-left">
-                 <h1 className="text-5xl font-black tracking-tighter uppercase leading-none">Sovereign Command</h1>
-                 <p className="text-[10px] font-black uppercase tracking-[0.4em] text-primary mt-2">Guardian Protocol Active</p>
-              </div>
-           </div>
-           <Badge className="bg-slate-900 text-white border-none px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-xl">
-             Exclusive Authority
-           </Badge>
-        </div>
-
         <section className="space-y-6">
-           <div className="flex items-center justify-between px-2">
-              <h2 className="text-2xl font-black uppercase tracking-tight flex items-center gap-3">
-                 <Users className="w-6 h-6 text-blue-500" />
-                 Heart Registry
+           <div className="flex items-center justify-between">
+              <h2 className="text-xl font-black uppercase flex items-center gap-3">
+                 <Users className="w-5 h-5 text-blue-500" /> Heart Registry
               </h2>
-              <div className="relative w-64">
-                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/40" />
-                 <Input 
-                   placeholder="Search ID, Name, Role..." 
-                   value={searchQuery}
-                   onChange={e => setSearchQuery(e.target.value)}
-                   className="pl-12 rounded-full bg-white border-none shadow-sm h-12"
-                 />
-              </div>
+              <Input 
+                placeholder="Search..." 
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                className="max-w-xs rounded-xl"
+              />
            </div>
 
            <div className="grid gap-4">
               {usersLoading ? (
-                 <div className="flex justify-center py-10"><Loader2 className="animate-spin text-primary opacity-20" /></div>
-              ) : filteredUsers.length > 0 ? (
-                filteredUsers.map((u: any) => (
-                  <UserAdminCard 
-                    key={u.uid} 
-                    u={u} 
-                    onToggle={(role: string, val: any) => handleRoleToggle(u.uid, role, val)}
-                    isProcessing={isProcessing === u.uid}
-                  />
-                ))
-              ) : (
-                <div className="p-12 text-center bg-white/40 rounded-[2.5rem] border-2 border-dashed border-muted text-muted-foreground font-bold italic">
-                   "Scanning the network..." No matches found.
-                </div>
-              )}
+                 <Loader2 className="animate-spin mx-auto opacity-20" />
+              ) : filteredUsers.map((u: any) => (
+                <Card key={u.uid} className="p-6 rounded-[2rem] flex flex-col sm:flex-row items-center justify-between gap-6">
+                   <div className="text-left flex-grow">
+                      <h3 className="font-black text-lg">{u.displayName || "Mystery Heart"}</h3>
+                      <p className="text-[10px] font-mono text-muted-foreground">{u.uid}</p>
+                   </div>
+                   <div className="flex flex-wrap items-center gap-6">
+                      <RoleSwitch label="Admin" checked={u.role === 'admin'} onToggle={(v: boolean) => handleRoleToggle(u.uid, 'isAdmin', v)} />
+                      <RoleSwitch label="Seller" checked={u.isSeller} onToggle={(v: boolean) => handleRoleToggle(u.uid, 'isSeller', v)} />
+                      <RoleSwitch label="Advertiser" checked={u.isAdvertiser} onToggle={(v: boolean) => handleRoleToggle(u.uid, 'isAdvertiser', v)} />
+                   </div>
+                </Card>
+              ))}
            </div>
         </section>
 
         <div className="grid md:grid-cols-2 gap-8">
-           <section className="space-y-6">
-              <div className="flex items-center gap-3 px-2">
-                 <Store className="w-6 h-6 text-primary" />
-                 <h2 className="text-xl font-black uppercase tracking-tight">Pending Sellers</h2>
-              </div>
-              <div className="space-y-4">
-                 {pendingSellers?.map((s: any) => (
-                    <PendingRequestItem key={s.uid} u={s} type="seller" onToggle={handleRoleToggle} />
-                 ))}
-                 {pendingSellers?.length === 0 && <p className="text-xs text-center text-muted-foreground italic font-medium py-10 bg-white/40 rounded-3xl border border-dashed">No pending artisans.</p>}
-              </div>
+           <section className="space-y-4">
+              <h2 className="font-black uppercase flex items-center gap-2"><Store className="w-5 h-5" /> Pending Sellers</h2>
+              {pendingSellers?.map((s: any) => (
+                 <Card key={s.uid} className="p-4 rounded-2xl flex justify-between items-center">
+                    <span className="font-bold">{s.displayName}</span>
+                    <Button size="sm" onClick={() => handleRoleToggle(s.uid, 'isSeller', true)} className="h-8 rounded-lg gradient-bg">Approve</Button>
+                 </Card>
+              ))}
            </section>
-
-           <section className="space-y-6">
-              <div className="flex items-center gap-3 px-2">
-                 <Megaphone className="w-6 h-6 text-primary" />
-                 <h2 className="text-xl font-black uppercase tracking-tight">Pending Ads</h2>
-              </div>
-              <div className="space-y-4">
-                 {pendingAdvertisers?.map((a: any) => (
-                    <PendingRequestItem key={a.uid} u={a} type="advertiser" onToggle={handleRoleToggle} />
-                 ))}
-                 {pendingAdvertisers?.length === 0 && <p className="text-xs text-center text-muted-foreground italic font-medium py-10 bg-white/40 rounded-3xl border border-dashed">No pending reaches.</p>}
-              </div>
+           <section className="space-y-4">
+              <h2 className="font-black uppercase flex items-center gap-2"><Megaphone className="w-5 h-5" /> Pending Ads</h2>
+              {pendingAdvertisers?.map((a: any) => (
+                 <Card key={a.uid} className="p-4 rounded-2xl flex justify-between items-center">
+                    <span className="font-bold">{a.displayName}</span>
+                    <Button size="sm" onClick={() => handleRoleToggle(a.uid, 'isAdvertiser', true)} className="h-8 rounded-lg gradient-bg">Approve</Button>
+                 </Card>
+              ))}
            </section>
         </div>
-
       </main>
       <BottomNav />
     </div>
   );
 }
 
-function UserAdminCard({ u, onToggle, isProcessing }: any) {
+function RoleSwitch({ label, checked, onToggle }: any) {
   return (
-    <Card className="rounded-[2.5rem] border-none shadow-md bg-white overflow-hidden group hover:shadow-xl transition-all">
-       <div className="p-6 flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-4 text-left flex-grow min-w-0">
-             <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center font-black text-lg text-slate-400 group-hover:bg-primary/10 group-hover:text-primary transition-colors">
-                {u.displayName?.[0] || 'U'}
-             </div>
-             <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                   <h3 className="font-black text-lg truncate leading-none">{u.displayName || "Mystery Heart"}</h3>
-                   {u.role === 'admin' && <Badge className="h-5 px-2 bg-red-500 text-white text-[7px] font-black uppercase tracking-widest border-none">Admin</Badge>}
-                </div>
-                <p className="text-[9px] font-mono text-muted-foreground/60 truncate mt-1">{u.uid}</p>
-             </div>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-6">
-             <RoleSwitch label="Admin" checked={u.role === 'admin'} onToggle={(v: boolean) => onToggle('isAdmin', v)} color="text-red-500" disabled={isProcessing} />
-             <RoleSwitch label="Seller" checked={u.isSeller} onToggle={(v: boolean) => onToggle('isSeller', v)} color="text-green-500" disabled={isProcessing} />
-             <RoleSwitch label="Advertiser" checked={u.isAdvertiser} onToggle={(v: boolean) => onToggle('isAdvertiser', v)} color="text-blue-500" disabled={isProcessing} />
-          </div>
-       </div>
-    </Card>
-  );
-}
-
-function RoleSwitch({ label, checked, onToggle, color, disabled }: any) {
-  return (
-    <div className="flex items-center gap-3 bg-muted/30 px-4 py-2 rounded-2xl border border-dashed hover:bg-white hover:shadow-sm transition-all">
-       <span className={cn("text-[10px] font-black uppercase tracking-widest", checked ? color : "text-slate-300")}>{label}</span>
-       <Switch checked={checked} onCheckedChange={onToggle} disabled={disabled} className="scale-75" />
+    <div className="flex items-center gap-3">
+       <span className="text-[10px] font-black uppercase tracking-widest">{label}</span>
+       <Switch checked={checked} onCheckedChange={onToggle} />
     </div>
-  );
-}
-
-function PendingRequestItem({ u, type, onToggle }: any) {
-  return (
-    <Card className="rounded-3xl border-none shadow-sm bg-white overflow-hidden p-4">
-       <div className="flex items-center justify-between">
-          <div className="text-left">
-             <p className="text-sm font-bold truncate max-w-[120px]">{u.displayName}</p>
-             <p className="text-[8px] font-black uppercase text-muted-foreground/60">{u.country || 'GLOBAL'}</p>
-          </div>
-          <div className="flex gap-2">
-             <Button 
-               size="sm" 
-               variant="outline" 
-               className="h-8 rounded-full px-4 text-[9px] font-black uppercase border-2 text-red-500 hover:bg-red-50"
-               onClick={() => onToggle(`${type}Status`, 'rejected')}
-             >Reject</Button>
-             <Button 
-               size="sm" 
-               className="h-8 rounded-full px-4 text-[9px] font-black uppercase gradient-bg shadow-lg"
-               onClick={() => {
-                 onToggle(`is${type.charAt(0).toUpperCase() + type.slice(1)}`, true);
-                 onToggle(`${type}Status`, 'approved');
-               }}
-             >Approve</Button>
-          </div>
-       </div>
-    </Card>
   );
 }
