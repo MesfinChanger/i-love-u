@@ -9,7 +9,6 @@ import {
   Globe, 
   Ghost,
   ShieldCheck,
-  TrendingDown,
   Zap,
   ArrowRight
 } from "lucide-react";
@@ -18,8 +17,7 @@ import HeroImage from "@/components/HeroImage";
 
 /**
  * @fileOverview Refined Welcome Gateway.
- * Restores the central heart icon while maintaining a balanced typography hierarchy.
- * Integrated Guest Explorer entrance card.
+ * Synchronized with the Clean Build Protocol to resolve text overlap and refine hierarchy.
  */
 export default function WelcomePage() {
   return (
@@ -30,28 +28,28 @@ export default function WelcomePage() {
         
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-center px-6 text-center">
           <div className="max-w-4xl space-y-8 animate-in fade-in zoom-in-95 duration-1000">
-            {/* Restored Heart Icon */}
+            {/* Sacred Heart Icon */}
             <div className="mx-auto w-20 h-20 bg-white/10 backdrop-blur-md rounded-[2rem] flex items-center justify-center shadow-2xl border border-white/20">
                <Heart className="w-10 h-10 text-primary fill-primary animate-heartbeat" />
             </div>
 
             <div className="space-y-4">
-              <h1 className="text-4xl md:text-6xl font-black tracking-tighter uppercase leading-none text-slate-900">
+              <h1 className="text-3xl md:text-5xl font-black tracking-tighter uppercase leading-tight text-slate-900">
                 I LOVE <br /><span className="gradient-text">U.</span>
               </h1>
-              <p className="text-lg md:text-xl font-bold uppercase tracking-[0.3em] text-slate-600/60">
+              <p className="text-sm md:text-base font-bold uppercase tracking-[0.4em] text-slate-600/60">
                 The Prosperity Revolution
               </p>
             </div>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8">
-              <Button asChild className="h-16 px-10 rounded-2xl gradient-bg font-black uppercase text-xs tracking-widest shadow-xl shadow-primary/30 active:scale-95 transition-all group">
+              <Button asChild className="h-16 px-10 rounded-2xl gradient-bg font-black uppercase text-[10px] tracking-widest shadow-xl shadow-primary/30 active:scale-95 transition-all group">
                 <Link href="/signup">
                   <UserPlus className="w-4 h-4 mr-2" />
                   Join the Mission
                 </Link>
               </Button>
-              <Button variant="outline" asChild className="h-16 px-10 rounded-2xl border-2 bg-white/50 backdrop-blur-md font-black uppercase text-xs tracking-widest shadow-xl active:scale-95 transition-all">
+              <Button variant="outline" asChild className="h-16 px-10 rounded-2xl border-2 bg-white/50 backdrop-blur-md font-black uppercase text-[10px] tracking-widest shadow-xl active:scale-95 transition-all">
                 <Link href="/login">
                   <LogIn className="w-4 h-4 mr-2" />
                   Identify Heart
@@ -92,7 +90,7 @@ export default function WelcomePage() {
             <div className="space-y-10">
               <div className="space-y-4">
                 <Badge label="Mandatory Protocol" />
-                <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter leading-tight">
+                <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tighter leading-tight">
                   Respect & Love <br />Is <span className="text-primary">Mandatory.</span>
                 </h2>
               </div>

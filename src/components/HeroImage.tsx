@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState } from "react";
@@ -70,14 +69,6 @@ export default function HeroImage() {
       <div className="absolute top-10 left-10 animate-bounce text-pink-500 text-3xl z-20" aria-hidden="true">❤️</div>
       <div className="absolute bottom-20 right-10 animate-pulse text-yellow-400 text-4xl z-20" aria-hidden="true">✨</div>
       <div className="absolute top-32 right-20 animate-ping text-pink-400 z-20" aria-hidden="true">💖</div>
-      
-      {/* Floating Mission Hint */}
-      <div className="absolute bottom-12 left-12 z-20 text-slate-900 drop-shadow-sm hidden sm:block">
-         <h2 className="text-5xl font-black tracking-tighter uppercase leading-none">The World is Your Heart</h2>
-         <p className="mt-3 text-xl font-bold opacity-70 max-w-lg italic">
-           Join the global revolution of love and prosperity.
-         </p>
-      </div>
     </div>
   );
 }
