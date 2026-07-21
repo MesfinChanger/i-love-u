@@ -18,7 +18,7 @@ import HeroImage from "@/components/HeroImage";
 
 /**
  * @fileOverview Refined Welcome Gateway.
- * Minimizes typography scale and removes redundant decorative icons for a cleaner mission entry.
+ * Restores the central heart icon while maintaining a balanced typography hierarchy.
  */
 export default function WelcomePage() {
   return (
@@ -29,7 +29,10 @@ export default function WelcomePage() {
         
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-center px-6 text-center">
           <div className="max-w-4xl space-y-8 animate-in fade-in zoom-in-95 duration-1000">
-            {/* Redundant heart icon removed to minimize visual clutter */}
+            {/* Restored Heart Icon */}
+            <div className="mx-auto w-20 h-20 bg-white/10 backdrop-blur-md rounded-[2rem] flex items-center justify-center shadow-2xl border border-white/20">
+               <Heart className="w-10 h-10 text-primary fill-primary animate-heartbeat" />
+            </div>
 
             <div className="space-y-4">
               <h1 className="text-5xl md:text-7xl font-black tracking-tighter uppercase leading-none text-slate-900">
