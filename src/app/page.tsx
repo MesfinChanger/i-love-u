@@ -4,9 +4,6 @@ import AnimatedBackground from "@/components/home/AnimatedBackground";
 import {
   Heart,
   Sparkles as SparklesIcon,
-  Users,
-  Lightbulb,
-  Globe,
   LogIn,
   UserPlus,
   Ghost

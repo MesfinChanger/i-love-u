@@ -2,61 +2,49 @@
 
 import { useEffect, useState } from "react";
 
-import FlowerScene from "./scenes/FlowerScene";
-import ForestScene from "./scenes/ForestScene";
-import WaterfallScene from "./scenes/WaterfallScene";
 import SunriseScene from "./scenes/SunriseScene";
+import FlowerScene from "./scenes/FlowerScene";
+import WaterfallScene from "./scenes/WaterfallScene";
+import ForestScene from "./scenes/ForestScene";
 import NightScene from "./scenes/NightScene";
 
 
 const scenes = [
-  FlowerScene,
-  ForestScene,
-  WaterfallScene,
   SunriseScene,
+  FlowerScene,
+  WaterfallScene,
+  ForestScene,
   NightScene,
 ];
 
 
-export default function SceneManager(){
+export default function SceneManager() {
 
-  const [index,setIndex] = useState(0);
+  const [current, setCurrent] = useState(0);
 
 
-  useEffect(()=>{
+  useEffect(() => {
 
-    const timer=setInterval(()=>{
+    const timer = setInterval(() => {
 
-      setIndex(
-        old => (old + 1) % scenes.length
+      setCurrent((old) => 
+        (old + 1) % scenes.length
       );
 
-    },30000);
+    }, 30000);
 
 
-    return ()=>clearInterval(timer);
+    return () => clearInterval(timer);
 
-  },[]);
+  }, []);
 
 
-  const Scene = scenes[index];
+  const Scene = scenes[current];
 
 
   return (
-
-    <div
-      className="
-      absolute
-      inset-0
-      transition-opacity
-      duration-1000
-      "
-    >
-
+    <div className="absolute inset-0">
       <Scene />
-
     </div>
-
   );
-
 }
