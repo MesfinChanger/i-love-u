@@ -46,12 +46,6 @@ const nextConfig: NextConfig = {
     serverActions: {
       bodySizeLimit: '50mb',
     },
-    // Dev Stability Protocol: Allowing workstation origins for preview stability
-    allowedDevOrigins: [
-      '*.cloudworkstations.dev',
-      '*.web.app',
-      '*.firebaseapp.com'
-    ],
   },
 };
 

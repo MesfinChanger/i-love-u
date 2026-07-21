@@ -35,29 +35,25 @@ export default function Hero() {
           />
         </div>
 
-        {/* Refined Branding: Icons repositioned next to signature */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-4">
-           <Heart className="w-6 h-6 text-primary fill-primary animate-pulse" />
+        {/* Refined Branding: Icons repositioned next to signature, typography minimized */}
+        <div className="flex items-center justify-center gap-2 mb-4">
            <h1
              className="
-              text-4xl md:text-5xl
+              text-3xl md:text-4xl
               font-black
               text-slate-900
               tracking-tighter
               uppercase
+              flex items-center gap-2
             "
            >
-             I LOVE U
+             I LOVE U <span className="inline-flex items-center gap-1 text-2xl">❤️✨💖</span>
            </h1>
-           <div className="flex items-center gap-1">
-              <Sparkles className="w-6 h-6 text-secondary" />
-              <span className="text-2xl">💖</span>
-           </div>
         </div>
 
         <div className="
-          text-sm
-          md:text-lg
+          text-xs
+          md:text-sm
           font-black
           bg-gradient-to-r
           from-primary
