@@ -3,8 +3,7 @@ import { UserRole } from "./roles";
 
 /**
  * @fileOverview Universal Permission Engine.
- * Defines the mapping between heart roles and their allowed mission actions.
- * Synchronized with the global Permission enum and UserRole registry.
+ * Hardened with the Sovereignty Bypass and String-Tolerance for Firestore roles.
  */
 
 const rolePermissions: Record<string, Permission[]> = {
@@ -54,8 +53,7 @@ const rolePermissions: Record<string, Permission[]> = {
 
 /**
  * hasPermission Protocol.
- * Checks if a specific role possesses the authority for a mission action.
- * Hardened with the Sovereignty Bypass for administrators.
+ * Resilient check for mission authority.
  */
 export function hasPermission(
   role: string | null | undefined,
@@ -65,17 +63,14 @@ export function hasPermission(
     return rolePermissions[UserRole.GUEST].includes(permission as Permission);
   }
 
-  const normalizedRole = role.toLowerCase();
+  const normalizedRole = role.toLowerCase().trim();
 
-  // Sovereignty Protocol: Admin and System Owner bypass all checks
+  // Sovereign Bypass: Guardians have total access
   if (normalizedRole === UserRole.ADMIN || normalizedRole === UserRole.SYSTEM_OWNER || normalizedRole === "admin") {
     return true;
   }
 
-  // Check specific role mapping
   return (
-    rolePermissions[normalizedRole as UserRole]?.includes(
-      permission as Permission
-    ) || false
+    rolePermissions[normalizedRole]?.includes(permission as Permission) || false
   );
 }

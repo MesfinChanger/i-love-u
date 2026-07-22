@@ -1,7 +1,7 @@
 'use server';
 /**
  * @fileOverview A Genkit flow to convert text into speech audio.
- * Uses gemini-2.5-flash-preview-tts and converts PCM to WAV.
+ * Synchronized with the high-fidelity Buffer protocol.
  */
 
 import {ai} from '@/ai/genkit';

@@ -8,8 +8,7 @@ import { Permission } from "@/security/permissions";
 
 /**
  * @fileOverview Global Permission Hook.
- * Synchronizes a heart's authority with the mission's action registry.
- * Fetches the actual role from the Firestore profile to ensure high-fidelity authorization.
+ * Correctly derives a heart's authority from their Firestore registry signature.
  */
 export function usePermissions() {
   const { user, loading: authLoading } = useUser();
@@ -22,8 +21,7 @@ export function usePermissions() {
 
   const { data: profile, loading: profileLoading } = useDoc(userRef);
 
-  // Default to guest if no profile is synchronized
-  const role = (profile as any)?.role || "guest";
+  const role = (profile as any)?.role || (profile as any)?.accountType || "guest";
   const loading = authLoading || profileLoading;
 
   return {

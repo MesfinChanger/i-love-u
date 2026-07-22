@@ -19,36 +19,43 @@ interface CircleRoleState {
 
 /**
  * @fileOverview High-Fidelity Circle Role Hook.
- * Automatically synchronizes a heart's authority with the circle's member registry.
+ * Automatically synchronizes a heart's authority with the community registry.
  */
-export function useCircleRole(
- circleId?: string
-): CircleRoleState {
- const { user } = useUser();
- const [role, setRole] = useState<CircleRole>(null);
- const [loading, setLoading] = useState(true);
+export function useCircleRole(circleId?: string): CircleRoleState {
+  const { user } = useUser();
+  const [role, setRole] = useState<CircleRole>(null);
+  const [loading, setLoading] = useState(true);
 
- useEffect(() => {
-   async function sync() {
-     if (!circleId || !user?.uid) {
-       setLoading(false);
-       return;
-     }
-     const currentRole = await getCircleRole(circleId, user.uid);
-     setRole(currentRole);
-     setLoading(false);
-   }
-   sync();
- }, [circleId, user?.uid]);
+  useEffect(() => {
+    let mounted = true;
+    async function sync() {
+      if (!circleId || !user?.uid) {
+        if (mounted) {
+          setRole(null);
+          setLoading(false);
+        }
+        return;
+      }
+      
+      try {
+        const currentRole = await getCircleRole(circleId, user.uid);
+        if (mounted) setRole(currentRole);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    }
+    sync();
+    return () => { mounted = false; };
+  }, [circleId, user?.uid]);
 
- const normalizedRole = normalizeRole(role);
+  const normalizedRole = normalizeRole(role);
 
- return {
-   role: normalizedRole,
-   loading,
-   isOwner: normalizedRole === "owner",
-   isModerator: normalizedRole === "owner" || normalizedRole === "moderator",
-   isMember: normalizedRole === "owner" || normalizedRole === "moderator" || normalizedRole === "member",
-   isGuest: normalizedRole === "guest" || !normalizedRole
- };
+  return {
+    role: normalizedRole,
+    loading,
+    isOwner: normalizedRole === "owner",
+    isModerator: normalizedRole === "owner" || normalizedRole === "moderator",
+    isMember: normalizedRole === "owner" || normalizedRole === "moderator" || normalizedRole === "member",
+    isGuest: normalizedRole === "guest" || !normalizedRole
+  };
 }
