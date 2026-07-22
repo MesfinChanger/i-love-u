@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "UserProfile": {
@@ -48,6 +49,20 @@
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["fromUserId", "toUserId", "message", "status", "createdAt"]
+    },
+    "CircleMessage": {
+      "title": "Circle Community Message",
+      "description": "Shared discourse record within a community circle.",
+      "type": "object",
+      "properties": {
+        "senderId": { "type": "string" },
+        "senderName": { "type": "string" },
+        "text": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "edited": { "type": "boolean" },
+        "deleted": { "type": "boolean" }
+      },
+      "required": ["senderId", "senderName", "text", "createdAt"]
     }
   },
   "auth": {
@@ -58,6 +73,7 @@
     "/products/{productId}": { "schema": "Product", "description": "Marketplace artisan listings" },
     "/sparkProfiles/{userId}": { "schema": "UserProfile", "description": "Public discovery profiles" },
     "/sparkGreetings/{greetingId}": { "schema": "SparkGreeting", "description": "Community outreach interactions" },
-    "/conversations/{conversationId}": { "schema": "Conversation", "description": "Secured private interaction spaces" }
+    "/conversations/{conversationId}": { "schema": "Conversation", "description": "Secured private interaction spaces" },
+    "/communities/{circleId}/messages/{messageId}": { "schema": "CircleMessage", "description": "Community circle group chat messages" }
   }
 }
