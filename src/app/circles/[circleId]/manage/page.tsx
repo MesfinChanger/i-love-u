@@ -24,7 +24,12 @@ import {
   changeMemberRole, 
   removeMember 
 } from "@/services/circle-admin.service";
-import { getCircleRole, canManageCircle } from "@/services/permission.service";
+import {
+  canManageMembers,
+  canModerate,
+  isOwner,
+  isModerator
+} from "@/services/circle-permission.service";
 import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
 import { doc, getDoc } from "firebase/firestore";

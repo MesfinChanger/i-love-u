@@ -1,115 +1,149 @@
+/**
+ * Circle Permission Engine
+ *
+ * Central security logic for Circle features.
+ *
+ * Roles:
+ * owner
+ * moderator
+ * member
+ * guest
+ */
 
-'use client';
 import {
   doc,
-  getDoc,
-  setDoc,
-  serverTimestamp
+  getDoc
 } from "firebase/firestore";
 
 import { db } from "@/lib/firebase";
 
-/**
- * @fileOverview Circle Permission Protocol Service.
- * Orchestrates granular role management and membership request cycles.
- */
 
 export type CircleRole =
- | "owner"
- | "admin"
- | "moderator"
- | "member"
- | "pending"
- | "guest";
+  | "owner"
+  | "moderator"
+  | "member"
+  | "guest";
+
+
+export interface CircleMemberPermission {
+  userId: string;
+  role: CircleRole;
+  status?: "active" | "pending" | "blocked";
+}
+
 
 /**
- * Get Circle Role Protocol.
- * Retrieves the specific authority level of a heart within a community circle.
+ * Check if user can view circle
+ */
+export function canViewCircle(
+  member?: CircleMemberPermission | null,
+  isPublic: boolean = false
+) {
+
+  if (isPublic) return true;
+
+  return member?.status === "active";
+}
+
+
+/**
+ * Check if user can create posts
+ */
+export function canPost(
+  member?: CircleMemberPermission | null
+) {
+
+  if (!member) return false;
+
+  if (member.status !== "active") {
+    return false;
+  }
+
+  return [
+    "owner",
+    "moderator",
+    "member"
+  ].includes(member.role);
+}
+
+
+/**
+ * Check if user can comment
+ */
+export function canComment(
+  member?: CircleMemberPermission | null
+) {
+
+  return canPost(member);
+}
+
+
+/**
+ * Check member management permissions
+ */
+export function canManageMembers(
+  member?: CircleMemberPermission | null
+) {
+
+  if (!member) return false;
+
+  return [
+    "owner",
+    "moderator"
+  ].includes(member.role);
+}
+
+
+/**
+ * Owner check
+ */
+export function isOwner(
+  member?: CircleMemberPermission | null
+) {
+
+  return member?.role === "owner";
+}
+
+
+/**
+ * Moderator check
+ */
+export function isModerator(
+  member?: CircleMemberPermission | null
+) {
+
+  return (
+    member?.role === "owner" ||
+    member?.role === "moderator"
+  );
+}
+
+
+/**
+ * Load current user's circle role
  */
 export async function getCircleRole(
- circleId:string,
- userId:string
-): Promise<CircleRole> {
- if (!db) return "guest";
+  circleId: string,
+  userId: string
+): Promise<CircleRole | null> {
 
- try {
-   const ref = doc(
-    db,
-    "communities",
-    circleId,
-    "members",
-    userId
-   );
-
-   const snap = await getDoc(ref);
-
-   if (!snap.exists()) return "guest";
-
-   return (
-    snap.data().role ||
-    "guest"
-   ) as CircleRole;
- } catch (e) {
-   console.warn("Circle Permission Ripple:", e);
-   return "guest";
- }
-}
-
-/**
- * Request Join Protocol.
- * Registers a "pending" membership record for a heart wishing to synchronize with a circle.
- */
-export async function requestJoinCircle(
- circleId:string,
- userId:string
-) {
- await setDoc(
-  doc(
-   db,
-   "communities",
-   circleId,
-   "members",
-   userId
-  ),
-  {
-   userId,
-   role: "pending",
-   status: "waiting",
-   requestedAt: serverTimestamp(),
-   permissions: {
-     post: true,
-     comment: true,
-     invite: false,
-     moderate: false
-   }
+  if (!circleId || !userId) {
+    return null;
   }
- );
-}
 
-/**
- * Update Circle Role Protocol.
- * Elevates or adjusts a heart's authority level within the circle frequency.
- */
-export async function updateCircleRole(
- circleId:string,
- userId:string,
- role:CircleRole
-) {
- await setDoc(
-  doc(
-   db,
-   "communities",
-   circleId,
-   "members",
-   userId
-  ),
-  {
-   role,
-   status: "active",
-   updatedAt: serverTimestamp()
-  },
-  {
-   merge: true
+  const snap = await getDoc(
+    doc(
+      db,
+      "communities",
+      circleId,
+      "members",
+      userId
+    )
+  );
+
+  if (!snap.exists()) {
+    return null;
   }
- );
+
+  return (snap.data().role ?? "member") as CircleRole;
 }
