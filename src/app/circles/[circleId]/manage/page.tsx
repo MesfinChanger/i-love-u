@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState, use } from "react";
@@ -15,44 +14,69 @@ import {
   User, 
   ChevronLeft,
   Sparkles,
-  AlertCircle
+  AlertCircle,
+  ShieldX
 } from "lucide-react";
 import GuestAccessGuard from "@/components/GuestAccessGuard";
-import { useCircleRole } from "@/hooks/use-circle-role";
+import { useUser, useFirestore } from "@/firebase";
 import { 
   getAllCircleMembers, 
   changeMemberRole, 
   removeMember 
 } from "@/services/circle-admin.service";
+import { getCircleRole, canManageCircle } from "@/services/permission.service";
 import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
 import { doc, getDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 
 /**
  * @fileOverview High-Fidelity Circle Management Hub.
- * Orchestrates community governance and membership registry management.
- * Hardened to resolve Internal Server Errors through stable param handling.
+ * Protected by a dedicated Sovereignty Handshake to ensure owner-only access.
  */
 export default function CircleManagePage({ params }: { params: Promise<{ circleId: string }> }) {
   const { circleId } = use(params);
-  const { isAdmin, loading: roleLoading } = useCircleRole(circleId);
+  const { user } = useUser();
+  const db = useFirestore();
   const { toast } = useToast();
 
   const [members, setMembers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [authorized, setAuthorized] = useState(false);
+  const [isChecking, setIsChecking] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
+
+  // Sovereignty Handshake Protocol
+  useEffect(() => {
+    async function check() {
+      if (!circleId || !user?.uid) return;
+      
+      try {
+        const role = await getCircleRole(circleId, user.uid);
+        const canManage = canManageCircle(role);
+        setAuthorized(canManage);
+        
+        if (canManage) {
+          await loadRegistry();
+        }
+      } catch (e) {
+        console.warn("Authority Check Ripple:", e);
+      } finally {
+        setIsChecking(false);
+      }
+    }
+    check();
+  }, [circleId, user?.uid]);
 
   async function loadRegistry() {
     if (!circleId || !db) return;
     setLoading(true);
     try {
       const data = await getAllCircleMembers(circleId);
-      // High-Fidelity Enrichment: Map member IDs to public user profiles
+      // High-Fidelity Enrichment: Map member IDs to public heart profiles
       const enriched = await Promise.all(data.map(async (m) => {
         try {
-          const userSnap = await getDoc(doc(db, "users", m.userId));
-          return { ...m, profile: userSnap.exists() ? userSnap.data() : null };
+          const profileSnap = await getDoc(doc(db, "publicProfiles", m.userId));
+          return { ...m, profile: profileSnap.exists() ? profileSnap.data() : null };
         } catch (e) {
           return m;
         }
@@ -64,14 +88,6 @@ export default function CircleManagePage({ params }: { params: Promise<{ circleI
       setLoading(false);
     }
   }
-
-  useEffect(() => {
-    if (!roleLoading && isAdmin) {
-      loadRegistry();
-    } else if (!roleLoading && !isAdmin) {
-      setLoading(false);
-    }
-  }, [circleId, isAdmin, roleLoading]);
 
   const handleRoleChange = async (userId: string, currentRole: string) => {
     if (!circleId) return;
@@ -104,22 +120,31 @@ export default function CircleManagePage({ params }: { params: Promise<{ circleI
     }
   };
 
-  if (roleLoading) {
+  if (isChecking) {
     return (
-      <div className="min-h-screen bg-muted/30 flex items-center justify-center">
+      <div className="min-h-screen bg-muted/30 flex flex-col items-center justify-center">
         <Loader2 className="animate-spin w-12 h-12 text-primary opacity-20" />
+        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mt-4">Verifying Sovereignty...</p>
       </div>
     );
   }
 
-  if (!isAdmin) {
+  if (!authorized) {
     return (
       <div className="min-h-screen bg-muted/30 flex flex-col items-center justify-center p-6 text-center">
-        <Card className="max-w-md p-12 rounded-[3.5rem] border-none shadow-2xl space-y-6 bg-white">
-           <AlertCircle className="w-16 h-16 text-primary mx-auto opacity-20" />
-           <h1 className="text-3xl font-black uppercase tracking-tighter">Access Denied</h1>
-           <p className="text-muted-foreground italic font-medium">"You do not possess the Guardian authority required for this frequency."</p>
-           <Button asChild className="rounded-2xl h-14 px-8 gradient-bg font-black uppercase text-[10px] tracking-widest"><Link href={`/circles/${circleId}`}>Return to Circle</Link></Button>
+        <Card className="max-w-md w-full p-12 rounded-[3.5rem] border-none shadow-2xl space-y-8 bg-white animate-in zoom-in-95 duration-500">
+           <div className="w-24 h-24 bg-red-50 rounded-full flex items-center justify-center mx-auto border-2 border-dashed border-red-100">
+              <ShieldX className="w-10 h-10 text-red-500" />
+           </div>
+           <div className="space-y-2">
+              <h1 className="text-3xl font-black uppercase tracking-tighter">Access Restricted</h1>
+              <p className="text-muted-foreground italic font-medium">
+                "Only Circle owners hold the Guardian signature required for this frequency."
+              </p>
+           </div>
+           <Button asChild className="w-full rounded-2xl h-16 gradient-bg font-black uppercase text-[10px] tracking-widest shadow-xl active:scale-95 transition-all">
+              <Link href={`/circles/${circleId}`}>Return to Circle</Link>
+           </Button>
         </Card>
       </div>
     );
@@ -154,24 +179,27 @@ export default function CircleManagePage({ params }: { params: Promise<{ circleI
                 <Card key={member.id} className="rounded-[2.5rem] border-none shadow-lg bg-white overflow-hidden group hover:shadow-xl transition-all">
                   <CardContent className="p-8 flex flex-col sm:flex-row justify-between items-center gap-6">
                     <div className="flex items-center gap-6 w-full">
-                      <div className="w-16 h-16 rounded-2xl bg-primary/5 flex items-center justify-center text-primary border border-primary/10 overflow-hidden">
+                      <div className="w-20 h-20 rounded-[1.8rem] bg-primary/5 flex items-center justify-center text-primary border-2 border-primary/5 overflow-hidden shadow-sm">
                          {member.profile?.photoURL ? (
                            <img src={member.profile.photoURL} alt="" className="w-full h-full object-cover" />
                          ) : (
                            <User className="w-8 h-8 opacity-20" />
                          )}
                       </div>
-                      <div className="text-left flex-grow">
+                      <div className="text-left flex-grow space-y-1">
                         <h2 className="font-black text-2xl tracking-tight uppercase leading-none">
-                          {member.profile?.displayName || member.userId}
+                          {member.profile?.displayName || member.profile?.username || "Unknown Heart"}
                         </h2>
-                        <div className="flex items-center gap-2 mt-2">
-                           <Badge className="bg-primary/10 text-primary border-none text-[8px] font-black uppercase px-3 h-6 flex items-center">
+                        <div className="flex items-center gap-3">
+                           <Badge className={cn(
+                             "border-none text-[8px] font-black uppercase px-3 h-6 flex items-center",
+                             member.role === 'owner' ? "bg-primary text-white" : "bg-primary/10 text-primary"
+                           )}>
                              {member.role === 'owner' && <Crown className="w-3 h-3 mr-1" />}
                              {member.role}
                            </Badge>
                            <span className="text-[8px] font-black uppercase tracking-widest text-muted-foreground opacity-40">
-                             Registry ID: {member.userId.slice(0, 8)}...
+                             {member.profile?.country || "Global"} Registry
                            </span>
                         </div>
                       </div>
