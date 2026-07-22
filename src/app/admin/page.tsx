@@ -9,6 +9,7 @@ import { checkAdmin } from "@/lib/admin";
 import { ShieldCheck, Lock, Loader2, Users, TrendingUp, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
 
 /**
  * @fileOverview High-Fidelity Sovereign Admin Dashboard.
@@ -136,8 +137,4 @@ function AdminActionCard({ href, icon, title, desc }: any) {
       </Card>
     </Link>
   );
-}
-
-function Badge({ children, className }: any) {
-  return <span className={className}>{children}</span>;
 }

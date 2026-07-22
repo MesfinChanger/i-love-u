@@ -72,7 +72,7 @@ export function canManageCircle(role: CircleRole): boolean {
   return normalized === "owner" || normalized === "moderator";
 }
 
-export function canChangeRole(actor?: CircleMemberPermission | null, targetRole?: CircleRole): boolean {
+export function canChangeRole(actor?: CircleMemberPermission | null, target?: CircleMemberPermission | null): boolean {
   if (!actor) return false;
   const actorRole = normalizeRole(actor.role);
   
@@ -80,7 +80,7 @@ export function canChangeRole(actor?: CircleMemberPermission | null, targetRole?
   if (actorRole !== "owner") return false;
   
   // Cannot remove ownership accidentally
-  if (targetRole === "owner") return false;
+  if (target?.role === "owner") return false;
   
   return true;
 }
@@ -97,6 +97,19 @@ export function canRemoveMember(actor?: CircleMemberPermission | null, target?: 
   if (actorRole === "moderator" && targetRole === "member") return true;
 
   return false;
+}
+
+export function canViewCircle(member?: CircleMemberPermission | null, isPublic: boolean = false): boolean {
+  if (isPublic) return true;
+  return isMember(member);
+}
+
+export function canDeleteCircle(member?: CircleMemberPermission | null): boolean {
+  return isOwner(member);
+}
+
+export function canEditCircle(member?: CircleMemberPermission | null): boolean {
+  return isOwner(member);
 }
 
 /**
