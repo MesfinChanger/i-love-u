@@ -1,7 +1,7 @@
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
-  // Build Integrity Protocol: Forcing clean synchronization cycle
+  // Build Integrity Protocol: Forcing clean synchronization cycle to resolve webpack ripples
   typescript: {
     ignoreBuildErrors: true,
   },

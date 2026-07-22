@@ -14,25 +14,29 @@ import { Button } from "@/components/ui/button";
 /**
  * @fileOverview High-Fidelity Welcome Gateway.
  * Features the Sacred Bloom Protocol and perfectly positioned mission branding.
+ * Hardened to resolve "disturbed" layout ripples and ensure perfect centering.
  */
 export default function HomePage() {
   return (
-    <main className="relative min-h-screen overflow-hidden bg-white">   
+    <main className="relative min-h-screen overflow-hidden bg-white flex flex-col items-center justify-center">   
       <AnimatedBackground />
 
-      <section className="
+      <div className="
         relative z-10
-        min-h-screen
+        w-full
+        max-w-4xl
         flex
         flex-col
         items-center
-        justify-center
         px-6
+        py-12
         text-center
+        animate-in fade-in zoom-in-95 duration-700
       ">
         {/* Sacred Heart Centered Above Branding */}
         <div className="
-          w-24 h-24
+          w-20 h-20
+          md:w-24 md:h-24
           rounded-[2.5rem]
           bg-white/40
           backdrop-blur-md
@@ -43,18 +47,21 @@ export default function HomePage() {
           mb-8
           animate-heartbeat
           ring-8 ring-white/20
+          transition-transform
+          hover:scale-110
         ">
           <Heart className="
-            w-12 h-12
+            w-10 h-10
+            md:w-12 md:h-12
             text-primary
             fill-primary
           "/>
         </div>
 
         {/* High-Fidelity Mission Signature */}
-        <div className="space-y-2 mb-12">
+        <div className="space-y-3 mb-10">
           <h1 className="
-            text-5xl
+            text-4xl
             md:text-7xl
             font-black
             tracking-tighter
@@ -62,34 +69,44 @@ export default function HomePage() {
             flex items-center justify-center gap-3
             text-slate-900
           ">
-            ❤️ I LOVE U <span className="inline-flex items-center gap-1.5 text-4xl md:text-5xl">✨💖</span>
+            ❤️ I LOVE U <span className="inline-flex items-center gap-1.5 text-3xl md:text-5xl">✨💖</span>
           </h1>
-          <p className="
-            text-xs
-            md:text-sm
+          <div className="
+            text-[10px]
+            md:text-xs
             font-black
-            tracking-[0.5em]
+            tracking-[0.6em]
             uppercase
-            text-primary/60
+            text-primary/70
+            bg-primary/5
+            px-4
+            py-1
+            rounded-full
+            inline-block
           ">
             The Prosperity Revolution
-          </p>
+          </div>
         </div>
 
-        {/* Message Registry */}
+        {/* Identity Registry Box */}
         <div className="
-          max-w-2xl
-          bg-white/40
+          max-w-xl
+          w-full
+          bg-white/30
           backdrop-blur-xl
           rounded-[3rem]
           shadow-2xl
-          p-10
+          p-8
+          md:p-12
           border
           border-white/50
           mb-10
+          transition-all
+          hover:bg-white/40
         ">
           <h2 className="
-            text-3xl
+            text-2xl
+            md:text-3xl
             font-black
             text-slate-900
             uppercase
@@ -100,7 +117,8 @@ export default function HomePage() {
           <p className="
             mt-4
             text-slate-600
-            text-lg
+            text-base
+            md:text-lg
             italic
             font-medium
             leading-relaxed
@@ -109,99 +127,101 @@ export default function HomePage() {
             <br/>
             Connect, share moments, and build prosperity worldwide.
           </p>
-        </div>
 
-        {/* Strategic Action Pathways */}
-        <div className="
-          flex
-          flex-col
-          md:flex-row
-          gap-4
-          w-full
-          max-w-md
-          justify-center
-        ">
-          <Button
-            asChild
-            className="
-              h-16
-              px-10
-              rounded-2xl
-              gradient-bg
-              font-black
-              uppercase
-              text-[11px]
-              tracking-widest
-              shadow-xl
-              active:scale-95
-              transition-all
-              flex-1
-            "
-          >
-            <Link href="/signup">
-              <UserPlus className="w-4 h-4 mr-2" />
-              Join Mission
-            </Link>
-          </Button>
+          {/* Strategic Action Pathways */}
+          <div className="
+            mt-10
+            flex
+            flex-col
+            sm:flex-row
+            gap-4
+            w-full
+            justify-center
+          ">
+            <Button
+              asChild
+              className="
+                h-16
+                px-8
+                rounded-2xl
+                gradient-bg
+                font-black
+                uppercase
+                text-[11px]
+                tracking-widest
+                shadow-xl
+                active:scale-95
+                transition-all
+                flex-1
+              "
+            >
+              <Link href="/signup">
+                <UserPlus className="w-4 h-4 mr-2" />
+                Join Mission
+              </Link>
+            </Button>
 
-          <Button
-            asChild
-            variant="outline"
-            className="
-              h-16
-              px-10
-              rounded-2xl
-              bg-white/50
-              backdrop-blur-sm
-              border-2
-              font-black
-              uppercase
-              text-[11px]
-              tracking-widest
-              hover:bg-white
-              transition-all
-              flex-1
-            "
-          >
-            <Link href="/login">
-              <LogIn className="w-4 h-4 mr-2" />
-              Sign In
-            </Link>
-          </Button>
+            <Button
+              asChild
+              variant="outline"
+              className="
+                h-16
+                px-8
+                rounded-2xl
+                bg-white/50
+                backdrop-blur-sm
+                border-2
+                font-black
+                uppercase
+                text-[11px]
+                tracking-widest
+                hover:bg-white
+                transition-all
+                flex-1
+              "
+            >
+              <Link href="/login">
+                <LogIn className="w-4 h-4 mr-2" />
+                Sign In
+              </Link>
+            </Button>
+          </div>
         </div>
 
         {/* Guest Explorer Pathway */}
-        <div className="mt-8 w-full max-w-sm">
+        <div className="w-full max-w-sm">
            <Link href="/login/guest" className="group">
-             <div className="p-6 rounded-[2rem] bg-slate-900 text-white flex items-center justify-between hover:bg-slate-800 transition-all shadow-lg overflow-hidden relative">
-                <SparklesIcon className="absolute -right-2 -top-2 w-12 h-12 text-primary opacity-10 group-hover:rotate-12 transition-transform" />
+             <div className="p-6 rounded-[2.5rem] bg-slate-900 text-white flex items-center justify-between hover:bg-slate-800 transition-all shadow-2xl overflow-hidden relative border border-white/5">
+                <SparklesIcon className="absolute -right-2 -top-2 w-16 h-16 text-primary opacity-10 group-hover:rotate-12 transition-transform" />
                 <div className="flex items-center gap-4 text-left">
-                   <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
-                      <Ghost className="w-5 h-5 text-primary" />
+                   <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center border border-white/10">
+                      <Ghost className="w-6 h-6 text-primary" />
                    </div>
                    <div>
                       <h4 className="font-black uppercase text-[10px] tracking-widest leading-none">Guest Explorer</h4>
-                      <p className="text-[9px] text-white/50 font-medium italic mt-1.5">30-Minute Mystery Discovery</p>
+                      <p className="text-[9px] text-white/50 font-medium italic mt-2">30-Minute Mystery Discovery</p>
                    </div>
                 </div>
-                <div className="text-[8px] font-black uppercase tracking-widest bg-primary/20 text-primary px-3 py-1.5 rounded-lg border border-primary/20">Launch →</div>
+                <div className="text-[8px] font-black uppercase tracking-widest bg-primary/20 text-primary px-3 py-2 rounded-xl border border-primary/20 group-hover:scale-105 transition-transform">
+                  Launch →
+                </div>
              </div>
            </Link>
         </div>
 
         {/* Respect Protocol Footer */}
         <p className="
-          mt-12
+          mt-16
           text-slate-500
           font-black
           uppercase
-          text-[10px]
-          tracking-[0.4em]
+          text-[9px]
+          tracking-[0.5em]
           opacity-50
         ">
           Respect & Love is Mandatory ❤️
         </p>
-      </section>
+      </div>
     </main>
   );
 }
