@@ -244,8 +244,8 @@ service cloud.firestore {
           &&
           request.auth.uid == memberId;
 
-        // Only owners or admins can update other member roles
-        allow update:
+        // Only owners or admins can update other member roles or remove members
+        allow update, delete:
           if signedIn()
           && exists(
            /databases/$(database)/documents/communities/$(communityId)/members/$(request.auth.uid)
@@ -256,17 +256,6 @@ service cloud.firestore {
            /databases/$(database)/documents/communities/$(communityId)/members/$(request.auth.uid)
            ).data.role
            in ['owner','admin']
-          );
-          
-        // Hearts can leave, or guardians can remove
-        allow delete:
-          if signedIn()
-          && (
-            request.auth.uid == memberId || 
-            (
-              exists(/databases/$(database)/documents/communities/$(communityId)/members/$(request.auth.uid)) &&
-              get(/databases/$(database)/documents/communities/$(communityId)/members/$(request.auth.uid)).data.role in ['owner', 'admin']
-            )
           );
       }
 
