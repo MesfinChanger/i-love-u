@@ -67,58 +67,6 @@ export default function CircleSpacePage() {
     loadCircle();
   }, [circleId]);
 
-  async function handleJoinCircle() {
-    if (!user) {
-      toast({
-        variant: "destructive",
-        title: "Login required",
-        description: "Please create an identity before joining circles."
-      });
-      return;
-    }
-
-    if (!circleId || !db || isJoining) return;
-
-    setIsJoining(true);
-    try {
-      const joined = await joinCircle(circleId, user.uid);
-
-      if (!joined) {
-        toast({
-          title: "Already joined",
-          description: "You are already a member of this community."
-        });
-        setIsJoining(false);
-        return;
-      }
-
-      // Prosperity Protocol: Atomic increment of member count
-      await updateDoc(doc(db, "communities", circleId), {
-        memberCount: increment(1)
-      });
-
-      toast({
-        title: "Joined Circle ✨",
-        description: "Your frequency is now synchronized with this community."
-      });
-
-      // Refresh local state to reflect growth
-      setCircle((prev: any) => ({
-        ...prev,
-        memberCount: (prev?.memberCount || 0) + 1
-      }));
-    } catch (error) {
-      console.error("Join Protocol Ripple:", error);
-      toast({
-        variant: "destructive",
-        title: "Join failed",
-        description: "Could not synchronize with this circle frequency."
-      });
-    } finally {
-      setIsJoining(false);
-    }
-  }
-
   return (
     <GuestAccessGuard feature="circle">
       <div className="min-h-screen bg-muted/30 pb-24">
@@ -159,11 +107,61 @@ export default function CircleSpacePage() {
 
                   <div className="flex gap-4 pt-2">
                     <Button 
-                      onClick={handleJoinCircle}
+                      onClick={async () => {
+                        if (!user) {
+                          toast({
+                            variant: "destructive",
+                            title: "Login required",
+                            description: "Please create an identity before joining circles."
+                          });
+                          return;
+                        }
+
+                        if (!circleId || !db || isJoining) return;
+
+                        setIsJoining(true);
+                        try {
+                          const joined = await joinCircle(circleId, user.uid);
+
+                          if (!joined) {
+                            toast({
+                              title: "Already joined",
+                              description: "You are already a member of this community."
+                            });
+                            setIsJoining(false);
+                            return;
+                          }
+
+                          // Prosperity Protocol: Atomic increment of member count
+                          await updateDoc(doc(db, "communities", circleId), {
+                            memberCount: increment(1)
+                          });
+
+                          toast({
+                            title: "Joined Circle ✨",
+                            description: "Your frequency is now synchronized with this community."
+                          });
+
+                          // Refresh local state to reflect growth
+                          setCircle((prev: any) => ({
+                            ...prev,
+                            memberCount: (prev?.memberCount || 0) + 1
+                          }));
+                        } catch (error) {
+                          console.error("Join Protocol Ripple:", error);
+                          toast({
+                            variant: "destructive",
+                            title: "Join failed",
+                            description: "Could not synchronize with this circle frequency."
+                          });
+                        } finally {
+                          setIsJoining(false);
+                        }
+                      }}
                       disabled={isJoining}
-                      className="rounded-2xl h-16 px-10 font-black uppercase text-[11px] tracking-widest gradient-bg shadow-xl shadow-primary/20 transition-all active:scale-95"
+                      className="rounded-2xl h-14 px-8 font-black"
                     >
-                      {isJoining ? <Loader2 className="w-5 h-5 animate-spin" /> : "Synchronize Heart"}
+                      {isJoining ? <Loader2 className="w-5 h-5 animate-spin" /> : "Join Circle"}
                     </Button>
                   </div>
                 </CardContent>
