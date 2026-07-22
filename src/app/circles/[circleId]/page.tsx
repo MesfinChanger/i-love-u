@@ -28,6 +28,7 @@ import { db } from "@/lib/firebase";
 import { joinCircle } from "@/services/circle.service";
 import { useUser } from "@/firebase";
 import { useToast } from "@/hooks/use-toast";
+import CircleAdminPanel from "@/components/circle/CircleAdminPanel";
 
 /**
  * @fileOverview High-Fidelity Circle Detail Page.
@@ -164,6 +165,9 @@ export default function CircleSpacePage() {
                       {isJoining ? <Loader2 className="w-5 h-5 animate-spin" /> : "Join Circle"}
                     </Button>
                   </div>
+
+                  {/* Authority Protocol: Display management tools for Guardians */}
+                  <CircleAdminPanel circleId={circleId} />
                 </CardContent>
               </Card>
 

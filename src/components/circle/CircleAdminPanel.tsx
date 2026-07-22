@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { useCircleRole } from "@/hooks/use-circle-role";
 import { ShieldCheck, Users, Settings } from "lucide-react";
+import Link from "next/link";
 
 /**
  * @fileOverview High-Fidelity Circle Administration Panel.
@@ -32,9 +33,11 @@ export default function CircleAdminPanel({
       </div>
 
       <div className="grid gap-3">
-        <Button className="h-14 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-black uppercase tracking-widest text-[10px] gap-3 shadow-xl shadow-slate-900/10 active:scale-95 transition-all">
-          <Users className="w-4 h-4" />
-          Manage Members
+        <Button asChild className="h-14 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-black uppercase tracking-widest text-[10px] gap-3 shadow-xl shadow-slate-900/10 active:scale-95 transition-all">
+          <Link href={`/circles/${circleId}/manage`}>
+            <Users className="w-4 h-4" />
+            Manage Members
+          </Link>
         </Button>
         <Button variant="outline" className="h-14 rounded-2xl border-2 border-primary/20 text-primary font-black uppercase tracking-widest text-[10px] gap-3 hover:bg-primary/5 active:scale-95 transition-all">
           <Settings className="w-4 h-4" />
