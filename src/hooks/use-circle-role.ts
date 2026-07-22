@@ -57,7 +57,7 @@ export function useCircleRole(circleId?: string): CircleRoleState {
   return {
     role: normalizedRole,
     isOwner: normalizedRole === "owner",
-    isAdmin: normalizedRole === "owner", 
+    isAdmin: normalizedRole === "owner" || normalizedRole === "moderator", 
     isModerator: normalizedRole === "owner" || normalizedRole === "moderator",
     isMember: normalizedRole === "owner" || normalizedRole === "moderator" || normalizedRole === "member",
     isGuest: normalizedRole === "guest",

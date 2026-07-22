@@ -30,8 +30,7 @@ export default function CirclePostsPage() {
   const [isPublishing, setIsPublishing] = useState(false);
 
   // Authority Verification Protocol
-  const { isMember } = useCircleRole(circleId);
-  const roleLoading = false;
+  const { isMember, loading: roleLoading } = useCircleRole(circleId);
 
   async function load() {
     if (!circleId) return;

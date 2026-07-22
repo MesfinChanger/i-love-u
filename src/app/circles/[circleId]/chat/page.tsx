@@ -31,8 +31,7 @@ export default function CircleChatPage({ params }: { params: Promise<{ circleId:
   const [message, setMessage] = useState("");
   const [isSending, setIsSending] = useState(false);
   
-  const { isMember } = useCircleRole(circleId);
-  const roleLoading = false;
+  const { isMember, loading: roleLoading } = useCircleRole(circleId);
 
   const circleRef = useMemoFirebase(() => db && circleId ? doc(db, 'communities', circleId) : null, [db, circleId]);
   const { data: circle } = useDoc(circleRef);

@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { useCircleRole } from "@/hooks/use-circle-role";
-import { ShieldCheck, Users, Settings, Loader2 } from "lucide-react";
+import { ShieldCheck, Users, Loader2 } from "lucide-react";
 import Link from "next/link";
 
 /**
@@ -10,9 +10,8 @@ import Link from "next/link";
  * Synchronized with the Circle Access Protocol.
  */
 export default function CircleAdminPanel({ circleId }: { circleId: string }) {
-  const { isOwner, isModerator } = useCircleRole(circleId);
+  const { isOwner, isModerator, loading } = useCircleRole(circleId);
   const isAdmin = isOwner || isModerator;
-  const loading = false;
 
   if (loading) return (
     <div className="rounded-[2.5rem] bg-primary/5 p-8 border border-primary/10 flex items-center justify-center">

@@ -104,10 +104,11 @@ export function canManageCircle(
  */
 export function canChangeRole(
  actor?: CircleMemberPermission | null,
- targetRole?: CircleRole
+ target?: CircleMemberPermission | null
 ): boolean {
- if(!actor) return false;
+ if(!actor || !target) return false;
  const actorRole = normalizeRole(actor.role);
+ const targetRole = normalizeRole(target.role);
 
  // Only owner can promote/demote
  if(actorRole !== "owner"){
