@@ -20,12 +20,7 @@ import {
 import { Card, CardContent } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/badge';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
-import Link from 'next/link';
 
-/**
- * @fileOverview Greetings Registry.
- * High-fidelity module for viewing community outreach and initial heart sparks.
- */
 export default function GreetingsPage() {
   const { user } = useUser();
   const db = useFirestore();
@@ -89,9 +84,27 @@ export default function GreetingsPage() {
 
 function GreetingCard({ greeting }: { greeting: any }) {
   const db = useFirestore();
+  const router = useRouter();
+  const { toast } = useToast();
+  const [isAccepting, setIsAccepting] = useState(false);
+
   const senderRef = useMemoFirebase(() => db ? query(collection(db, 'users'), where('uid', '==', greeting.fromUserId)) : null, [db, greeting.fromUserId]);
   const { data: senders } = useCollection(senderRef);
   const sender = senders?.[0];
+
+  const handleAccept = async () => {
+    if (isAccepting || greeting.status === 'accepted') return;
+    setIsAccepting(true);
+    try {
+      const result = await acceptGreeting(greeting.id, greeting.fromUserId, greeting.toUserId);
+      toast({ title: "Spark Connected ❤️", description: "Your conversation room is active." });
+      router.push(`/messages/${result.conversationId}`);
+    } catch (error) {
+      toast({ variant: "destructive", title: "Connection Ripple", description: "Failed to establish spark." });
+    } finally {
+      setIsAccepting(false);
+    }
+  };
 
   return (
     <Card className="rounded-[2.5rem] border-none shadow-lg bg-white overflow-hidden hover:shadow-xl transition-all group">
@@ -117,81 +130,15 @@ function GreetingCard({ greeting }: { greeting: any }) {
             <Clock className="w-3 h-3" />
             <span className="text-[8px] font-black uppercase tracking-widest">Received</span>
           </div>
-          <Button variant="ghost" size="sm" className="rounded-xl h-10 px-4 text-[9px] font-black uppercase tracking-widest gap-2 hover:bg-primary/5 hover:text-primary transition-all">
-            Open Spark <ArrowRight className="w-3 h-3" />
+          <Button 
+            onClick={handleAccept} 
+            disabled={isAccepting || greeting.status === 'accepted'}
+            className="rounded-xl h-10 px-5 text-[9px] font-black uppercase tracking-widest gap-2 gradient-bg"
+          >
+            {isAccepting ? <Loader2 className="w-3 h-3 animate-spin" /> : <>Accept Spark <ArrowRight className="w-3 h-3" /></>}
           </Button>
         </div>
       </CardContent>
     </Card>
   );
-}
-createSparkConnection(
-  greeting.fromUserId,
-  greeting.toUserId
-)const router = useRouter();
-const { toast } = useToast();
-const [accepting, setAccepting] = useState(false);
-
-
-async function handleAccept(){
-
- if(accepting) return;
-
- setAccepting(true);
-
- try {
-
-   const result = await acceptGreeting(
-     greeting.id,
-     greeting.fromUserId,
-     greeting.toUserId
-   );
-
-
-   toast({
-     title:"Connection Created ❤️",
-     description:"Your Spark conversation is ready."
-   });
-
-
-   router.push(
-     `/messages/${result.conversationId}`
-   );
-
-
- } catch(error){
-
-   console.error(error);
-
-   toast({
-    variant:"destructive",
-    title:"Unable to connect",
-    description:"Please try again."
-   });
-
- } finally {
-
-   setAccepting(false);
-
- }<Button
- onClick={handleAccept}
- disabled={accepting || greeting.status==="accepted"}
- className="
- rounded-xl
- h-10
- px-5
- text-[9px]
- font-black
- uppercase
- tracking-widest
- "
->
-
-{accepting ? "Connecting..." :
- greeting.status==="accepted"
- ? "Connected ❤️"
- : "Accept Spark"}
-
-</Button>
-
 }
