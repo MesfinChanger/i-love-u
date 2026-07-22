@@ -29,6 +29,7 @@ import { joinCircle } from "@/services/circle.service";
 import { useUser } from "@/firebase";
 import { useToast } from "@/hooks/use-toast";
 import CircleAdminPanel from "@/components/circle/CircleAdminPanel";
+import { useCircleRole } from "@/hooks/use-circle-role";
 
 /**
  * @fileOverview High-Fidelity Circle Detail Page.
@@ -39,6 +40,9 @@ export default function CircleSpacePage() {
   const circleId = params?.circleId as string;
   const { user } = useUser();
   const { toast } = useToast();
+
+  // Authority Verification Protocol
+  const { isAdmin, loading: roleLoading } = useCircleRole(circleId);
 
   const [circle, setCircle] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -197,10 +201,18 @@ export default function CircleSpacePage() {
                   text="Trade products and artisan services together."
                   href="/shopping"
                 />
+                {!roleLoading && isAdmin && (
+                  <FeatureCard
+                    icon={<ShieldCheck className="w-8 h-8" />}
+                    title="Management"
+                    text="Control members and permissions."
+                    href={`/circles/${circleId}/manage`}
+                  />
+                )}
               </div>
 
               <Card className="rounded-[3rem] border-none bg-slate-900 text-white shadow-2xl relative overflow-hidden group">
-                <div className="absolute top-0 right-0 p-8 opacity-5 -rotate-12 transition-transform group-hover:rotate-0 duration-700">
+                <div className="absolute top-0 right-0 p-10 opacity-5 -rotate-12 transition-transform group-hover:rotate-0 duration-700">
                    <ShieldCheck className="w-40 h-40 text-primary" />
                 </div>
                 <CardContent className="p-10 flex items-center gap-6 relative z-10">
