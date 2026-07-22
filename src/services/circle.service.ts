@@ -128,183 +128,40 @@ export async function joinCircle(
  * Synchronizes membership + public profile
  */
 export async function getCircleMembers(
-  circleId:string
-){
-
-  if(!circleId){
+  circleId: string
+) {
+  if (!circleId || !db) {
     return [];
   }
 
+  const snapshot = await getDocs(
+    collection(db, "communities", circleId, "members")
+  );
 
-  const snapshot =
-    await getDocs(
-      collection(
-        db,
-        "communities",
-        circleId,
-        "members"
-      )
+  const members = [];
+
+  for (const memberDoc of snapshot.docs) {
+    const member = memberDoc.data();
+
+    if (!member.userId) continue;
+
+    const profileSnap = await getDoc(
+      doc(db, "publicProfiles", member.userId)
     );
 
-
-  const members:any[]=[];
-
-
-
-  for(const memberDoc of snapshot.docs){
-
-
-    const member =
-      memberDoc.data();
-
-
-
-    if(!member.userId){
-      continue;
-    }
-
-
-
-    const profileSnap =
-      await getDoc(
-        doc(
-          db,
-          "publicProfiles",
-          member.userId
-        )
-      );
-
-
-
     members.push({
-
-      id:memberDoc.id,
-
-      userId:member.userId,
-
-      role:
-        member.role ?? "member",
-
-      status:
-        member.status ?? "active",
-
-      joinedAt:
-        member.joinedAt,
-
-
-      reputation:
-        member.reputation ?? 0,
-
-
-      profile:
-        profileSnap.exists()
-        ?
-        {
-          id:profileSnap.id,
-          ...profileSnap.data()
-        }
-        :
-        {
-          displayName:"Unknown Heart",
-          username:"unknown",
-          photoURL:null,
-          country:"Global"
-        }
-
+      id: memberDoc.id,
+      ...member,
+      profile: profileSnap.exists()
+        ? { id: profileSnap.id, ...profileSnap.data() }
+        : {
+            displayName: "Unknown Heart",
+            username: "unknown",
+            photoURL: null,
+            country: "Global"
+          }
     });
-
   }
-
-
 
   return members;
-
-}
-/**
- * Create Circle Protocol
- */
-export async function createCircle(circle: {
-  name: string;
-  description: string;
-  category: string;
-  ownerId: string;
-  privacy: "open" | "private";
-  imageURL?: string;
-}) {
-
-  const ref = await addDoc(
-    collection(db, "communities"),
-    {
-      ...circle,
-      memberCount: 1,
-      createdAt: serverTimestamp()
-    }
-  );
-
-
-  await setDoc(
-    doc(
-      db,
-      "communities",
-      ref.id,
-      "members",
-      circle.ownerId
-    ),
-    {
-      userId: circle.ownerId,
-      role: "owner",
-      status: "active",
-      joinedAt: serverTimestamp()
-    }
-  );
-
-
-  return ref.id;
-}
-
-
-
-/**
- * Join Circle Protocol
- */
-export async function joinCircle(
-  circleId: string,
-  userId: string
-) {
-
-  if (!circleId || !userId) {
-    return false;
-  }
-
-
-  const memberRef = doc(
-    db,
-    "communities",
-    circleId,
-    "members",
-    userId
-  );
-
-
-  const existing =
-    await getDoc(memberRef);
-
-
-  if(existing.exists()) {
-    return false;
-  }
-
-
-  await setDoc(
-    memberRef,
-    {
-      userId,
-      role:"member",
-      status:"active",
-      joinedAt:serverTimestamp()
-    }
-  );
-
-
-  return true;
 }

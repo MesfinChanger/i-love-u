@@ -72,7 +72,10 @@ export default function ProsperityPoolPage() {
     
     setIsSending(true);
     try {
-      const moderation = await moderateText({ text: `${title} - ${newThought}` });
+      const moderation = await moderateText({ 
+        text: `${title} - ${newThought}`,
+        context: 'chat'
+      });
       if (moderation.isFlagged) {
         toast({ variant: "destructive", title: "Respect Protocol", description: moderation.reason });
         setIsSending(false);

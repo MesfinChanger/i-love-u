@@ -1,47 +1,121 @@
 "use client";
 
 
-import {usePermissions}
-from "@/hooks/usePermissions";
+import {
+ ReactNode
+} from "react";
 
 
-import JoinMissionDialog
-from "@/components/dialogs/JoinMissionDialog";
+import {
+ useRouter
+} from "next/navigation";
 
 
-
-export default function GuestGuard({
-
-children,
-
-permission
-
-}){
-
-
-const permissions =
-usePermissions();
+import {
+ useAuth
+} from "@/hooks/useAuth";
 
 
 
-const allowed =
-permissions[permission];
+type GuestPermission =
+
+ | "browse"
+ | "viewIdeas"
+ | "viewPublicCircles"
+ | "viewShop";
 
 
 
-if(!allowed){
 
-return (
 
-<JoinMissionDialog/>
+interface Props {
 
-)
+ children:ReactNode;
+
+ permission:GuestPermission;
 
 }
 
 
 
-return children;
 
+
+const guestPermissions:
+
+Record<
+GuestPermission,
+boolean
+>
+={
+
+
+ browse:true,
+
+
+ viewIdeas:true,
+
+
+ viewPublicCircles:true,
+
+
+ viewShop:true
+
+
+};
+
+
+
+
+
+export default function GuestGuard({
+
+ children,
+
+ permission
+
+}:Props){
+
+
+
+ const {
+   user
+ } =
+ useAuth();
+
+
+
+ const router =
+ useRouter();
+
+
+
+ /*
+  Logged users bypass guest limits
+ */
+ if(user){
+
+   return <>{children}</>;
+
+ }
+
+
+
+
+
+ if(
+   !guestPermissions[permission]
+ ){
+
+   router.push("/login");
+
+   return null;
+
+ }
+
+
+
+
+
+ return <>{children}</>;
 
 }

@@ -121,7 +121,10 @@ export default function ChatWindow({
     
     setIsSending(true);
     try {
-      const moderation = await moderateText({ text: newMessage });
+      const moderation = await moderateText({ 
+        text: newMessage,
+        context: 'chat'
+      });
       if (moderation.isFlagged) {
         toast({ variant: "destructive", title: "Policy Blocked", description: moderation.reason });
         setIsSending(false);

@@ -60,7 +60,10 @@ export default function CircleChatPage({ params }: { params: Promise<{ circleId:
 
     setIsSending(true);
     try {
-      const moderation = await moderateText({ text: message });
+      const moderation = await moderateText({ 
+        text: message,
+        context: 'chat'
+      });
       if (moderation.isFlagged) {
         toast({ variant: "destructive", title: "Respect Protocol", description: moderation.reason });
         setIsSending(false);

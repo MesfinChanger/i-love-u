@@ -1,29 +1,27 @@
 /**
- * Circle Permission Engine
+ * Circle Permission Security Protocol
  *
- * Central security logic for Circle features.
+ * Security hierarchy:
  *
- * Roles:
- * owner
- * moderator
- * member
- * guest
+ * OWNER
+ *    |
+ * MODERATOR
+ *    |
+ * MEMBER
+ *    |
+ * GUEST
  */
 
-import {
-  doc,
-  getDoc
-} from "firebase/firestore";
-
 import { db } from "@/lib/firebase";
-
+import { doc, getDoc } from "firebase/firestore";
 
 export type CircleRole =
   | "owner"
   | "moderator"
   | "member"
-  | "guest";
-
+  | "guest"
+  | null
+  | undefined;
 
 export interface CircleMemberPermission {
   userId: string;
@@ -31,119 +29,225 @@ export interface CircleMemberPermission {
   status?: "active" | "pending" | "blocked";
 }
 
+/**
+ * Normalize database role
+ */
+export function normalizeRole(role: unknown): CircleRole {
+  if (typeof role !== "string") {
+    return null;
+  }
+
+  const value = role.toLowerCase().trim();
+
+  switch (value) {
+    case "owner":
+    case "moderator":
+    case "member":
+    case "guest":
+      return value as CircleRole;
+    default:
+      return null;
+  }
+}
 
 /**
- * Check if user can view circle
+ * Extract role safely
+ */
+export function getRole(member?: CircleMemberPermission | null): CircleRole {
+  if (!member) {
+    return null;
+  }
+  return normalizeRole(member.role);
+}
+
+/**
+ * Ownership
+ */
+export function isOwner(member?: CircleMemberPermission | null): boolean {
+  return getRole(member) === "owner";
+}
+
+/**
+ * Moderator or owner
+ */
+export function isModerator(member?: CircleMemberPermission | null): boolean {
+  const role = getRole(member);
+  return role === "owner" || role === "moderator";
+}
+
+/**
+ * Any real member
+ */
+export function isMember(member?: CircleMemberPermission | null): boolean {
+  const role = getRole(member);
+  return role === "owner" || role === "moderator" || role === "member";
+}
+
+/**
+ * Guest access
+ */
+export function isGuest(member?: CircleMemberPermission | null): boolean {
+  return getRole(member) === "guest";
+}
+
+/**
+ * View circle
  */
 export function canViewCircle(
   member?: CircleMemberPermission | null,
-  isPublic: boolean = false
-) {
-
-  if (isPublic) return true;
-
-  return member?.status === "active";
+  isPublic = false
+): boolean {
+  if (isPublic) {
+    return true;
+  }
+  return isMember(member);
 }
 
+/**
+ * Create posts
+ */
+export function canPost(member?: CircleMemberPermission | null): boolean {
+  return isMember(member);
+}
 
 /**
- * Check if user can create posts
+ * Comment
  */
-export function canPost(
-  member?: CircleMemberPermission | null
-) {
+export function canComment(member?: CircleMemberPermission | null): boolean {
+  return isMember(member);
+}
 
-  if (!member) return false;
+/**
+ * Manage members
+ * OWNER ONLY
+ */
+export function canManageMembers(member?: CircleMemberPermission | null): boolean {
+  return isOwner(member);
+}
 
-  if (member.status !== "active") {
+/**
+ * Moderate content
+ * OWNER + MODERATOR
+ */
+export function canModerate(member?: CircleMemberPermission | null): boolean {
+  return isModerator(member);
+}
+
+/**
+ * Edit circle settings
+ */
+export function canEditCircle(member?: CircleMemberPermission | null): boolean {
+  return isModerator(member);
+}
+
+/**
+ * Delete circle
+ */
+export function canDeleteCircle(member?: CircleMemberPermission | null): boolean {
+  return isOwner(member);
+}
+
+/**
+ * Change member role
+ */
+export function canChangeRole(
+  actor?: CircleMemberPermission | null,
+  target?: CircleMemberPermission | null
+): boolean {
+  if (!actor || !target) {
     return false;
   }
 
-  return [
-    "owner",
-    "moderator",
-    "member"
-  ].includes(member.role);
+  const actorRole = getRole(actor);
+  const targetRole = getRole(target);
+
+  if (actorRole !== "owner") {
+    return false;
+  }
+
+  if (targetRole === "owner") {
+    return false;
+  }
+
+  return true;
 }
 
-
 /**
- * Check if user can comment
+ * Remove member
  */
-export function canComment(
-  member?: CircleMemberPermission | null
-) {
+export function canRemoveMember(
+  actor?: CircleMemberPermission | null,
+  target?: CircleMemberPermission | null
+): boolean {
+  if (!actor || !target) {
+    return false;
+  }
 
-  return canPost(member);
+  if (!isOwner(actor)) {
+    return false;
+  }
+
+  if (isOwner(target)) {
+    return false;
+  }
+
+  return true;
 }
 
-
 /**
- * Check member management permissions
+ * Proxy for canManageMembers for backward compatibility
  */
-export function canManageMembers(
-  member?: CircleMemberPermission | null
-) {
-
-  if (!member) return false;
-
-  return [
-    "owner",
-    "moderator"
-  ].includes(member.role);
+export function canManageCircle(role: CircleRole): boolean {
+  return role === "owner";
 }
 
-
 /**
- * Owner check
+ * Permission object
  */
-export function isOwner(
-  member?: CircleMemberPermission | null
+export function getCirclePermissions(
+  member?: CircleMemberPermission | null,
+  isPublic = false
 ) {
-
-  return member?.role === "owner";
+  return {
+    canViewCircle: canViewCircle(member, isPublic),
+    canPost: canPost(member),
+    canComment: canComment(member),
+    canManageMembers: canManageMembers(member),
+    canModerate: canModerate(member),
+    canEditCircle: canEditCircle(member),
+    canDeleteCircle: canDeleteCircle(member),
+    canChangeRole: canChangeRole,
+    canRemoveMember: canRemoveMember,
+    isOwner: isOwner(member),
+    isModerator: isModerator(member),
+    isMember: isMember(member),
+    isGuest: isGuest(member),
+  };
 }
 
-
 /**
- * Moderator check
- */
-export function isModerator(
-  member?: CircleMemberPermission | null
-) {
-
-  return (
-    member?.role === "owner" ||
-    member?.role === "moderator"
-  );
-}
-
-
-/**
- * Load current user's circle role
+ * Firebase role lookup - Fixed duplicate issue
  */
 export async function getCircleRole(
   circleId: string,
   userId: string
 ): Promise<CircleRole | null> {
-
   if (!circleId || !userId) {
     return null;
   }
 
-  const snap = await getDoc(
-    doc(
-      db,
-      "communities",
-      circleId,
-      "members",
-      userId
-    )
-  );
+  try {
+    const snap = await getDoc(
+      doc(db, "communities", circleId, "members", userId)
+    );
 
-  if (!snap.exists()) {
+    if (!snap.exists()) {
+      return null;
+    }
+
+    return (snap.data().role ?? "member") as CircleRole;
+  } catch (error) {
+    console.error("Circle security lookup failed:", error);
     return null;
   }
-
-  return (snap.data().role ?? "member") as CircleRole;
 }

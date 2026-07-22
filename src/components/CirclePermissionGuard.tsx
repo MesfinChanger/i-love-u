@@ -1,25 +1,17 @@
 "use client";
 
+import { ReactNode } from "react";
 
-import {
-  ReactNode
-} from "react";
-
-
-import {
-  useCirclePermissions
-} from "@/hooks/useCirclePermissions";
-
+import { useCirclePermissions } from "@/hooks/useCirclePermissions";
 
 import {
   CircleMemberPermission
 } from "@/services/circle-permission.service";
 
 
-interface Props {
+interface CirclePermissionGuardProps {
 
-  member?:
-    CircleMemberPermission | null;
+  member?: CircleMemberPermission | null;
 
   permission:
     | "canPost"
@@ -29,33 +21,37 @@ interface Props {
     | "isOwner"
     | "isModerator";
 
-  children:ReactNode;
+  children: ReactNode;
 
 }
 
 
 export default function CirclePermissionGuard({
+
   member,
+
   permission,
+
   children
-}:Props){
+
+}: CirclePermissionGuardProps) {
 
 
-const permissions =
-useCirclePermissions(member);
+  const permissions =
+    useCirclePermissions(member);
 
 
-if(
- !permissions[permission]
-){
- return null;
-}
+  if (!permissions[permission]) {
+
+    return null;
+
+  }
 
 
-return (
- <>
- {children}
- </>
-);
+  return (
+    <>
+      {children}
+    </>
+  );
 
 }

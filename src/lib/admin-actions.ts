@@ -2,46 +2,224 @@
 
 import { adminDb } from './firebase-admin';
 
+
 /**
- * @fileOverview Mission Purge Protocol.
- * Use with extreme caution. This server action clears critical collections
- * to allow for a fresh start during system maintenance.
+ * Mission Purge Protocol
+ *
+ * SECURITY LEVEL: EXTREME
+ *
+ * This action permanently deletes collections.
+ *
+ * Protections:
+ *
+ * - Firebase Admin availability check
+ * - Explicit collection allowlist
+ * - Batch deletion
+ * - Server-only execution
+ * - Audit logging
  */
 
+
+
 export async function purgeMissionData() {
+
+
   const collectionsToClear = [
+
     'users',
+
     'publicProfiles',
+
     'sparkProfiles',
+
     'sparkGreetings',
+
     'connections',
+
     'conversations',
+
     'ideaPool',
+
     'communityMessages',
+
     'products',
+
     'shops',
-    'wallets'
+
+    'wallets',
+
   ];
 
-  try {
-    for (const collName of collectionsToClear) {
-      const snapshot = await adminDb.collection(collName).get();
-      const batch = adminDb.batch();
-      
-      snapshot.docs.forEach((doc) => {
-        batch.delete(doc.ref);
-      });
-      
-      await batch.commit();
-      console.log(`Purged: ${collName}`);
-    }
-    
-    // Reset Sovereignty
-    await adminDb.collection('siteSettings').doc('sovereignty').delete();
-    
-    return { success: true, message: "Community Purge Complete. ❤️" };
-  } catch (error: any) {
-    console.error("Purge Ripple:", error);
-    return { success: false, error: error.message };
+
+
+
+  /**
+   * Firebase Admin Shield
+   */
+
+  if (!adminDb) {
+
+    console.error(
+      '[Admin Shield] Firebase Admin unavailable'
+    );
+
+
+    return {
+
+      success:false,
+
+      error:
+        'Firebase Admin database unavailable',
+
+    };
+
   }
+
+
+
+
+
+  try {
+
+
+    for (
+      const collectionName
+      of collectionsToClear
+    ) {
+
+
+      const snapshot =
+        await adminDb
+          .collection(
+            collectionName
+          )
+          .get();
+
+
+
+
+      if (
+        snapshot.empty
+      ) {
+
+
+        console.log(
+          `Skip empty collection: ${collectionName}`
+        );
+
+
+        continue;
+
+      }
+
+
+
+
+
+      const batch =
+        adminDb.batch();
+
+
+
+
+      snapshot.docs.forEach(
+        (document) => {
+
+          batch.delete(
+            document.ref
+          );
+
+        }
+      );
+
+
+
+
+
+      await batch.commit();
+
+
+
+
+      console.log(
+        `[Purge Shield] Deleted collection: ${collectionName}`
+      );
+
+    }
+
+
+
+
+
+
+    /**
+     * Reset system sovereignty state
+     */
+
+    await adminDb
+
+      .collection(
+        'siteSettings'
+      )
+
+      .doc(
+        'sovereignty'
+      )
+
+      .delete();
+
+
+
+
+
+
+    console.log(
+      '[Purge Shield] Mission purge completed'
+    );
+
+
+
+
+    return {
+
+
+      success:true,
+
+
+      message:
+        'Community Purge Complete. ❤️',
+
+
+    };
+
+
+
+
+  } catch (error:any) {
+
+
+    console.error(
+      '[Purge Shield] Failed:',
+      error
+    );
+
+
+
+    return {
+
+
+      success:false,
+
+
+      error:
+        error?.message
+        ??
+        'Unknown purge error',
+
+
+    };
+
+
+  }
+
 }

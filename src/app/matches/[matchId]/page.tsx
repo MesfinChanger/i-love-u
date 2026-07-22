@@ -123,7 +123,10 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
     
     setIsSending(true);
     try {
-      const moderation = await moderateText({ text: newMessage });
+      const moderation = await moderateText({ 
+        text: newMessage,
+        context: 'chat'
+      });
       if (moderation.isFlagged) {
         toast({ variant: "destructive", title: "Policy Blocked", description: moderation.reason });
         setIsSending(false);
