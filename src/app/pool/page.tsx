@@ -44,10 +44,10 @@ export default function ProsperityPoolPage() {
 
   const checkAccess = (topicId: string) => {
     if (!myProfile) return false;
-    if (myProfile.role === 'admin') return true;
+    if ((myProfile as any).role === 'admin') return true;
     switch (topicId) {
       case 'general': return true;
-      case 'economics': return !!(myProfile.isSeller || myProfile.isAdvertiser);
+      case 'economics': return !!((myProfile as any).isSeller || (myProfile as any).isAdvertiser);
       default: return true;
     }
   };
@@ -72,7 +72,7 @@ export default function ProsperityPoolPage() {
     try {
       const moderation = await moderateText({ 
         text: `${title} - ${newThought}`,
-        context: 'chat'
+        context: "chat",
       });
       if (moderation.isFlagged) {
         toast({ variant: "destructive", title: "Respect Protocol", description: moderation.reason });

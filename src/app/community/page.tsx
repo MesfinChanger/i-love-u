@@ -55,7 +55,7 @@ export default function CommunityPage() {
     try {
       const moderation = await moderateText({ 
         text: newMessage,
-        context: 'chat'
+        context: "chat",
       });
       if (moderation.isFlagged) {
         toast({ variant: "destructive", title: "Respect Protocol", description: moderation.reason });

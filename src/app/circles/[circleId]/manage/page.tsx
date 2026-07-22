@@ -28,7 +28,6 @@ import {
 import {
   getCircleRole,
   canManageCircle,
-  CircleMemberPermission
 } from "@/services/permission.service";
 import { useToast } from "@/hooks/use-toast";
 
@@ -60,7 +59,6 @@ export default function CircleManagePage({
   const { toast } = useToast();
 
   const [members, setMembers] = useState<CircleMember[]>([]);
-  const [currentMember, setCurrentMember] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [authorized, setAuthorized] = useState(false);
   const [checking, setChecking] = useState(true);
@@ -68,13 +66,15 @@ export default function CircleManagePage({
 
   useEffect(() => {
     async function verify() {
-      if (!circleId || !user?.uid) return;
+      if (!circleId || !user?.uid) {
+        setChecking(false);
+        return;
+      }
 
       try {
         const role = await getCircleRole(circleId, user.uid);
         const allowed = canManageCircle(role);
         setAuthorized(allowed);
-        setCurrentMember({ userId: user.uid, role });
 
         if (allowed) {
           await loadRegistry();
@@ -158,7 +158,7 @@ export default function CircleManagePage({
     return (
       <div className="min-h-screen flex items-center justify-center p-6 bg-muted/30">
         <Card className="max-w-md p-12 rounded-[3.5rem] border-none shadow-2xl bg-white text-center space-y-6">
-          <ShieldX className="mx-auto w-20 h-20 text-red-500 opacity-20" />
+          <ShieldCheck className="mx-auto w-20 h-20 text-red-500 opacity-20" />
           <div className="space-y-2">
             <h1 className="text-3xl font-black uppercase tracking-tighter">Access Restricted</h1>
             <p className="text-muted-foreground italic font-medium leading-relaxed">

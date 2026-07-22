@@ -8,8 +8,6 @@ import {
   Loader2,
   Lock,
   ArrowLeft,
-  UserRound,
-  BadgeCheck
 } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/Card";
@@ -44,7 +42,10 @@ export default function MembersPage({
 
   useEffect(() => {
     async function verifyAndLoad() {
-      if (!circleId || !user?.uid) return;
+      if (!circleId || !user?.uid) {
+        setChecking(false);
+        return;
+      }
 
       try {
         const role = await getCircleRole(circleId, user.uid);

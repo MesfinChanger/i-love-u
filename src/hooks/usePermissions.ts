@@ -23,7 +23,7 @@ export function usePermissions() {
   const { data: profile, loading: profileLoading } = useDoc(userRef);
 
   // Default to guest if no profile is synchronized
-  const role = profile?.role || "guest";
+  const role = (profile as any)?.role || "guest";
   const loading = authLoading || profileLoading;
 
   return {
