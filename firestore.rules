@@ -238,21 +238,59 @@ service cloud.firestore {
         allow read:
           if signedIn();
 
-        // Guest cannot join communities
-        allow create, update:
-          if isMember()
+        // Hearts can register their own membership
+        allow create:
+          if signedIn()
           &&
           request.auth.uid == memberId;
+
+        // Only owners or admins can update other member roles
+        allow update:
+          if signedIn()
+          && exists(
+           /databases/$(database)/documents/communities/$(communityId)/members/$(request.auth.uid)
+          )
+          &&
+          (
+           get(
+           /databases/$(database)/documents/communities/$(communityId)/members/$(request.auth.uid)
+           ).data.role
+           in ['owner','admin']
+          );
+          
+        // Hearts can leave, or guardians can remove
+        allow delete:
+          if signedIn()
+          && (
+            request.auth.uid == memberId || 
+            (
+              exists(/databases/$(database)/documents/communities/$(communityId)/members/$(request.auth.uid)) &&
+              get(/databases/$(database)/documents/communities/$(communityId)/members/$(request.auth.uid)).data.role in ['owner', 'admin']
+            )
+          );
       }
 
       /*
        CIRCLE COMMUNITY CHAT
       */
       match /messages/{messageId} {
-        allow read: if signedIn();
-        allow create: if signedIn() && request.resource.data.senderId == request.auth.uid;
-        allow update: if signedIn() && resource.data.senderId == request.auth.uid;
-        allow delete: if isAdmin();
+        // Read only if you are a synchronized member of the circle
+        allow read: 
+          if signedIn() 
+          && exists(/databases/$(database)/documents/communities/$(communityId)/members/$(request.auth.uid));
+
+        // Create only if you are a synchronized member
+        allow create: 
+          if signedIn() 
+          && request.resource.data.senderId == request.auth.uid
+          && exists(/databases/$(database)/documents/communities/$(communityId)/members/$(request.auth.uid));
+
+        allow update: 
+          if signedIn() 
+          && resource.data.senderId == request.auth.uid;
+
+        allow delete: 
+          if isAdmin();
       }
     }
 
