@@ -44,23 +44,34 @@ export async function discoverCircles() {
 /**
  * Join Circle Protocol.
  * Establishes a member record within a specific community vibration.
+ * Returns true if joined successfully, false if already a member.
  */
 export async function joinCircle(
   circleId: string,
   userId: string
 ) {
+  const memberRef = doc(
+    db,
+    "communities",
+    circleId,
+    "members",
+    userId
+  );
+
+  const existing = await getDoc(memberRef);
+
+  if (existing.exists()) {
+    return false;
+  }
+
   await setDoc(
-    doc(
-      db,
-      "communities",
-      circleId,
-      "members",
-      userId
-    ),
+    memberRef,
     {
       userId,
       role: "member",
       joinedAt: serverTimestamp()
     }
   );
+
+  return true;
 }

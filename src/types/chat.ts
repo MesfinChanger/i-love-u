@@ -1,5 +1,6 @@
 /**
- * Communication Protocol
+ * @fileOverview High-Fidelity Communication Protocol.
+ * Defines the schemas for secured message broadcasting.
  */
 
 export type ConversationType =
@@ -10,34 +11,22 @@ export type ConversationType =
   | "shopping"
   | "support";
 
-
 export interface Conversation {
-
   id: string;
-
   type: ConversationType;
-
   participants: string[];
-
   ownerId?: string;
-
   referenceId?: string;
-
   referenceType?:
     | "sparkConnection"
     | "circle"
     | "idea"
     | "product";
-
   encryptionVersion: string;
-
-  createdAt:any;
-
-  lastMessageAt?:any;
-
+  createdAt: any;
+  lastMessage?: string;
+  lastUpdatedAt?: any;
 }
-
-
 
 export type MessageType =
   | "text"
@@ -45,99 +34,27 @@ export type MessageType =
   | "voice"
   | "file";
 
-
-export interface Message {
-
- id:string;
-
- conversationId:string;
-
- senderId:string;
-
- type:MessageType;
-
-
- encryptedText?:string;
-
-
- media?:{
-
-   url:string;
-
-   storagePath:string;
-
-   mimeType:string;
-
-   size:number;
-
- };
-
-
- downloadPolicy?:{
-
-   allowDownload:boolean;
-
-   expiresAt?:any;
-
- };
-
-
- deleted?:boolean;
-
-
- createdAt:any;
-
- status:
-  | "sent"
-  | "delivered"
-  | "read";
-
-}
 export interface Message {
   id: string;
-
+  conversationId: string;
   senderId: string;
-
-  encryptedText?: string;
-
+  senderName?: string;
+  type: MessageType;
   text?: string;
-
+  encryptedText?: string;
   iv?: string;
-
-  type:
-    | "text"
-    | "image"
-    | "voice"
-    | "file";
-
   media?: {
     storagePath: string;
-
     fileName?: string;
-
     mimeType?: string;
-
     size?: number;
-
     downloadable: boolean;
-
     expiresAt?: any;
   };
-
-  createdAt:any;
-
-  status:
-    | "sent"
-    | "delivered"
-    | "read";
-
-  deletedBySender?: boolean;
-
-  deletedByReceiver?: boolean;
+  status: "sent" | "delivered" | "read";
+  createdAt: any;
+  edited?: boolean;
+  deleted?: boolean;
+  deletedFor?: string[];
+  deletedForEveryone?: boolean;
 }
-media?: {
-  type: "image" | "voice" | "file";
-  storagePath: string;
-  previewUrl?: string;
-  downloadAllowed: boolean;
-};

@@ -1,5 +1,9 @@
 'use client';
 
+import { joinCircle } from "@/services/circle.service";
+import { useUser } from "@/firebase";
+import { useToast } from "@/hooks/use-toast";
+import { doc, getDoc, updateDoc, increment } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 
@@ -18,6 +22,8 @@ import { db } from "@/lib/firebase";
 export default function CircleMembersPage(){
 
   const params = useParams();
+  const { user } = useUser();
+const { toast } = useToast();
 
   const circleId = params?.circleId as string;
 
