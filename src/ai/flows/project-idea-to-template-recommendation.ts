@@ -35,6 +35,11 @@ export type ProjectIdeaToTemplateRecommendationOutput = z.infer<
   typeof ProjectIdeaToTemplateRecommendationOutputSchema
 >;
 
+// Internal prompt schema that includes the catalog for Handlebars access
+const PromptInputSchema = ProjectIdeaToTemplateRecommendationInputSchema.extend({
+  FLUTTER_TEMPLATE_CATALOG: z.string().describe('The catalog of available templates.'),
+});
+
 export async function projectIdeaToTemplateRecommendation(
   input: ProjectIdeaToTemplateRecommendationInput
 ): Promise<ProjectIdeaToTemplateRecommendationOutput> {
@@ -56,11 +61,6 @@ const FLUTTER_TEMPLATE_CATALOG = [
   'Music Player App Template',
   'Weather App Template',
 ];
-
-// Internal schema for the prompt that includes the catalog data
-const PromptInputSchema = ProjectIdeaToTemplateRecommendationInputSchema.extend({
-  FLUTTER_TEMPLATE_CATALOG: z.string().describe('The catalog of available templates.'),
-});
 
 const prompt = ai.definePrompt({
   name: 'projectIdeaToTemplateRecommendationPrompt',

@@ -15,7 +15,8 @@ export default function CircleAdminPanel({
 }: {
   circleId: string
 }) {
-  const { isAdmin, loading } = useCircleRole(circleId);
+  const { isOwner, isModerator, loading } = useCircleRole(circleId);
+  const isAdmin = isOwner || isModerator;
 
   // Sovereignty Protocol: Only display for identified Guardians
   if (loading) return (

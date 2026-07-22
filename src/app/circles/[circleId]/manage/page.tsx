@@ -12,23 +12,22 @@ import { Badge } from "@/components/ui/badge";
 import GuestAccessGuard from "@/components/GuestAccessGuard";
 import { useUser, useFirestore } from "@/firebase";
 import {
+  getCircleRole,
+  canManageCircle,
+} from "@/services/permission.service";
+import {
   Loader2,
   ShieldCheck,
   Trash2,
   Crown,
   User,
   ChevronLeft,
-  ShieldX
 } from "lucide-react";
 import {
   getAllCircleMembers,
   changeMemberRole,
   removeMember
 } from "@/services/circle-admin.service";
-import {
-  getCircleRole,
-  canManageCircle,
-} from "@/services/permission.service";
 import { useToast } from "@/hooks/use-toast";
 
 interface CircleMember {
@@ -46,7 +45,7 @@ interface CircleMember {
 
 /**
  * @fileOverview Circle Management Hub.
- * Exclusively protected for Owners and Guardians.
+ * Exclusively protected for Owners and Guardians via the Sovereignty Protocol.
  */
 export default function CircleManagePage({
   params
@@ -65,7 +64,7 @@ export default function CircleManagePage({
   const [processingId, setProcessingId] = useState<string | null>(null);
 
   useEffect(() => {
-    async function verify() {
+    async function check() {
       if (!circleId || !user?.uid) {
         setChecking(false);
         return;
@@ -73,10 +72,10 @@ export default function CircleManagePage({
 
       try {
         const role = await getCircleRole(circleId, user.uid);
-        const allowed = canManageCircle(role);
-        setAuthorized(allowed);
+        const isAllowed = canManageCircle(role);
+        setAuthorized(isAllowed);
 
-        if (allowed) {
+        if (isAllowed) {
           await loadRegistry();
         }
       } catch (error) {
@@ -85,7 +84,7 @@ export default function CircleManagePage({
         setChecking(false);
       }
     }
-    verify();
+    check();
   }, [circleId, user?.uid]);
 
   async function loadRegistry() {
@@ -156,8 +155,8 @@ export default function CircleManagePage({
 
   if (!authorized) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6 bg-muted/30">
-        <Card className="max-w-md p-12 rounded-[3.5rem] border-none shadow-2xl bg-white text-center space-y-6">
+      <div className="min-h-screen flex items-center justify-center p-6 bg-muted/30 text-center">
+        <Card className="max-w-md p-12 rounded-[3.5rem] border-none shadow-2xl bg-white space-y-6">
           <ShieldCheck className="mx-auto w-20 h-20 text-red-500 opacity-20" />
           <div className="space-y-2">
             <h1 className="text-3xl font-black uppercase tracking-tighter">Access Restricted</h1>

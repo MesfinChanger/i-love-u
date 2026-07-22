@@ -46,6 +46,16 @@ export default function CirclePostsPage() {
 
     setIsPublishing(true);
     try {
+      const moderation = await moderateText({ 
+        text: `${title} - ${content}`,
+        context: "chat",
+      });
+      if (moderation.isFlagged) {
+        toast({ variant: "destructive", title: "Respect Protocol", description: moderation.reason });
+        setIsPublishing(false);
+        return;
+      }
+
       await createCirclePost(circleId, "member", {
         title: title.trim(),
         content: content.trim()

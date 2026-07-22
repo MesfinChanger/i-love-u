@@ -195,34 +195,10 @@ export function canRemoveMember(
 }
 
 /**
- * Proxy for canManageMembers for backward compatibility
+ * Proxy for canManageCircle
  */
 export function canManageCircle(role: CircleRole): boolean {
   return role === "owner" || role === "moderator";
-}
-
-/**
- * Permission object
- */
-export function getCirclePermissions(
-  member?: CircleMemberPermission | null,
-  isPublic = false
-) {
-  return {
-    canViewCircle: canViewCircle(member, isPublic),
-    canPost: canPost(member),
-    canComment: canComment(member),
-    canManageMembers: canManageMembers(member),
-    canModerate: canModerate(member),
-    canEditCircle: canEditCircle(member),
-    canDeleteCircle: canDeleteCircle(member),
-    canChangeRole: canChangeRole,
-    canRemoveMember: canRemoveMember,
-    isOwner: isOwner(member),
-    isModerator: isModerator(member),
-    isMember: isMember(member),
-    isGuest: isGuest(member),
-  };
 }
 
 /**
@@ -237,19 +213,24 @@ export async function getCircleRole(
     return null;
   }
 
-  const snap = await getDoc(
-    doc(
-      db,
-      "communities",
-      circleId,
-      "members",
-      userId
-    )
-  );
+  try {
+    const snap = await getDoc(
+      doc(
+        db,
+        "communities",
+        circleId,
+        "members",
+        userId
+      )
+    );
 
-  if (!snap.exists()) {
+    if (!snap.exists()) {
+      return null;
+    }
+
+    return (snap.data().role ?? "member") as CircleRole;
+  } catch (e) {
+    console.warn("getCircleRole sync ripple:", e);
     return null;
   }
-
-  return (snap.data().role ?? "member") as CircleRole;
 }

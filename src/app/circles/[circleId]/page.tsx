@@ -28,7 +28,7 @@ import { joinCircle } from "@/services/circle.service";
 import { useUser } from "@/firebase";
 import { useToast } from "@/hooks/use-toast";
 import CircleAdminPanel from "@/components/circle/CircleAdminPanel";
-import { getCircleRole, canManageCircle } from "@/services/permission.service";
+import { useCircleRole } from "@/hooks/use-circle-role";
 
 /**
  * @fileOverview High-Fidelity Circle Detail Page.
@@ -39,28 +39,12 @@ export default function CircleSpacePage({ params }: { params: Promise<{ circleId
   const { user } = useUser();
   const { toast } = useToast();
 
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [roleLoading, setRoleLoading] = useState(true);
+  const { isOwner, isModerator, loading: roleLoading } = useCircleRole(circleId);
+  const isAdmin = isOwner || isModerator;
+
   const [circle, setCircle] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [isJoining, setIsJoining] = useState(false);
-
-  // Authority Verification Handshake
-  useEffect(() => {
-    async function checkRole() {
-      if (!circleId || !user?.uid) {
-        setRoleLoading(false);
-        return;
-      }
-      try {
-        const role = await getCircleRole(circleId, user.uid);
-        setIsAdmin(canManageCircle(role));
-      } finally {
-        setRoleLoading(false);
-      }
-    }
-    checkRole();
-  }, [circleId, user?.uid]);
 
   useEffect(() => {
     async function loadCircle() {

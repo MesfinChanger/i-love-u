@@ -49,10 +49,10 @@ export default function MembersPage({
 
       try {
         const role = await getCircleRole(circleId, user.uid);
-        const isMember = role === "owner" || role === "moderator" || role === "member";
-        setAuthorized(isMember);
+        const isAllowedMember = role === "owner" || role === "moderator" || role === "member";
+        setAuthorized(isAllowedMember);
 
-        if (isMember) {
+        if (isAllowedMember) {
           const data = await getCircleMembers(circleId);
           setMembers(data);
         }
@@ -80,7 +80,7 @@ export default function MembersPage({
 
   if (!authorized) {
     return (
-      <div className="min-h-screen bg-muted/30 pb-24">
+      <div className="min-h-screen bg-muted/30 pb-24 text-center">
         <Header />
         <main className="container mx-auto max-w-lg p-6 flex items-center justify-center min-h-[60vh]">
           <Card className="p-12 text-center rounded-[3.5rem] border-none shadow-2xl bg-white space-y-8">
