@@ -59,46 +59,30 @@ export function isMember(member?: CircleMemberPermission | null): boolean {
   return role === "owner" || role === "moderator" || role === "member";
 }
 
-export function canViewCircle(member?: CircleMemberPermission | null, isPublic: boolean = false): boolean {
-  if (isPublic) return true;
-  return isMember(member);
-}
-
 export function canPost(member?: CircleMemberPermission | null): boolean {
   return isMember(member);
-}
-
-export function canComment(member?: CircleMemberPermission | null): boolean {
-  return isMember(member);
-}
-
-export function canManageMembers(member?: CircleMemberPermission | null): boolean {
-  return isModerator(member);
 }
 
 export function canModerate(member?: CircleMemberPermission | null): boolean {
   return isModerator(member);
 }
 
-export function canDeleteCircle(member?: CircleMemberPermission | null): boolean {
-  return isOwner(member);
-}
-
-export function canEditCircle(member?: CircleMemberPermission | null): boolean {
-  return isOwner(member);
-}
-
-/**
- * Authority logic for Circle interactions
- */
 export function canManageCircle(role: CircleRole): boolean {
   const normalized = normalizeRole(role);
   return normalized === "owner" || normalized === "moderator";
 }
 
-export function canChangeRole(actor?: CircleMemberPermission | null, target?: CircleMemberPermission | null): boolean {
-  if (!isOwner(actor) || !target) return false;
-  return normalizeRole(target.role) !== "owner";
+export function canChangeRole(actor?: CircleMemberPermission | null, targetRole?: CircleRole): boolean {
+  if (!actor) return false;
+  const actorRole = normalizeRole(actor.role);
+  
+  // Only owner can promote/demote
+  if (actorRole !== "owner") return false;
+  
+  // Cannot remove ownership accidentally
+  if (targetRole === "owner") return false;
+  
+  return true;
 }
 
 export function canRemoveMember(actor?: CircleMemberPermission | null, target?: CircleMemberPermission | null): boolean {
@@ -106,9 +90,12 @@ export function canRemoveMember(actor?: CircleMemberPermission | null, target?: 
   const actorRole = normalizeRole(actor.role);
   const targetRole = normalizeRole(target.role);
 
-  if (targetRole === "owner") return false;
-  if (actorRole === "owner") return true;
+  // owner can remove anyone except himself
+  if (actorRole === "owner" && targetRole !== "owner") return true;
+
+  // moderators remove normal members only
   if (actorRole === "moderator" && targetRole === "member") return true;
+
   return false;
 }
 

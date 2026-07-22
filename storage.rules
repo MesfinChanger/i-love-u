@@ -4,64 +4,58 @@ service firebase.storage {
 
   match /b/{bucket}/o {
 
-
     /*
-    PUBLIC HERO CONTENT
+    ==========================
+    PUBLIC HERO / PLATFORM IMAGES
+    ==========================
     */
 
     match /hero-images/{fileName} {
-
-      allow read:
-        if true;
-
-      allow write:
-        if request.auth != null
-        &&
-        request.auth.token.email == "thearmyoj@gmail.com";
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.token.email == "thearmyoj@gmail.com";
     }
 
-
-
     /*
-    USER MEDIA
+    ==========================
+    USER PROFILE IMAGES
+    ==========================
     */
 
-    match /users/{userId}/{allPaths=**} {
-
-      allow read:
-        if request.auth != null;
-
-      allow write:
-        if request.auth != null
-        &&
-        request.auth.uid == userId;
+    match /profiles/{userId}/{fileName} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == userId;
     }
 
-
-
     /*
+    ==========================
     PRIVATE CHAT MEDIA
+    ==========================
     */
 
-    match /conversations/{conversationId}/{userId}/{allPaths=**} {
-
-      allow read, write:
-        if request.auth != null
-        &&
-        request.auth.uid == userId;
+    match /chat/{conversationId}/{fileName} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
     }
 
+    /*
+    ==========================
+    COMMUNITY MEDIA
+    ==========================
+    */
 
+    match /community/{communityId}/{fileName} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
 
     /*
-    EVERYTHING ELSE DENIED
+    ==========================
+    DEFAULT BLOCK
+    ==========================
     */
 
     match /{allPaths=**} {
-
-      allow read, write:
-        if false;
+      allow read, write: if false;
     }
-
   }
 }
