@@ -132,20 +132,17 @@ export default function MembersPage({
                         {member.profile?.photoURL ? (
                           <img src={member.profile.photoURL} alt="profile" className="w-full h-full object-cover" />
                         ) : (
-                          <UserRound className="w-8 h-8 text-primary/40" />
+                          <Users className="w-10 h-10 text-primary/40" />
                         )}
                       </div>
 
                       <div className="flex-1 space-y-2">
-                        <div className="flex items-center gap-2">
-                          <h2 className="font-black text-xl tracking-tight">
-                            {member.profile?.displayName || member.profile?.username || "Unknown Heart"}
-                          </h2>
-                          {member.profile?.verified && <BadgeCheck className="w-5 h-5 text-blue-500" />}
-                        </div>
+                        <h2 className="font-black text-xl">
+                          {member.profile?.displayName || member.profile?.username || "Unknown Heart"}
+                        </h2>
 
-                        <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">
-                          {member.profile?.country || "Global Region"}
+                        <p className="text-sm text-muted-foreground">
+                          {member.profile?.country || "Global"}
                         </p>
 
                         <div className="flex gap-2">

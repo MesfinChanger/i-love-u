@@ -14,6 +14,7 @@ import {
   Heart, 
   Loader2, 
   Check,
+  ShieldCheck
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -128,5 +129,3 @@ function ExclusiveSparkCard({ match, currentUserId }: { match: any, currentUserI
 export default function MatchesPage() {
   return <Suspense fallback={<div className="flex justify-center py-40 opacity-20"><Loader2 className="animate-spin" /></div>}><MatchesContent /></Suspense>;
 }
-
-import { ShieldCheck } from 'lucide-react';

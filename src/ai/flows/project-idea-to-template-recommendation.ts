@@ -42,7 +42,6 @@ export async function projectIdeaToTemplateRecommendation(
 }
 
 // A sample catalog of Flutter templates the AI can recommend from.
-// In a real application, this would likely come from a database or external service.
 const FLUTTER_TEMPLATE_CATALOG = [
   'E-commerce App Template (Shopping Cart, Product Listings)',
   'Social Media Feed App Template (Posts, Profiles, Comments)',
@@ -58,9 +57,14 @@ const FLUTTER_TEMPLATE_CATALOG = [
   'Weather App Template',
 ];
 
+// Internal schema for the prompt that includes the catalog data
+const PromptInputSchema = ProjectIdeaToTemplateRecommendationInputSchema.extend({
+  FLUTTER_TEMPLATE_CATALOG: z.string().describe('The catalog of available templates.'),
+});
+
 const prompt = ai.definePrompt({
   name: 'projectIdeaToTemplateRecommendationPrompt',
-  input: {schema: ProjectIdeaToTemplateRecommendationInputSchema},
+  input: {schema: PromptInputSchema},
   output: {schema: ProjectIdeaToTemplateRecommendationOutputSchema},
   prompt: `You are an expert Flutter app developer and template selection specialist. Your goal is to recommend the most suitable pre-built Flutter application templates from a given catalog based on a user's app idea.
 

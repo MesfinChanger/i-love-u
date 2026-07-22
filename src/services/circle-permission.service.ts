@@ -198,7 +198,7 @@ export function canRemoveMember(
  * Proxy for canManageMembers for backward compatibility
  */
 export function canManageCircle(role: CircleRole): boolean {
-  return role === "owner" || role === "admin";
+  return role === "owner" || role === "moderator";
 }
 
 /**
@@ -236,18 +236,19 @@ export async function getCircleRole(
     return null;
   }
 
-  try {
-    const snap = await getDoc(
-      doc(db, "communities", circleId, "members", userId)
-    );
+  const snap = await getDoc(
+    doc(
+      db,
+      "communities",
+      circleId,
+      "members",
+      userId
+    )
+  );
 
-    if (!snap.exists()) {
-      return null;
-    }
-
-    return (snap.data().role ?? "member") as CircleRole;
-  } catch (error) {
-    console.error("Circle security lookup failed:", error);
+  if (!snap.exists()) {
     return null;
   }
+
+  return (snap.data().role ?? "member") as CircleRole;
 }

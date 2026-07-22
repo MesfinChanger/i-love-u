@@ -9,7 +9,6 @@ import { BottomNav } from "@/components/BottomNav";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import CirclePermissionGuard from "@/components/CirclePermissionGuard";
 import GuestAccessGuard from "@/components/GuestAccessGuard";
 import { useUser, useFirestore } from "@/firebase";
 import {
@@ -163,7 +162,7 @@ export default function CircleManagePage({
           <div className="space-y-2">
             <h1 className="text-3xl font-black uppercase tracking-tighter">Access Restricted</h1>
             <p className="text-muted-foreground italic font-medium leading-relaxed">
-              Only Circle owners and identified guardians can manage this frequency. ❤️
+              Only Circle owners can manage this Circle. ❤️
             </p>
           </div>
           <Button asChild className="w-full h-14 rounded-2xl gradient-bg font-black uppercase text-[10px] tracking-widest shadow-xl">
