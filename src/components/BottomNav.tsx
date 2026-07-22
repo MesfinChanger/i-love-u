@@ -11,7 +11,7 @@ export function BottomNav() {
   const navItems = [
     { href: '/', emoji: "🏠", label: "Home" },
     { href: '/spark', emoji: "❤️", label: "Spark" },
-    { href: '/circle', emoji: "🤝", label: "Circle" },
+    { href: '/circles', emoji: "🤝", label: "Circle" },
     { href: '/shopping', emoji: "🛒", label: "Shopping" },
     { href: '/ideas', emoji: "💡", label: "Ideas" },
     { href: '/messages', emoji: "💬", label: "Messages" },

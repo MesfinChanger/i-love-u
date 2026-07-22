@@ -1,95 +1,80 @@
+'use client';
 
 import {
   collection,
-  doc,
-  setDoc,
-  getDocs,
   query,
   where,
-  serverTimestamp
+  getDocs,
+  addDoc,
+  serverTimestamp,
+  doc,
+  updateDoc
 } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 
-/**
- * @fileOverview Spark Protocol Service.
- * Orchestrates high-fidelity discovery, matching, and connections.
- */
+import { db } from "@/firebase";
 
-// Create Spark profile
-export async function createSparkProfile(profile: any) {
-  await setDoc(
-    doc(db, "sparkProfiles", profile.userId),
-    {
-      ...profile,
-      createdAt: serverTimestamp()
-    }
-  );
-}
 
-// Discover people
-export async function discoverSparkUsers() {
+export async function discoverSparkProfiles() {
+
+  if (!db) return [];
+
+  const ref = collection(db,"sparkProfiles");
+
   const q = query(
-    collection(db, "sparkProfiles"),
-    where("visibility", "==", "public")
+    ref,
+    where("visibility","==","public"),
+    where("active","==",true)
   );
 
-  const result = await getDocs(q);
 
-  return result.docs.map(doc => ({
-    id: doc.id,
+  const snapshot = await getDocs(q);
+
+
+  return snapshot.docs.map(doc=>({
+    id:doc.id,
     ...doc.data()
   }));
+
 }
 
-// Spark Like Protocol
-export async function sendSparkLike(fromUserId: string, toUserId: string) {
-  const id = `${fromUserId}_${toUserId}`;
 
-  await setDoc(
-    doc(db, "sparkLikes", id),
-    {
-      fromUserId,
-      toUserId,
-      status: "pending",
-      createdAt: serverTimestamp()
-    }
-  );
+
+
+export async function sendSparkRequest(
+ fromUserId:string,
+ toUserId:string
+){
+
+ if(!db) return;
+
+
+ await addDoc(
+  collection(db,"sparkRequests"),
+  {
+   fromUserId,
+   toUserId,
+   status:"pending",
+   createdAt:serverTimestamp()
+  }
+ );
+
 }
 
-// Match Protocol
-export async function createMatch(
-  userA: string,
-  userB: string
-) {
-  const matchId = [userA, userB].sort().join("_");
 
-  await setDoc(
-    doc(db, "matches", matchId),
-    {
-      users: [userA, userB],
-      status: "active",
-      createdAt: serverTimestamp()
-    }
-  );
-}
 
-/**
- * Friendship Protocol.
- * Establishes a cultural bridge between two hearts.
- */
-export async function addFriend(
-  userA: string,
-  userB: string
-) {
-  const id = [userA, userB].sort().join("_");
 
-  await setDoc(
-    doc(db, "friendships", id),
-    {
-      userA,
-      userB,
-      status: "friends",
-      createdAt: serverTimestamp()
-    }
-  );
+export async function acceptSparkRequest(
+ requestId:string
+){
+
+ if(!db) return;
+
+
+ await updateDoc(
+  doc(db,"sparkRequests",requestId),
+  {
+   status:"accepted"
+  }
+ );
+
 }

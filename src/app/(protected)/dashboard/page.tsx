@@ -58,7 +58,7 @@ export default function DashboardPage() {
              desc="Find meaningful connections." 
            />
            <DashboardActionCard 
-             href="/circle" 
+             href="/circles" 
              icon={<Users className="w-6 h-6" />} 
              title="Community Circles" 
              desc="Join a shared frequency." 

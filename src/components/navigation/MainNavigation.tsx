@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 const menu = [
   { name: "🏠 Home", path: "/dashboard" },
   { name: "❤️ Spark", path: "/spark" },
-  { name: "🤝 Circle", path: "/circle" },
+  { name: "🤝 Circle", path: "/circles" },
   { name: "🛒 Shopping", path: "/shopping" },
   { name: "💡 Ideas", path: "/ideas" },
   { name: "💬 Messages", path: "/messages" }

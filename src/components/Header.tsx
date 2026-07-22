@@ -125,7 +125,7 @@ export function Header() {
   const navItems = [
     { href: '/', name: "🏠 Home" },
     { href: '/spark', name: "❤️ Spark" },
-    { href: '/circle', name: "🤝 Circle" },
+    { href: '/circles', name: "🤝 Circle" },
     { href: '/shopping', name: "🛒 Shopping" },
     { href: '/ideas', name: "💡 Idea Pool" },
     { href: '/messages', name: "💬 Messages" },
