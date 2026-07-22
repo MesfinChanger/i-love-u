@@ -10,16 +10,18 @@ import {
 
 interface CircleRoleState {
   role: CircleRole;
-  loading: boolean;
   isOwner: boolean;
+  isAdmin: boolean;
   isModerator: boolean;
   isMember: boolean;
   isGuest: boolean;
+  loading: boolean;
 }
 
 /**
  * @fileOverview High-Fidelity Circle Role Hook.
  * Automatically synchronizes a heart's authority with the community registry.
+ * Provides logical flags for UI state and permission checks.
  */
 export function useCircleRole(circleId?: string): CircleRoleState {
   const { user } = useUser();
@@ -40,6 +42,8 @@ export function useCircleRole(circleId?: string): CircleRoleState {
       try {
         const currentRole = await getCircleRole(circleId, user.uid);
         if (mounted) setRole(currentRole);
+      } catch (error) {
+        console.warn("Hook authority handshake ripple:", error);
       } finally {
         if (mounted) setLoading(false);
       }
@@ -52,10 +56,11 @@ export function useCircleRole(circleId?: string): CircleRoleState {
 
   return {
     role: normalizedRole,
-    loading,
     isOwner: normalizedRole === "owner",
+    isAdmin: normalizedRole === "owner", 
     isModerator: normalizedRole === "owner" || normalizedRole === "moderator",
     isMember: normalizedRole === "owner" || normalizedRole === "moderator" || normalizedRole === "member",
-    isGuest: normalizedRole === "guest" || !normalizedRole
+    isGuest: normalizedRole === "guest",
+    loading
   };
 }
