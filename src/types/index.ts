@@ -1,4 +1,3 @@
-
 /**
  * @fileOverview High-Fidelity Community Type Definitions.
  */
@@ -68,19 +67,6 @@ export interface Friendship {
   userB: string;
   status: "pending" | "friends" | "blocked";
   createdAt: any;
-}
-
-export interface CircleMember {
-  userId: string;
-  role: "owner" | "admin" | "moderator" | "member" | "pending";
-  status: "active" | "inactive" | "suspended" | "waiting";
-  joinedAt: any;
-  permissions: {
-    post: boolean;
-    comment: boolean;
-    invite: boolean;
-    moderate: boolean;
-  };
 }
 
 export interface Notification {

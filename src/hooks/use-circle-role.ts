@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -8,33 +7,40 @@ import { getCircleRole, type CircleRole } from "@/services/circle-permission.ser
 /**
  * @fileOverview High-Fidelity Circle Role Hook.
  * Orchestrates the retrieval of a heart's specific authority level within a circle frequency.
- * Provides boolean flags for structural UI branching (Member, Moderator, Admin, Owner).
+ * Stabilized with internal error recovery to prevent hydration ripples.
  */
-export function useCircleRole(circleId: string) {
+export function useCircleRole(circleId: string | undefined) {
   const { user } = useUser();
   const [role, setRole] = useState<CircleRole>("guest");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let mounted = true;
+
     async function load() {
-      if (!user) {
-        setRole("guest");
-        setLoading(false);
+      if (!user || !circleId) {
+        if (mounted) {
+          setRole("guest");
+          setLoading(false);
+        }
         return;
       }
 
       try {
         const result = await getCircleRole(circleId, user.uid);
-        setRole(result);
+        if (mounted) {
+          setRole(result);
+        }
       } catch (e) {
         console.warn("Role Sync Ripple:", e);
-        setRole("guest");
+        if (mounted) setRole("guest");
       } finally {
-        setLoading(false);
+        if (mounted) setLoading(false);
       }
     }
 
     load();
+    return () => { mounted = false; };
   }, [circleId, user]);
 
   return {
