@@ -127,35 +127,26 @@ service cloud.firestore {
 
     match /conversations/{conversationId} {
 
-      // Users can only open conversations they belong to
       allow read:
         if signedIn()
         &&
         request.auth.uid in resource.data.participants;
 
-      // Create conversation only if creator is a participant
       allow create:
         if signedIn()
         &&
         request.auth.uid in request.resource.data.participants;
 
-      // Conversation changes only by participants
       allow update:
         if signedIn()
         &&
         request.auth.uid in resource.data.participants;
 
-      // Never delete conversations directly
       allow delete:
         if false;
 
-      /*
-       PRIVATE CHAT MESSAGES
-      */
-
       match /messages/{messageId} {
 
-        // Read only by conversation members
         allow read:
           if signedIn()
           &&
@@ -163,7 +154,6 @@ service cloud.firestore {
             /databases/$(database)/documents/conversations/$(conversationId)
           ).data.participants;
 
-        // Send only as yourself AND if you are a participant
         allow create:
           if signedIn()
           &&
@@ -173,13 +163,11 @@ service cloud.firestore {
             /databases/$(database)/documents/conversations/$(conversationId)
           ).data.participants;
 
-        // Sender can edit own message
         allow update:
           if signedIn()
           &&
           request.auth.uid == resource.data.senderId;
 
-        // Block direct deletion
         allow delete:
           if false;
       }
@@ -215,11 +203,9 @@ service cloud.firestore {
 
     match /communities/{communityId} {
 
-      // Guests and members may discover communities
       allow read:
         if signedIn();
 
-      // Creating communities requires a real member
       allow create:
         if isMember();
 
@@ -232,43 +218,41 @@ service cloud.firestore {
           isAdmin()
         );
 
-
+      /*
+       CIRCLE MEMBERSHIP REGISTRY
+      */
       match /members/{memberId} {
 
         allow read:
           if signedIn();
 
-        // Hearts can register their own membership
         allow create:
           if signedIn()
           &&
           request.auth.uid == memberId;
 
-        // Only owners or admins can update other member roles or remove members
-        allow update, delete:
+        allow update:
           if signedIn()
-          && exists(
-           /databases/$(database)/documents/communities/$(communityId)/members/$(request.auth.uid)
-          )
           &&
           (
-           get(
-           /databases/$(database)/documents/communities/$(communityId)/members/$(request.auth.uid)
-           ).data.role
-           in ['owner','admin']
+            request.auth.uid == memberId || 
+            get(/databases/$(database)/documents/communities/$(communityId)/members/$(request.auth.uid)).data.role in ['owner', 'admin']
           );
+
+        allow delete:
+          if signedIn()
+          &&
+          get(/databases/$(database)/documents/communities/$(communityId)/members/$(request.auth.uid)).data.role == 'owner';
       }
 
       /*
        CIRCLE COMMUNITY CHAT
       */
       match /messages/{messageId} {
-        // Read only if you are a synchronized member of the circle
         allow read: 
           if signedIn() 
           && exists(/databases/$(database)/documents/communities/$(communityId)/members/$(request.auth.uid));
 
-        // Create only if you are a synchronized member
         allow create: 
           if signedIn() 
           && request.resource.data.senderId == request.auth.uid
@@ -286,11 +270,9 @@ service cloud.firestore {
 
     match /communityMessages/{msgId} {
 
-      // Guest can read community discussions
       allow read:
         if signedIn();
 
-      // Only members can post
       allow create:
         if isMember()
         &&
@@ -300,11 +282,9 @@ service cloud.firestore {
 
 match /communityMedia/{mediaId} {
 
-  // Guest can view approved media
   allow read:
     if signedIn();
 
-  // Upload requires membership
   allow create:
     if isMember()
     &&
@@ -314,11 +294,9 @@ match /communityMedia/{mediaId} {
 
 match /ideaPool/{ideaId} {
 
-  // Discovery allowed
   allow read:
     if signedIn();
 
-  // Publishing ideas requires membership
   allow create:
     if isMember()
     &&
@@ -332,11 +310,9 @@ match /ideaPool/{ideaId} {
 
 match /shops/{shopId} {
 
-  // Guests may browse shops
   allow read:
     if signedIn();
 
-  // Only members can create/update shops
   allow create, update:
     if isMember()
     &&
@@ -350,7 +326,6 @@ match /shops/{shopId} {
 
 match /ads/{adId} {
 
-  // Approved ads are visible
   allow read:
     if signedIn()
     &&
@@ -363,7 +338,6 @@ match /ads/{adId} {
     );
 
 
-  // Only members advertise
   allow create:
     if isMember()
     &&
@@ -405,7 +379,7 @@ match /ads/{adId} {
 
     match /securityLogs/{logId} {
       allow read: if isAdmin();
-      allow create: if false; // Only written via server protocol
+      allow create: if false; 
     }
 
     match /{allPaths=**} {

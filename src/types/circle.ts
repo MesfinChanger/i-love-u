@@ -1,3 +1,4 @@
+
 /**
  * @fileOverview Circle Protocol Definition Registry.
  * Defines the authority levels and membership structures for community frequencies.
