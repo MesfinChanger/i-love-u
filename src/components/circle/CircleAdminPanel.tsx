@@ -1,8 +1,9 @@
+
 "use client";
 
 import { Button } from "@/components/ui/button";
 import { useCircleRole } from "@/hooks/use-circle-role";
-import { ShieldCheck, Users, Settings } from "lucide-react";
+import { ShieldCheck, Users, Settings, Loader2 } from "lucide-react";
 import Link from "next/link";
 
 /**
@@ -18,7 +19,13 @@ export default function CircleAdminPanel({
   const { isAdmin, loading } = useCircleRole(circleId);
 
   // Sovereignty Protocol: Only display for identified Guardians
-  if (loading || !isAdmin) return null;
+  if (loading) return (
+    <div className="rounded-[2.5rem] bg-primary/5 p-8 border border-primary/10 flex items-center justify-center">
+      <Loader2 className="w-6 h-6 animate-spin text-primary opacity-20" />
+    </div>
+  );
+
+  if (!isAdmin) return null;
 
   return (
     <div className="rounded-[2.5rem] bg-primary/5 p-8 space-y-6 border border-primary/10 animate-in fade-in slide-in-from-right-4 duration-500">

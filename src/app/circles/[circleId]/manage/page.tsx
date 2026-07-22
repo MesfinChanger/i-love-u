@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState, use } from "react";
@@ -45,10 +46,14 @@ export default function CircleManagePage({ params }: { params: Promise<{ circleI
     setLoading(true);
     try {
       const data = await getAllCircleMembers(circleId);
-      // Enrich with profile data
+      // Enrich with profile data for high-fidelity identification
       const enriched = await Promise.all(data.map(async (m) => {
-        const userSnap = await getDoc(doc(db, "users", m.userId));
-        return { ...m, profile: userSnap.exists() ? userSnap.data() : null };
+        try {
+          const userSnap = await getDoc(doc(db!, "users", m.userId));
+          return { ...m, profile: userSnap.exists() ? userSnap.data() : null };
+        } catch (e) {
+          return m;
+        }
       }));
       setMembers(enriched);
     } catch (e) {
@@ -59,8 +64,9 @@ export default function CircleManagePage({ params }: { params: Promise<{ circleI
   }
 
   useEffect(() => {
-    if (isAdmin) load();
-  }, [circleId, isAdmin]);
+    if (!roleLoading && isAdmin) load();
+    else if (!roleLoading && !isAdmin) setLoading(false);
+  }, [circleId, isAdmin, roleLoading]);
 
   const handleRoleChange = async (userId: string, newRole: string) => {
     setProcessingId(userId);
@@ -89,7 +95,15 @@ export default function CircleManagePage({ params }: { params: Promise<{ circleI
     }
   };
 
-  if (!roleLoading && !isAdmin) {
+  if (roleLoading) {
+    return (
+      <div className="min-h-screen bg-muted/30 flex items-center justify-center">
+        <Loader2 className="animate-spin w-12 h-12 text-primary opacity-20" />
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
     return (
       <div className="min-h-screen bg-muted/30 flex flex-col items-center justify-center p-6 text-center">
         <Card className="max-w-md p-12 rounded-[3.5rem] border-none shadow-2xl space-y-6">
@@ -140,7 +154,7 @@ export default function CircleManagePage({ params }: { params: Promise<{ circleI
                       </div>
                       <div className="text-left flex-grow">
                         <h2 className="font-black text-2xl tracking-tight uppercase leading-none">
-                          {member.profile?.displayName || "Mystery Heart"}
+                          {member.profile?.displayName || member.userId}
                         </h2>
                         <div className="flex items-center gap-2 mt-2">
                            <Badge className="bg-primary/10 text-primary border-none text-[8px] font-black uppercase px-2 h-5">

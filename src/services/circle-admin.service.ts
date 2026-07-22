@@ -1,3 +1,5 @@
+
+'use client';
 import {
   collection,
   getDocs,
@@ -14,14 +16,20 @@ import { db } from "@/lib/firebase";
  * Retrieves the complete membership registry for a specific circle frequency.
  */
 export async function getAllCircleMembers(circleId: string) {
-  const snap = await getDocs(
-    collection(db, "communities", circleId, "members")
-  );
+  if (!db) return [];
+  try {
+    const snap = await getDocs(
+      collection(db, "communities", circleId, "members")
+    );
 
-  return snap.docs.map(doc => ({
-    id: doc.id,
-    ...doc.data()
-  }));
+    return snap.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+  } catch (e) {
+    console.warn("Registry Retrieval Ripple:", e);
+    return [];
+  }
 }
 
 /**
@@ -33,6 +41,7 @@ export async function changeMemberRole(
   userId: string,
   role: string
 ) {
+  if (!db) return;
   await updateDoc(
     doc(db, "communities", circleId, "members", userId),
     {
@@ -50,6 +59,7 @@ export async function removeMember(
   circleId: string,
   userId: string
 ) {
+  if (!db) return;
   await deleteDoc(
     doc(db, "communities", circleId, "members", userId)
   );

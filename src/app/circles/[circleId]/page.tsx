@@ -1,7 +1,7 @@
+
 'use client';
 
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useEffect, useState, use } from "react";
 import Link from "next/link";
 
 import { Header } from "@/components/Header";
@@ -35,9 +35,8 @@ import { useCircleRole } from "@/hooks/use-circle-role";
  * @fileOverview High-Fidelity Circle Detail Page.
  * Orchestrates community discovery and membership protocols.
  */
-export default function CircleSpacePage() {
-  const params = useParams();
-  const circleId = params?.circleId as string;
+export default function CircleSpacePage({ params }: { params: Promise<{ circleId: string }> }) {
+  const { circleId } = use(params);
   const { user } = useUser();
   const { toast } = useToast();
 
@@ -71,6 +70,54 @@ export default function CircleSpacePage() {
 
     loadCircle();
   }, [circleId]);
+
+  const handleJoin = async () => {
+    if (!user) {
+      window.dispatchEvent(new CustomEvent('open-auth-gate'));
+      return;
+    }
+
+    if (!circleId || !db || isJoining) return;
+
+    setIsJoining(true);
+    try {
+      const joined = await joinCircle(circleId, user.uid);
+
+      if (!joined) {
+        toast({
+          title: "Already joined",
+          description: "You are already a member of this community."
+        });
+        setIsJoining(false);
+        return;
+      }
+
+      // Prosperity Protocol: Atomic increment of member count
+      await updateDoc(doc(db, "communities", circleId), {
+        memberCount: increment(1)
+      });
+
+      toast({
+        title: "Joined Circle ✨",
+        description: "Your frequency is now synchronized with this community."
+      });
+
+      // Refresh local state to reflect growth
+      setCircle((prev: any) => ({
+        ...prev,
+        memberCount: (prev?.memberCount || 0) + 1
+      }));
+    } catch (error) {
+      console.error("Join Protocol Ripple:", error);
+      toast({
+        variant: "destructive",
+        title: "Join failed",
+        description: "Could not synchronize with this circle frequency."
+      });
+    } finally {
+      setIsJoining(false);
+    }
+  };
 
   return (
     <GuestAccessGuard feature="circle">
@@ -112,57 +159,7 @@ export default function CircleSpacePage() {
 
                   <div className="flex gap-4 pt-2">
                     <Button 
-                      onClick={async () => {
-                        if (!user) {
-                          toast({
-                            variant: "destructive",
-                            title: "Login required",
-                            description: "Please create an identity before joining circles."
-                          });
-                          return;
-                        }
-
-                        if (!circleId || !db || isJoining) return;
-
-                        setIsJoining(true);
-                        try {
-                          const joined = await joinCircle(circleId, user.uid);
-
-                          if (!joined) {
-                            toast({
-                              title: "Already joined",
-                              description: "You are already a member of this community."
-                            });
-                            setIsJoining(false);
-                            return;
-                          }
-
-                          // Prosperity Protocol: Atomic increment of member count
-                          await updateDoc(doc(db, "communities", circleId), {
-                            memberCount: increment(1)
-                          });
-
-                          toast({
-                            title: "Joined Circle ✨",
-                            description: "Your frequency is now synchronized with this community."
-                          });
-
-                          // Refresh local state to reflect growth
-                          setCircle((prev: any) => ({
-                            ...prev,
-                            memberCount: (prev?.memberCount || 0) + 1
-                          }));
-                        } catch (error) {
-                          console.error("Join Protocol Ripple:", error);
-                          toast({
-                            variant: "destructive",
-                            title: "Join failed",
-                            description: "Could not synchronize with this circle frequency."
-                          });
-                        } finally {
-                          setIsJoining(false);
-                        }
-                      }}
+                      onClick={handleJoin}
                       disabled={isJoining}
                       className="rounded-2xl h-14 px-8 font-black"
                     >

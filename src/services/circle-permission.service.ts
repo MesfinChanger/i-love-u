@@ -1,3 +1,5 @@
+
+'use client';
 import {
   doc,
   getDoc,
@@ -30,22 +32,27 @@ export async function getCircleRole(
 ): Promise<CircleRole> {
  if (!db) return "guest";
 
- const ref = doc(
-  db,
-  "communities",
-  circleId,
-  "members",
-  userId
- );
+ try {
+   const ref = doc(
+    db,
+    "communities",
+    circleId,
+    "members",
+    userId
+   );
 
- const snap = await getDoc(ref);
+   const snap = await getDoc(ref);
 
- if (!snap.exists()) return "guest";
+   if (!snap.exists()) return "guest";
 
- return (
-  snap.data().role ||
-  "guest"
- ) as CircleRole;
+   return (
+    snap.data().role ||
+    "guest"
+   ) as CircleRole;
+ } catch (e) {
+   console.warn("Circle Permission Ripple:", e);
+   return "guest";
+ }
 }
 
 /**
@@ -68,7 +75,13 @@ export async function requestJoinCircle(
    userId,
    role: "pending",
    status: "waiting",
-   requestedAt: serverTimestamp()
+   requestedAt: serverTimestamp(),
+   permissions: {
+     post: true,
+     comment: true,
+     invite: false,
+     moderate: false
+   }
   }
  );
 }

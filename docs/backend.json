@@ -63,6 +63,27 @@
         "deleted": { "type": "boolean" }
       },
       "required": ["senderId", "senderName", "text", "createdAt"]
+    },
+    "CircleMember": {
+      "title": "Circle Membership",
+      "description": "Registry of a heart's authority and permissions within a circle frequency.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "role": { "type": "string", "enum": ["owner", "admin", "moderator", "member", "pending"] },
+        "status": { "type": "string", "enum": ["active", "inactive", "suspended", "waiting"] },
+        "joinedAt": { "type": "string", "format": "date-time" },
+        "permissions": {
+          "type": "object",
+          "properties": {
+            "post": { "type": "boolean" },
+            "comment": { "type": "boolean" },
+            "invite": { "type": "boolean" },
+            "moderate": { "type": "boolean" }
+          }
+        }
+      },
+      "required": ["userId", "role", "status", "joinedAt"]
     }
   },
   "auth": {
@@ -74,6 +95,7 @@
     "/sparkProfiles/{userId}": { "schema": "UserProfile", "description": "Public discovery profiles" },
     "/sparkGreetings/{greetingId}": { "schema": "SparkGreeting", "description": "Community outreach interactions" },
     "/conversations/{conversationId}": { "schema": "Conversation", "description": "Secured private interaction spaces" },
-    "/communities/{circleId}/messages/{messageId}": { "schema": "CircleMessage", "description": "Community circle group chat messages" }
+    "/communities/{communityId}/messages/{messageId}": { "schema": "CircleMessage", "description": "Community circle group chat messages" },
+    "/communities/{communityId}/members/{userId}": { "schema": "CircleMember", "description": "Community circle membership registry" }
   }
 }
