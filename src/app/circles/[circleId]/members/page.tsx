@@ -9,7 +9,6 @@ import {
   Lock,
   ArrowLeft,
   UserRound,
-  MapPin,
   BadgeCheck
 } from "lucide-react";
 
@@ -21,15 +20,14 @@ import GuestAccessGuard from "@/components/GuestAccessGuard";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { getCircleMembers } from "@/services/circle.service";
-import { getCircleRole } from "@/services/circle-permission.service";
+import { getCircleRole } from "@/services/permission.service";
 import { useUser } from "@/firebase";
 
 /**
  * Circle Members Registry
  *
  * Protected members-only area.
- * Displays public identity profiles
- * synchronized with circle membership.
+ * Displays public identity profiles synchronized with circle membership.
  */
 export default function MembersPage({
   params
@@ -50,7 +48,7 @@ export default function MembersPage({
 
       try {
         const role = await getCircleRole(circleId, user.uid);
-        const isMember = role !== null && role !== "guest";
+        const isMember = role === "owner" || role === "moderator" || role === "member";
         setAuthorized(isMember);
 
         if (isMember) {
@@ -90,7 +88,7 @@ export default function MembersPage({
             </div>
             <h1 className="text-3xl font-black uppercase">Members Only</h1>
             <p className="text-muted-foreground italic">
-              Only synchronized members can access this registry.
+              Join this Circle to participate in the conversation and view the registry. ❤️
             </p>
             <Button asChild className="h-16 w-full rounded-2xl gradient-bg font-black uppercase">
               <Link href={`/circles/${circleId}`}>
@@ -111,12 +109,12 @@ export default function MembersPage({
         <Header />
         <main className="container mx-auto px-6 py-10 max-w-5xl space-y-10">
           <div>
-            <h1 className="text-5xl font-black flex items-center gap-4 uppercase">
+            <h1 className="text-5xl font-black flex items-center gap-4 uppercase tracking-tighter">
               <Users className="text-primary w-12 h-12" />
               Registry
             </h1>
-            <p className="text-muted-foreground italic">
-              Every heart synchronized with this community.
+            <p className="text-muted-foreground italic font-medium">
+              Every heart synchronized with this community frequency.
             </p>
           </div>
 
@@ -128,9 +126,9 @@ export default function MembersPage({
             <div className="grid md:grid-cols-2 gap-6">
               {members.length > 0 ? (
                 members.map((member) => (
-                  <Card key={member.id} className="rounded-[2.5rem] border-none shadow-lg bg-white">
+                  <Card key={member.id} className="rounded-[2.5rem] border-none shadow-lg bg-white overflow-hidden group">
                     <CardContent className="p-8 flex items-center gap-5">
-                      <div className="w-20 h-20 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center shrink-0">
+                      <div className="w-20 h-20 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center shrink-0 border-4 border-white shadow-sm">
                         {member.profile?.photoURL ? (
                           <img src={member.profile.photoURL} alt="profile" className="w-full h-full object-cover" />
                         ) : (
@@ -140,31 +138,33 @@ export default function MembersPage({
 
                       <div className="flex-1 space-y-2">
                         <div className="flex items-center gap-2">
-                          <h2 className="font-black text-xl">
+                          <h2 className="font-black text-xl tracking-tight">
                             {member.profile?.displayName || member.profile?.username || "Unknown Heart"}
                           </h2>
                           {member.profile?.verified && <BadgeCheck className="w-5 h-5 text-blue-500" />}
                         </div>
 
-                        <p className="text-sm text-muted-foreground">
-                          {member.profile?.country || "Global"}
+                        <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">
+                          {member.profile?.country || "Global Region"}
                         </p>
 
                         <div className="flex gap-2">
                           {member.role === "owner" && (
-                            <Badge className="bg-yellow-500 text-black">
-                              <Crown className="w-3 h-3 mr-1" />
+                            <Badge className="bg-slate-900 text-white border-none px-3 font-black uppercase text-[8px] tracking-widest">
+                              <Crown className="w-2.5 h-2.5 mr-1.5" />
                               Owner
                             </Badge>
                           )}
                           {member.role === "moderator" && (
-                            <Badge variant="secondary">
-                              <ShieldCheck className="w-3 h-3 mr-1" />
+                            <Badge variant="secondary" className="bg-primary/10 text-primary border-none px-3 font-black uppercase text-[8px] tracking-widest">
+                              <ShieldCheck className="w-2.5 h-2.5 mr-1.5" />
                               Moderator
                             </Badge>
                           )}
                           {(!member.role || member.role === "member") && (
-                            <Badge variant="outline">Member</Badge>
+                            <Badge variant="outline" className="px-3 font-black uppercase text-[8px] tracking-widest opacity-60">
+                              Member
+                            </Badge>
                           )}
                         </div>
                       </div>
@@ -173,7 +173,7 @@ export default function MembersPage({
                 ))
               ) : (
                 <div className="col-span-full text-center py-32 opacity-40">
-                  <p className="font-black uppercase">The registry is waiting.</p>
+                  <p className="font-black uppercase tracking-[0.3em]">The registry is waiting for its first spark.</p>
                 </div>
               )}
             </div>

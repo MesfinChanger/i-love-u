@@ -125,7 +125,7 @@ export async function joinCircle(
 
 /**
  * Get Circle Members
- * Synchronizes membership + public profile
+ * Synchronizes membership + public profile signatures
  */
 export async function getCircleMembers(
   circleId: string
@@ -145,21 +145,16 @@ export async function getCircleMembers(
 
     if (!member.userId) continue;
 
-    const profileSnap = await getDoc(
+    const userSnap = await getDoc(
       doc(db, "publicProfiles", member.userId)
     );
 
     members.push({
       id: memberDoc.id,
       ...member,
-      profile: profileSnap.exists()
-        ? { id: profileSnap.id, ...profileSnap.data() }
-        : {
-            displayName: "Unknown Heart",
-            username: "unknown",
-            photoURL: null,
-            country: "Global"
-          }
+      profile: userSnap.exists()
+        ? userSnap.data()
+        : null
     });
   }
 

@@ -10,7 +10,7 @@ import {
   ShieldCheck
 } from 'lucide-react';
 import { db, useUser, useCollection, useDoc } from '@/firebase';
-import { collection, query, orderBy, serverTimestamp, doc, updateDoc, getDoc } from 'firebase/firestore';
+import { collection, query, orderBy, serverTimestamp, doc, getDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { moderateText } from '@/ai/flows/moderate-text-flow';
 import { useToast } from '@/hooks/use-toast';
@@ -43,11 +43,11 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
 
   const currentUserId = user?.uid;
   
-  const convRef = useMemoFirebase(() => db && matchId ? doc(db, 'conversations', matchId) : null, [matchId]);
+  const convRef = useMemoFirebase(() => db && matchId ? doc(db, 'conversations', matchId) : null, [db, matchId]);
   const { data: convData, loading: matchLoading } = useDoc(convRef);
 
   const partnerId = useMemo(() => convData?.participants?.find((id: string) => id !== currentUserId), [convData?.participants, currentUserId]);
-  const partnerRef = useMemoFirebase(() => db && partnerId ? doc(db, 'users', partnerId) : null, [partnerId]);
+  const partnerRef = useMemoFirebase(() => db && partnerId ? doc(db, 'users', partnerId) : null, [db, partnerId]);
   const { data: partnerProfile } = useDoc(partnerRef);
 
   const messagesQuery = useMemoFirebase(() => {
@@ -56,7 +56,7 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
       collection(db, 'conversations', matchId, 'messages'), 
       orderBy('createdAt', 'asc')
     );
-  }, [matchId]);
+  }, [db, matchId]);
   
   const { data: messages, loading: messagesLoading } = useCollection(messagesQuery);
 
@@ -139,7 +139,6 @@ export default function ChatPage({ params }: { params: Promise<{ matchId: string
         type: "text" as const,
       };
 
-      // E2EE Message Securing (AES-GCM Protocol)
       if (sharedKey) {
         const encrypted = await encryptText(newMessage, sharedKey);
         if (encrypted) {

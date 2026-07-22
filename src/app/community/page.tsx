@@ -10,7 +10,6 @@ import {
   Globe, 
   Loader2, 
   Rocket, 
-  ShieldAlert,
   Clock
 } from 'lucide-react';
 import { useUser, useFirestore, useCollection, useDoc } from '@/firebase';
@@ -19,7 +18,7 @@ import { moderateText } from '@/ai/flows/moderate-text-flow';
 import { useToast } from '@/hooks/use-toast';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { errorEmitter } from '@/firebase/error-emitter';
-import { FirestorePermissionError, type SecurityRuleContext } from '@/firebase/errors';
+import { FirestorePermissionError } from '@/firebase/errors';
 import GuestAccessGuard from "@/components/GuestAccessGuard";
 
 /**
@@ -78,7 +77,11 @@ export default function CommunityPage() {
         })
         .catch(async () => {
           setIsSending(false);
-          errorEmitter.emit('permission-error', new FirestorePermissionError({ path: collectionRef.path, operation: 'create', requestResourceData: data }));
+          errorEmitter.emit('permission-error', new FirestorePermissionError({ 
+            path: collectionRef.path, 
+            operation: 'create', 
+            requestResourceData: data 
+          }));
         });
     } catch (e) {
       setIsSending(false);
@@ -126,7 +129,7 @@ export default function CommunityPage() {
 
 function CommunityMessageCard({ msg }: { msg: any }) {
   const db = useFirestore();
-  const authorRef = useMemoFirebase(() => db ? doc(db, 'users', msg.authorId) : null, [msg.authorId]);
+  const authorRef = useMemoFirebase(() => db ? doc(db, 'users', msg.authorId) : null, [db, msg.authorId]);
   const { data: author } = useDoc(authorRef);
 
   return (

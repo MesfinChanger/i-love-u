@@ -13,13 +13,10 @@ import { Badge } from '@/components/ui/badge';
 import { 
   MessageSquare, 
   Loader2, 
-  Sparkles, 
   ShieldCheck,
   ChevronRight,
-  Clock,
   Heart
 } from 'lucide-react';
-import { useTranslation } from '@/components/providers/LanguageProvider';
 import GuestAccessGuard from "@/components/GuestAccessGuard";
 
 /**
@@ -32,7 +29,7 @@ export default function MessagesPage() {
   const convQuery = useMemoFirebase(() => {
     if (!user?.uid || !db) return null;
     return query(collection(db, 'conversations'), where('participants', 'array-contains', user.uid), orderBy('lastUpdatedAt', 'desc'), limit(50));
-  }, [user?.uid, db]);
+  }, [db, user?.uid]);
 
   const { data: conversations, loading } = useCollection(convQuery);
 
@@ -75,7 +72,8 @@ export default function MessagesPage() {
 function ConversationListItem({ conv, currentUserId }: { conv: any, currentUserId: string }) {
   const db = useFirestore();
   const partnerId = conv.participants.find((id: string) => id !== currentUserId);
-  const { data: partner } = useCollection(partnerId ? query(collection(db, 'users'), where('uid', '==', partnerId)) : null);
+  const partnerQuery = useMemoFirebase(() => (db && partnerId) ? query(collection(db, 'users'), where('uid', '==', partnerId)) : null, [db, partnerId]);
+  const { data: partner } = useCollection(partnerQuery);
   const partnerProfile = partner?.[0];
 
   return (
@@ -87,7 +85,7 @@ function ConversationListItem({ conv, currentUserId }: { conv: any, currentUserI
             <AvatarFallback className="bg-primary/5 text-primary font-black"><Heart className="w-6 h-6" /></AvatarFallback>
           </Avatar>
           <div className="flex-grow min-w-0">
-            <h4 className="font-black text-xl tracking-tight truncate">{partnerProfile?.displayName || "Mystery Heart"}</h4>
+            <h4 className="font-black text-xl tracking-tight truncate uppercase">{partnerProfile?.displayName || "Mystery Heart"}</h4>
             <p className="text-sm text-muted-foreground italic line-clamp-1 opacity-70 group-hover:opacity-100 transition-opacity">
               {conv.lastMessage || "Start a secured conversation..."}
             </p>

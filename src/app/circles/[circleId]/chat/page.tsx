@@ -13,7 +13,7 @@ import { collection, query, orderBy, serverTimestamp, doc, addDoc, limit } from 
 import { useMemoFirebase } from "@/firebase/use-memo-firebase";
 import { useToast } from "@/hooks/use-toast";
 import { moderateText } from "@/ai/flows/moderate-text-flow";
-import { useCircleRole } from "@/hooks/use-circle-role";
+import { getCircleRole } from "@/services/permission.service";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
@@ -30,9 +30,25 @@ export default function CircleChatPage({ params }: { params: Promise<{ circleId:
 
   const [message, setMessage] = useState("");
   const [isSending, setIsSending] = useState(false);
+  const [isMember, setIsMember] = useState(false);
+  const [roleLoading, setRoleLoading] = useState(true);
 
-  // Authority Verification Protocol
-  const { isMember, loading: roleLoading } = useCircleRole(circleId);
+  // Authority Verification Handshake
+  useEffect(() => {
+    async function checkAuth() {
+      if (!circleId || !user?.uid) {
+        setRoleLoading(false);
+        return;
+      }
+      try {
+        const role = await getCircleRole(circleId, user.uid);
+        setIsMember(role === "owner" || role === "moderator" || role === "member");
+      } finally {
+        setRoleLoading(false);
+      }
+    }
+    checkAuth();
+  }, [circleId, user?.uid]);
 
   const circleRef = useMemoFirebase(() => db && circleId ? doc(db, 'communities', circleId) : null, [db, circleId]);
   const { data: circle } = useDoc(circleRef);

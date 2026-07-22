@@ -30,7 +30,7 @@ import {
   getCircleRole,
   canManageCircle,
   CircleMemberPermission
-} from "@/services/circle-permission.service";
+} from "@/services/permission.service";
 import { useToast } from "@/hooks/use-toast";
 
 interface CircleMember {
@@ -46,6 +46,10 @@ interface CircleMember {
   };
 }
 
+/**
+ * @fileOverview Circle Management Hub.
+ * Exclusively protected for Owners and Guardians.
+ */
 export default function CircleManagePage({
   params
 }: {
@@ -77,7 +81,7 @@ export default function CircleManagePage({
           await loadRegistry();
         }
       } catch (error) {
-        console.error("Circle authority error", error);
+        console.error("Circle authority handshake error:", error);
       } finally {
         setChecking(false);
       }
@@ -105,7 +109,7 @@ export default function CircleManagePage({
       );
       setMembers(enriched);
     } catch (error) {
-      console.error("Member registry error", error);
+      console.error("Member registry sync error:", error);
     } finally {
       setLoading(false);
     }
@@ -117,10 +121,10 @@ export default function CircleManagePage({
     try {
       const newRole = currentRole === "moderator" ? "member" : "moderator";
       await changeMemberRole(circleId, targetUserId, newRole, user.uid);
-      toast({ title: "Authority Updated", description: `Member changed to ${newRole}` });
+      toast({ title: "Authority Updated", description: `Member role changed to ${newRole}. ✨` });
       await loadRegistry();
     } catch (error) {
-      toast({ variant: "destructive", title: "Action Failed", description: "Permission denied" });
+      toast({ variant: "destructive", title: "Action Failed", description: "You do not have permission to change roles." });
     } finally {
       setProcessingId(null);
     }
@@ -128,14 +132,15 @@ export default function CircleManagePage({
 
   async function handleRemove(targetUserId: string) {
     if (!user?.uid) return;
-    if (!confirm("Remove this member from circle?")) return;
+    if (!confirm("Are you sure you want to remove this member from the circle registry?")) return;
+    
     setProcessingId(targetUserId);
     try {
       await removeMember(circleId, targetUserId, user.uid);
-      toast({ title: "Member Removed", description: "Circle registry updated" });
+      toast({ title: "Member Purged", description: "Circle registry updated successfully. ❤️" });
       await loadRegistry();
     } catch (error) {
-      toast({ variant: "destructive", title: "Removal Failed", description: "Guardian permission required" });
+      toast({ variant: "destructive", title: "Removal Failed", description: "Guardian permission required for this action." });
     } finally {
       setProcessingId(null);
     }
@@ -143,21 +148,26 @@ export default function CircleManagePage({
 
   if (checking) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="animate-spin w-12 h-12 text-primary" />
+      <div className="min-h-screen flex flex-col items-center justify-center bg-muted/30">
+        <Loader2 className="animate-spin w-12 h-12 text-primary opacity-20" />
+        <p className="text-[10px] font-black uppercase tracking-widest mt-4">Verifying Authority...</p>
       </div>
     );
   }
 
   if (!authorized) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6">
-        <Card className="max-w-md p-12 rounded-[3rem] text-center space-y-6">
-          <ShieldX className="mx-auto w-16 h-16 text-red-500" />
-          <h1 className="text-3xl font-black">Access Restricted</h1>
-          <p>Only Circle guardians can manage members.</p>
-          <Button asChild className="w-full">
-            <Link href={`/circles/${circleId}`}>Return</Link>
+      <div className="min-h-screen flex items-center justify-center p-6 bg-muted/30">
+        <Card className="max-w-md p-12 rounded-[3.5rem] border-none shadow-2xl bg-white text-center space-y-6">
+          <ShieldX className="mx-auto w-20 h-20 text-red-500 opacity-20" />
+          <div className="space-y-2">
+            <h1 className="text-3xl font-black uppercase tracking-tighter">Access Restricted</h1>
+            <p className="text-muted-foreground italic font-medium leading-relaxed">
+              Only Circle owners and identified guardians can manage this frequency. ❤️
+            </p>
+          </div>
+          <Button asChild className="w-full h-14 rounded-2xl gradient-bg font-black uppercase text-[10px] tracking-widest shadow-xl">
+            <Link href={`/circles/${circleId}`}>Return to Circle</Link>
           </Button>
         </Card>
       </div>
@@ -168,60 +178,77 @@ export default function CircleManagePage({
     <GuestAccessGuard feature="circle">
       <div className="min-h-screen bg-muted/30 pb-24">
         <Header />
-        <main className="container mx-auto px-6 py-10 space-y-8">
-          <div className="flex justify-between items-center">
-            <h1 className="text-4xl font-black flex gap-3 items-center">
-              <ShieldCheck className="text-primary" />
-              Circle Control
-            </h1>
-            <Button variant="ghost" asChild>
+        <main className="container mx-auto px-6 py-10 max-w-5xl space-y-10">
+          <div className="flex justify-between items-end gap-6">
+            <div className="space-y-1">
+              <h1 className="text-5xl font-black flex gap-4 items-center uppercase tracking-tighter">
+                <ShieldCheck className="text-primary w-12 h-12" />
+                Circle Control
+              </h1>
+              <p className="text-muted-foreground italic font-medium">Guardian registry for {circleId}</p>
+            </div>
+            <Button variant="ghost" asChild className="rounded-full h-12 px-6 hover:bg-white">
               <Link href={`/circles/${circleId}`}>
-                <ChevronLeft /> Back
+                <ChevronLeft className="mr-2 w-4 h-4" /> Back to Space
               </Link>
             </Button>
           </div>
 
-          {loading ? (
-            <div className="flex justify-center py-20">
-              <Loader2 className="animate-spin" />
-            </div>
-          ) : (
-            members.map((member) => (
-              <Card key={member.id} className="rounded-[2rem] shadow-lg">
-                <CardContent className="p-6 flex justify-between items-center gap-6">
-                  <div className="flex gap-5 items-center">
-                    <div className="relative w-20 h-20 rounded-3xl overflow-hidden bg-primary/10 flex items-center justify-center">
+          <div className="grid gap-6">
+            {loading ? (
+              <div className="flex justify-center py-20">
+                <Loader2 className="animate-spin text-primary opacity-20" />
+              </div>
+            ) : members.map((member) => (
+              <Card key={member.id} className="rounded-[2.5rem] border-none shadow-md bg-white overflow-hidden hover:shadow-lg transition-all">
+                <CardContent className="p-8 flex flex-col sm:flex-row justify-between items-center gap-8">
+                  <div className="flex gap-6 items-center w-full sm:w-auto">
+                    <div className="relative w-24 h-24 rounded-[1.8rem] overflow-hidden bg-primary/10 flex items-center justify-center border-4 border-muted/20 shrink-0">
                       {member.profile?.photoURL ? (
                         <Image src={member.profile.photoURL} alt="profile" fill className="object-cover" />
                       ) : (
-                        <User className="w-8 h-8 text-primary/30" />
+                        <User className="w-10 h-10 text-primary/30" />
                       )}
                     </div>
-                    <div>
-                      <h2 className="font-black text-xl">
-                        {member.profile?.displayName || member.profile?.username || "Unknown Heart"}
+                    <div className="space-y-2">
+                      <h2 className="font-black text-2xl tracking-tight">
+                        {member.profile?.displayName || member.profile?.username || "Mystery Heart"}
                       </h2>
-                      <Badge>{member.role}</Badge>
+                      <div className="flex items-center gap-2">
+                        <Badge className="bg-primary/5 text-primary border-none font-black uppercase text-[8px] h-5 px-2">
+                           {member.role === 'owner' ? <Crown className="w-2 h-2 mr-1" /> : null}
+                           {member.role}
+                        </Badge>
+                        <span className="text-[9px] font-bold text-muted-foreground uppercase">{member.profile?.country || "Global"}</span>
+                      </div>
                     </div>
                   </div>
 
                   {member.role !== "owner" && (
-                    <CirclePermissionGuard member={currentMember} permission="canManageMembers">
-                      <div className="flex gap-3">
-                        <Button disabled={processingId === member.userId} onClick={() => handleRoleChange(member.userId, member.role)}>
-                          {member.role === "moderator" ? "Remove Moderator" : "Make Moderator"}
+                    <div className="flex flex-wrap gap-3 w-full sm:w-auto justify-center">
+                        <Button 
+                          variant="outline"
+                          disabled={processingId === member.userId} 
+                          onClick={() => handleRoleChange(member.userId, member.role)}
+                          className="rounded-xl h-11 px-5 font-black uppercase text-[9px] tracking-widest flex-1 sm:flex-none"
+                        >
+                          {member.role === "moderator" ? "Revoke Authority" : "Make Moderator"}
                         </Button>
-                        <Button variant="destructive" disabled={processingId === member.userId} onClick={() => handleRemove(member.userId)}>
-                          {processingId === member.userId ? <Loader2 className="animate-spin" /> : <Trash2 />}
-                          Remove
+                        <Button 
+                          variant="destructive" 
+                          disabled={processingId === member.userId} 
+                          onClick={() => handleRemove(member.userId)}
+                          className="rounded-xl h-11 px-5 font-black uppercase text-[9px] tracking-widest gap-2 flex-1 sm:flex-none shadow-xl shadow-red-500/10"
+                        >
+                          {processingId === member.userId ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                          Purge Member
                         </Button>
-                      </div>
-                    </CirclePermissionGuard>
+                    </div>
                   )}
                 </CardContent>
               </Card>
-            ))
-          )}
+            ))}
+          </div>
         </main>
         <BottomNav />
       </div>

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState, use } from "react";
@@ -29,7 +28,7 @@ import { joinCircle } from "@/services/circle.service";
 import { useUser } from "@/firebase";
 import { useToast } from "@/hooks/use-toast";
 import CircleAdminPanel from "@/components/circle/CircleAdminPanel";
-import { useCircleRole } from "@/hooks/use-circle-role";
+import { getCircleRole, canManageCircle } from "@/services/permission.service";
 
 /**
  * @fileOverview High-Fidelity Circle Detail Page.
@@ -40,12 +39,28 @@ export default function CircleSpacePage({ params }: { params: Promise<{ circleId
   const { user } = useUser();
   const { toast } = useToast();
 
-  // Authority Verification Protocol
-  const { isAdmin, loading: roleLoading } = useCircleRole(circleId);
-
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [roleLoading, setRoleLoading] = useState(true);
   const [circle, setCircle] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [isJoining, setIsJoining] = useState(false);
+
+  // Authority Verification Handshake
+  useEffect(() => {
+    async function checkRole() {
+      if (!circleId || !user?.uid) {
+        setRoleLoading(false);
+        return;
+      }
+      try {
+        const role = await getCircleRole(circleId, user.uid);
+        setIsAdmin(canManageCircle(role));
+      } finally {
+        setRoleLoading(false);
+      }
+    }
+    checkRole();
+  }, [circleId, user?.uid]);
 
   useEffect(() => {
     async function loadCircle() {
@@ -62,7 +77,7 @@ export default function CircleSpacePage({ params }: { params: Promise<{ circleId
           });
         }
       } catch (error) {
-        console.error("Circle loading error:", error);
+        console.error("Circle loading ripple:", error);
       } finally {
         setLoading(false);
       }
@@ -92,7 +107,6 @@ export default function CircleSpacePage({ params }: { params: Promise<{ circleId
         return;
       }
 
-      // Prosperity Protocol: Atomic increment of member count
       await updateDoc(doc(db, "communities", circleId), {
         memberCount: increment(1)
       });
@@ -102,7 +116,6 @@ export default function CircleSpacePage({ params }: { params: Promise<{ circleId
         description: "Your frequency is now synchronized with this community."
       });
 
-      // Refresh local state to reflect growth
       setCircle((prev: any) => ({
         ...prev,
         memberCount: (prev?.memberCount || 0) + 1
@@ -161,14 +174,14 @@ export default function CircleSpacePage({ params }: { params: Promise<{ circleId
                     <Button 
                       onClick={handleJoin}
                       disabled={isJoining}
-                      className="rounded-2xl h-14 px-8 font-black"
+                      className="rounded-2xl h-14 px-8 font-black uppercase tracking-widest text-[10px]"
                     >
                       {isJoining ? <Loader2 className="w-5 h-5 animate-spin" /> : "Join Circle"}
                     </Button>
                   </div>
 
                   {/* Authority Protocol: Display management tools for Guardians */}
-                  <CircleAdminPanel circleId={circleId} />
+                  {!roleLoading && isAdmin && <CircleAdminPanel circleId={circleId} />}
                 </CardContent>
               </Card>
 
@@ -198,14 +211,6 @@ export default function CircleSpacePage({ params }: { params: Promise<{ circleId
                   text="Trade products and artisan services together."
                   href="/shopping"
                 />
-                {!roleLoading && isAdmin && (
-                  <FeatureCard
-                    icon={<ShieldCheck className="w-8 h-8" />}
-                    title="Management"
-                    text="Control members and permissions."
-                    href={`/circles/${circleId}/manage`}
-                  />
-                )}
               </div>
 
               <Card className="rounded-[3rem] border-none bg-slate-900 text-white shadow-2xl relative overflow-hidden group">

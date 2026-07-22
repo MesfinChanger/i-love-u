@@ -47,11 +47,11 @@ export default function ChatWindow({
 
   const currentUserId = userId;
   
-  const convRef = useMemoFirebase(() => db && conversationId ? doc(db, 'conversations', conversationId) : null, [conversationId]);
+  const convRef = useMemoFirebase(() => db && conversationId ? doc(db, 'conversations', conversationId) : null, [db, conversationId]);
   const { data: convData, loading: matchLoading } = useDoc(convRef);
 
   const partnerId = useMemo(() => convData?.participants?.find((id: string) => id !== currentUserId), [convData?.participants, currentUserId]);
-  const partnerRef = useMemoFirebase(() => db && partnerId ? doc(db, 'users', partnerId) : null, [partnerId]);
+  const partnerRef = useMemoFirebase(() => db && partnerId ? doc(db, 'users', partnerId) : null, [db, partnerId]);
   const { data: partnerProfile } = useDoc(partnerRef);
 
   const messagesQuery = useMemoFirebase(() => {
@@ -60,7 +60,7 @@ export default function ChatWindow({
       collection(db, 'conversations', conversationId, 'messages'), 
       orderBy('createdAt', 'asc')
     );
-  }, [conversationId]);
+  }, [db, conversationId]);
   
   const { data: messages, loading: messagesLoading } = useCollection(messagesQuery);
 
@@ -191,7 +191,7 @@ export default function ChatWindow({
       </main>
       <footer className="p-4 border-t pb-8 bg-white/80 backdrop-blur-xl">
         <form onSubmit={handleSendMessage} className="flex gap-2">
-          <Input value={newMessage} onChange={e => setNewMessage(e.target.value)} placeholder="Respectful message..." className="rounded-2xl bg-muted/40 border-none h-12 px-6" />
+          <Input value={newMessage} onChange={e => setNewMessage(e.target.value)} placeholder="Respectful message..." className="rounded-2xl bg-muted/40 border-none h-12 px-6 font-bold" />
           <Button type="submit" size="icon" className="rounded-xl h-12 w-12 gradient-bg" disabled={!newMessage.trim() || isSending}><Send className="w-5 h-5" /></Button>
         </form>
       </footer>

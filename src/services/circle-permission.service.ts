@@ -198,7 +198,7 @@ export function canRemoveMember(
  * Proxy for canManageMembers for backward compatibility
  */
 export function canManageCircle(role: CircleRole): boolean {
-  return role === "owner";
+  return role === "owner" || role === "admin";
 }
 
 /**
@@ -226,7 +226,7 @@ export function getCirclePermissions(
 }
 
 /**
- * Firebase role lookup - Fixed duplicate issue
+ * Firebase role lookup - Unified Sovereignty Protocol
  */
 export async function getCircleRole(
   circleId: string,
