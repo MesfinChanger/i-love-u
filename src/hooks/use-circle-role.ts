@@ -21,7 +21,6 @@ interface CircleRoleState {
 /**
  * @fileOverview High-Fidelity Circle Role Hook.
  * Automatically synchronizes a heart's authority with the community registry.
- * Provides logical flags for UI state and permission checks.
  */
 export function useCircleRole(circleId?: string): CircleRoleState {
   const { user } = useUser();
@@ -39,6 +38,7 @@ export function useCircleRole(circleId?: string): CircleRoleState {
         return;
       }
       
+      setLoading(true);
       try {
         const currentRole = await getCircleRole(circleId, user.uid);
         if (mounted) setRole(currentRole);
@@ -57,7 +57,7 @@ export function useCircleRole(circleId?: string): CircleRoleState {
   return {
     role: normalizedRole,
     isOwner: normalizedRole === "owner",
-    isAdmin: normalizedRole === "owner" || normalizedRole === "moderator", 
+    isAdmin: normalizedRole === "owner", // isAdmin refers to Circle Ownership/Guardianship in this context
     isModerator: normalizedRole === "owner" || normalizedRole === "moderator",
     isMember: normalizedRole === "owner" || normalizedRole === "moderator" || normalizedRole === "member",
     isGuest: normalizedRole === "guest",

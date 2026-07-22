@@ -1,10 +1,22 @@
 "use client";
 
+/**
+ * @fileOverview Hardened Circle Permission Hook.
+ *
+ * Purpose:
+ * - UI authorization state provider.
+ * - Single interface for Circle UI components.
+ *
+ * Security boundary:
+ * This hook DOES NOT protect data.
+ */
+
+import { useMemo } from "react";
 import {
   CircleMemberPermission,
-  canViewCircle,
   canPost,
   canComment,
+  canViewCircle,
   canManageMembers,
   canModerate,
   canChangeRole,
@@ -16,124 +28,66 @@ import {
   isMember
 } from "@/services/circle-permission.service";
 
-
-
-/**
- * Circle Permission Hook
- *
- * Single source of truth for UI authorization.
- *
- * IMPORTANT:
- * This controls UI only.
- * Real protection is enforced by:
- *
- * circle-admin.service.ts
- * Firebase Security Rules
- *
- */
-
+export interface CirclePermissionState {
+  canViewCircle: boolean;
+  canPost: boolean;
+  canComment: boolean;
+  canManageMembers: boolean;
+  canModerate: boolean;
+  isOwner: boolean;
+  isModerator: boolean;
+  isMember: boolean;
+  canChangeRole: (target?: CircleMemberPermission | null) => boolean;
+  canRemoveMember: (target?: CircleMemberPermission | null) => boolean;
+  canDeleteCircle: boolean;
+  canEditCircle: boolean;
+  authenticated: boolean;
+  hasPermission: boolean;
+}
 
 export function useCirclePermissions(
-
   member?: CircleMemberPermission | null,
+  isPublic: boolean = false
+): CirclePermissionState {
 
-  isPublic:boolean = false
+  return useMemo(() => {
+    const owner = isOwner(member);
+    const moderator = isModerator(member);
+    const memberAccess = isMember(member);
 
-){
+    return {
+      /* Visibility */
+      canViewCircle: canViewCircle(member, isPublic),
 
+      /* Content */
+      canPost: canPost(member),
+      canComment: canComment(member),
 
-  return {
+      /* Administration */
+      canManageMembers: canManageMembers(member),
+      canModerate: canModerate(member),
 
+      /* Identity */
+      isOwner: owner,
+      isModerator: moderator,
+      isMember: memberAccess,
 
-    /**
-     * Visibility
-     */
-    canViewCircle:
-      canViewCircle(
-        member,
-        isPublic
-      ),
+      /* Member actions */
+      canChangeRole: (target?: CircleMemberPermission | null) => {
+        return canChangeRole(member, target);
+      },
 
+      canRemoveMember: (target?: CircleMemberPermission | null) => {
+        return canRemoveMember(member, target);
+      },
 
+      /* Circle lifecycle */
+      canDeleteCircle: canDeleteCircle(member),
+      canEditCircle: canEditCircle(member),
 
-    /**
-     * Content permissions
-     */
-    canPost:
-      canPost(member),
-
-
-    canComment:
-      canComment(member),
-
-
-
-    /**
-     * Administration
-     */
-    canManageMembers:
-      canManageMembers(member),
-
-
-    canModerate:
-      canModerate(member),
-
-
-
-    /**
-     * Role identity
-     */
-    isOwner:
-      isOwner(member),
-
-
-    isModerator:
-      isModerator(member),
-
-
-    isMember:
-      isMember(member),
-
-
-
-    /**
-     * Advanced actions
-     *
-     * Used when comparing
-     * current user against target user
-     */
-    canChangeRole:
-      (
-        target?: CircleMemberPermission | null
-      ) =>
-        canChangeRole(
-          member,
-          target
-        ),
-
-
-
-    canRemoveMember:
-      (
-        target?: CircleMemberPermission | null
-      ) =>
-        canRemoveMember(
-          member,
-          target
-        ),
-
-
-
-    canDeleteCircle:
-      canDeleteCircle(member),
-
-
-
-    canEditCircle:
-      canEditCircle(member)
-
-
-
-  };
-
+      /* Security helpers */
+      authenticated: Boolean(member?.userId),
+      hasPermission: Boolean(member && memberAccess)
+    };
+  }, [member, isPublic]);
 }

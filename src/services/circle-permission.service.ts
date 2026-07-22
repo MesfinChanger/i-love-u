@@ -1,6 +1,8 @@
+'use client';
+
 /**
  * @fileOverview Unified Circle Permission Security Protocol.
- * Single source of truth for circle authority.
+ * Single source of truth for circle authority and community honor.
  */
 
 import { db } from "@/lib/firebase";
@@ -21,16 +23,14 @@ export interface CircleMemberPermission {
 }
 
 /**
- * Normalize roles from Firestore
+ * Normalize roles from Firestore to recognized mission types.
  */
 export function normalizeRole(role: unknown): CircleRole {
   if (typeof role !== "string") return null;
 
-  const value = role
-    .toLowerCase()
-    .trim();
+  const value = role.toLowerCase().trim();
 
-  switch(value){
+  switch (value) {
     case "owner":
     case "moderator":
     case "member":
@@ -42,152 +42,94 @@ export function normalizeRole(role: unknown): CircleRole {
 }
 
 /**
- * Role checks
+ * Authority Verification Protocols
  */
-export function isOwner(
- member?: CircleMemberPermission | null
-): boolean {
- return normalizeRole(member?.role) === "owner";
+
+export function isOwner(member?: CircleMemberPermission | null): boolean {
+  return normalizeRole(member?.role) === "owner";
 }
 
-export function isModerator(
- member?: CircleMemberPermission | null
-): boolean {
- const role = normalizeRole(member?.role);
- return (
-   role === "owner" ||
-   role === "moderator"
- );
+export function isModerator(member?: CircleMemberPermission | null): boolean {
+  const role = normalizeRole(member?.role);
+  return role === "owner" || role === "moderator";
 }
 
-export function isMember(
- member?: CircleMemberPermission | null
-): boolean {
- const role = normalizeRole(member?.role);
- return (
-   role === "owner" ||
-   role === "moderator" ||
-   role === "member"
- );
+export function isMember(member?: CircleMemberPermission | null): boolean {
+  const role = normalizeRole(member?.role);
+  return role === "owner" || role === "moderator" || role === "member";
+}
+
+export function canViewCircle(member?: CircleMemberPermission | null, isPublic: boolean = false): boolean {
+  if (isPublic) return true;
+  return isMember(member);
+}
+
+export function canPost(member?: CircleMemberPermission | null): boolean {
+  return isMember(member);
+}
+
+export function canComment(member?: CircleMemberPermission | null): boolean {
+  return isMember(member);
+}
+
+export function canManageMembers(member?: CircleMemberPermission | null): boolean {
+  return isModerator(member);
+}
+
+export function canModerate(member?: CircleMemberPermission | null): boolean {
+  return isModerator(member);
+}
+
+export function canDeleteCircle(member?: CircleMemberPermission | null): boolean {
+  return isOwner(member);
+}
+
+export function canEditCircle(member?: CircleMemberPermission | null): boolean {
+  return isOwner(member);
 }
 
 /**
- * Content permissions
+ * Authority logic for Circle interactions
  */
-export function canPost(
- member?: CircleMemberPermission | null
-): boolean {
- return isMember(member);
+export function canManageCircle(role: CircleRole): boolean {
+  const normalized = normalizeRole(role);
+  return normalized === "owner" || normalized === "moderator";
 }
 
-export function canModerate(
- member?: CircleMemberPermission | null
-): boolean {
- return isModerator(member);
+export function canChangeRole(actor?: CircleMemberPermission | null, target?: CircleMemberPermission | null): boolean {
+  if (!isOwner(actor) || !target) return false;
+  return normalizeRole(target.role) !== "owner";
 }
 
-/**
- * Circle management
- */
-export function canManageCircle(
- role: CircleRole
-): boolean {
- const normalized = normalizeRole(role);
- return (
-   normalized === "owner" ||
-   normalized === "moderator"
- );
+export function canRemoveMember(actor?: CircleMemberPermission | null, target?: CircleMemberPermission | null): boolean {
+  if (!actor || !target) return false;
+  const actorRole = normalizeRole(actor.role);
+  const targetRole = normalizeRole(target.role);
+
+  if (targetRole === "owner") return false;
+  if (actorRole === "owner") return true;
+  if (actorRole === "moderator" && targetRole === "member") return true;
+  return false;
 }
 
 /**
- * Change another member role
+ * Firestore role lookup protocol
  */
-export function canChangeRole(
- actor?: CircleMemberPermission | null,
- target?: CircleMemberPermission | null
-): boolean {
- if(!actor || !target) return false;
- const actorRole = normalizeRole(actor.role);
- const targetRole = normalizeRole(target.role);
+export async function getCircleRole(circleId: string, userId: string): Promise<CircleRole | null> {
+  if (!circleId || !userId || !db) return null;
 
- // Only owner can promote/demote
- if(actorRole !== "owner"){
-   return false;
- }
+  try {
+    const ref = doc(db, "communities", circleId, "members", userId);
+    const snap = await getDoc(ref);
 
- // Cannot remove ownership accidentally
- if(targetRole === "owner"){
-   return false;
- }
+    if (!snap.exists()) return null;
 
- return true;
-}
+    const data = snap.data();
+    if (data.status === "blocked") return null;
 
-/**
- * Remove member
- */
-export function canRemoveMember(
- actor?: CircleMemberPermission | null,
- target?: CircleMemberPermission | null
-): boolean {
- if(!actor || !target)
-   return false;
-
- const actorRole = normalizeRole(actor.role);
- const targetRole = normalizeRole(target.role);
-
- // owner can remove anyone except himself
- if(
-   actorRole === "owner" &&
-   targetRole !== "owner"
- ){
-   return true;
- }
-
- // moderators remove normal members only
- if(
-   actorRole === "moderator" &&
-   targetRole === "member"
- ){
-   return true;
- }
-
- return false;
-}
-
-/**
- * Firestore role lookup
- */
-export async function getCircleRole(
- circleId:string,
- userId:string
-):Promise<CircleRole | null>{
- if(!circleId || !userId || !db)
-   return null;
-
- try {
-   const snap = await getDoc(
-     doc(
-       db,
-       "communities",
-       circleId,
-       "members",
-       userId
-     )
-   );
-
-   if(!snap.exists())
-     return null;
-
-   return normalizeRole(
-     snap.data().role ?? "member"
-   );
- }
- catch(error){
-   console.warn(
-    "Circle authority lookup failed:",
-    error
-   );
-   return null;
- }
+    return normalizeRole(data.role || "member");
+  } catch (error) {
+    console.warn("Circle authority lookup ripple:", error);
+    return null;
+  }
 }
