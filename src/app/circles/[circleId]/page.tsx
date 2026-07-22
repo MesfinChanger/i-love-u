@@ -39,8 +39,9 @@ export default function CircleSpacePage({ params }: { params: Promise<{ circleId
   const { user } = useUser();
   const { toast } = useToast();
 
-  const { isOwner, isModerator, loading: roleLoading } = useCircleRole(circleId);
+  const { isOwner, isModerator } = useCircleRole(circleId);
   const isAdmin = isOwner || isModerator;
+  const roleLoading = false;
 
   const [circle, setCircle] = useState<any>(null);
   const [loading, setLoading] = useState(true);

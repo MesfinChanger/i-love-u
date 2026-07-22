@@ -59,10 +59,10 @@ const rolePermissions: Record<string, Permission[]> = {
  */
 export function hasPermission(
   role: string | null | undefined,
-  permission: Permission
+  permission: Permission | string
 ): boolean {
   if (!role) {
-    return rolePermissions[UserRole.GUEST].includes(permission);
+    return rolePermissions[UserRole.GUEST].includes(permission as Permission);
   }
 
   const normalizedRole = role.toLowerCase();
@@ -73,5 +73,9 @@ export function hasPermission(
   }
 
   // Check specific role mapping
-  return rolePermissions[normalizedRole as UserRole]?.includes(permission) || false;
+  return (
+    rolePermissions[normalizedRole as UserRole]?.includes(
+      permission as Permission
+    ) || false
+  );
 }

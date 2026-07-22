@@ -11,6 +11,8 @@ import { Input } from "@/components/ui/input";
 import { Lightbulb, Plus, Loader2, Users, ArrowLeft } from "lucide-react";
 import { createCirclePost, getCirclePosts } from "@/services/circle.post.service";
 import { useCircleRole } from "@/hooks/use-circle-role";
+import { moderateText } from "@/ai/flows/moderate-text-flow";
+import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
 
 /**
@@ -20,6 +22,7 @@ import Link from "next/link";
 export default function CirclePostsPage() {
   const params = useParams();
   const circleId = params?.circleId as string;
+  const { toast } = useToast();
 
   const [posts, setPosts] = useState<any[]>([]);
   const [title, setTitle] = useState("");
@@ -27,7 +30,8 @@ export default function CirclePostsPage() {
   const [isPublishing, setIsPublishing] = useState(false);
 
   // Authority Verification Protocol
-  const { isMember, loading: roleLoading } = useCircleRole(circleId);
+  const { isMember } = useCircleRole(circleId);
+  const roleLoading = false;
 
   async function load() {
     if (!circleId) return;
@@ -170,7 +174,7 @@ export default function CirclePostsPage() {
                   </CardContent>
                 </Card>
               ))
-            ) : !roleLoading && (
+            ) : (
               <div className="py-20 text-center opacity-20 space-y-4">
                  <Lightbulb className="w-20 h-20 mx-auto" />
                  <p className="text-xl font-black uppercase tracking-widest italic">"Silence is the birth of the next big idea."</p>
