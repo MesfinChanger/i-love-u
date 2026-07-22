@@ -117,12 +117,16 @@ export async function getCircleMembers(
 
   for (const memberDoc of snapshot.docs) {
     const member = memberDoc.data();
-    const userSnap = await getDoc(doc(db, "users", member.userId));
+    const profileSnap = await getDoc(
+      doc(db, "publicProfiles", member.userId)
+    );
 
     members.push({
       id: memberDoc.id,
       ...member,
-      profile: userSnap.exists() ? userSnap.data() : null
+      profile: profileSnap.exists()
+        ? profileSnap.data()
+        : null
     });
   }
 
