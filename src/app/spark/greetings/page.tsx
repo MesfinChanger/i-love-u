@@ -1,5 +1,10 @@
 "use client";
 
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { acceptGreeting } from "@/services/spark/greeting.actions";
+import { useToast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation";
 import { Header } from '@/components/Header';
 import { BottomNav } from '@/components/BottomNav';
 import { useUser, useFirestore, useCollection } from '@/firebase';
@@ -119,4 +124,74 @@ function GreetingCard({ greeting }: { greeting: any }) {
       </CardContent>
     </Card>
   );
+}
+createSparkConnection(
+  greeting.fromUserId,
+  greeting.toUserId
+)const router = useRouter();
+const { toast } = useToast();
+const [accepting, setAccepting] = useState(false);
+
+
+async function handleAccept(){
+
+ if(accepting) return;
+
+ setAccepting(true);
+
+ try {
+
+   const result = await acceptGreeting(
+     greeting.id,
+     greeting.fromUserId,
+     greeting.toUserId
+   );
+
+
+   toast({
+     title:"Connection Created ❤️",
+     description:"Your Spark conversation is ready."
+   });
+
+
+   router.push(
+     `/messages/${result.conversationId}`
+   );
+
+
+ } catch(error){
+
+   console.error(error);
+
+   toast({
+    variant:"destructive",
+    title:"Unable to connect",
+    description:"Please try again."
+   });
+
+ } finally {
+
+   setAccepting(false);
+
+ }<Button
+ onClick={handleAccept}
+ disabled={accepting || greeting.status==="accepted"}
+ className="
+ rounded-xl
+ h-10
+ px-5
+ text-[9px]
+ font-black
+ uppercase
+ tracking-widest
+ "
+>
+
+{accepting ? "Connecting..." :
+ greeting.status==="accepted"
+ ? "Connected ❤️"
+ : "Accept Spark"}
+
+</Button>
+
 }

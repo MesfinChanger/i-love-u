@@ -20,7 +20,7 @@ export async function acceptGreeting(
   receiverId: string
 ) {
   // 1. Update the outreach registry
-  await updateDoc(
+  updateDoc(
     doc(db, "sparkGreetings", greetingId),
     {
       status: "accepted"
@@ -28,5 +28,10 @@ export async function acceptGreeting(
   );
 
   // 2. Launch the connection protocol
-  await createSparkConnection(senderId, receiverId);
+  const connection = await createSparkConnection(
+    senderId,
+    receiverId
+  );
+  
+  return connection;
 }
