@@ -232,6 +232,7 @@ export async function getCircleRole(
   circleId: string,
   userId: string
 ): Promise<CircleRole | null> {
+
   if (!circleId || !userId) {
     return null;
   }

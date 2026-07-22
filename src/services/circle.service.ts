@@ -130,10 +130,6 @@ export async function joinCircle(
 export async function getCircleMembers(
   circleId: string
 ) {
-  if (!circleId || !db) {
-    return [];
-  }
-
   const snapshot = await getDocs(
     collection(db, "communities", circleId, "members")
   );
@@ -141,9 +137,8 @@ export async function getCircleMembers(
   const members = [];
 
   for (const memberDoc of snapshot.docs) {
-    const member = memberDoc.data();
 
-    if (!member.userId) continue;
+    const member = memberDoc.data();
 
     const userSnap = await getDoc(
       doc(db, "publicProfiles", member.userId)
@@ -156,6 +151,7 @@ export async function getCircleMembers(
         ? userSnap.data()
         : null
     });
+
   }
 
   return members;
