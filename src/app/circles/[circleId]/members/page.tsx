@@ -1,80 +1,123 @@
 'use client';
 
-import { joinCircle } from "@/services/circle.service";
-import { useUser } from "@/firebase";
-import { useToast } from "@/hooks/use-toast";
-import { doc, getDoc, updateDoc, increment } from "firebase/firestore";
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
 
-import { Header } from "@/components/Header";
-import { BottomNav } from "@/components/BottomNav";
+import {
+useEffect,
+useState
+} from "react";
+
+
+import {
+useParams
+} from "next/navigation";
+
+
+import {
+Users,
+ShieldCheck,
+Crown,
+Loader2
+} from "lucide-react";
+
+
+import {
+Card,
+CardContent
+} from "@/components/ui/Card";
+
+
+import {
+Badge
+} from "@/components/ui/badge";
+
+
+import {
+Header
+} from "@/components/Header";
+
+
+import {
+BottomNav
+} from "@/components/BottomNav";
+
+
 import GuestAccessGuard from "@/components/GuestAccessGuard";
 
-import { Card, CardContent } from "@/components/ui/Card";
 
-import { Users, Loader2 } from "lucide-react";
-
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import {
+getCircleMembers
+} from "@/services/circle.service";
 
 
-export default function CircleMembersPage(){
 
-  const params = useParams();
-  const { user } = useUser();
-const { toast } = useToast();
-
-  const circleId = params?.circleId as string;
-
-  const [members,setMembers] = useState<any[]>([]);
-  const [loading,setLoading] = useState(true);
+export default function MembersPage(){
 
 
-  useEffect(()=>{
-
-    async function loadMembers(){
-
-      if(!circleId || !db) return;
-
-      try{
-
-        const snap = await getDocs(
-          collection(
-            db,
-            "communities",
-            circleId,
-            "members"
-          )
-        );
+const params = useParams();
 
 
-        setMembers(
-          snap.docs.map(doc=>({
-            id:doc.id,
-            ...doc.data()
-          }))
-        );
+const circleId =
+params?.circleId as string;
 
 
-      }catch(error){
 
-        console.error(error);
-
-      }
-      finally{
-
-        setLoading(false);
-
-      }
-
-    }
+const [
+members,
+setMembers
+]=useState<any[]>([]);
 
 
-    loadMembers();
+
+const [
+loading,
+setLoading
+]=useState(true);
 
 
-  },[circleId]);
+
+useEffect(()=>{
+
+
+async function load(){
+
+
+if(!circleId)
+return;
+
+
+try{
+
+
+const data =
+await getCircleMembers(circleId);
+
+
+setMembers(data);
+
+
+}
+
+catch(error){
+
+console.error(error);
+
+}
+
+finally{
+
+setLoading(false);
+
+}
+
+
+}
+
+
+load();
+
+
+},[circleId]);
+
 
 
 
@@ -82,75 +125,175 @@ return (
 
 <GuestAccessGuard feature="circle">
 
+
 <div className="min-h-screen bg-muted/30 pb-24">
+
 
 <Header/>
 
 
-<main className="container mx-auto px-6 py-10 max-w-5xl">
+<main className="
+container
+mx-auto
+px-6
+py-10
+max-w-5xl
+space-y-8
+">
 
 
-<h1 className="text-4xl font-black flex items-center gap-3">
+<h1 className="
+text-5xl
+font-black
+flex
+items-center
+gap-4
+">
 
-<Users/>
+<Users className="text-primary"/>
 
-Circle Members
+Members
 
 </h1>
+
 
 
 {
 loading ?
 
-<div className="flex justify-center py-32">
-<Loader2 className="animate-spin"/>
+<div className="flex justify-center py-40">
+
+<Loader2 className="
+animate-spin
+w-12
+h-12
+"/>
+
 </div>
 
 
 :
 
-<Card className="mt-10 rounded-[2rem]">
 
-<CardContent className="p-8 space-y-4">
+<div className="
+grid
+md:grid-cols-2
+gap-6
+">
+
 
 {
-members.length===0 ?
-
-<p className="text-muted-foreground">
-No members yet.
-</p>
-
-
-:
-
 members.map(member=>(
 
-<div
+
+<Card
 key={member.id}
-className="p-4 rounded-xl bg-muted"
+className="
+rounded-[2rem]
+border-none
+shadow-lg
+"
 >
 
-Member:
-{member.userId}
 
-<br/>
+<CardContent className="
+p-8
+flex
+items-center
+gap-5
+">
 
-Role:
-{member.role}
+
+<div className="
+w-20
+h-20
+rounded-full
+bg-primary/10
+flex
+items-center
+justify-center
+text-3xl
+font-black
+">
+
+
+{
+member.profile?.displayName
+?.charAt(0)
+||
+"?"
+}
+
 
 </div>
+
+
+
+
+<div>
+
+
+<h2 className="
+text-xl
+font-black
+">
+
+{
+member.profile?.displayName
+||
+"Unknown Heart"
+}
+
+</h2>
+
+
+<Badge
+className="mt-2"
+>
+
+
+{
+member.role==="owner"
+&&
+<Crown className="w-3 h-3 mr-1"/>
+}
+
+
+{
+member.role==="admin"
+&&
+<ShieldCheck className="w-3 h-3 mr-1"/>
+}
+
+
+
+{
+member.role
+}
+
+
+</Badge>
+
+
+</div>
+
+
+</CardContent>
+
+
+</Card>
+
 
 ))
 
 }
 
 
-</CardContent>
-
-</Card>
+</div>
 
 
 }
+
 
 
 </main>
@@ -158,10 +301,13 @@ Role:
 
 <BottomNav/>
 
+
 </div>
+
 
 </GuestAccessGuard>
 
 );
+
 
 }

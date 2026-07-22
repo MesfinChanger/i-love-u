@@ -16,8 +16,19 @@ import { db } from "@/lib/firebase";
  * Handles the creation and discovery of high-fidelity community gatherings.
  */
 
-// Create Circle
-export async function createCircle(circle: any) {
+/**
+ * Create Circle Protocol.
+ * Registers a new circle and automatically initializes the owner's membership record.
+ */
+export async function createCircle(circle: {
+  name: string;
+  description: string;
+  category: string;
+  ownerId: string;
+  privacy: "open" | "private";
+  imageURL: string;
+}) {
+  // 1. Establish the community master record
   const ref = await addDoc(
     collection(db, "communities"),
     {
@@ -26,10 +37,25 @@ export async function createCircle(circle: any) {
       createdAt: serverTimestamp()
     }
   );
+
+  // 2. Automatic Owner Membership Protocol
+  await setDoc(
+    doc(db, "communities", ref.id, "members", circle.ownerId),
+    {
+      userId: circle.ownerId,
+      role: "owner",
+      status: "active",
+      joinedAt: serverTimestamp()
+    }
+  );
+
   return ref.id;
 }
 
-// Discover Circles
+/**
+ * Discover Circles Protocol.
+ * Retrieves all registered community gatherings.
+ */
 export async function discoverCircles() {
   const snapshot = await getDocs(
     collection(db, "communities")
@@ -74,4 +100,31 @@ export async function joinCircle(
   );
 
   return true;
+}
+
+/**
+ * Get Circle Members Protocol.
+ * Retrieves all members of a specific circle including their profile signatures.
+ */
+export async function getCircleMembers(
+  circleId: string
+) {
+  const snapshot = await getDocs(
+    collection(db, "communities", circleId, "members")
+  );
+
+  const members = [];
+
+  for (const memberDoc of snapshot.docs) {
+    const member = memberDoc.data();
+    const userSnap = await getDoc(doc(db, "users", member.userId));
+
+    members.push({
+      id: memberDoc.id,
+      ...member,
+      profile: userSnap.exists() ? userSnap.data() : null
+    });
+  }
+
+  return members;
 }

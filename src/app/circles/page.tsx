@@ -19,13 +19,12 @@ import {
 import { useUser, db, useCollection } from '@/firebase';
 import {
   collection,
-  addDoc,
   query,
   orderBy,
-  serverTimestamp,
   limit,
   where
 } from 'firebase/firestore';
+import { createCircle as launchCircleService } from '@/services/circle.service';
 import { useToast } from '@/hooks/use-toast';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import {
@@ -90,24 +89,22 @@ export default function CirclesPage() {
 
   async function createCircle(e: React.FormEvent) {
     e.preventDefault();
-    if (!user || !db) return;
+    if (!user) return;
     setCreating(true);
 
     try {
-      await addDoc(collection(db, "communities"), {
+      await launchCircleService({
         name: name.trim(),
         description: description.trim(),
         category,
         ownerId: user.uid,
         privacy,
-        memberCount: 1,
-        imageURL: `https://picsum.photos/seed/${name}/600/400`,
-        createdAt: serverTimestamp()
+        imageURL: `https://picsum.photos/seed/${name}/600/400`
       });
 
       toast({
         title: "Circle Created ✨",
-        description: "Your community is now alive."
+        description: "Your community is now alive and you are the owner."
       });
 
       setOpen(false);
@@ -117,7 +114,7 @@ export default function CirclesPage() {
       toast({
         variant: "destructive",
         title: "Creation failed",
-        description: "Could not create circle."
+        description: "Could not launch circle protocol."
       });
     } finally {
       setCreating(false);
@@ -160,31 +157,34 @@ export default function CirclesPage() {
                   <Plus /> Create Circle
                 </Button>
               </DialogTrigger>
-              <DialogContent>
+              <DialogContent className="rounded-[2.5rem]">
                 <DialogHeader>
-                  <DialogTitle>Create Circle</DialogTitle>
-                  <DialogDescription>Build a global community.</DialogDescription>
+                  <DialogTitle className="text-2xl font-black uppercase">Launch Circle</DialogTitle>
+                  <DialogDescription className="text-[10px] font-black uppercase tracking-widest text-primary/60">Build a global community.</DialogDescription>
                 </DialogHeader>
                 <form onSubmit={createCircle} className="space-y-5">
-                  <div>
-                    <Label>Name</Label>
-                    <Input required value={name} onChange={e => setName(e.target.value)} />
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest ml-1">Name</Label>
+                    <Input required value={name} onChange={e => setName(e.target.value)} className="h-12 rounded-xl" />
                   </div>
-                  <div>
-                    <Label>Description</Label>
-                    <Textarea required value={description} onChange={e => setDescription(e.target.value)} />
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest ml-1">Description</Label>
+                    <Textarea required value={description} onChange={e => setDescription(e.target.value)} className="min-h-[100px] rounded-xl" />
                   </div>
-                  <Select value={category} onValueChange={setCategory}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {circleCategories.map(cat =>
-                        <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                      )}
-                    </SelectContent>
-                  </Select>
-                  <Button disabled={creating} className="w-full h-14">
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest ml-1">Category</Label>
+                    <Select value={category} onValueChange={setCategory}>
+                      <SelectTrigger className="h-12 rounded-xl">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {circleCategories.map(cat =>
+                          <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <Button disabled={creating} className="w-full h-14 rounded-xl gradient-bg font-black uppercase shadow-xl shadow-primary/10">
                     {creating ? <Loader2 className="animate-spin" /> : "Launch Circle"}
                   </Button>
                 </form>
@@ -197,22 +197,22 @@ export default function CirclesPage() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredCircles.map((circle: any) => (
-                <Card key={circle.id} className="rounded-[2.5rem] overflow-hidden bg-white border-none shadow-xl">
-                  <div className="relative h-52">
+                <Card key={circle.id} className="rounded-[2.5rem] overflow-hidden bg-white border-none shadow-xl group">
+                  <div className="relative h-52 overflow-hidden">
                     <Image
                       src={circle.imageURL || `https://picsum.photos/seed/${circle.id}/600/400`}
                       alt={circle.name}
                       fill
-                      className="object-cover"
+                      className="object-cover group-hover:scale-105 transition-transform duration-700"
                     />
                   </div>
                   <CardContent className="p-8 space-y-5">
-                    <h2 className="text-2xl font-black">{circle.name}</h2>
+                    <h2 className="text-2xl font-black uppercase tracking-tight">{circle.name}</h2>
                     <p className="text-muted-foreground italic line-clamp-3">"{circle.description}"</p>
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs font-black uppercase tracking-widest">{circle.memberCount} Members</span>
+                    <div className="flex justify-between items-center pt-2">
+                      <span className="text-[10px] font-black uppercase tracking-widest bg-primary/5 text-primary px-3 py-1 rounded-full">{circle.memberCount} Hearts</span>
                       <Link href={`/circles/${circle.id}`}>
-                        <Button className="rounded-xl gap-2">
+                        <Button className="rounded-xl gap-2 font-black uppercase text-[10px] h-10">
                           Enter Circle <ArrowRight className="w-4 h-4" />
                         </Button>
                       </Link>
