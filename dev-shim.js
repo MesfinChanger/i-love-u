@@ -1,84 +1,53 @@
 /**
- * @fileOverview High-Fidelity Port Bridge Shim for Next.js 15.
- * Synchronizes the application listener with the Firebase Studio nginx gateway.
- * Specifically hardened to handle dynamic port injection via environment or CLI.
+ * @fileOverview Transparent Port Bridge for Next.js 15.
+ * Synchronizes the application listener with the Firebase Studio preview gateway.
+ * Enforces hostname 0.0.0.0 and resolves dynamic port allocation.
  */
 const { spawn } = require('child_process');
 const path = require('path');
-const fs = require('fs');
 
 const rawArgs = process.argv.slice(2);
 
-// PORT DISCOVERY PROTOCOL
-// Priority: 1. CLI --port, 2. Env PORT, 3. Default 3000
-let resolvedPort = process.env.PORT || '3000';
-
+// PORT DISCOVERY
+let port = '';
 for (let i = 0; i < rawArgs.length; i++) {
   if (rawArgs[i] === '--port' || rawArgs[i] === '-p') {
-    if (rawArgs[i + 1]) {
-      const p = rawArgs[i + 1];
-      // Next.js reserved port protection
-      if (p === '6000') {
-        console.warn('[I LOVE U Port Bridge] Port 6000 is reserved for X11/Gateway. Falling back to internal bridge.');
-        resolvedPort = '3000';
-      } else {
-        resolvedPort = p;
-      }
-    }
+    port = rawArgs[i + 1];
     break;
   }
 }
 
-// Final fallback for invalid environment states
-if (resolvedPort === '6000') resolvedPort = '3000';
+if (!port) port = process.env.PORT || '3000';
 
-console.log(`[I LOVE U Port Bridge] PORT BRIDGE ACTIVE: ${resolvedPort}`);
-console.log(`[I LOVE U Port Bridge] Target: 0.0.0.0:${resolvedPort}`);
+// Guard against Next.js reserved port 6000 (X11)
+if (port === '6000') {
+  console.warn('[I LOVE U Port Bridge] Port 6000 is reserved. Falling back to 3000.');
+  port = '3000';
+}
+
+console.log(`[I LOVE U Port Bridge] PORT BRIDGE ACTIVE: ${port}`);
 
 const nextBin = path.join(__dirname, 'node_modules', '.bin', 'next');
 
-if (!fs.existsSync(nextBin)) {
-  console.error(`[I LOVE U Port Bridge] Error: Next.js binary not found at ${nextBin}`);
-  process.exit(1);
+// ARGUMENT ENFORCEMENT
+const finalArgs = ['dev', ...rawArgs];
+
+// Enforce hostname 0.0.0.0 for container accessibility
+if (!rawArgs.includes('--hostname') && !rawArgs.includes('--host') && !rawArgs.includes('-H')) {
+  finalArgs.push('--hostname', '0.0.0.0');
 }
 
-// ARGUMENT PURIFICATION
-// Filter out host/port flags from forwarded args to prevent Next.js initialization conflicts
-const filteredArgs = [];
-for (let i = 0; i < rawArgs.length; i++) {
-  const arg = rawArgs[i];
-  if (arg === '--port' || arg === '-p' || arg === '--hostname' || arg === '--host' || arg === '-H') {
-    i++; // Skip the flag value
-    continue;
-  }
-  filteredArgs.push(arg);
+// Enforce resolved port if not provided in CLI
+if (!rawArgs.includes('--port') && !rawArgs.includes('-p')) {
+  finalArgs.push('--port', port);
 }
 
-// CONSTRUCT FINAL COMMAND
-// Enforce the Cloud Workstation contract: 0.0.0.0 and resolvedPort
-const nextArgs = ['dev', ...filteredArgs, '--port', resolvedPort, '--hostname', '0.0.0.0'];
-
-const child = spawn(nextBin, nextArgs, {
+const child = spawn(nextBin, finalArgs, {
   stdio: 'inherit',
   env: { 
     ...process.env, 
-    PORT: resolvedPort,
-    HOSTNAME: '0.0.0.0',
     NEXT_TELEMETRY_DISABLED: '1'
   }
-});
-
-['SIGINT', 'SIGTERM', 'SIGQUIT'].forEach(signal => {
-  process.on(signal, () => {
-    child.kill(signal);
-  });
-});
-
-child.on('exit', (code, signal) => {
-  if (signal) {
-    console.log(`[I LOVE U Port Bridge] Next.js process terminated by signal ${signal}`);
-  }
-  process.exit(code || 0);
 });
 
 child.on('error', (err) => {
