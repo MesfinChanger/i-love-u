@@ -60,7 +60,7 @@ export default function HeroImage() {
               src={currentImage.imageUrl}
               alt={currentImage.description}
               fill
-              priority={index === 0}
+              priority={isFirstLoad}
               className="object-cover"
               data-ai-hint={currentImage.imageHint}
             />

@@ -1,4 +1,3 @@
-
 "use client";
 
 import Image from "next/image";
@@ -18,6 +17,7 @@ export default function WaterfallScene() {
           src={image.imageUrl}
           alt={image.description}
           fill
+          priority
           className="object-cover"
           data-ai-hint={image.imageHint}
         />
