@@ -4,7 +4,7 @@ import { db, auth } from "./firebase";
 /**
  * @fileOverview High-Fidelity Admin Verification Protocol.
  * Checks if a heart holds the Guardian role or matches the Sovereign Signature.
- * Hardened with SSR safety checks.
+ * Hardened with SSR safety checks and null-ref protection.
  */
 export async function checkAdmin(uid: string) {
   if (!uid || !db) return false;
@@ -12,10 +12,10 @@ export async function checkAdmin(uid: string) {
   // Sovereign Signature Check (Case-Insensitive)
   const SOVEREIGN_EMAIL = "thearmyoj@gmail.com";
   
-  // Safety: getAuth() might not be available during SSR
+  // Safety: auth might not be fully initialized during early hydration
   const userEmail = auth?.currentUser?.email;
   
-  if (userEmail?.toLowerCase() === SOVEREIGN_EMAIL.toLowerCase()) {
+  if (userEmail && userEmail.toLowerCase() === SOVEREIGN_EMAIL.toLowerCase()) {
     return true;
   }
 
@@ -34,7 +34,7 @@ export async function checkAdmin(uid: string) {
       data.isAdmin === true
     );
   } catch (e) {
-    console.error("Authority Verification Ripple:", e);
+    console.warn("Authority Verification Ripple:", e);
     return false;
   }
 }
