@@ -15,6 +15,7 @@ import GuestNotice from '@/components/GuestNotice';
 /**
  * @fileOverview Universal Client-Side Provider Registry.
  * Orchestrates platform-wide state synchronization for the Prosperity Revolution.
+ * Injected with high-fidelity runtime diagnostics.
  */
 
 function IdentityStatus() {
@@ -49,8 +50,17 @@ export function ClientProviders({
 }) {
   return (
     <FirebaseClientProvider>
+      {/* DIAGNOSTIC MARKER 2: FIREBASE_OK */}
+      <div id="diag-firebase-ok" className="fixed top-0 left-12 z-[9999] bg-black text-white text-[8px] px-2 py-0.5 pointer-events-none opacity-50">FIREBASE_OK</div>
+      
       <LanguageProvider>
+        {/* DIAGNOSTIC MARKER 3: LANGUAGE_OK */}
+        <div id="diag-language-ok" className="fixed top-0 left-28 z-[9999] bg-black text-white text-[8px] px-2 py-0.5 pointer-events-none opacity-50">LANGUAGE_OK</div>
+        
         <IdleLogoutProvider>
+          {/* DIAGNOSTIC MARKER 4: PROVIDERS_OK */}
+          <div id="diag-providers-ok" className="fixed top-0 left-44 z-[9999] bg-black text-white text-[8px] px-2 py-0.5 pointer-events-none opacity-50">PROVIDERS_OK</div>
+          
           {children}
           <Toaster />
           <SparkAssistant />

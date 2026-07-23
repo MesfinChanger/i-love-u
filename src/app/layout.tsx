@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 };
 
 /**
- * @fileOverview Root Layout Protocol with Concurrent Rendering Stability.
+ * @fileOverview Root Layout Protocol with Concurrent Rendering Stability and Runtime Diagnostics.
  */
 export default function RootLayout({
   children,
@@ -28,6 +28,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="font-body antialiased min-h-screen flex flex-col bg-background text-foreground">
+        {/* DIAGNOSTIC MARKER 1: SHELL_OK */}
+        <div id="diag-shell-ok" className="fixed top-0 left-0 z-[9999] bg-black text-white text-[8px] px-2 py-0.5 pointer-events-none opacity-50">SHELL_OK</div>
+        
         <ClientProviders>
           <Suspense fallback={<div className="h-16 border-b bg-white/50 animate-pulse" />}>
             <MainNavigation />

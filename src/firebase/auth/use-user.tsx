@@ -7,6 +7,7 @@ import { useAuth } from '../provider';
 /**
  * @fileOverview High-Fidelity Auth Hook.
  * Hardened to handle uninitialized authentication bridges gracefully.
+ * Stabilized to prevent hydration re-run loops.
  */
 export function useUser() {
   const auth = useAuth();
@@ -14,6 +15,7 @@ export function useUser() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Protocol: If auth bridge is missing, immediately resolve loading to prevent page hangs
     if (!auth || typeof onAuthStateChanged !== 'function') {
       setLoading(false);
       return;
@@ -31,18 +33,17 @@ export function useUser() {
       }
     );
 
-    // Safety timeout to prevent retrieving hang
+    // Safety timeout to prevent infinite "retrieving" state in restricted networks
     const timer = setTimeout(() => {
-      if (loading) {
-        setLoading(false);
-      }
+      setLoading(false);
     }, 5000);
 
     return () => {
       unsubscribe();
       clearTimeout(timer);
     };
-  }, [auth, loading]);
+    // loading is removed from dependencies to prevent redundant hydration re-runs
+  }, [auth]);
 
   return {
     user,

@@ -4,11 +4,14 @@ import AnimatedBackground from "@/components/home/AnimatedBackground";
 
 /**
  * @fileOverview Isolation Test 1: Animated Background.
- * Determines if the rendering hang is caused by the floral slideshow or particle effects.
+ * Injected with runtime visibility diagnostics.
  */
 export default function HomePage() {
   return (
     <main className="min-h-screen relative flex flex-col items-center justify-center overflow-hidden">
+      {/* DIAGNOSTIC MARKER 5: HOME_OK */}
+      <div id="diag-home-ok" className="fixed top-0 left-64 z-[9999] bg-black text-white text-[8px] px-2 py-0.5 pointer-events-none opacity-50">HOME_OK</div>
+      
       <AnimatedBackground />
       
       <div className="relative z-10 text-center space-y-4">
