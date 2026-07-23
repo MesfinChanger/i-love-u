@@ -5,7 +5,8 @@ import { getStorage, FirebaseStorage } from "firebase/storage";
 
 /**
  * @fileOverview Hardened Firebase Initialization Protocol.
- * Synchronized with the Resilience Protocol to prevent crashes if env vars are missing during SSR.
+ * Synchronized with the Resilience Protocol to prevent crashes if env vars are missing.
+ * Fix: Replaced empty object traps with explicit nulls to prevent runtime deadlocks.
  */
 
 const firebaseConfig = {
@@ -20,25 +21,33 @@ const firebaseConfig = {
 // Credential Shield: Ensure config is valid before initializing
 const isConfigValid = !!firebaseConfig.apiKey && !!firebaseConfig.projectId;
 
-let app: FirebaseApp;
-let auth: Auth;
-let db: Firestore;
-let storage: FirebaseStorage;
+let app: FirebaseApp | null = null;
+let auth: Auth | null = null;
+let db: Firestore | null = null;
+let storage: FirebaseStorage | null = null;
 
-if (!getApps().length) {
-  if (isConfigValid) {
-    app = initializeApp(firebaseConfig);
+if (typeof window !== 'undefined') {
+  if (!getApps().length) {
+    if (isConfigValid) {
+      try {
+        app = initializeApp(firebaseConfig);
+        auth = getAuth(app);
+        db = getFirestore(app);
+        storage = getStorage(app);
+        console.log("Mission Control: Firebase Bridge Established. ✨");
+      } catch (e) {
+        console.error("Mission Control: Initialization Ripple:", e);
+      }
+    } else {
+      console.warn("Mission Control: Configuration missing. Bridge in restricted mode. ❤️");
+    }
   } else {
-    // Fallback for SSR / Building phase to prevent 500 errors
-    app = { name: '[DEFAULT]', options: {}, automaticDataCollectionEnabled: false } as FirebaseApp;
+    app = getApp();
+    auth = getAuth(app);
+    db = getFirestore(app);
+    storage = getStorage(app);
   }
-} else {
-  app = getApp();
 }
 
-// Initialize services with safe defaults if app is a placeholder
-auth = isConfigValid ? getAuth(app) : {} as Auth;
-db = isConfigValid ? getFirestore(app) : {} as Firestore;
-storage = isConfigValid ? getStorage(app) : {} as FirebaseStorage;
-
-export { app, auth, db, storage };
+// Type casting for legacy exports, but values are now safely null if invalid
+export { app as app, auth as auth, db as db, storage as storage };

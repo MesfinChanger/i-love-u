@@ -19,306 +19,77 @@ import { doc } from 'firebase/firestore';
 import { useMemoFirebase } from '@/firebase/use-memo-firebase';
 import { useToast } from '@/hooks/use-toast';
 
-
-
 /**
  * High-Security Idle Timeout Monitor.
- *
- * Features:
- * - Automatic logout after inactivity
- * - Browser close logout
- * - User configurable timeout from Firestore
+ * Optimized with Performance Tracing and Hydration Stability.
  */
 export function IdleLogoutProvider({
   children
 }: {
   children: React.ReactNode;
 }) {
-
-
   const { user } = useUser();
-
   const auth = useAuth();
-
   const db = useFirestore();
-
   const { toast } = useToast();
-
-
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-
-
   const userRef = useMemoFirebase(() => {
-
-    if (!db || !user) return null;
-
-    return doc(
-      db,
-      "users",
-      user.uid
-    );
-
-  }, [db, user]);
-
-
+    if (!db || !user?.uid) return null;
+    return doc(db, "users", user.uid);
+  }, [db, user?.uid]);
 
   const { data: profile } = useDoc(userRef);
 
-
-
-  // Default security timeout:
-  // 10 minutes
-
-  const timeoutInSeconds =
-    profile?.idleTimeout || 600;
-
-
-
-
+  // Default security timeout: 10 minutes
+  const timeoutInSeconds = profile?.idleTimeout || 600;
 
   const handleLogout = useCallback(async () => {
-
-
     if (!auth || !user) return;
-
-
     try {
-
-
       await signOut(auth);
-
-
       toast({
-
         title: "Session Expired",
-
-        description:
-          "You were signed out for your security. ❤️",
-
+        description: "You were signed out for your security. ❤️",
       });
-
-
-
     } catch(error) {
-
-
-      console.error(
-        "Idle logout error:",
-        error
-      );
-
-
+      console.error("Security Monitor: Idle logout ripple:", error);
     }
-
-
-  }, [
-    auth,
-    user,
-    toast
-  ]);
-
-
-
-
-
-
+  }, [auth, user, toast]);
 
   const resetTimer = useCallback(() => {
-
-
     if (timerRef.current) {
-
       clearTimeout(timerRef.current);
-
     }
 
-
-
-    if (user) {
-
-
-      timerRef.current =
-        setTimeout(
-          handleLogout,
-          timeoutInSeconds * 1000
-        );
-
-
+    if (user && auth) {
+      timerRef.current = setTimeout(handleLogout, timeoutInSeconds * 1000);
     }
-
-
-  }, [
-    user,
-    timeoutInSeconds,
-    handleLogout
-  ]);
-
-
-
-
-
-
-
+  }, [user, auth, timeoutInSeconds, handleLogout]);
 
   useEffect(() => {
-
-
-    if (!user) {
-
-
-      if (timerRef.current) {
-
-        clearTimeout(timerRef.current);
-
-      }
-
-
+    console.time('🛡️ Security_Monitor_Init');
+    
+    if (!user || !auth) {
+      if (timerRef.current) clearTimeout(timerRef.current);
+      console.timeEnd('🛡️ Security_Monitor_Init');
       return;
-
-
     }
 
+    const events = ["mousedown", "mousemove", "keypress", "scroll", "touchstart"];
+    const handleActivity = () => resetTimer();
 
-
-
-    const events = [
-
-      "mousedown",
-      "mousemove",
-      "keypress",
-      "scroll",
-      "touchstart"
-
-    ];
-
-
-
-
-
-    const handleActivity = () => {
-
-      resetTimer();
-
-    };
-
-
-
-
-
-    const handleUnload = () => {
-
-
-      if (auth) {
-
-
-        signOut(auth)
-          .catch(error => {
-
-            console.error(
-              "Unload logout error:",
-              error
-            );
-
-          });
-
-
-      }
-
-
-    };
-
-
-
-
-
-
-    events.forEach(event => {
-
-
-      window.addEventListener(
-        event,
-        handleActivity
-      );
-
-
-    });
-
-
-
-
-
-    window.addEventListener(
-      "beforeunload",
-      handleUnload
-    );
-
-
-
-
+    events.forEach(event => window.addEventListener(event, handleActivity));
 
     // Start timer immediately
-
     resetTimer();
-
-
-
-
-
-
+    console.timeEnd('🛡️ Security_Monitor_Init');
 
     return () => {
-
-
-
-      events.forEach(event => {
-
-
-        window.removeEventListener(
-          event,
-          handleActivity
-        );
-
-
-      });
-
-
-
-
-
-      window.removeEventListener(
-        "beforeunload",
-        handleUnload
-      );
-
-
-
-
-
-      if (timerRef.current) {
-
-
-        clearTimeout(timerRef.current);
-
-
-      }
-
-
+      events.forEach(event => window.removeEventListener(event, handleActivity));
+      if (timerRef.current) clearTimeout(timerRef.current);
     };
-
-
-
-  }, [
-    user,
-    auth,
-    resetTimer
-  ]);
-
-
-
-
-
+  }, [user, auth, resetTimer]);
 
   return <>{children}</>;
-
 }

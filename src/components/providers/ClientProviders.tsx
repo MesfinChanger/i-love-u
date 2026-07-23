@@ -13,8 +13,7 @@ import { AuthGateDialog } from '@/components/AuthGateDialog';
 import GuestNotice from '@/components/GuestNotice';
 
 /**
- * @fileOverview Universal Client-Side Provider Registry.
- * Orchestrates the synchronization of Firebase, Language, and Mission-Critical UI components.
+ * @fileOverview Universal Client-Side Provider Registry with Performance Tracing.
  */
 
 function IdentityStatus() {
@@ -47,6 +46,11 @@ export function ClientProviders({
 }: {
   children: React.ReactNode;
 }) {
+  useEffect(() => {
+    console.time('🏗️ Client_Providers_Mount');
+    return () => console.timeEnd('🏗️ Client_Providers_Mount');
+  }, []);
+
   return (
     <FirebaseClientProvider>
       <LanguageProvider>

@@ -18,8 +18,7 @@ export const metadata: Metadata = {
 };
 
 /**
- * @fileOverview Fixed Root Layout Protocol.
- * Stabilized scope with Suspense to prevent MainNavigation from blocking the initial paint.
+ * @fileOverview Root Layout Protocol with Concurrent Rendering Stability.
  */
 export default function RootLayout({
   children,
