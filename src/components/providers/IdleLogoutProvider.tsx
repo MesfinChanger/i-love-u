@@ -21,7 +21,7 @@ import { useToast } from '@/hooks/use-toast';
 
 /**
  * High-Security Idle Timeout Monitor.
- * Optimized with Performance Tracing and Hydration Stability.
+ * Automatically signs out inactive hearts to protect their mission signature.
  */
 export function IdleLogoutProvider({
   children
@@ -68,11 +68,8 @@ export function IdleLogoutProvider({
   }, [user, auth, timeoutInSeconds, handleLogout]);
 
   useEffect(() => {
-    console.time('🛡️ Security_Monitor_Init');
-    
     if (!user || !auth) {
       if (timerRef.current) clearTimeout(timerRef.current);
-      console.timeEnd('🛡️ Security_Monitor_Init');
       return;
     }
 
@@ -83,7 +80,6 @@ export function IdleLogoutProvider({
 
     // Start timer immediately
     resetTimer();
-    console.timeEnd('🛡️ Security_Monitor_Init');
 
     return () => {
       events.forEach(event => window.removeEventListener(event, handleActivity));

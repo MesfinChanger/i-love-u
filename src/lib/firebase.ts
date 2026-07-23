@@ -6,7 +6,7 @@ import { getStorage, FirebaseStorage } from "firebase/storage";
 /**
  * @fileOverview Hardened Firebase Initialization Protocol.
  * Synchronized with the Resilience Protocol to prevent crashes if env vars are missing.
- * Fix: Replaced empty object traps with explicit nulls to prevent runtime deadlocks.
+ * Ensures that invalid configurations return explicit nulls to prevent deadlocks.
  */
 
 const firebaseConfig = {
@@ -49,5 +49,4 @@ if (typeof window !== 'undefined') {
   }
 }
 
-// Type casting for legacy exports, but values are now safely null if invalid
-export { app as app, auth as auth, db as db, storage as storage };
+export { app, auth, db, storage };
