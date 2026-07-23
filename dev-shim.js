@@ -10,14 +10,10 @@ const fs = require('fs');
 const rawArgs = process.argv.slice(2);
 const filteredArgs = [];
 
-// Determine port from environment or default to 3000
+// Determine port from environment (supplied by Firebase Studio) or default to 3000
 const port = process.env.PORT || '3000';
 
-// Ensure we bind to all interfaces and use the correct port
-filteredArgs.push('--port', port);
-filteredArgs.push('--hostname', '0.0.0.0');
-
-// Remove conflicting port/host flags from incoming CLI args
+// Remove conflicting port/host flags from incoming CLI args to ensure our forced values take precedence
 for (let i = 0; i < rawArgs.length; i++) {
   const arg = rawArgs[i];
   if (arg === '--port' || arg === '-p' || arg === '--hostname' || arg === '--host') {
@@ -26,6 +22,10 @@ for (let i = 0; i < rawArgs.length; i++) {
   }
   filteredArgs.push(arg);
 }
+
+// Re-inject the correct port and hostname
+filteredArgs.push('--port', port);
+filteredArgs.push('--hostname', '0.0.0.0');
 
 console.log(`[I LOVE U Port Bridge] Synchronizing Infrastructure...`);
 console.log(`[I LOVE U Port Bridge] Target: 0.0.0.0:${port}`);
