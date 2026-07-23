@@ -10,7 +10,7 @@ import { Users, Mail, ShieldCheck, Loader2 } from "lucide-react";
 
 /**
  * @fileOverview High-Fidelity User Management Registry.
- * Purified and reformatted to resolve Next.js 15 manifest corruption errors.
+ * Synchronized with the Heart Mission Registry protocols.
  */
 export default function UsersPage() {
   const [users, setUsers] = useState<any[]>([]);
