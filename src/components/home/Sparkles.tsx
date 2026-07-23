@@ -1,21 +1,25 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 
 /**
  * @fileOverview High-Fidelity Sparkles Component.
- * Implements the Hydration Stabilization Protocol to avoid Math.random() mismatches.
- * Pre-calculates positions on the client side only to ensure build integrity.
+ * Optimized with the Hydration Efficiency Protocol to minimize main-thread noise.
+ * Particles are generated client-side only to preserve random visual integrity without hydration mismatches.
  */
-export default function Sparkles() {
-  const [sparkles, setSparkles] = useState<any[]>([]);
+const Sparkles = React.memo(function Sparkles() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    // Pre-calculate positions on the client to avoid hydration mismatch
+  }, []);
+
+  const sparkles = useMemo(() => {
+    if (!mounted) return [];
+    
+    // Stable random seed generated only once on the client
     const count = 40;
-    const items = Array.from({ length: count }).map((_, i) => ({
+    return Array.from({ length: count }).map((_, i) => ({
       id: i,
       left: `${Math.random() * 100}%`,
       top: `${Math.random() * 100}%`,
@@ -23,8 +27,7 @@ export default function Sparkles() {
       delay: `${Math.random() * 5}s`,
       duration: `${Math.random() * 4 + 3}s`,
     }));
-    setSparkles(items);
-  }, []);
+  }, [mounted]);
 
   if (!mounted) return null;
 
@@ -47,4 +50,6 @@ export default function Sparkles() {
       ))}
     </div>
   );
-}
+});
+
+export default Sparkles;
