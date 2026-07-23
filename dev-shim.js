@@ -16,11 +16,21 @@ let resolvedPort = process.env.PORT || '3000';
 for (let i = 0; i < rawArgs.length; i++) {
   if (rawArgs[i] === '--port' || rawArgs[i] === '-p') {
     if (rawArgs[i + 1]) {
-      resolvedPort = rawArgs[i + 1];
+      const p = rawArgs[i + 1];
+      // Next.js reserved port protection
+      if (p === '6000') {
+        console.warn('[I LOVE U Port Bridge] Port 6000 is reserved for X11/Gateway. Falling back to internal bridge.');
+        resolvedPort = '3000';
+      } else {
+        resolvedPort = p;
+      }
     }
     break;
   }
 }
+
+// Final fallback for invalid environment states
+if (resolvedPort === '6000') resolvedPort = '3000';
 
 console.log(`[I LOVE U Port Bridge] PORT BRIDGE ACTIVE: ${resolvedPort}`);
 console.log(`[I LOVE U Port Bridge] Target: 0.0.0.0:${resolvedPort}`);
