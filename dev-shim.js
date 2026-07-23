@@ -1,25 +1,24 @@
 /**
  * @fileOverview Transparent Port Bridge for Next.js 15.
  * Synchronizes the application listener with the Firebase Studio preview gateway.
- * Enforces hostname 0.0.0.0 and resolves dynamic port allocation.
  */
 const { spawn } = require('child_process');
 const path = require('path');
 
-const rawArgs = process.argv.slice(2);
+const args = process.argv.slice(2);
 
 // PORT DISCOVERY
 let port = '';
-for (let i = 0; i < rawArgs.length; i++) {
-  if (rawArgs[i] === '--port' || rawArgs[i] === '-p') {
-    port = rawArgs[i + 1];
-    break;
-  }
+const portIdx = args.findIndex(a => a === '--port' || a === '-p');
+if (portIdx !== -1 && args[portIdx + 1]) {
+  port = args[portIdx + 1];
+} else if (process.env.PORT) {
+  port = process.env.PORT;
+} else {
+  port = '3000';
 }
 
-if (!port) port = process.env.PORT || '3000';
-
-// Guard against Next.js reserved port 6000 (X11)
+// Security: Guard against Next.js reserved port 6000 (X11)
 if (port === '6000') {
   console.warn('[I LOVE U Port Bridge] Port 6000 is reserved. Falling back to 3000.');
   port = '3000';
@@ -30,15 +29,15 @@ console.log(`[I LOVE U Port Bridge] PORT BRIDGE ACTIVE: ${port}`);
 const nextBin = path.join(__dirname, 'node_modules', '.bin', 'next');
 
 // ARGUMENT ENFORCEMENT
-const finalArgs = ['dev', ...rawArgs];
+const finalArgs = ['dev', ...args];
 
 // Enforce hostname 0.0.0.0 for container accessibility
-if (!rawArgs.includes('--hostname') && !rawArgs.includes('--host') && !rawArgs.includes('-H')) {
+if (!args.includes('--hostname') && !args.includes('--host') && !args.includes('-H')) {
   finalArgs.push('--hostname', '0.0.0.0');
 }
 
-// Enforce resolved port if not provided in CLI
-if (!rawArgs.includes('--port') && !rawArgs.includes('-p')) {
+// Ensure the port is correctly set if not already provided in CLI
+if (portIdx === -1 && !args.includes('--port') && !args.includes('-p')) {
   finalArgs.push('--port', port);
 }
 
