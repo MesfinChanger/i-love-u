@@ -1,6 +1,6 @@
 /**
- * @fileOverview Hardened startup shim for Next.js 15 in Firebase Studio.
- * Corrects flag incompatibilities and ensures the app binds to the proxy port.
+ * @fileOverview Hardened Port Bridge Shim for Next.js 15 in Firebase Studio.
+ * Unconditionally forces binding to port 6000 and 0.0.0.0 for workstation proxy compatibility.
  */
 const { spawn } = require('child_process');
 const path = require('path');
@@ -9,48 +9,27 @@ const fs = require('fs');
 const rawArgs = process.argv.slice(2);
 const filteredArgs = [];
 
+// PREVIEW PORT PROTOCOL: Unconditionally force port 6000 and hostname 0.0.0.0
+// This resolves the 502 Bad Gateway by aligning with the workstation proxy map.
+filteredArgs.push('--port', '6000');
+filteredArgs.push('--hostname', '0.0.0.0');
+
+// Filter out any conflicting port/host flags from the original command
 for (let i = 0; i < rawArgs.length; i++) {
   const arg = rawArgs[i];
-  
-  // Intercept the unsupported --host flag and convert to --hostname
-  if (arg === '--host') {
-    filteredArgs.push('--hostname');
-    const nextArg = rawArgs[i + 1];
-    if (nextArg && !nextArg.startsWith('--')) {
-      filteredArgs.push(nextArg);
-      i++;
-    } else {
-      filteredArgs.push('0.0.0.0');
-    }
-  } else if (arg === '--hostname') {
-    filteredArgs.push(arg);
-    const nextArg = rawArgs[i + 1];
-    if (nextArg && !nextArg.startsWith('--')) {
-      filteredArgs.push(nextArg);
-      i++;
-    }
-  } else {
-    filteredArgs.push(arg);
+  if (arg === '--port' || arg === '-p' || arg === '--hostname' || arg === '--host') {
+    i++; // Skip the value
+    continue;
   }
+  filteredArgs.push(arg);
 }
 
-// Ensure binding for container connectivity (mandatory for Firebase Studio)
-if (!filteredArgs.includes('--hostname')) {
-  filteredArgs.push('--hostname', '0.0.0.0');
-}
-
-// PREVIEW PORT PROTOCOL: 
-// Force port 6000 to match the Cloud Workstation proxy URL prefix
-if (!filteredArgs.includes('--port') && !filteredArgs.includes('-p')) {
-  filteredArgs.push('--port', '6000');
-}
-
-console.log(`[I LOVE U Shim] Launching Next.js 15 with: ${filteredArgs.join(' ')}`);
+console.log(`[I LOVE U Port Bridge] Launching Next.js on 0.0.0.0:6000...`);
 
 const nextBin = path.join(__dirname, 'node_modules', '.bin', 'next');
 
 if (!fs.existsSync(nextBin)) {
-  console.error(`[I LOVE U Shim] Error: Next.js binary not found at ${nextBin}`);
+  console.error(`[I LOVE U Port Bridge] Error: Next.js binary not found at ${nextBin}`);
   process.exit(1);
 }
 
@@ -71,12 +50,12 @@ const child = spawn(nextBin, ['dev', ...filteredArgs], {
 
 child.on('exit', (code, signal) => {
   if (signal) {
-    console.log(`[I LOVE U Shim] Next.js exited with signal ${signal}`);
+    console.log(`[I LOVE U Port Bridge] Next.js exited with signal ${signal}`);
   }
   process.exit(code || 0);
 });
 
 child.on('error', (err) => {
-  console.error('[I LOVE U Shim] Critical Boot Error:', err);
+  console.error('[I LOVE U Port Bridge] Critical Boot Error:', err);
   process.exit(1);
 });
