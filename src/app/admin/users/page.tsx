@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { collection, getDocs } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { db } from "@/firebase";
 import AdminGuard from "@/components/AdminGuard";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/badge";

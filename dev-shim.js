@@ -29,21 +29,31 @@ console.log(`[Port Bridge] Target: 0.0.0.0:${port}`);
 // CONSTRUCT FINAL ARGUMENTS
 let finalArgs = ['dev'];
 
-// Enforce hostname 0.0.0.0 for container accessibility
-if (!args.includes('--hostname') && !args.includes('--host') && !args.includes('-H')) {
+/**
+ * Translation Logic for Next.js 15
+ * Next.js 15 CLI does not recognize --host. It requires --hostname.
+ */
+args.forEach((arg, i) => {
+  // Skip the port argument and its value if found, we will re-add it at the end
+  if (portArgIdx !== -1 && (i === portArgIdx || i === portArgIdx + 1)) return;
+
+  // Translate --host or -H to --hostname
+  if (arg === '--host' || arg === '-H') {
+    finalArgs.push('--hostname');
+  } else {
+    finalArgs.push(arg);
+  }
+});
+
+// Enforce hostname 0.0.0.0 for container accessibility if not provided
+if (!finalArgs.some(a => a === '--hostname' || a === '-H')) {
   finalArgs.push('--hostname', '0.0.0.0');
 }
 
-// Ensure port is present
-if (portArgIdx === -1) {
+// Re-append the resolved port
+if (!finalArgs.some(a => a === '--port' || a === '-p')) {
   finalArgs.push('--port', port);
 }
-
-// Add all remaining arguments
-args.forEach((arg, i) => {
-  if (portArgIdx !== -1 && (i === portArgIdx || i === portArgIdx + 1)) return;
-  finalArgs.push(arg);
-});
 
 const child = spawn(nextBin, finalArgs, {
   stdio: 'inherit',
