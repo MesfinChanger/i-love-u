@@ -1,7 +1,7 @@
 /**
  * @fileOverview Port Bridge Shim for Next.js 15 in Firebase Studio.
  * Synchronizes the application listener with the Firebase Studio nginx gateway.
- * Forwards traffic from the internal Next.js process (3000) to the gateway.
+ * Adheres to the Cloud Workstation PORT contract.
  */
 const { spawn } = require('child_process');
 const path = require('path');
@@ -10,10 +10,14 @@ const fs = require('fs');
 const rawArgs = process.argv.slice(2);
 const filteredArgs = [];
 
-// Ensure we have the explicit flags for Next.js to bind to all interfaces
-filteredArgs.push('--port', '3000');
+// Determine port from environment or default to 3000
+const port = process.env.PORT || '3000';
+
+// Ensure we bind to all interfaces and use the correct port
+filteredArgs.push('--port', port);
 filteredArgs.push('--hostname', '0.0.0.0');
 
+// Remove conflicting port/host flags from incoming CLI args
 for (let i = 0; i < rawArgs.length; i++) {
   const arg = rawArgs[i];
   if (arg === '--port' || arg === '-p' || arg === '--hostname' || arg === '--host') {
@@ -24,7 +28,7 @@ for (let i = 0; i < rawArgs.length; i++) {
 }
 
 console.log(`[I LOVE U Port Bridge] Synchronizing Infrastructure...`);
-console.log(`[I LOVE U Port Bridge] Target: 0.0.0.0:3000`);
+console.log(`[I LOVE U Port Bridge] Target: 0.0.0.0:${port}`);
 
 const nextBin = path.join(__dirname, 'node_modules', '.bin', 'next');
 
@@ -37,10 +41,9 @@ const child = spawn(nextBin, ['dev', ...filteredArgs], {
   stdio: 'inherit',
   env: { 
     ...process.env, 
-    PORT: '3000',
+    PORT: port,
     HOSTNAME: '0.0.0.0',
-    NEXT_TELEMETRY_DISABLED: '1',
-    NODE_ENV: 'development' 
+    NEXT_TELEMETRY_DISABLED: '1'
   }
 });
 
