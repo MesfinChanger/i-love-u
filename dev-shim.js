@@ -1,6 +1,7 @@
 /**
  * @fileOverview Transparent Port Bridge for Next.js 15.
- * Synchronizes the application listener with the Firebase Studio preview gateway.
+ * Translates legacy CLI flags and synchronizes the application listener 
+ * with the Firebase Studio preview gateway.
  */
 const { spawn } = require('child_process');
 const path = require('path');
@@ -30,28 +31,32 @@ console.log(`[Port Bridge] Target: 0.0.0.0:${port}`);
 let finalArgs = ['dev'];
 
 /**
- * Translation Logic for Next.js 15
- * Next.js 15 CLI does not recognize --host. It requires --hostname.
+ * High-Fidelity Translation Logic
+ * Next.js 15+ CLI strictly requires --hostname instead of --host.
  */
-args.forEach((arg, i) => {
-  // Skip the port argument and its value if found, we will re-add it at the end
-  if (portArgIdx !== -1 && (i === portArgIdx || i === portArgIdx + 1)) return;
+for (let i = 0; i < args.length; i++) {
+  const arg = args[i];
 
-  // Translate --host or -H to --hostname
+  // Skip port arguments as we re-inject them at the end for consistency
+  if (i === portArgIdx || (portArgIdx !== -1 && i === portArgIdx + 1)) {
+    continue;
+  }
+
+  // Translate host flags to hostname
   if (arg === '--host' || arg === '-H') {
     finalArgs.push('--hostname');
   } else {
     finalArgs.push(arg);
   }
-});
+}
 
-// Enforce hostname 0.0.0.0 for container accessibility if not provided
-if (!finalArgs.some(a => a === '--hostname' || a === '-H')) {
+// Enforce hostname 0.0.0.0 for container accessibility if not explicitly provided
+if (!finalArgs.includes('--hostname')) {
   finalArgs.push('--hostname', '0.0.0.0');
 }
 
-// Re-append the resolved port
-if (!finalArgs.some(a => a === '--port' || a === '-p')) {
+// Enforce the resolved port
+if (!finalArgs.includes('--port')) {
   finalArgs.push('--port', port);
 }
 
