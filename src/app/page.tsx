@@ -7,13 +7,11 @@ import MissionCards from "@/components/home/MissionCards";
 /**
  * @fileOverview High-Fidelity Mission Gateway.
  * The primary entry point for the I LOVE U Prosperity Revolution.
+ * Synchronized with the Visibility Protocol to ensure instantaneous first paint.
  */
 export default function HomePage() {
   return (
     <main className="min-h-screen relative flex flex-col">
-      {/* DIAGNOSTIC MARKER 5: HOME_OK */}
-      <div id="diag-home-ok" className="fixed top-0 left-64 z-[9999] bg-black text-white text-[8px] px-2 py-0.5 pointer-events-none opacity-50">HOME_OK</div>
-      
       {/* Animated Visual Layer */}
       <AnimatedBackground />
       
