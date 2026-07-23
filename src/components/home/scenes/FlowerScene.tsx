@@ -1,37 +1,29 @@
+
 "use client";
 
-export default function FlowerScene(){
+import Image from "next/image";
+import { PlaceHolderImages } from "@/lib/placeholder-images";
 
-return (
+/**
+ * @fileOverview Flower Farm Scene.
+ * High-fidelity visual frequency for the Prosperity Revolution.
+ */
+export default function FlowerScene() {
+  const image = PlaceHolderImages.find(img => img.id === "nature-flower-farm");
 
-<div
-className="
-absolute
-inset-0
-bg-cover
-bg-center
-"
-style={{
-backgroundImage:
-"url('/scenes/flower-field.jpg')"
-}}
->
-
-
-<div
-className="
-absolute
-inset-0
-bg-gradient-to-t
-from-green-900/40
-via-transparent
-to-white/20
-"
-/>
-
-
-</div>
-
-);
-
+  return (
+    <div className="absolute inset-0 w-full h-full overflow-hidden">
+      {image && (
+        <Image
+          src={image.imageUrl}
+          alt={image.description}
+          fill
+          className="object-cover"
+          data-ai-hint={image.imageHint}
+        />
+      )}
+      <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-white/20" />
+      <div className="absolute inset-0 bg-pink-500/5 mix-blend-overlay" />
+    </div>
+  );
 }

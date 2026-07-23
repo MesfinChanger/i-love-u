@@ -1,46 +1,29 @@
+
 "use client";
 
+import Image from "next/image";
+import { PlaceHolderImages } from "@/lib/placeholder-images";
+
+/**
+ * @fileOverview Forest Scene.
+ * Rooted in growth and the mandtory respect for all life.
+ */
 export default function ForestScene() {
+  const image = PlaceHolderImages.find(img => img.id === "nature-forest");
+
   return (
-    <div
-      className="
-        absolute inset-0
-        bg-gradient-to-br
-        from-green-100
-        via-emerald-50
-        to-blue-100
-      "
-    >
-
-      {/* Soft sunlight through trees */}
-      <div
-        className="
-          absolute
-          top-0
-          left-1/2
-          -translate-x-1/2
-          w-[500px]
-          h-[500px]
-          rounded-full
-          bg-yellow-100/40
-          blur-3xl
-          animate-pulse
-        "
-      />
-
-      {/* Forest mist */}
-      <div
-        className="
-          absolute
-          bottom-0
-          w-full
-          h-1/3
-          bg-gradient-to-t
-          from-green-300/30
-          to-transparent
-        "
-      />
-
+    <div className="absolute inset-0 w-full h-full overflow-hidden">
+      {image && (
+        <Image
+          src={image.imageUrl}
+          alt={image.description}
+          fill
+          className="object-cover"
+          data-ai-hint={image.imageHint}
+        />
+      )}
+      <div className="absolute inset-0 bg-gradient-to-tr from-green-900/20 via-transparent to-white/10" />
+      <div className="absolute inset-0 bg-emerald-500/5 mix-blend-overlay" />
     </div>
   );
 }

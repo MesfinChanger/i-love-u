@@ -1,3 +1,4 @@
+
 {
   "placeholderImages": [
     {
@@ -35,6 +36,24 @@
       "description": "Sacred lotus flower on a pond",
       "imageUrl": "https://picsum.photos/seed/lotus/1200/800",
       "imageHint": "lotus flower"
+    },
+    {
+      "id": "nature-flower-farm",
+      "description": "A vast field of colorful tulips and wildflowers under a clear sky",
+      "imageUrl": "https://picsum.photos/seed/flowerfarm/1200/800",
+      "imageHint": "flower farm"
+    },
+    {
+      "id": "nature-waterfall",
+      "description": "A majestic waterfall cascading into a crystal clear pool in a lush jungle",
+      "imageUrl": "https://picsum.photos/seed/waterfall/1200/800",
+      "imageHint": "water fall"
+    },
+    {
+      "id": "nature-forest",
+      "description": "A dense sunlit forest with tall trees and vibrant green foliage",
+      "imageUrl": "https://picsum.photos/seed/forest/1200/800",
+      "imageHint": "green forest"
     }
   ]
 }
