@@ -1,5 +1,3 @@
-"use client";
-
 import Hero from "@/components/home/Hero";
 import AnimatedBackground from "@/components/home/AnimatedBackground";
 import MissionCards from "@/components/home/MissionCards";
@@ -7,7 +5,7 @@ import MissionCards from "@/components/home/MissionCards";
 /**
  * @fileOverview High-Fidelity Mission Gateway.
  * The primary entry point for the I LOVE U Prosperity Revolution.
- * Synchronized with the Visibility Protocol to ensure instantaneous first paint.
+ * Refactored to a Server Component for maximum stability in Next.js 15.
  */
 export default function HomePage() {
   return (

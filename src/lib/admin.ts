@@ -4,15 +4,18 @@ import { db, auth } from "./firebase";
 /**
  * @fileOverview High-Fidelity Admin Verification Protocol.
  * Checks if a heart holds the Guardian role or matches the Sovereign Signature.
+ * Hardened with SSR safety checks.
  */
 export async function checkAdmin(uid: string) {
-  if (!uid) return false;
+  if (!uid || !db) return false;
 
   // Sovereign Signature Check (Case-Insensitive)
   const SOVEREIGN_EMAIL = "thearmyoj@gmail.com";
-  const user = auth?.currentUser;
   
-  if (user?.email?.toLowerCase() === SOVEREIGN_EMAIL.toLowerCase()) {
+  // Safety: getAuth() might not be available during SSR
+  const userEmail = auth?.currentUser?.email;
+  
+  if (userEmail?.toLowerCase() === SOVEREIGN_EMAIL.toLowerCase()) {
     return true;
   }
 
