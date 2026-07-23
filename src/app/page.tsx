@@ -14,11 +14,11 @@ import { Button } from "@/components/ui/button";
 /**
  * @fileOverview High-Fidelity Welcome Gateway.
  * Features the Sacred Bloom Protocol and perfectly positioned mission branding.
- * Hardened to resolve "disturbed" layout ripples and ensure perfect centering.
+ * Hardened to resolve rendering hangs and ensure the background is visible.
  */
 export default function HomePage() {
   return (
-    <main className="relative min-h-screen overflow-hidden bg-white flex flex-col items-center justify-center">   
+    <main className="relative min-h-screen overflow-hidden flex flex-col items-center justify-center">   
       <AnimatedBackground />
 
       <div className="

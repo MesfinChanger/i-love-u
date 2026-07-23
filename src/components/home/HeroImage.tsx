@@ -9,6 +9,7 @@ import { PlaceHolderImages } from "@/lib/placeholder-images";
  * @fileOverview Cinematic Dynamic Hero Component featuring Floral Frequencies.
  * Features a rotating global story of vibrant flowers to represent the beauty of love.
  * Implements the "Alive" UI layer for the Sacred Bloom Protocol.
+ * Hardened with mount protection to prevent hydration hangs.
  */
 const heroFlowerIds = [
   "flower-roses",
@@ -66,8 +67,8 @@ export default function HeroImage() {
       <div className="absolute inset-0 bg-white/40 backdrop-blur-[1px] pointer-events-none" />
       <div className="absolute inset-0 bg-gradient-to-b from-white/20 via-transparent to-white/90 pointer-events-none" />
       
-      {/* Light vignetting for centering mission content */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_0%,_rgba(255,255,255,0.4)_100%)] pointer-events-none" />
+      {/* Light vignetting - Fixed syntax */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(255,255,255,0.4)_100%)] pointer-events-none" />
     </div>
   );
 }

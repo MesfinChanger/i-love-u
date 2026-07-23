@@ -9,8 +9,10 @@ import React, { useState, useEffect } from 'react';
  */
 export default function Sparkles() {
   const [sparkles, setSparkles] = useState<any[]>([]);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     // Pre-calculate positions on the client to avoid hydration mismatch
     const count = 40;
     const items = Array.from({ length: count }).map((_, i) => ({
@@ -23,6 +25,8 @@ export default function Sparkles() {
     }));
     setSparkles(items);
   }, []);
+
+  if (!mounted) return null;
 
   return (
     <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
