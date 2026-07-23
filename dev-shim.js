@@ -1,6 +1,6 @@
 /**
  * @fileOverview Hardened startup shim for Next.js 15 in Firebase Studio.
- * Corrects flag incompatibilities and ensures a resilient network bind.
+ * Corrects flag incompatibilities and ensures the app binds to the proxy port.
  */
 const { spawn } = require('child_process');
 const path = require('path');
@@ -39,9 +39,10 @@ if (!filteredArgs.includes('--hostname')) {
   filteredArgs.push('--hostname', '0.0.0.0');
 }
 
-// Default port protocol
+// PREVIEW PORT PROTOCOL: 
+// Force port 6000 to match the Cloud Workstation proxy URL prefix
 if (!filteredArgs.includes('--port') && !filteredArgs.includes('-p')) {
-  filteredArgs.push('--port', '3000');
+  filteredArgs.push('--port', '6000');
 }
 
 console.log(`[I LOVE U Shim] Launching Next.js 15 with: ${filteredArgs.join(' ')}`);
@@ -53,7 +54,6 @@ if (!fs.existsSync(nextBin)) {
   process.exit(1);
 }
 
-// Use spawn without shell: true for better process tracking and signal propagation
 const child = spawn(nextBin, ['dev', ...filteredArgs], {
   stdio: 'inherit',
   env: { 
@@ -63,7 +63,6 @@ const child = spawn(nextBin, ['dev', ...filteredArgs], {
   }
 });
 
-// Relay signals to the child process
 ['SIGINT', 'SIGTERM', 'SIGQUIT'].forEach(signal => {
   process.on(signal, () => {
     child.kill(signal);
