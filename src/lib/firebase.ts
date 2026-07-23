@@ -34,7 +34,6 @@ if (typeof window !== 'undefined') {
         auth = getAuth(app);
         db = getFirestore(app);
         storage = getStorage(app);
-        console.log("Mission Control: Firebase Bridge Established. ✨");
       } catch (e) {
         console.error("Mission Control: Initialization Ripple:", e);
       }

@@ -1,7 +1,6 @@
-
 /**
- * @fileOverview High-Fidelity Port Bridge for Next.js 15.
- * Correctly maps Firebase Studio / Cloud Workstation port contracts and translates CLI flags.
+ * @fileOverview High-Fidelity Port Bridge Translator for Next.js 15.
+ * Correctly maps Firebase Studio CLI flags and translates --host to --hostname.
  */
 const { spawn } = require('child_process');
 const path = require('path');
@@ -9,14 +8,16 @@ const path = require('path');
 const args = process.argv.slice(2);
 const nextBin = path.join(__dirname, 'node_modules', '.bin', 'next');
 
-// ARGUMENT PARSING: Respect platform injection
 let port = process.env.PORT || '3000';
 let finalArgs = ['dev'];
 
+/**
+ * Argument Purification Logic
+ * Strips platform-injected host/port flags to re-apply them correctly.
+ */
 for (let i = 0; i < args.length; i++) {
   const arg = args[i];
 
-  // Map --port correctly
   if (arg === '--port' || arg === '-p') {
     if (args[i + 1]) {
       port = args[i + 1];
@@ -25,9 +26,10 @@ for (let i = 0; i < args.length; i++) {
     continue;
   }
 
-  // TRANSLATION: Next.js 15 requires --hostname instead of --host
-  if (arg === '--host' || arg === '-H') {
-    finalArgs.push('--hostname');
+  if (arg === '--host' || arg === '-H' || arg === '--hostname') {
+    if (args[i + 1]) {
+      i++;
+    }
     continue;
   }
 
@@ -40,23 +42,18 @@ if (port === '6000') {
   port = '3000';
 }
 
-// Enforce hostname 0.0.0.0 for container accessibility if not explicitly provided
-if (!finalArgs.includes('--hostname')) {
-  finalArgs.push('--hostname', '0.0.0.0');
-}
+// Enforce hostname 0.0.0.0 for container accessibility
+finalArgs.push('--hostname', '0.0.0.0');
 
 // Enforce the resolved port
-if (!finalArgs.includes('--port')) {
-  finalArgs.push('--port', port);
-}
+finalArgs.push('--port', port);
 
-console.log(`[Port Bridge] Target: 0.0.0.0:${port}`);
+console.log(`[Port Bridge] Initializing Next.js at 0.0.0.0:${port}`);
 
 const child = spawn(nextBin, finalArgs, {
   stdio: 'inherit',
   env: { 
     ...process.env, 
-    PORT: port,
     NEXT_TELEMETRY_DISABLED: '1'
   }
 });

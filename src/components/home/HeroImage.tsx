@@ -7,7 +7,7 @@ import { PlaceHolderImages } from "@/lib/placeholder-images";
 
 /**
  * @fileOverview High-Fidelity Hero Image Protocol.
- * Hardened with staggered hydration to prevent Paint Blocking.
+ * Hardened with staggered hydration and explicit LCP prioritization.
  */
 const heroFlowerIds = [
   "flower-roses",
@@ -60,7 +60,7 @@ export default function HeroImage() {
               src={currentImage.imageUrl}
               alt={currentImage.description}
               fill
-              priority={isFirstLoad}
+              priority={index === 0}
               className="object-cover"
               data-ai-hint={currentImage.imageHint}
             />
