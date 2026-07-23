@@ -12,14 +12,15 @@ export async function checkAdmin(uid: string) {
   // Sovereign Signature Check (Case-Insensitive)
   const SOVEREIGN_EMAIL = "thearmyoj@gmail.com";
   
-  // Safety: auth might not be fully initialized during early hydration or server-side pre-render
-  const userEmail = auth?.currentUser?.email;
-  
-  if (userEmail && userEmail.toLowerCase() === SOVEREIGN_EMAIL.toLowerCase()) {
-    return true;
-  }
-
   try {
+    // Safety: auth might not be fully initialized during early hydration or server-side pre-render
+    const currentUser = auth?.currentUser;
+    const userEmail = currentUser?.email;
+    
+    if (userEmail && userEmail.toLowerCase() === SOVEREIGN_EMAIL.toLowerCase()) {
+      return true;
+    }
+
     const ref = doc(db, "users", uid);
     const snap = await getDoc(ref);
 

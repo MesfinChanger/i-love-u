@@ -1,7 +1,7 @@
 /**
- * @fileOverview Hardened Port Bridge Shim for Next.js 15 in Firebase Studio.
- * Unconditionally forces binding to port 6000 and 0.0.0.0 for workstation proxy compatibility.
- * Injects PORT and HOSTNAME directly into the environment to bypass CLI argument overrides.
+ * @fileOverview Port Bridge Shim for Next.js 15 in Firebase Studio.
+ * Synchronizes the application listener with the Firebase Studio nginx gateway.
+ * Forwards traffic from the internal Next.js process (3000) to the gateway.
  */
 const { spawn } = require('child_process');
 const path = require('path');
@@ -10,11 +10,10 @@ const fs = require('fs');
 const rawArgs = process.argv.slice(2);
 const filteredArgs = [];
 
-// PREVIEW PORT PROTOCOL: Ensure we have the explicit flags for Next.js
-filteredArgs.push('--port', '6000');
+// Ensure we have the explicit flags for Next.js to bind to all interfaces
+filteredArgs.push('--port', '3000');
 filteredArgs.push('--hostname', '0.0.0.0');
 
-// Filter out any conflicting port/host flags from the original command
 for (let i = 0; i < rawArgs.length; i++) {
   const arg = rawArgs[i];
   if (arg === '--port' || arg === '-p' || arg === '--hostname' || arg === '--host') {
@@ -25,7 +24,7 @@ for (let i = 0; i < rawArgs.length; i++) {
 }
 
 console.log(`[I LOVE U Port Bridge] Synchronizing Infrastructure...`);
-console.log(`[I LOVE U Port Bridge] Target: 0.0.0.0:6000`);
+console.log(`[I LOVE U Port Bridge] Target: 0.0.0.0:3000`);
 
 const nextBin = path.join(__dirname, 'node_modules', '.bin', 'next');
 
@@ -38,7 +37,7 @@ const child = spawn(nextBin, ['dev', ...filteredArgs], {
   stdio: 'inherit',
   env: { 
     ...process.env, 
-    PORT: '6000',
+    PORT: '3000',
     HOSTNAME: '0.0.0.0',
     NEXT_TELEMETRY_DISABLED: '1',
     NODE_ENV: 'development' 
