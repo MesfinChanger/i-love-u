@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import MainNavigation from "@/components/navigation/MainNavigation";
 import { ClientProviders } from '@/components/providers/ClientProviders';
+import { Suspense } from 'react';
 
 export const viewport: Viewport = {
   themeColor: '#FF3366',
@@ -18,8 +19,7 @@ export const metadata: Metadata = {
 
 /**
  * @fileOverview Fixed Root Layout Protocol.
- * Stabilized scope to resolve ReferenceErrors and ensure build stability.
- * Note: GuestNotice is now handled within ClientProviders for synchronized hydration.
+ * Stabilized scope with Suspense to prevent MainNavigation from blocking the initial paint.
  */
 export default function RootLayout({
   children,
@@ -30,7 +30,9 @@ export default function RootLayout({
     <html lang="en">
       <body className="font-body antialiased min-h-screen flex flex-col bg-background text-foreground">
         <ClientProviders>
-          <MainNavigation />
+          <Suspense fallback={<div className="h-16 border-b bg-white/50 animate-pulse" />}>
+            <MainNavigation />
+          </Suspense>
           <main className="flex-grow">
             {children}
           </main>

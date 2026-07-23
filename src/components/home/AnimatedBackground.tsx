@@ -6,12 +6,11 @@ import Sparkles from "./Sparkles";
 /**
  * @fileOverview High-Fidelity Animated Background Registry.
  * Consolidates the Sacred Bloom slideshow and Sparkle particles into a single stable layer.
- * Hardened to prevent layout hangs and ensure depth behind the mission gateway.
- * Replaced spaces with underscores in radial-gradient classes for hydration stability.
+ * Updated z-index to 0 to ensure visibility above body background but behind content (z-10).
  */
 export default function AnimatedBackground() {
   return (
-    <div className="fixed inset-0 -z-10 overflow-hidden bg-white">
+    <div className="fixed inset-0 z-0 overflow-hidden bg-white">
       {/* Primary Visual Frequency: Global Flower Slideshow */}
       <HeroImage />
       
@@ -21,8 +20,8 @@ export default function AnimatedBackground() {
       {/* Universal Ambient Overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-white/95 pointer-events-none" />
       
-      {/* Cinematic Vignette - Underscores for Tailwind spaces */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(255,255,255,0.4)_100%)] pointer-events-none" />
+      {/* Cinematic Vignette - Moved to globals.css for JIT stability */}
+      <div className="absolute inset-0 mission-vignette pointer-events-none" />
     </div>
   );
 }
