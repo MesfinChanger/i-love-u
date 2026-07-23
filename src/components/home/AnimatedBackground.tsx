@@ -6,7 +6,7 @@ import Sparkles from "./Sparkles";
 /**
  * @fileOverview High-Fidelity Animated Background Registry.
  * Consolidates the Sacred Bloom slideshow and Sparkle particles into a single stable layer.
- * Updated z-index to 0 to ensure visibility above body background but behind content (z-10).
+ * Positioned as the base visible layer (z-0) for the mission gateway.
  */
 export default function AnimatedBackground() {
   return (
@@ -20,7 +20,7 @@ export default function AnimatedBackground() {
       {/* Universal Ambient Overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-white/95 pointer-events-none" />
       
-      {/* Cinematic Vignette - Moved to globals.css for JIT stability */}
+      {/* Cinematic Vignette Utility Registry */}
       <div className="absolute inset-0 mission-vignette pointer-events-none" />
     </div>
   );

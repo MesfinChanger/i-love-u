@@ -5,7 +5,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 /**
  * @fileOverview High-Fidelity Sparkles Component.
  * Optimized with the Hydration Efficiency Protocol to minimize main-thread noise.
- * Particles are generated client-side only to preserve random visual integrity without hydration mismatches.
+ * Particles are generated client-side only via useMemo to avoid hydration mismatches.
  */
 const Sparkles = React.memo(function Sparkles() {
   const [mounted, setMounted] = useState(false);
@@ -15,9 +15,10 @@ const Sparkles = React.memo(function Sparkles() {
   }, []);
 
   const sparkles = useMemo(() => {
+    // Return empty during SSR/Hydration to prevent mismatches
     if (!mounted) return [];
     
-    // Stable random seed generated only once on the client
+    // Stable random seed generated only once on the client to avoid layout thrashing
     const count = 40;
     return Array.from({ length: count }).map((_, i) => ({
       id: i,
