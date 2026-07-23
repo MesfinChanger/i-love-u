@@ -3,7 +3,8 @@
 import React, {
   useEffect,
   useRef,
-  useCallback
+  useCallback,
+  useMemo
 } from 'react';
 
 import {
@@ -21,7 +22,7 @@ import { useToast } from '@/hooks/use-toast';
 
 /**
  * High-Security Idle Timeout Monitor.
- * Automatically signs out inactive hearts to protect their mission signature.
+ * Hardened to prevent hydration event listener loops.
  */
 export function IdleLogoutProvider({
   children
@@ -41,8 +42,8 @@ export function IdleLogoutProvider({
 
   const { data: profile } = useDoc(userRef);
 
-  // Default security timeout: 10 minutes
-  const timeoutInSeconds = profile?.idleTimeout || 600;
+  // Memoize timeout to ensure stable effect dependencies
+  const timeoutInSeconds = useMemo(() => profile?.idleTimeout || 600, [profile?.idleTimeout]);
 
   const handleLogout = useCallback(async () => {
     if (!auth || !user) return;
@@ -78,14 +79,13 @@ export function IdleLogoutProvider({
 
     events.forEach(event => window.addEventListener(event, handleActivity));
 
-    // Start timer immediately
     resetTimer();
 
     return () => {
       events.forEach(event => window.removeEventListener(event, handleActivity));
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [user, auth, resetTimer]);
+  }, [user, auth, timeoutInSeconds, resetTimer]);
 
   return <>{children}</>;
 }

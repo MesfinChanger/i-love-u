@@ -45,7 +45,7 @@
 .gradient-text {
   @apply bg-clip-text text-transparent bg-gradient-to-r from-primary via-secondary to-primary;
   background-size: 200% auto;
-  animation: shine 4s linear infinite;
+  animation: shine-text 4s linear infinite;
 }
 
 .gradient-bg {
@@ -53,10 +53,10 @@
 }
 
 .mission-vignette {
-  background: radial-gradient(circle at center, transparent 0%, rgba(255, 255, 255, 0.4) 100%);
+  background: radial-gradient(circle_at_center,_transparent_0%,_rgba(255,255,255,0.4)_100%);
 }
 
-@keyframes shine {
+@keyframes shine-text {
   0% { background-position: -200% center; }
   100% { background-position: 200% center; }
 }
@@ -99,7 +99,7 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
-@keyframes shine {
+@keyframes shine-overlay {
   0% {
     transform: translateX(-100%);
   }
@@ -109,5 +109,5 @@
 }
 
 .animate-shine {
-  animation: shine 8s infinite;
+  animation: shine-overlay 8s infinite;
 }

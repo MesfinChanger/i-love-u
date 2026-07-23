@@ -6,8 +6,8 @@ import { useAuth } from '../provider';
 
 /**
  * @fileOverview High-Fidelity Auth Hook.
- * Hardened to handle uninitialized authentication bridges gracefully.
- * Stabilized to prevent hydration re-run loops.
+ * Hardened to prevent hydration re-run loops by batching state updates
+ * and ensuring stable initialization.
  */
 export function useUser() {
   const auth = useAuth();
@@ -21,28 +21,35 @@ export function useUser() {
       return;
     }
 
+    let isMounted = true;
+
     const unsubscribe = onAuthStateChanged(
       auth,
       (firebaseUser) => {
-        setUser(firebaseUser);
-        setLoading(false);
+        if (isMounted) {
+          // Batching the updates to prevent redundant rendering cycles
+          setUser(firebaseUser);
+          setLoading(false);
+        }
       },
       (error) => {
         console.error("Auth Bridge: Sync Ripple:", error);
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     );
 
     // Safety timeout to prevent infinite "retrieving" state in restricted networks
     const timer = setTimeout(() => {
-      setLoading(false);
+      if (isMounted && loading) {
+        setLoading(false);
+      }
     }, 5000);
 
     return () => {
+      isMounted = false;
       unsubscribe();
       clearTimeout(timer);
     };
-    // loading is removed from dependencies to prevent redundant hydration re-runs
   }, [auth]);
 
   return {

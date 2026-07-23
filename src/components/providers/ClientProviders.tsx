@@ -14,8 +14,6 @@ import GuestNotice from '@/components/GuestNotice';
 
 /**
  * @fileOverview Universal Client-Side Provider Registry.
- * Orchestrates platform-wide state synchronization for the Prosperity Revolution.
- * Injected with high-fidelity runtime diagnostics.
  */
 
 function IdentityStatus() {
@@ -28,8 +26,9 @@ function IdentityStatus() {
         setShowStatus(true);
       }, 2000);
       return () => clearTimeout(timer);
+    } else {
+      setShowStatus(false);
     }
-    setShowStatus(false);
   }, [loading]);
 
   if (!showStatus) return null;

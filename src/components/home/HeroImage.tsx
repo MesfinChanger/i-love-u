@@ -7,9 +7,7 @@ import { PlaceHolderImages } from "@/lib/placeholder-images";
 
 /**
  * @fileOverview High-Fidelity Hero Image Protocol.
- * Optimizes the initial Home Page paint by bypassing the entry animation 
- * on the first slide while preserving high-quality transitions for the mission story.
- * Hardened with mount protection to prevent hydration hangs.
+ * Hardened with staggered hydration to prevent Paint Blocking.
  */
 const heroFlowerIds = [
   "flower-roses",
@@ -26,16 +24,18 @@ export default function HeroImage() {
   const [isFirstLoad, setIsFirstLoad] = useState(true);
 
   useEffect(() => {
-    setMounted(true);
+    // Mission Stability: Stagger mount state to allow browser to finish initial paint
+    const frame = setTimeout(() => setMounted(true), 0);
     
-    // We flip the first load flag after the initial image has had time to hydrate
-    // This ensures that the key-based entry animation only triggers on slide 2+
     const timer = setInterval(() => {
       setIsFirstLoad(false);
       setIndex((prev) => (prev + 1) % heroFlowerIds.length);
-    }, 8000); // 8 seconds per bloom for a calmer vibration
+    }, 8000);
 
-    return () => clearInterval(timer);
+    return () => {
+      clearTimeout(frame);
+      clearInterval(timer);
+    };
   }, []);
 
   if (!mounted) return (
@@ -49,7 +49,6 @@ export default function HeroImage() {
       <AnimatePresence mode="wait">
         <motion.div
           key={heroFlowerIds[index]}
-          // Protocol: Disable entry animation for the initial LCP paint to ensure instant visibility
           initial={isFirstLoad ? false : { opacity: 0, scale: 1.05 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.98 }}
@@ -61,7 +60,7 @@ export default function HeroImage() {
               src={currentImage.imageUrl}
               alt={currentImage.description}
               fill
-              priority={isFirstLoad} // High-priority for the initial hero paint
+              priority={isFirstLoad}
               className="object-cover"
               data-ai-hint={currentImage.imageHint}
             />
@@ -69,11 +68,8 @@ export default function HeroImage() {
         </motion.div>
       </AnimatePresence>
 
-      {/* Cinematic Overlays for Readability & Depth */}
       <div className="absolute inset-0 bg-white/40 backdrop-blur-[1px] pointer-events-none" />
       <div className="absolute inset-0 bg-gradient-to-b from-white/20 via-transparent to-white/90 pointer-events-none" />
-      
-      {/* Light vignetting - Standardized via global utility */}
       <div className="absolute inset-0 mission-vignette pointer-events-none" />
     </div>
   );
