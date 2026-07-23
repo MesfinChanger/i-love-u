@@ -39,7 +39,7 @@ export default function UsersPage() {
             <Users className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-4xl font-black uppercase tracking-tighter">Heart Registry</h1>
+            <h1 className="text-4xl font-black uppercase tracking-tighter text-slate-900">Heart Registry</h1>
             <p className="text-xs text-muted-foreground italic uppercase tracking-widest">Global Member Database</p>
           </div>
         </div>
@@ -53,7 +53,7 @@ export default function UsersPage() {
             {users.map((user) => (
               <Card key={user.id} className="p-6 rounded-[2rem] border-none shadow-md hover:shadow-lg transition-all bg-white flex flex-col sm:flex-row items-center justify-between gap-6">
                 <div className="space-y-1 flex-grow">
-                  <h2 className="font-black text-xl tracking-tight">{user.displayName || user.name || "Mystery Heart"}</h2>
+                  <h2 className="font-black text-xl tracking-tight text-slate-800">{user.displayName || user.name || "Mystery Heart"}</h2>
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <Mail className="w-3 h-3" />
                     <span className="text-xs font-medium">{user.email}</span>

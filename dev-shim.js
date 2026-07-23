@@ -10,22 +10,25 @@ const fs = require('fs');
 const rawArgs = process.argv.slice(2);
 const filteredArgs = [];
 
-// Determine port from environment (supplied by Firebase Studio) or default to 3000
-const port = process.env.PORT || '3000';
+// Determine port. Priority: 1. CLI --port, 2. Env PORT, 3. Default 3000
+let port = process.env.PORT || '3000';
 
-// Remove conflicting port/host flags from incoming CLI args to ensure our forced values take precedence
 for (let i = 0; i < rawArgs.length; i++) {
   const arg = rawArgs[i];
-  if (arg === '--port' || arg === '-p' || arg === '--hostname' || arg === '--host') {
+  if (arg === '--port' || arg === '-p') {
+    port = rawArgs[i + 1];
+    i++; // Skip the value
+    continue;
+  }
+  if (arg === '--hostname' || arg === '--host') {
     i++; // Skip the value
     continue;
   }
   filteredArgs.push(arg);
 }
 
-// Re-inject the correct port and hostname
-filteredArgs.push('--port', port);
-filteredArgs.push('--hostname', '0.0.0.0');
+// Re-inject the detected port and hostname to enforce the Cloud Workstation contract
+const nextArgs = ['dev', ...filteredArgs, '--port', port, '--hostname', '0.0.0.0'];
 
 console.log(`[I LOVE U Port Bridge] Synchronizing Infrastructure...`);
 console.log(`[I LOVE U Port Bridge] Target: 0.0.0.0:${port}`);
@@ -37,7 +40,7 @@ if (!fs.existsSync(nextBin)) {
   process.exit(1);
 }
 
-const child = spawn(nextBin, ['dev', ...filteredArgs], {
+const child = spawn(nextBin, nextArgs, {
   stdio: 'inherit',
   env: { 
     ...process.env, 
